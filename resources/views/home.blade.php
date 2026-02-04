@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>BusinessFinder - Find Quality Business Leads Fast</title>
     <link rel="icon" type="image/png" href="{{ asset('public/assets/images/favicon.png') }}">
 
@@ -61,7 +62,7 @@
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
                     Find Quality Business Leads
-                    <span class="text-primary-orange">In Minutes323</span>
+                    <span class="text-primary-orange">In Minutes</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
                     Discover verified business contacts using Google Places API. Save time, build your pipeline, and grow your business with accurate lead data.
