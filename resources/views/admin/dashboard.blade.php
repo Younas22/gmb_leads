@@ -3,7 +3,7 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-       <!-- Dashboard Content -->
+       <!-- Dashboard Content .-->
         <main class="p-4 lg:p-8">
             <!-- Overview Stats -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
