@@ -102,14 +102,16 @@ class SearchController extends Controller
         // testing
         // $apiUrl = 'https://49427c66-cced-4efb-b89d-60208e8abb7a-00-j1idesu3zod2.pike.replit.dev:8080/search';
         // live
-        $apiUrl = 'http://95.111.249.119:8080/search'; // Alternative URL if needed
+        $apiUrl = 'https://api.customernearme.com/search'; // Alternative URL if needed
         $params = [
             'key' => $apiKey,
             'query' => $query,
             'location' => $coordinates['lat'] . ',' . $coordinates['lng'],
             'radius' => $radius * 1000, // Convert km to meters
         ];
-        
+
+        \Log::info('Search API params', $params);
+
         // Add page token if provided
         if ($pageToken) {
             $params['pagetoken'] = $pageToken;

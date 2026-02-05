@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SavedLead;
 use App\Models\Country;
+use App\Models\State;
+use App\Models\City;
 use Carbon\Carbon;
 
 class LeadsController extends Controller
@@ -25,6 +27,7 @@ public function index(Request $request)
     $status = $request->get('status');
     $rating = $request->get('rating');
     $lastReview = $request->get('last_review');
+    $reviewsCount = $request->get('reviews_count');
     $perPage = $request->get('per_page', 30);
     
     // Build query
@@ -83,6 +86,19 @@ public function index(Request $request)
         }
     }
 
+    // Reviews count filter
+    if ($reviewsCount) {
+        if ($reviewsCount === 'lt30') {
+            $query->where('total_reviews', '<', 30);
+        } elseif ($reviewsCount === 'lt50') {
+            $query->where('total_reviews', '<', 50);
+        } elseif ($reviewsCount === 'lt100') {
+            $query->where('total_reviews', '<', 100);
+        } elseif ($reviewsCount === 'gte100') {
+            $query->where('total_reviews', '>=', 100);
+        }
+    }
+
     // Get leads with pagination
     $leads = $query->orderBy('created_at', 'desc')
                   ->paginate($perPage)
@@ -97,7 +113,7 @@ public function index(Request $request)
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats',
         'search', 'countryId', 'stateId', 'cityId',
-        'status', 'rating', 'lastReview'
+        'status', 'rating', 'lastReview', 'reviewsCount'
     ));
     
 }

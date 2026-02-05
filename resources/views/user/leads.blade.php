@@ -107,7 +107,7 @@
 
     <!-- Compact Filters Row -->
     <div id="filtersContainer" class="filters-container lg:!max-h-none lg:!overflow-visible open">
-        <div class="grid grid-cols-1 lg:grid-cols-6 gap-2">
+        <div class="grid grid-cols-1 lg:grid-cols-7 gap-2">
             <select name="country_id" id="country_select" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
                 <option value="">Country</option>
                 @foreach($countries as $country)
@@ -147,6 +147,14 @@
                 <option value="1-month" {{ $lastReview == '1-month' ? 'selected' : '' }}>1 month</option>
                 <option value="3-months" {{ $lastReview == '3-months' ? 'selected' : '' }}>3 months</option>
                 <option value="6-months" {{ $lastReview == '6-months' ? 'selected' : '' }}>6 months</option>
+            </select>
+
+            <select name="reviews_count" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
+                <option value="">Reviews #</option>
+                <option value="lt30" {{ ($reviewsCount ?? '') == 'lt30' ? 'selected' : '' }}>< 30</option>
+                <option value="lt50" {{ ($reviewsCount ?? '') == 'lt50' ? 'selected' : '' }}>< 50</option>
+                <option value="lt100" {{ ($reviewsCount ?? '') == 'lt100' ? 'selected' : '' }}>< 100</option>
+                <option value="gte100" {{ ($reviewsCount ?? '') == 'gte100' ? 'selected' : '' }}>100+</option>
             </select>
         </div>
         
