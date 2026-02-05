@@ -11,6 +11,8 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TutorialsController;
+use App\Http\Controllers\Admin\PackageController;
+use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +120,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             // Subscription
             Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription');
             Route::post('/subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('subscription.upgrade');
+            Route::post('/payment/submit', [SubscriptionController::class, 'submitPayment'])->name('payment.submit');
 
 
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
@@ -128,6 +131,27 @@ Route::middleware(['web', 'auth'])->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+        Route::get('/switch-to-user', [DashboardController::class, 'switchToUserView'])->name('switch.to.user');
+        Route::get('/switch-to-admin', [DashboardController::class, 'switchToAdminView'])->name('switch.to.admin');
         Route::get('/users', [DashboardController::class, 'adminUsers'])->name('users');
+        Route::get('/users/{user}', [DashboardController::class, 'showUser'])->name('users.show');
+        Route::put('/users/{user}', [DashboardController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{user}', [DashboardController::class, 'deleteUser'])->name('users.delete');
+
+        // Packages CRUD
+        Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
+        Route::post('/packages', [PackageController::class, 'store'])->name('packages.store');
+        Route::get('/packages/{package}/edit', [PackageController::class, 'edit'])->name('packages.edit');
+        Route::put('/packages/{package}', [PackageController::class, 'update'])->name('packages.update');
+        Route::delete('/packages/{package}', [PackageController::class, 'destroy'])->name('packages.destroy');
+        Route::post('/packages/{package}/toggle-status', [PackageController::class, 'toggleStatus'])->name('packages.toggle-status');
+
+        // Subscriptions CRUD
+        Route::get('/subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::post('/subscriptions', [AdminSubscriptionController::class, 'store'])->name('subscriptions.store');
+        Route::get('/subscriptions/{subscription}/edit', [AdminSubscriptionController::class, 'edit'])->name('subscriptions.edit');
+        Route::put('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'update'])->name('subscriptions.update');
+        Route::delete('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        Route::post('/subscriptions/{subscription}/toggle-status', [AdminSubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle-status');
     });
 });

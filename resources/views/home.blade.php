@@ -56,6 +56,18 @@
         </div>
     </nav>
 
+    <!-- Flash Messages -->
+    @if(session('payment_success'))
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        <div class="bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-xl flex items-center">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <div>
+                <strong>Payment Submitted!</strong> We’ve received your payment screenshot. Our team will verify it and activate your subscription shortly.
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Hero Section -->
     <section class="pt-20 pb-16 bg-gradient-to-b from-gray-50 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -203,133 +215,128 @@
     <!-- Pricing -->
     <section id="pricing" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
+            <div class="text-center mb-10">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple Pricing</h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">Choose the plan that fits your business needs</p>
             </div>
-            
-            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <!-- Free Plan -->
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-primary-blue transition-colors">
-                    <div class="text-center">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Free</h3>
-                        <div class="text-4xl font-bold text-gray-900 mb-6">$0<span class="text-lg text-gray-600">/month</span></div>
-                    </div>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            500 leads per month
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            1 API key
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            50 searches per day
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Basic export (CSV)
-                        </li>
-                    </ul>
-                    <button class="w-full border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white py-3 rounded-lg font-semibold transition-colors">
-                        Start Free
-                    </button>
-                </div>
-                
-                <!-- Monthly Pro -->
-                <div class="bg-primary-blue text-white rounded-xl p-8 transform scale-105 relative">
-                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
-                        Popular
-                    </div>
-                    <div class="text-center">
-                        <h3 class="text-xl font-semibold mb-2">Monthly Pro</h3>
-                        <div class="text-4xl font-bold mb-6">$29.99<span class="text-lg opacity-80">/month</span></div>
-                    </div>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Unlimited leads
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Unlimited API keys
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Unlimited searches
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            All export formats
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Priority support
-                        </li>
-                    </ul>
-                    <button class="w-full bg-white text-primary-blue hover:bg-gray-100 py-3 rounded-lg font-semibold transition-colors">
-                        Start Pro Trial
-                    </button>
-                </div>
-                
-                <!-- Yearly Pro -->
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-8 hover:border-primary-blue transition-colors">
-                    <div class="text-center">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Yearly Pro</h3>
-                        <div class="text-4xl font-bold text-gray-900 mb-2">$299.99<span class="text-lg text-gray-600">/year</span></div>
-                        <div class="text-sm text-primary-orange font-semibold mb-4">Save 17%</div>
-                    </div>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Everything in Monthly Pro
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            2 months free
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Advanced analytics
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Custom integrations
-                        </li>
-                    </ul>
-                    <button class="w-full border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white py-3 rounded-lg font-semibold transition-colors">
-                        Choose Yearly
-                    </button>
+
+            <!-- Individual / Company Tabs -->
+            <div class="flex justify-center mb-14">
+                <div class="inline-flex bg-gray-100 rounded-full p-1">
+                    <button class="tab-btn bg-primary-blue text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer" data-tab="user">Individual</button>
+                    <button class="tab-btn text-gray-600 px-6 py-2 rounded-full text-sm font-semibold transition-colors hover:text-gray-900 cursor-pointer" data-tab="company">Company</button>
                 </div>
             </div>
+
+            
+            @php
+                $featureLabels = [
+                    'gmb_searches'        => 'GMB Searches',
+                    'leads_per_month'     => 'Leads / Month',
+                    'export_leads'        => 'Lead Exports',
+                    'saved_lists'         => 'Saved Lists',
+                    'email_support'       => 'Email Support',
+                    'api_access'          => 'API Access',
+                    'bulk_export'         => 'Bulk Export',
+                    'crm_integration'     => 'CRM Integration',
+                    'priority_support'    => 'Priority Support',
+                    'api_calls'           => 'API Calls',
+                    'dedicated_manager'   => 'Dedicated Manager',
+                    'team_members'        => 'Team Members',
+                    'team_analytics'      => 'Team Analytics',
+                    'white_label'         => 'White Label',
+                    'custom_branding'     => 'Custom Branding',
+                    'sla_guarantee'       => 'SLA Guarantee',
+                    'custom_integrations' => 'Custom Integrations',
+                    'onboarding_training' => 'Onboarding & Training',
+                ];
+                $boolFeatures = [
+                    'email_support', 'api_access', 'bulk_export',
+                    'crm_integration', 'priority_support', 'dedicated_manager',
+                    'team_analytics', 'white_label', 'custom_branding',
+                    'sla_guarantee', 'custom_integrations', 'onboarding_training',
+                ];
+                $pricingTabs = [
+                    ['type' => 'user',    'packages' => $userPackages],
+                    ['type' => 'company', 'packages' => $companyPackages],
+                ];
+            @endphp
+
+            @foreach($pricingTabs as $tab)
+            <div class="pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
+                <div class="grid sm:grid-cols-2 {{ $tab['type'] === 'user' ? 'lg:grid-cols-4' : 'lg:grid-cols-3' }} gap-6">
+                    @foreach($tab['packages'] as $package)
+                    <div class="rounded-xl p-8 flex flex-col {{ $package->is_popular ? 'bg-primary-blue text-white relative transform scale-105' : 'bg-white border-2 border-gray-200 hover:border-primary-blue transition-colors' }}">
+                        @if($package->is_popular)
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                Popular
+                            </div>
+                        @endif
+
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-2">{{ $package->name }}</h3>
+                            <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
+                                @if($package->price == 0)
+                                    $0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                @elseif($package->billing_type === 'yearly')
+                                    ${{ number_format((float)$package->price / 12, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
+                                @elseif($package->billing_type === 'lifetime')
+                                    ${{ number_format((float)$package->price, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}"> once</span>
+                                @else
+                                    ${{ number_format((float)$package->price, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                @endif
+                            </div>
+                            @if($package->billing_type === 'yearly' && $package->price > 0)
+                                <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">billed ${{ number_format((float)$package->price, 0) }}/year</div>
+                            @endif
+                        </div>
+
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            @foreach($package->features as $feature)
+                                @if(isset($featureLabels[$feature->feature_key]))
+                                    <li class="flex items-center">
+                                        @if(in_array($feature->feature_key, $boolFeatures))
+                                            @if($feature->feature_value === 'true')
+                                                <svg class="w-5 h-5 {{ $package->is_popular ? 'text-green-400' : 'text-green-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                {{ $featureLabels[$feature->feature_key] }}
+                                            @else
+                                                <svg class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                <span class="{{ $package->is_popular ? 'opacity-50' : 'text-gray-400' }}">{{ $featureLabels[$feature->feature_key] }}</span>
+                                            @endif
+                                        @else
+                                            <svg class="w-5 h-5 {{ $package->is_popular ? 'text-green-400' : 'text-green-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            {{ $featureLabels[$feature->feature_key] }}:
+                                            <strong class="ml-1">{{ $feature->is_unlimited ? 'Unlimited' : number_format((int)$feature->feature_value) }}</strong>
+                                        @endif
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+
+                        @if($package->price == 0)
+                        <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                            Start Free
+                        </a>
+                        @else
+                        <button onclick="handleGetStarted(this)"
+                                data-package-id="{{ $package->id }}"
+                                data-package-name="{{ e($package->name) }}"
+                                data-package-price="{{ $package->price }}"
+                                class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                            Get Started
+                        </button>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
         </div>
     </section>
 
@@ -499,6 +506,117 @@
         </div>
     </section>
 
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" style="backdrop-filter:blur(2px);">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-900">Complete Payment</h3>
+                    <button onclick="closePaymentModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <!-- Package Info -->
+                    <div class="bg-gradient-to-r from-blue-50 to-orange-50 rounded-xl p-4 mb-5 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Package</p>
+                            <p class="text-base font-bold text-gray-900" id="modalPackageName">-</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500">Amount</p>
+                            <p class="text-xl font-bold text-primary-blue" id="modalPackagePrice">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Select Payment Method -->
+                    <div id="step1">
+                        <p class="text-sm font-semibold text-gray-700 mb-3">Select a Payment Method</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Card — Coming Soon (static, disabled) -->
+                            <div class="border-2 border-gray-200 rounded-xl p-4 opacity-55 cursor-not-allowed bg-gray-50">
+                                <div class="flex flex-col items-center text-center">
+                                    <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-2">
+                                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"></path></svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-600">Credit / Debit Card</span>
+                                    <span class="text-xs bg-gray-300 text-gray-600 px-2 py-0.5 rounded-full mt-1.5">Coming Soon</span>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic payment methods from DB -->
+                            @foreach($paymentMethods as $method)
+                                @if($method->slug !== 'card')
+                                <div class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary-blue hover:shadow-sm transition-all"
+                                     onclick="selectPaymentMethod({{ $method->id }}, '{{ e($method->name) }}', '{{ e($method->slug) }}')">
+                                    <div class="flex flex-col items-center text-center">
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-2
+                                            {{ $method->slug === 'jazzcash' ? 'bg-green-100 text-green-700' : '' }}
+                                            {{ $method->slug === 'easypaisa' ? 'bg-teal-100 text-teal-700' : '' }}
+                                            {{ $method->slug === 'bank' ? 'bg-blue-100 text-blue-700' : '' }}
+                                            {{ $method->slug === 'nayapay' ? 'bg-purple-100 text-purple-700' : '' }}
+                                            {{ !in_array($method->slug, ['jazzcash','easypaisa','bank','nayapay']) ? 'bg-gray-100 text-gray-600' : '' }}
+                                        ">
+                                            <span class="text-sm font-bold">{{ strtoupper(substr($method->name, 0, 2)) }}</span>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-800">{{ $method->name }}</span>
+                                    </div>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Instructions + Screenshot Upload -->
+                    <div id="step2" class="hidden">
+                        <div class="flex items-center mb-4">
+                            <button onclick="backToStep1()" class="flex items-center text-primary-blue text-sm font-medium hover:text-dark-blue">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                Back
+                            </button>
+                            <span class="ml-3 text-sm font-semibold text-gray-800" id="selectedMethodLabel">-</span>
+                        </div>
+
+                        <!-- Instructions box -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                            <p class="text-sm font-semibold text-blue-800 mb-1">Payment Instructions</p>
+                            <p class="text-sm text-blue-700 whitespace-pre-line" id="paymentInstructions">-</p>
+                        </div>
+
+                        <!-- Upload Form -->
+                        <form id="paymentForm" method="POST" action="{{ route('user.payment.submit') }}" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="package_id" id="formPackageId">
+                            <input type="hidden" name="payment_method_id" id="formPaymentMethodId">
+
+                            <label class="block">
+                                <span class="text-sm text-gray-600 font-medium">Upload Payment Screenshot *</span>
+                                <div class="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-5 text-center hover:border-primary-blue transition-colors cursor-pointer"
+                                     onclick="document.getElementById('screenshotInput').click()">
+                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <p class="text-sm text-gray-500">Click to upload image</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">JPG, PNG, GIF — max 5MB</p>
+                                    <input type="file" name="screenshot" id="screenshotInput" accept="image/*" required class="hidden" onchange="previewScreenshot(this)">
+                                </div>
+                            </label>
+
+                            <!-- Preview -->
+                            <div id="screenshotPreview" class="hidden mt-3 text-center">
+                                <img id="screenshotPreviewImg" src="" alt="Preview" class="max-h-36 w-auto mx-auto rounded-lg border border-gray-200">
+                            </div>
+
+                            <button type="submit" class="w-full mt-4 bg-primary-blue text-white py-3 rounded-xl font-semibold hover:bg-dark-blue transition-colors">
+                                Submit Payment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
         <!-- Footer -->
     <footer id="contact" class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -605,6 +723,73 @@
     </footer> -->
 
     <script>
+        // ── Payment Modal ──
+        var isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+        var currentPackagePrice = 0;
+
+        var paymentDetailsMap = {
+            'jazzcash':  'Send PKR [AMOUNT] to JazzCash account:\nNumber: 0312-1234567\nReference: BusinessFinder',
+            'easypaisa': 'Send PKR [AMOUNT] to Easypaisa account:\nNumber: 0311-1234567\nReference: BusinessFinder',
+            'bank':      'Transfer PKR [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: BusinessFinder Pvt Ltd\nAccount No: 1234567890123',
+            'nayapay':   'Send PKR [AMOUNT] to NayaPay:\nID: admin@businessfinder.pk\nReference: BusinessFinder'
+        };
+
+        function handleGetStarted(btn) {
+            if (!isAuthenticated) {
+                window.location.href = '{{ route("auth.show") }}';
+                return;
+            }
+            currentPackagePrice = btn.dataset.packagePrice;
+            document.getElementById('modalPackageName').textContent  = btn.dataset.packageName;
+            document.getElementById('modalPackagePrice').textContent = 'PKR ' + Number(currentPackagePrice).toLocaleString();
+            document.getElementById('formPackageId').value            = btn.dataset.packageId;
+
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function selectPaymentMethod(methodId, methodName, methodSlug) {
+            document.getElementById('formPaymentMethodId').value     = methodId;
+            document.getElementById('selectedMethodLabel').textContent = methodName;
+
+            var tpl = paymentDetailsMap[methodSlug] || 'Please complete your payment and upload a screenshot.';
+            document.getElementById('paymentInstructions').textContent = tpl.replace(/\[AMOUNT\]/g, Number(currentPackagePrice).toLocaleString());
+
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+
+            // Reset file & preview
+            document.getElementById('screenshotInput').value = '';
+            document.getElementById('screenshotPreview').classList.add('hidden');
+        }
+
+        function backToStep1() {
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+        }
+
+        function previewScreenshot(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('screenshotPreviewImg').src = e.target.result;
+                    document.getElementById('screenshotPreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) closePaymentModal();
+        });
+        // ── End Payment Modal ──
+
         // FAQ Toggle Function
         function toggleFAQ(button) {
             const content = button.nextElementSibling;
@@ -642,6 +827,26 @@
                 navbar.classList.remove('shadow-lg');
             }
         });
+
+        // Pricing: Individual/Company toggle
+        (function() {
+            var currentTab = 'user';
+
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    currentTab = this.dataset.tab;
+                    document.querySelectorAll('.tab-btn').forEach(function(b) {
+                        var active = b.dataset.tab === currentTab;
+                        b.classList.toggle('bg-primary-blue', active);
+                        b.classList.toggle('text-white', active);
+                        b.classList.toggle('text-gray-600', !active);
+                    });
+                    document.querySelectorAll('.pricing-grid').forEach(function(grid) {
+                        grid.classList.toggle('hidden', grid.dataset.tab !== currentTab);
+                    });
+                });
+            });
+        })();
     </script>
 </body>
 </html>

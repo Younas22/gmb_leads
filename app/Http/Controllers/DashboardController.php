@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\SavedLead;
 use App\Models\WelcomeTutorialTracking;
+use App\Models\UserFeedback;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -31,9 +32,9 @@ class DashboardController extends Controller
     public function userDashboard()
     {
         $user = Auth::user();
-        
-        // Redirect admin users to admin dashboard
-        if ($user->isAdmin()) {
+
+        // Redirect admin users to admin dashboard (unless previewing user view)
+        if ($user->isAdmin() && !session('admin_preview_user')) {
             return redirect()->route('admin.dashboard');
         }
         
@@ -108,13 +109,41 @@ class DashboardController extends Controller
     public function adminDashboard()
     {
         $user = Auth::user();
-        
+
         // Check if user is admin
         if (!$user->isAdmin()) {
             return redirect()->route('user.dashboard');
         }
-        
-        return view('admin.dashboard', compact('user'));
+
+        // Clear preview flag when returning to admin
+        session()->forget('admin_preview_user');
+
+        // Recent feedback (last 5)
+        $recentFeedback = UserFeedback::with('user')->latest()->take(5)->get();
+
+        return view('admin.dashboard', compact('user', 'recentFeedback'));
+    }
+
+    /**
+     * Switch admin to user view (preview)
+     */
+    public function switchToUserView()
+    {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->route('user.dashboard');
+        }
+
+        session(['admin_preview_user' => true]);
+        return redirect()->route('user.dashboard');
+    }
+
+    /**
+     * Switch back to admin view
+     */
+    public function switchToAdminView()
+    {
+        session()->forget('admin_preview_user');
+        return redirect()->route('admin.dashboard');
     }
 
     /**
@@ -141,7 +170,7 @@ class DashboardController extends Controller
     public function markWelcomeTutorialSeen(Request $request)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'seen' => 'required|boolean',
             'dont_show_again' => 'boolean'
@@ -152,6 +181,81 @@ class DashboardController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Show user details (API for modal)
+     */
+    public function showUser(\App\Models\User $user)
+    {
+        if (!Auth::user()->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'name' => $user->name,
+            'email' => $user->email,
+            'user_type' => $user->user_type,
+            'status' => $user->status,
+            'login_type' => $user->login_type,
+            'email_verified' => $user->email_verified,
+            'avatar' => $user->avatar ? asset('public/' . $user->avatar) : null,
+            'created_at' => $user->created_at->format('M d, Y h:i A'),
+            'last_login' => $user->last_login ? $user->last_login->format('M d, Y h:i A') : 'Never',
+            'saved_leads_count' => $user->savedLeads()->count(),
+            'search_histories_count' => $user->searchHistories()->count(),
+        ]);
+    }
+
+    /**
+     * Update user
+     */
+    public function updateUser(Request $request, \App\Models\User $user)
+    {
+        if (!Auth::user()->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'user_type' => 'required|in:user,admin',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'name' => trim($request->first_name . ' ' . $request->last_name),
+            'email' => $request->email,
+            'user_type' => $request->user_type,
+            'status' => $request->status,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'User updated successfully']);
+    }
+
+    /**
+     * Delete user
+     */
+    public function deleteUser(\App\Models\User $user)
+    {
+        if (!Auth::user()->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Prevent deleting self
+        if ($user->id === Auth::id()) {
+            return response()->json(['error' => 'You cannot delete your own account'], 400);
+        }
+
+        $user->delete();
+
+        return response()->json(['success' => true, 'message' => 'User deleted successfully']);
     }
 
 }

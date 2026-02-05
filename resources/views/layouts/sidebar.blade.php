@@ -18,6 +18,16 @@
         </div>
     </div>
 
+    <!-- Admin Preview Banner -->
+    @if(session('admin_preview_user'))
+    <div class="px-4 py-3 bg-purple-50 border-b border-purple-200">
+        <a href="{{ route('admin.switch.to.admin') }}" class="flex items-center justify-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors">
+            <i class="fas fa-exchange-alt mr-2"></i>
+            Switch back to Admin
+        </a>
+    </div>
+    @endif
+
     <!-- Navigation - Scrollable -->
     <div class="flex-1 overflow-y-auto">
         <nav class="p-4">

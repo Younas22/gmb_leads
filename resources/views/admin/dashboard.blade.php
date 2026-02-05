@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Admin Dashboard')
 
@@ -12,9 +12,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Total Users</p>
-                            <p class="text-3xl font-bold text-gray-800">2,847</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ \App\Models\User::count() }}</p>
                             <p class="text-xs text-green-600 mt-1">
-                                <i class="fas fa-arrow-up mr-1"></i>+8.2% from last month
+                                <i class="fas fa-arrow-up mr-1"></i>+{{ \App\Models\User::whereMonth('created_at', now()->month)->count() }} this month
                             </p>
                         </div>
                         <div class="bg-primary-100 rounded-lg p-3">
@@ -44,9 +44,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Active Subscriptions</p>
-                            <p class="text-3xl font-bold text-gray-800">1,234</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ \App\Models\Subscription::where('status', 'active')->count() }}</p>
                             <p class="text-xs text-blue-600 mt-1">
-                                <i class="fas fa-arrow-up mr-1"></i>+12% conversion rate
+                                <i class="fas fa-users mr-1"></i>{{ \App\Models\Subscription::count() }} total
                             </p>
                         </div>
                         <div class="bg-orange-100 rounded-lg p-3">
@@ -79,58 +79,48 @@
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-800">Recent Users</h3>
-                            <a href="#" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View all</a>
+                            <a href="{{ route('admin.users') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View all</a>
                         </div>
                     </div>
                     <div class="p-6">
                         <div class="space-y-4">
+                            @php
+                                $recentUsers = \App\Models\User::latest()->take(5)->get();
+                            @endphp
+                            @forelse($recentUsers as $recentUser)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full">
+                                    @if($recentUser->avatar)
+                                        <img src="{{ asset('public/' . $recentUser->avatar) }}" alt="User" class="w-10 h-10 rounded-full object-cover">
+                                    @else
+                                        <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
+                                            {{ strtoupper(substr($recentUser->first_name ?? $recentUser->name, 0, 1)) }}{{ strtoupper(substr($recentUser->last_name ?? '', 0, 1)) }}
+                                        </div>
+                                    @endif
                                     <div>
-                                        <p class="text-sm font-medium text-gray-800">Sarah Johnson</p>
-                                        <p class="text-xs text-gray-500">sarah@example.com</p>
+                                        <p class="text-sm font-medium text-gray-800">{{ $recentUser->first_name ? $recentUser->first_name . ' ' . $recentUser->last_name : $recentUser->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $recentUser->email }}</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Free Plan
-                                    </span>
-                                    <p class="text-xs text-gray-400 mt-1">2 min ago</p>
+                                    @if($recentUser->user_type === 'admin')
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            Admin
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            User
+                                        </span>
+                                    @endif
+                                    <p class="text-xs text-gray-400 mt-1">{{ $recentUser->created_at->diffForHumans() }}</p>
                                 </div>
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-800">Mike Chen</p>
-                                        <p class="text-xs text-gray-500">mike@company.com</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                        Pro Plan
-                                    </span>
-                                    <p class="text-xs text-gray-400 mt-1">15 min ago</p>
-                                </div>
+                            @empty
+                            <div class="text-center py-4 text-gray-500">
+                                <i class="fas fa-users text-gray-300 text-2xl mb-2"></i>
+                                <p class="text-sm">No users yet</p>
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-800">Emily Davis</p>
-                                        <p class="text-xs text-gray-500">emily@startup.io</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                                        Yearly Plan
-                                    </span>
-                                    <p class="text-xs text-gray-400 mt-1">1 hour ago</p>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -261,15 +251,15 @@
                     </div>
                     <div class="p-6">
                         <div class="space-y-3">
-                            <button class="w-full flex items-center justify-center px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                                <i class="fas fa-user-plus mr-2"></i>
-                                Add New User
-                            </button>
+                            <a href="{{ route('admin.users') }}" class="w-full flex items-center justify-center px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                                <i class="fas fa-users mr-2"></i>
+                                Manage Users
+                            </a>
                             
-                            <button class="w-full flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+                            <a href="{{ route('admin.packages.index') }}" class="w-full flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                                 <i class="fas fa-box mr-2"></i>
-                                Create Package
-                            </button>
+                                Manage Packages
+                            </a>
                             
                             <button class="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                                 <i class="fas fa-download mr-2"></i>
@@ -315,6 +305,97 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Feedback Section -->
+            <div class="mt-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-800">User Feedback</h3>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                {{ $recentFeedback->where('status', 'pending')->count() }} Pending
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            @forelse($recentFeedback as $fb)
+                            <div class="flex items-start justify-between p-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+                                <!-- User Info + Message -->
+                                <div class="flex items-start space-x-3 flex-1">
+                                    <!-- Avatar -->
+                                    @if($fb->user && $fb->user->avatar)
+                                        <img src="{{ asset('public/' . $fb->user->avatar) }}" alt="User" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+                                    @else
+                                        <div class="w-9 h-9 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+                                            {{ strtoupper(substr($fb->user->first_name ?? $fb->user->name ?? 'U', 0, 1)) }}
+                                        </div>
+                                    @endif
+
+                                    <div class="flex-1 min-w-0">
+                                        <!-- User Name + Type Badge -->
+                                        <div class="flex items-center space-x-2 flex-wrap">
+                                            <p class="text-sm font-medium text-gray-800">
+                                                {{ $fb->user ? ($fb->user->first_name ? $fb->user->first_name . ' ' . $fb->user->last_name : $fb->user->name) : 'Unknown' }}
+                                            </p>
+
+                                            <!-- Feedback Type Badge -->
+                                            @if($fb->feedback_type === 'suggestion')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-lightbulb mr-1"></i> Suggestion
+                                                </span>
+                                            @elseif($fb->feedback_type === 'bug')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-bug mr-1"></i> Bug Report
+                                                </span>
+                                            @elseif($fb->feedback_type === 'feature')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <i class="fas fa-plus-circle mr-1"></i> Feature Request
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    <i class="fas fa-comment mr-1"></i> General
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Message -->
+                                        <p class="text-xs text-gray-600 mt-1 truncate">{{ $fb->message }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Right: Rating + Status + Time -->
+                                <div class="flex flex-col items-end space-y-1 ml-4 flex-shrink-0">
+                                    <!-- Stars -->
+                                    <div class="flex items-center">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star text-xs {{ $i <= $fb->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                    </div>
+
+                                    <!-- Status Badge -->
+                                    @if($fb->status === 'pending')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Pending</span>
+                                    @elseif($fb->status === 'reviewed')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Reviewed</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Resolved</span>
+                                    @endif
+
+                                    <!-- Time -->
+                                    <p class="text-xs text-gray-400">{{ $fb->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-center py-6 text-gray-500">
+                                <i class="fas fa-comments text-gray-300 text-2xl mb-2"></i>
+                                <p class="text-sm">No feedback yet</p>
+                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
