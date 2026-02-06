@@ -14,6 +14,7 @@ use App\Http\Controllers\TutorialsController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +103,8 @@ Route::middleware(['web', 'auth'])->group(function () {
 
                 // Leads routes
                 Route::get('/leads', [LeadsController::class, 'index'])->name('leads');
+                Route::get('/leads/export', [LeadsController::class, 'export'])->name('leads.export');
+                Route::get('/leads/export-excel', [LeadsController::class, 'exportExcel'])->name('leads.export.excel');
                 Route::get('/leads/{id}', [LeadsController::class, 'show'])->name('leads.show');
                 Route::post('/leads/{id}/status', [LeadsController::class, 'updateStatus'])->name('leads.status');
                 Route::post('/leads/{id}/notes', [LeadsController::class, 'updateNotes'])->name('leads.notes');
@@ -161,5 +164,45 @@ Route::middleware(['web', 'auth'])->group(function () {
         // Payments
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
         Route::post('/payments/{payment}/status', [AdminPaymentController::class, 'updateStatus'])->name('payments.update-status');
+
+        // Reports
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/revenue', [ReportController::class, 'revenue'])->name('revenue');
+            Route::get('/users', [ReportController::class, 'userGrowth'])->name('users');
+            Route::get('/leads', [ReportController::class, 'leads'])->name('leads');
+            Route::get('/search', [ReportController::class, 'search'])->name('search');
+            Route::get('/package-performance', [ReportController::class, 'packagePerformance'])->name('package-performance');
+            Route::get('/export-activity', [ReportController::class, 'exportActivity'])->name('export-activity');
+            Route::get('/top-performers', [ReportController::class, 'topPerformers'])->name('top-performers');
+            Route::get('/user-activity', [ReportController::class, 'userActivity'])->name('user-activity');
+            Route::get('/system-overview', [ReportController::class, 'systemOverview'])->name('system-overview');
+            Route::get('/all-leads', [ReportController::class, 'allLeads'])->name('all-leads');
+
+            // Export routes
+            Route::get('/export/revenue', [ReportController::class, 'exportRevenue'])->name('export.revenue');
+            Route::get('/export/users', [ReportController::class, 'exportUserGrowth'])->name('export.users');
+            Route::get('/export/leads', [ReportController::class, 'exportLeads'])->name('export.leads');
+            Route::get('/export/search', [ReportController::class, 'exportSearch'])->name('export.search');
+            Route::get('/export/package-performance', [ReportController::class, 'exportPackagePerformance'])->name('export.package-performance');
+            Route::get('/export/all-leads', [ReportController::class, 'exportAllLeads'])->name('export.all-leads');
+        });
+
+        // Settings
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+
+            // Email Settings
+            Route::put('/email', [App\Http\Controllers\Admin\SettingsController::class, 'updateEmailSettings'])->name('email.update');
+            Route::post('/email/verify', [App\Http\Controllers\Admin\SettingsController::class, 'verifyResendKey'])->name('email.verify');
+            Route::post('/email/test', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestEmail'])->name('email.test');
+            Route::post('/email/toggle', [App\Http\Controllers\Admin\SettingsController::class, 'toggleEmailTemplate'])->name('email.toggle');
+
+            // General Settings
+            Route::put('/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneralSettings'])->name('general.update');
+
+            // Cache & Database
+            Route::post('/cache/clear', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('cache.clear');
+            Route::post('/database/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeDatabase'])->name('database.optimize');
+        });
     });
 });

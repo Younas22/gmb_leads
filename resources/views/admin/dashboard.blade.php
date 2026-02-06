@@ -55,18 +55,18 @@
                     </div>
                 </div>
 
-                <!-- API Usage -->
+                <!-- Search Activity Today -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-600 mb-1">API Calls (24h)</p>
-                            <p class="text-3xl font-bold text-gray-800">127.4K</p>
-                            <p class="text-xs text-yellow-600 mt-1">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>85% of daily limit
+                            <p class="text-sm font-medium text-gray-600 mb-1">Searches Today</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ number_format($searchStats['searches_today']) }}</p>
+                            <p class="text-xs text-blue-600 mt-1">
+                                <i class="fas fa-user mr-1"></i>{{ $searchStats['active_users_today'] }} active users
                             </p>
                         </div>
                         <div class="bg-blue-100 rounded-lg p-3">
-                            <i class="fas fa-code text-blue-600 text-xl"></i>
+                            <i class="fas fa-search text-blue-600 text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -132,113 +132,107 @@
                     </div>
                     <div class="p-6">
                         <div class="space-y-4">
+                            @forelse($packageStats as $pkg)
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="bg-green-100 rounded-lg p-2">
-                                        <i class="fas fa-gift text-green-600"></i>
+                                    <div class="bg-{{ $pkg['color'] }}-100 rounded-lg p-2">
+                                        <i class="fas {{ $pkg['icon'] }} text-{{ $pkg['color'] }}-600"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-800">Free Plan</p>
-                                        <p class="text-xs text-gray-500">1,847 users</p>
+                                        <p class="text-sm font-medium text-gray-800">{{ $pkg['name'] }}</p>
+                                        <p class="text-xs text-gray-500">{{ number_format($pkg['count']) }} {{ Str::plural('user', $pkg['count']) }}</p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-sm font-bold text-gray-800">64.9%</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $pkg['percentage'] }}%</p>
                                     <div class="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
+                                        <div class="bg-{{ $pkg['color'] }}-500 h-2 rounded-full" style="width: {{ $pkg['percentage'] }}%"></div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="bg-orange-100 rounded-lg p-2">
-                                        <i class="fas fa-star text-orange-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-800">Monthly Pro</p>
-                                        <p class="text-xs text-gray-500">734 users</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-bold text-gray-800">25.8%</p>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-orange-500 h-2 rounded-full" style="width: 26%"></div>
-                                    </div>
-                                </div>
+                            @empty
+                            <div class="text-center py-4 text-gray-500">
+                                <i class="fas fa-box text-gray-300 text-2xl mb-2"></i>
+                                <p class="text-sm">No packages configured yet</p>
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="bg-primary-100 rounded-lg p-2">
-                                        <i class="fas fa-crown text-primary-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-800">Yearly Pro</p>
-                                        <p class="text-xs text-gray-500">266 users</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-bold text-gray-800">9.3%</p>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                                        <div class="bg-primary-500 h-2 rounded-full" style="width: 9%"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions & System Alerts -->
+            <!-- Quick Actions & System Stats -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- System Alerts -->
+                <!-- Activity Stats -->
                 <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-800">System Alerts</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">Today's Activity</h3>
                     </div>
                     <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                                <div class="bg-red-100 rounded-lg p-2 mt-1">
-                                    <i class="fas fa-exclamation-triangle text-red-600 text-sm"></i>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Searches Today -->
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-search text-blue-600 text-lg"></i>
+                                    <span class="text-2xl font-bold text-blue-900">{{ number_format($searchStats['searches_today']) }}</span>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-red-800">High API Usage Detected</p>
-                                    <p class="text-xs text-red-600 mt-1">Google Places API approaching daily limit (85% used)</p>
-                                    <p class="text-xs text-red-500 mt-2">2 minutes ago</p>
-                                </div>
-                                <button class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                <p class="text-sm font-medium text-blue-800">Searches Today</p>
+                                <p class="text-xs text-blue-600 mt-1">{{ $searchStats['active_users_today'] }} active users</p>
                             </div>
 
-                            <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                <div class="bg-yellow-100 rounded-lg p-2 mt-1">
-                                    <i class="fas fa-info-circle text-yellow-600 text-sm"></i>
+                            <!-- Leads Saved Today -->
+                            <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-user-plus text-green-600 text-lg"></i>
+                                    <span class="text-2xl font-bold text-green-900">{{ number_format($searchStats['leads_today']) }}</span>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-yellow-800">Backup Completed</p>
-                                    <p class="text-xs text-yellow-600 mt-1">Daily database backup completed successfully</p>
-                                    <p class="text-xs text-yellow-500 mt-2">1 hour ago</p>
-                                </div>
-                                <button class="text-yellow-600 hover:text-yellow-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                <p class="text-sm font-medium text-green-800">Leads Saved</p>
+                                <p class="text-xs text-green-600 mt-1">Today's total</p>
                             </div>
 
-                            <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                <div class="bg-green-100 rounded-lg p-2 mt-1">
-                                    <i class="fas fa-check-circle text-green-600 text-sm"></i>
+                            <!-- Average Searches -->
+                            <div class="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <i class="fas fa-chart-line text-purple-600 text-lg"></i>
+                                    <span class="text-2xl font-bold text-purple-900">{{ $searchStats['avg_searches_per_user'] }}</span>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-green-800">Server Update Complete</p>
-                                    <p class="text-xs text-green-600 mt-1">Security patches applied successfully</p>
-                                    <p class="text-xs text-green-500 mt-2">3 hours ago</p>
+                                <p class="text-sm font-medium text-purple-800">Avg Per User</p>
+                                <p class="text-xs text-purple-600 mt-1">Active users only</p>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity Summary -->
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="space-y-3">
+                                @if($recentFeedback->where('status', 'pending')->count() > 0)
+                                <div class="flex items-center justify-between p-2 bg-orange-50 rounded">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-comment text-orange-600"></i>
+                                        <span class="text-sm text-orange-800">{{ $recentFeedback->where('status', 'pending')->count() }} pending feedback</span>
+                                    </div>
+                                    <span class="text-xs text-orange-600">Needs attention</span>
                                 </div>
-                                <button class="text-green-600 hover:text-green-800">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                @endif
+
+                                @if(($paymentStats['pending_payments'] ?? 0) > 0)
+                                <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-clock text-yellow-600"></i>
+                                        <span class="text-sm text-yellow-800">{{ $paymentStats['pending_payments'] }} pending payments</span>
+                                    </div>
+                                    <span class="text-xs text-yellow-600">Awaiting approval</span>
+                                </div>
+                                @endif
+
+                                @if(\App\Models\User::whereMonth('created_at', now()->month)->count() > 0)
+                                <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-user-check text-green-600"></i>
+                                        <span class="text-sm text-green-800">{{ \App\Models\User::whereMonth('created_at', now()->month)->count() }} new users this month</span>
+                                    </div>
+                                    <span class="text-xs text-green-600">Growing</span>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -255,54 +249,44 @@
                                 <i class="fas fa-users mr-2"></i>
                                 Manage Users
                             </a>
-                            
+
                             <a href="{{ route('admin.packages.index') }}" class="w-full flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
                                 <i class="fas fa-box mr-2"></i>
                                 Manage Packages
                             </a>
-                            
-                            <button class="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                <i class="fas fa-download mr-2"></i>
-                                Export Data
-                            </button>
-                            
-                            <button class="w-full flex items-center justify-center px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-cog mr-2"></i>
-                                System Settings
-                            </button>
+
+                            <a href="{{ route('admin.subscriptions.index') }}" class="w-full flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-crown mr-2"></i>
+                                Manage Subscriptions
+                            </a>
+
+                            <a href="{{ route('admin.payments.index') }}" class="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-receipt mr-2"></i>
+                                Manage Payments
+                            </a>
                         </div>
 
                         <div class="mt-6 pt-6 border-t border-gray-200">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">System Resources</h4>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Stats</h4>
                             <div class="space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1">
-                                        <span class="text-gray-600">CPU Usage</span>
-                                        <span class="text-gray-800 font-medium">34%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: 34%"></div>
-                                    </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-600">Total Revenue</span>
+                                    <span class="text-sm font-bold text-gray-800">PKR {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}</span>
                                 </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1">
-                                        <span class="text-gray-600">Memory</span>
-                                        <span class="text-gray-800 font-medium">67%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 67%"></div>
-                                    </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-600">Active Users</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ \App\Models\User::where('status', 'active')->where('user_type', 'user')->count() }}</span>
                                 </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1">
-                                        <span class="text-gray-600">Storage</span>
-                                        <span class="text-gray-800 font-medium">23%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-blue-500 h-2 rounded-full" style="width: 23%"></div>
-                                    </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-600">Active Subscriptions</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ \App\Models\Subscription::where('status', 'active')->count() }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-600">Total Leads</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ number_format(\App\Models\SavedLead::count()) }}</span>
                                 </div>
                             </div>
                         </div>

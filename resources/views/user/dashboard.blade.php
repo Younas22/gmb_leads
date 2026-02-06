@@ -50,7 +50,17 @@
         <div class="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
             <div class="flex-1 lg:pr-6">
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Welcome back, {{ $user->first_name }}!</h1>
-                <p class="text-primary-100 text-sm sm:text-base">Your first month is free with unlimited lead searches. Start building your business network today!</p>
+                <p class="text-primary-100 text-sm sm:text-base">
+                    @if($usageData['monthly_leads']['is_unlimited'] && $usageData['daily_searches']['is_unlimited'])
+                        You have unlimited access this month. Start building your business network today!
+                    @elseif($usageData['monthly_leads']['is_unlimited'])
+                        You have unlimited leads this month with {{ number_format($usageData['daily_searches']['limit']) }} daily searches!
+                    @elseif($usageData['daily_searches']['is_unlimited'])
+                        You have unlimited searches with {{ number_format($usageData['monthly_leads']['limit']) }} leads this month!
+                    @else
+                        You have {{ number_format($usageData['monthly_leads']['remaining']) }} leads and {{ number_format($usageData['daily_searches']['remaining']) }} searches remaining!
+                    @endif
+                </p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:flex-shrink-0">
                 @if(!auth()->user()->hasRestrictedAccess())
@@ -86,8 +96,12 @@
                 <div>
                     <p class="text-sm font-medium text-gray-600 mb-1">Saved Leads</p>
                     <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['total_leads']) }}</p>
-                    <p class="text-xs text-green-600 mt-1">
-                        <i class="fas fa-infinity mr-1"></i>Unlimited this month
+                    <p class="text-xs {{ $usageData['monthly_leads']['is_unlimited'] ? 'text-green-600' : 'text-orange-600' }} mt-1">
+                        @if($usageData['monthly_leads']['is_unlimited'])
+                            <i class="fas fa-infinity mr-1"></i>Unlimited this month
+                        @else
+                            <i class="fas fa-chart-line mr-1"></i>{{ number_format($usageData['monthly_leads']['remaining']) }} left this month
+                        @endif
                     </p>
                 </div>
                 <div class="bg-primary-100 rounded-lg p-3">
@@ -102,8 +116,12 @@
                 <div>
                     <p class="text-sm font-medium text-gray-600 mb-1">Searches Today</p>
                     <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['searches_today']) }}</p>
-                    <p class="text-xs text-blue-600 mt-1">
-                        <i class="fas fa-rocket mr-1"></i>Free unlimited access
+                    <p class="text-xs {{ $usageData['daily_searches']['is_unlimited'] ? 'text-blue-600' : 'text-orange-600' }} mt-1">
+                        @if($usageData['daily_searches']['is_unlimited'])
+                            <i class="fas fa-rocket mr-1"></i>Unlimited searches today
+                        @else
+                            <i class="fas fa-search mr-1"></i>{{ number_format($usageData['daily_searches']['remaining']) }} searches left
+                        @endif
                     </p>
                 </div>
                 <div class="bg-orange-100 rounded-lg p-3">
@@ -154,7 +172,13 @@
             </div>
             <div class="flex-1">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Get Started with Lead Generation</h3>
-                <p class="text-gray-600 mb-4">You're on the free unlimited plan for your first month! Here's how to get started:</p>
+                <p class="text-gray-600 mb-4">
+                    @if($usageData['monthly_leads']['is_unlimited'])
+                        You have unlimited access! Here's how to get started:
+                    @else
+                        You have {{ number_format($usageData['monthly_leads']['limit']) }} leads available this month. Here's how to get started:
+                    @endif
+                </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div class="bg-white p-4 rounded-lg border border-blue-200">
                         <div class="flex items-center mb-2">

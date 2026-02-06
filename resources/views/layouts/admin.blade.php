@@ -108,16 +108,67 @@
                         API Usage
                     </a>
 
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2">Reports</p>
+
+                    <!-- Reports Dropdown -->
+                    <div class="relative">
+                        <button onclick="toggleReportsDropdown()" class="w-full flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.reports.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-pie w-5 text-center mr-3"></i>
+                                Reports
+                            </div>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="reportsDropdownArrow"></i>
+                        </button>
+
+                        <div id="reportsDropdown" class="ml-4 mt-1 space-y-1 hidden">
+                            <a href="{{ route('admin.reports.revenue') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.revenue') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-dollar-sign w-4 text-center mr-2"></i>
+                                Revenue Report
+                            </a>
+                            <a href="{{ route('admin.reports.users') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.users') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-user-plus w-4 text-center mr-2"></i>
+                                User Growth
+                            </a>
+                            <a href="{{ route('admin.reports.leads') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.leads') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-users w-4 text-center mr-2"></i>
+                                Leads Report
+                            </a>
+                            <a href="{{ route('admin.reports.all-leads') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.all-leads') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-database w-4 text-center mr-2"></i>
+                                All Leads Report
+                            </a>
+                            <a href="{{ route('admin.reports.search') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.search') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-search w-4 text-center mr-2"></i>
+                                Search Report
+                            </a>
+                            <a href="{{ route('admin.reports.package-performance') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.package-performance') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-box w-4 text-center mr-2"></i>
+                                Package Performance
+                            </a>
+                            <a href="{{ route('admin.reports.export-activity') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.export-activity') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-file-export w-4 text-center mr-2"></i>
+                                Export Activity
+                            </a>
+                            <a href="{{ route('admin.reports.top-performers') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.top-performers') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-trophy w-4 text-center mr-2"></i>
+                                Top Performers
+                            </a>
+                            <a href="{{ route('admin.reports.user-activity') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.user-activity') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-user-clock w-4 text-center mr-2"></i>
+                                User Activity
+                            </a>
+                            <a href="{{ route('admin.reports.system-overview') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors {{ request()->routeIs('admin.reports.system-overview') ? 'text-primary-700 bg-primary-50' : '' }}">
+                                <i class="fas fa-tachometer-alt w-4 text-center mr-2"></i>
+                                System Overview
+                            </a>
+                        </div>
+                    </div>
+
                     <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2">System</p>
 
-                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
+                    <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.settings.*') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-cog w-5 text-center mr-3"></i>
                         Settings
-                    </a>
-
-                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
-                        <i class="fas fa-file-alt w-5 text-center mr-3"></i>
-                        Reports
                     </a>
                 </div>
 
@@ -256,6 +307,24 @@
 
     document.getElementById('logoutModal').addEventListener('click', function(e) {
         if (e.target === this) closeLogoutModal();
+    });
+
+    // Reports dropdown functionality
+    function toggleReportsDropdown() {
+        const dropdown = document.getElementById('reportsDropdown');
+        const arrow = document.getElementById('reportsDropdownArrow');
+        dropdown.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+    }
+
+    // Auto-expand reports dropdown if on a reports page
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportsDropdown = document.getElementById('reportsDropdown');
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/admin/reports/')) {
+            reportsDropdown.classList.remove('hidden');
+            document.getElementById('reportsDropdownArrow').classList.add('rotate-180');
+        }
     });
 
     // Mobile sidebar

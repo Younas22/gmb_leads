@@ -3,7 +3,59 @@
 @section('title', 'Saved Leads')
 
 @section('content')
-<div class="p-4 lg:p-8">
+<div class="p-3 lg:p-4">
+    <!-- Package Export Info -->
+    @php
+        $exportLimit = Auth::user()->getFeatureLimit('export_leads');
+        $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
+            ->whereDate('created_at', today())
+            ->count();
+    @endphp
+
+    @if($exportLimit !== -1)
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-blue-100 p-1.5 rounded-md">
+                        <i class="fas fa-download text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-blue-900">Daily Export Limit</p>
+                        <p class="text-[10px] text-blue-700">
+                            Used <span class="font-semibold">{{ $todayExportCount }}</span> of
+                            <span class="font-semibold">{{ $exportLimit }}</span> exports today
+                        </p>
+                    </div>
+                </div>
+                @if($todayExportCount >= $exportLimit)
+                    <a href="{{ route('user.subscription') }}"
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
+                        <i class="fas fa-arrow-up mr-1"></i>Upgrade
+                    </a>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Success/Error Messages -->
+    @if(session('success'))
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                <p class="text-sm text-green-800">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
+                <p class="text-sm text-red-800">{!! session('error') !!}</p>
+            </div>
+        </div>
+    @endif
+
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -67,7 +119,7 @@
 .filters-container { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
 .filters-container.open { max-height: 400px; }
 @media (min-width: 1024px) {
-    .compact-select { min-width: 120px; max-width: 140px; }
+    .compact-select { max-width: 110px; }
 }
 </style>
 
@@ -105,65 +157,76 @@
         </a>
     </div>
 
-    <!-- Compact Filters Row -->
-    <div id="filtersContainer" class="filters-container lg:!max-h-none lg:!overflow-visible open">
-        <div class="grid grid-cols-1 lg:grid-cols-7 gap-2">
-            <select name="country_id" id="country_select" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
-                <option value="">Country</option>
-                @foreach($countries as $country)
-                    <option value="{{ $country->id }}" {{ $countryId == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
-                @endforeach
-            </select>
+   <div class="flex flex-col lg:flex-row gap-1.5 lg:flex-nowrap">
 
-            <select name="state_id" id="state_select" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer" disabled>
-                <option value="">State</option>
-            </select>
-
-            <select name="city_id" id="city_select" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer" disabled>
-                <option value="">City</option>
-            </select>
-
-            <select name="status" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
-                <option value="">Status</option>
-                <option value="not_contacted" {{ $status == 'not_contacted' ? 'selected' : '' }}>New</option>
-                <option value="contacted" {{ $status == 'contacted' ? 'selected' : '' }}>Contacted</option>
-                <option value="responded" {{ $status == 'responded' ? 'selected' : '' }}>Responded</option>
-                <option value="converted" {{ $status == 'converted' ? 'selected' : '' }}>Converted</option>
-                <option value="closed" {{ $status == 'closed' ? 'selected' : '' }}>Closed</option>
-            </select>
-            
-            <select name="rating" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
-                <option value="">Rating</option>
-                <option value="4.5" {{ $rating == '4.5' ? 'selected' : '' }}>4.5+</option>
-                <option value="4.0" {{ $rating == '4.0' ? 'selected' : '' }}>4.0+</option>
-                <option value="3.5" {{ $rating == '3.5' ? 'selected' : '' }}>3.5+</option>
-                <option value="3.0" {{ $rating == '3.0' ? 'selected' : '' }}>3.0+</option>
-            </select>
-            
-            <select name="last_review" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
-                <option value="">Review</option>
-                <option value="1-day" {{ $lastReview == '1-day' ? 'selected' : '' }}>1 day</option>
-                <option value="1-week" {{ $lastReview == '1-week' ? 'selected' : '' }}>1 week</option>
-                <option value="1-month" {{ $lastReview == '1-month' ? 'selected' : '' }}>1 month</option>
-                <option value="3-months" {{ $lastReview == '3-months' ? 'selected' : '' }}>3 months</option>
-                <option value="6-months" {{ $lastReview == '6-months' ? 'selected' : '' }}>6 months</option>
-            </select>
-
-            <select name="reviews_count" class="search-input select-custom compact-select px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer">
-                <option value="">Reviews #</option>
-                <option value="lt30" {{ ($reviewsCount ?? '') == 'lt30' ? 'selected' : '' }}>< 30</option>
-                <option value="lt50" {{ ($reviewsCount ?? '') == 'lt50' ? 'selected' : '' }}>< 50</option>
-                <option value="lt100" {{ ($reviewsCount ?? '') == 'lt100' ? 'selected' : '' }}>< 100</option>
-                <option value="gte100" {{ ($reviewsCount ?? '') == 'gte100' ? 'selected' : '' }}>100+</option>
-            </select>
-        </div>
-        
-        <!-- Mobile Buttons -->
-        <div class="flex gap-2 mt-3 lg:hidden">
-            <button type="submit" class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-medium flex-1">Search</button>
-            <a href="{{ route('user.leads') }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm text-center border">Clear</a>
-        </div>
+    <!-- Country -->
+    <div class="lg:flex-[2]">
+        <select name="country_id" id="country_select"
+            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full">
+            <option value="">Country</option>
+            @foreach($countries as $country)
+                <option value="{{ $country->id }}" {{ $countryId == $country->id ? 'selected' : '' }}>
+                    {{ $country->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
+
+    <!-- State -->
+    <div class="lg:flex-[2]">
+        <select name="state_id" id="state_select"
+            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full"
+            disabled>
+            <option value="">State</option>
+        </select>
+    </div>
+
+    <!-- City -->
+    <div class="lg:flex-[2]">
+        <select name="city_id" id="city_select"
+            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full"
+            disabled>
+            <option value="">City</option>
+        </select>
+    </div>
+
+    <!-- Rest normal size -->
+    <select name="status" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+        <option value="">Status</option>
+        <option value="not_contacted">New</option>
+        <option value="contacted">Contacted</option>
+        <option value="responded">Responded</option>
+        <option value="converted">Converted</option>
+        <option value="closed">Closed</option>
+    </select>
+
+    <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+        <option value="">Rating</option>
+        <option value="4.5">4.5+</option>
+        <option value="4.0">4.0+</option>
+        <option value="3.5">3.5+</option>
+        <option value="3.0">3.0+</option>
+    </select>
+
+    <select name="last_review" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+        <option value="">Review</option>
+        <option value="1-day">1 day</option>
+        <option value="1-week">1 week</option>
+        <option value="1-month">1 month</option>
+        <option value="3-months">3 months</option>
+        <option value="6-months">6 months</option>
+    </select>
+
+    <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+        <option value="">Reviews #</option>
+        <option value="lt30">< 30</option>
+        <option value="lt50">< 50</option>
+        <option value="lt100">< 100</option>
+        <option value="gte100">100+</option>
+    </select>
+
+</div>
+
 </form>
 
 
@@ -194,6 +257,50 @@
                             Delete Selected
                         </button>
                     </div>
+
+                    <!-- Export Button -->
+                    @php
+                        $exportLimit = Auth::user()->getFeatureLimit('export_leads');
+                        $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
+                            ->whereDate('created_at', today())
+                            ->count();
+                        $canExport = $exportLimit === -1 || $todayExportCount < $exportLimit;
+                    @endphp
+
+                    <!-- Export Dropdown Button -->
+                    <div class="relative inline-block text-left">
+                        @if($canExport)
+                            <button type="button" onclick="toggleExportDropdown()"
+                                    class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
+                                <i class="fas fa-download"></i>
+                                <span>Export</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                <div class="py-1" role="menu">
+                                    <a href="{{ route('user.leads.export', request()->all()) }}"
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        <i class="fas fa-file-csv text-blue-600 mr-2"></i>
+                                        Export as CSV
+                                    </a>
+                                    <a href="{{ route('user.leads.export.excel', request()->all()) }}"
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        <i class="fas fa-file-excel text-green-600 mr-2"></i>
+                                        Export as Excel
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <button disabled
+                                    class="bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium flex items-center space-x-2"
+                                    title="Daily export limit reached. Upgrade your package or try again tomorrow.">
+                                <i class="fas fa-download"></i>
+                                <span>Export (Limit Reached)</span>
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -204,34 +311,34 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="text-left px-6 py-4">
+                            <th class="text-left px-6 py-4 w-16">
                                 <span class="text-sm font-semibold text-gray-700">Select</span>
                             </th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Business</th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Contact</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Location</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Rating</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Status</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Actions</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-48">Location</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-36">Rating</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-28">Status</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-24">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($leads as $lead)
                             <tr class="hover:bg-gray-50 cursor-pointer lead-row" data-lead-id="{{ $lead->id }}">
-                                <td class="px-6 py-4">
-                                    <input type="checkbox" 
-                                           class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox" 
+                                <td class="px-6 py-4 w-16">
+                                    <input type="checkbox"
+                                           class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox"
                                            value="{{ $lead->id }}"
                                            onclick="event.stopPropagation()">
                                 </td>
-                                
+
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-semibold text-gray-900">{{ $lead->name }}</div>
                                         <div class="text-xs text-orange-600 font-medium">{{ $lead->category ?? 'Business' }}</div>
                                     </div>
                                 </td>
-                                
+
                                <td class="px-6 py-4 max-w-xs">
                                 <div class="space-y-1 truncate">
                                     @if($lead->phone)
@@ -246,7 +353,7 @@
                                     @endif
                                     @if($lead->website)
                                         <div class="text-sm text-gray-600">
-                                            <i class="fas fa-globe w-4"></i> 
+                                            <i class="fas fa-globe w-4"></i>
                                             <a href="{{ $lead->website }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate">
                                                 {{ str_replace(['http://', 'https://'], '', $lead->website) }}
                                             </a>
@@ -255,8 +362,8 @@
                                 </div>
                             </td>
 
-                                
-                                <td class="px-6 py-4">
+
+                                <td class="px-6 py-4 w-48">
                                     <div class="text-sm text-gray-600">
                                         {{ $lead->search_location }}
                                     </div>
@@ -268,8 +375,8 @@
                                         <div class="text-xs text-gray-500">{{ Str::limit($lead->address, 50) }}</div>
                                     @endif -->
                                 </td>
-                                
-                              <td class="px-6 py-4">
+
+                              <td class="px-6 py-4 w-36">
     @if($lead->rating && $lead->rating > 0)
         <div class="flex items-center space-x-1">
             <div class="flex text-yellow-400 text-sm">
@@ -321,7 +428,7 @@
                                
 
 
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 w-28">
                                     @php
                                         $statusColors = [
                                             'not_contacted' => 'bg-red-100 text-red-700',
@@ -342,9 +449,9 @@
                                         {{ $statusLabels[$lead->contact_status] ?? 'Unknown' }}
                                     </span>
                                 </td>
-                                
-                                <td class="px-6 py-4">
-                                    <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn" 
+
+                                <td class="px-6 py-4 w-24">
+                                    <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn"
                                             onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})">
                                         <i class="fas fa-eye mr-1"></i>View
                                     </button>
@@ -406,6 +513,119 @@
 @endsection
 
 @push('scripts')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Custom Select2 Styling -->
+<style>
+    /* Custom Select2 styling to match your design */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.5rem !important;
+        height: 38px !important;
+        line-height: 36px !important;
+        background: rgba(255,255,255,0.8) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+        padding-left: 8px !important;
+        padding-right: 20px !important;
+        color: #374151 !important;
+        font-size: 0.875rem !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 6px !important;
+        top: 1px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        outline: none !important;
+        background: white !important;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        margin-top: 4px !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 0.875rem !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted[aria-selected]:hover {
+        background-color: #3b82f6 !important;
+        color: white !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+        background-color: #dbeafe !important;
+        color: #1e40af !important;
+    }
+
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        padding: 6px 12px !important;
+        font-size: 0.875rem !important;
+        outline: none !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+        font-family: inherit !important;
+    }
+
+    .select2-selection__placeholder {
+        color: #9ca3af !important;
+    }
+
+    /* Disabled state */
+    .select2-container--default.select2-container--disabled .select2-selection--single {
+        background-color: #f9fafb !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Clear button styling */
+    .select2-container--default .select2-selection__clear {
+        color: #6b7280 !important;
+        font-size: 1.2em !important;
+        margin-right: 10px !important;
+    }
+
+    .select2-container--default .select2-selection__clear:hover {
+        color: #ef4444 !important;
+    }
+
+    /* Compact select styling for leads page */
+    .select2-container.compact-select {
+        min-width: 120px;
+        max-width: 140px;
+    }
+</style>
+
+<!-- Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 // Select All functionality
 document.getElementById('selectAll').addEventListener('change', function() {
@@ -852,11 +1072,12 @@ document.addEventListener('keydown', function(e) {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    const countrySelect = document.getElementById('country_select');
-    const stateSelect = document.getElementById('state_select');
-    const citySelect = document.getElementById('city_select');
-    
+// Use jQuery ready for Select2 compatibility
+$(document).ready(function() {
+    const countrySelect = $('#country_select');
+    const stateSelect = $('#state_select');
+    const citySelect = $('#city_select');
+
     // Get the current selected values from the server
     const selectedCountryId = "{{ $countryId ?? '' }}";
     const selectedStateId = "{{ $stateId ?? '' }}";
@@ -866,18 +1087,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Debug info
     console.log('Debug Info:', {
         selectedCountryId,
-        selectedStateId, 
+        selectedStateId,
         selectedCityId
+    });
+
+    // Initialize Select2 on all three dropdowns
+    countrySelect.select2({
+        placeholder: 'Country',
+        allowClear: true,
+        width: '100%'
+    });
+
+    stateSelect.select2({
+        placeholder: 'State',
+        allowClear: true,
+        width: '100%'
+    });
+
+    citySelect.select2({
+        placeholder: 'City',
+        allowClear: true,
+        width: '100%'
     });
 
     // Set initial values
     if (selectedCountryId) {
-        countrySelect.value = selectedCountryId;
+        countrySelect.val(selectedCountryId).trigger('change.select2');
         loadStates(selectedCountryId, selectedStateId);
     }
 
-    // Event listeners
-    countrySelect.addEventListener('change', function() {
+    // Event listeners using Select2 events
+    countrySelect.on('change', function() {
         resetSelect(stateSelect, 'State');
         resetSelect(citySelect, 'City');
         if (this.value) {
@@ -885,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    stateSelect.addEventListener('change', function() {
+    stateSelect.on('change', function() {
         resetSelect(citySelect, 'City');
         if (this.value) {
             loadCities(this.value);
@@ -893,13 +1133,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function resetSelect(select, defaultText) {
-        select.innerHTML = `<option value="">${defaultText}</option>`;
-        select.disabled = true;
+        // Destroy Select2 before resetting
+        if (select.hasClass("select2-hidden-accessible")) {
+            select.select2('destroy');
+        }
+
+        select[0].innerHTML = `<option value="">${defaultText}</option>`;
+        select[0].disabled = true;
+
+        // Reinitialize Select2
+        select.select2({
+            placeholder: defaultText,
+            allowClear: true,
+            width: '100%'
+        });
     }
 
     function loadStates(countryId, selectedStateId = null) {
         console.log('Loading states for country:', countryId);
-        
+
         fetch(`${baseUrl}/user/api/states/${countryId}`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -907,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(states => {
                 console.log('States loaded:', states.length);
-                
+
                 resetSelect(stateSelect, 'State');
                 states.forEach(state => {
                     const option = new Option(state.name, state.id);
@@ -915,10 +1167,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.selected = true;
                         console.log('State selected:', state.name);
                     }
-                    stateSelect.add(option);
+                    stateSelect[0].add(option);
                 });
-                stateSelect.disabled = false;
-                
+                stateSelect[0].disabled = false;
+
+                // Refresh Select2 after adding options
+                stateSelect.trigger('change.select2');
+
                 // Load cities if state is selected
                 if (selectedStateId) {
                     loadCities(selectedStateId, selectedCityId);
@@ -926,13 +1181,13 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading states:', error);
-                stateSelect.innerHTML = '<option value="">Error loading states</option>';
+                stateSelect[0].innerHTML = '<option value="">Error loading states</option>';
             });
     }
 
     function loadCities(stateId, selectedCityId = null) {
         console.log('Loading cities for state:', stateId);
-        
+
         fetch(`${baseUrl}/user/api/cities/${stateId}`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -940,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(cities => {
                 console.log('Cities loaded:', cities.length);
-                
+
                 resetSelect(citySelect, 'City');
                 cities.forEach(city => {
                     const option = new Option(city.name, city.id);
@@ -948,13 +1203,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.selected = true;
                         console.log('City selected:', city.name);
                     }
-                    citySelect.add(option);
+                    citySelect[0].add(option);
                 });
-                citySelect.disabled = false;
+                citySelect[0].disabled = false;
+
+                // Refresh Select2 after adding options
+                citySelect.trigger('change.select2');
             })
             .catch(error => {
                 console.error('Error loading cities:', error);
-                citySelect.innerHTML = '<option value="">Error loading cities</option>';
+                citySelect[0].innerHTML = '<option value="">Error loading cities</option>';
             });
     }
 });
@@ -964,5 +1222,21 @@ function toggleFilters() {
     const filters = document.getElementById('filtersContainer');
     filters.classList.toggle('open');
 }
+
+// Export dropdown toggle
+function toggleExportDropdown() {
+    const dropdown = document.getElementById('exportDropdown');
+    dropdown.classList.toggle('hidden');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('exportDropdown');
+    const button = event.target.closest('button[onclick="toggleExportDropdown()"]');
+
+    if (dropdown && !dropdown.contains(event.target) && !button) {
+        dropdown.classList.add('hidden');
+    }
+});
 </script>
 @endpush

@@ -175,6 +175,38 @@ class SubscriptionController extends Controller
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
+
+            // Send subscription start email
+            try {
+                $user = $subscription->user;
+                $package = $subscription->package;
+
+                // Get package features
+                $features = $package->features;
+                $searchesLimit = 'Standard';
+                $exportsLimit = 'Standard';
+
+                foreach ($features as $feature) {
+                    if ($feature->feature_key === 'gmb_searches') {
+                        $searchesLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    }
+                    if ($feature->feature_key === 'leads_per_month') {
+                        $exportsLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    }
+                }
+
+                $subscriptionData = [
+                    'plan_name' => $package->name,
+                    'start_date' => $subscription->start_date ? $subscription->start_date->format('F d, Y') : now()->format('F d, Y'),
+                    'renewal_date' => $updateData['end_date'] ? \Carbon\Carbon::parse($updateData['end_date'])->format('F d, Y') : 'Lifetime',
+                    'searches_limit' => $searchesLimit,
+                    'exports_limit' => $exportsLimit,
+                ];
+
+                \App\Services\EmailService::sendSubscriptionStart($user, $subscriptionData);
+            } catch (\Exception $e) {
+                \Log::error('Subscription start email failed for subscription ' . $subscription->id . ': ' . $e->getMessage());
+            }
         }
 
         $subscription->update($updateData);

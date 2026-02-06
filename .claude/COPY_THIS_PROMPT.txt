@@ -1,0 +1,64 @@
+Copy this prompt for new chat:
+================================================================================
+
+I need to complete the "General Settings" tab in my admin settings page.
+
+Location: http://localhost/gmb_leads/admin/settings
+File: resources/views/admin/settings/index.blade.php
+Controller: app/Http/Controllers/Admin/SettingsController.php
+
+Currently shows: "General settings coming soon..."
+
+Requirements:
+
+1. Application Settings Section:
+   - Site Name, Description, Logo Upload, Favicon Upload
+   - Contact Email, Phone, Support Email
+
+2. Business Settings Section:
+   - Default Country, Currency (USD/EUR/GBP), Currency Symbol Position
+   - Timezone, Date Format (DD/MM/YYYY, etc), Time Format (12/24 hour)
+
+3. API Settings Section:
+   - Google Maps API Key (with show/hide toggle)
+   - Google Places API Key (with show/hide toggle)
+   - Verify button for each API key
+   - API Rate Limit, Enable API Logging toggle
+
+4. System Settings Section:
+   - Maintenance Mode toggle
+   - Maintenance Message textarea
+   - Allow User Registration toggle
+   - Email Verification Required toggle
+   - Default User Role dropdown
+   - Session Timeout (minutes)
+
+5. Search Settings Section:
+   - Max Results Per Page
+   - Default Search Radius
+   - Enable Search History toggle
+   - Auto-save Results toggle
+   - Max Saved Leads Per User
+
+6. Notification Settings Section:
+   - Enable Email/SMS Notifications toggles
+   - Notify Admin on: New Registration, New Subscription, Payment Received
+
+7. Cache & Performance Section:
+   - Enable Cache toggle
+   - Cache Duration (minutes)
+   - Clear Cache button
+   - Optimize Database button
+
+Technical Requirements:
+- Use Tailwind CSS (same as Email Settings tab)
+- Save to settings table using Setting::set() method
+- Group = 'general'
+- Add validation
+- Show success/error messages
+- Controller method: updateGeneralSettings()
+- Route: admin.settings.general.update (PUT)
+- Logo/Favicon should upload to storage with preview
+- Add tooltips for complex settings
+
+The Email Settings tab is already complete - follow the same design pattern with cards, gradient headers, and organized sections.

@@ -131,6 +131,13 @@ class AuthController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
+            // Send welcome email
+            try {
+                \App\Services\EmailService::sendWelcomeEmail($user);
+            } catch (\Exception $e) {
+                Log::error('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Account created! Please check your email to verify your account.',

@@ -57,6 +57,30 @@ class SavedLead extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the country that owns the lead
+     */
+    public function countryRelation(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country', 'id');
+    }
+
+    /**
+     * Get the state that owns the lead
+     */
+    public function stateRelation(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'state', 'id');
+    }
+
+    /**
+     * Get the city that owns the lead
+     */
+    public function cityRelation(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'city', 'id');
+    }
+
     // Check if lead already exists for user
     public static function existsForUser($userId, $placeId = null, $name = null, $address = null)
     {

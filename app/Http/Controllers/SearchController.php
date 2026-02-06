@@ -63,9 +63,16 @@ class SearchController extends Controller
                 ->count();
 
             if ($todaySearchCount >= $searchLimit) {
-                return back()->withErrors([
-                    'api' => "You have reached your daily search limit ($searchLimit searches). Please upgrade your package or try again tomorrow."
-                ])->withInput();
+                $errorMessage = "You have reached your daily search limit ($searchLimit searches). Please <a href='" . route('user.subscription') . "' class='text-blue-600 underline'>upgrade your package</a> or try again tomorrow.";
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'error' => $errorMessage,
+                        'errors' => ['api' => [$errorMessage]]
+                    ], 429);
+                }
+
+                return back()->withErrors(['api' => $errorMessage])->withInput();
             }
         }
     }
@@ -94,9 +101,16 @@ class SearchController extends Controller
 
     // Get coordinates
     $coordinates = $this->getCoordinates($city, $state, $country);
-    
+
     if (!$coordinates) {
-        return back()->withErrors(['api' => 'Unable to determine location coordinates']);
+        $errorMessage = 'Unable to determine location coordinates';
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'error' => $errorMessage,
+                'errors' => ['api' => [$errorMessage]]
+            ], 400);
+        }
+        return back()->withErrors(['api' => $errorMessage]);
     }
 
     // Create search history record with PENDING status (only for new searches, not pagination)
@@ -126,7 +140,14 @@ class SearchController extends Controller
             if ($searchHistory) {
                 $this->updateSearchHistoryToFailed($searchHistory, 'No active API key found');
             }
-            return back()->withErrors(['api' => 'No active API key found. Please add and verify your Google Places API key first.']);
+            $errorMessage = 'No active API key found. Please add and verify your Google Places API key first.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'error' => $errorMessage,
+                    'errors' => ['api' => [$errorMessage]]
+                ], 400);
+            }
+            return back()->withErrors(['api' => $errorMessage]);
         }
 
         $apiKey = $userApiKey->api_key;
@@ -193,7 +214,14 @@ class SearchController extends Controller
             if ($searchHistory) {
                 $this->updateSearchHistoryToFailed($searchHistory, 'Failed to connect to search API');
             }
-            return back()->withErrors(['api' => 'Failed to connect to search API. Please try again later.']);
+            $errorMessage = 'Failed to connect to search API. Please try again later.';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'error' => $errorMessage,
+                    'errors' => ['api' => [$errorMessage]]
+                ], 500);
+            }
+            return back()->withErrors(['api' => $errorMessage]);
         }
 
         if ($response->successful()) {
@@ -248,12 +276,19 @@ class SearchController extends Controller
                 404 => 'Search service not found. Please contact support.',
                 default => 'Search service returned an error (Status: ' . $statusCode . '). Please try again.'
             };
-            
+
             // Update search history to FAILED
             if ($searchHistory) {
                 $this->updateSearchHistoryToFailed($searchHistory, $errorMessage . ' (HTTP ' . $statusCode . ')');
             }
-            
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'error' => $errorMessage,
+                    'errors' => ['api' => [$errorMessage]]
+                ], $statusCode);
+            }
+
             return back()->withErrors(['api' => $errorMessage]);
         }
         
@@ -262,26 +297,41 @@ class SearchController extends Controller
         if ($searchHistory) {
             $this->updateSearchHistoryToFailed($searchHistory, 'Connection error: ' . $e->getMessage());
         }
-        
+
         // Handle connection-specific errors
-        return back()->withErrors(['api' => 'Unable to connect to search service. Please check your internet connection and try again.']);
-        
+        $errorMessage = 'Unable to connect to search service. Please check your internet connection and try again.';
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'error' => $errorMessage,
+                'errors' => ['api' => [$errorMessage]]
+            ], 500);
+        }
+        return back()->withErrors(['api' => $errorMessage]);
+
     } catch (\Illuminate\Http\Client\RequestException $e) {
         // Handle request-specific errors
         $errorMsg = 'Request failed: ' . $e->getMessage();
         if (str_contains($e->getMessage(), 'timeout')) {
             $errorMsg = 'Search request timed out. The service might be busy.';
         }
-        
+
         // Update search history to FAILED
         if ($searchHistory) {
             $this->updateSearchHistoryToFailed($searchHistory, $errorMsg);
         }
-        
-        return back()->withErrors(['api' => str_contains($e->getMessage(), 'timeout') 
+
+        $errorMessage = str_contains($e->getMessage(), 'timeout')
             ? 'Search request timed out. The service might be busy. Please try again in a few moments.'
-            : 'Request failed: ' . $e->getMessage()]);
-        
+            : 'Request failed: ' . $e->getMessage();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'error' => $errorMessage,
+                'errors' => ['api' => [$errorMessage]]
+            ], 500);
+        }
+        return back()->withErrors(['api' => $errorMessage]);
+
     } catch (\Exception $e) {
         // Log the full error for debugging
         \Log::error('Search API Error: ' . $e->getMessage(), [
@@ -289,14 +339,21 @@ class SearchController extends Controller
             'location' => $coordinates,
             'params' => $params
         ]);
-        
+
         // Update search history to FAILED
         if ($searchHistory) {
             $this->updateSearchHistoryToFailed($searchHistory, 'Unexpected error: ' . $e->getMessage());
         }
-        
+
         // Generic error message for users
-        return back()->withErrors(['api' => 'An unexpected error occurred while searching. Please try again later.']);
+        $errorMessage = 'An unexpected error occurred while searching. Please try again later.';
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'error' => $errorMessage,
+                'errors' => ['api' => [$errorMessage]]
+            ], 500);
+        }
+        return back()->withErrors(['api' => $errorMessage]);
     }
 }
 
@@ -388,11 +445,24 @@ public function saveLeads(Request $request)
 {
     $user = Auth::user();
 
-    $request->validate([
-        'leads' => 'required|array|min:1',
-        'leads.*' => 'required|array',
-        'search_data' => 'required|array'
+    \Log::info('Save leads request received', [
+        'user_id' => $user->id,
+        'request_data' => $request->all(),
+        'headers' => $request->headers->all()
     ]);
+
+    try {
+        $request->validate([
+            'leads' => 'required|array|min:1',
+            'leads.*' => 'required|array',
+            'search_data' => 'required|array'
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        \Log::error('Validation failed for save leads', [
+            'errors' => $e->errors()
+        ]);
+        throw $e;
+    }
 
     $leads = $request->input('leads');
     $searchData = $request->input('search_data');

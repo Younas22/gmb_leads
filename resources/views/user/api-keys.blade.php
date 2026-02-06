@@ -28,6 +28,13 @@
                         @endif
                     @endif
                 </p>
+                <p class="text-sm text-blue-700 mt-2">
+                    <i class="fas fa-external-link-alt mr-1"></i>
+                    Don't have an API key?
+                    <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="font-semibold underline hover:text-blue-900">
+                        Get your Google Places API key here
+                    </a>
+                </p>
                 <p class="text-xs text-blue-600 mt-2">
                     <i class="fas fa-lock mr-1"></i> Note: Once API key is verified, it cannot be edited or deleted for security reasons.
                 </p>
@@ -253,7 +260,12 @@
                     <input type="text" id="api-key" placeholder="AIzaSyDxVlabcdef123456789..." required
                            oninput="onApiKeyChange()"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                    <p class="text-xs text-gray-500 mt-1">Enter your Google Places API key from Google Cloud Console</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Enter your Google Places API key from Google Cloud Console
+                        <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium ml-1">
+                            <i class="fas fa-external-link-alt"></i> Get API Key
+                        </a>
+                    </p>
                 </div>
 
                 <!-- Test API Section -->

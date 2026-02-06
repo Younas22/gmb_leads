@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SavedLead;
 use App\Models\Country;
-use App\Models\State;
-use App\Models\City;
 use Carbon\Carbon;
+use App\Exports\LeadsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LeadsController extends Controller
 {
@@ -276,6 +276,334 @@ public function index(Request $request)
     }
     
     /**
+     * Export leads to CSV/Excel
+     */
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+
+        // Check export limit based on package
+        $exportLimit = $user->getFeatureLimit('export_leads');
+
+        if ($exportLimit !== -1) {
+            // Count today's exports
+            $todayExportCount = \App\Models\ExportHistory::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
+
+            if ($todayExportCount >= $exportLimit) {
+                return back()->with('error', "You have reached your daily export limit ($exportLimit exports). Please upgrade your package or try again tomorrow.");
+            }
+        }
+
+        // Get the same filtered query as the index page
+        $search = $request->get('search');
+        $countryId = $request->get('country_id');
+        $stateId = $request->get('state_id');
+        $cityId = $request->get('city_id');
+        $status = $request->get('status');
+        $rating = $request->get('rating');
+        $lastReview = $request->get('last_review');
+        $reviewsCount = $request->get('reviews_count');
+
+        // Build query with same filters
+        $query = SavedLead::where('user_id', $user->id);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('address', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('website', 'LIKE', "%{$search}%")
+                  ->orWhere('search_query', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($countryId) {
+            $query->where('country', $countryId);
+        }
+
+        if ($stateId) {
+            $query->where('state', $stateId);
+        }
+
+        if ($cityId) {
+            $query->where('city', $cityId);
+        }
+
+        if ($status) {
+            $query->where('contact_status', $status);
+        }
+
+        if ($rating) {
+            $query->where('rating', '<=', $rating);
+        }
+
+        if ($lastReview) {
+            $cutoffDate = match($lastReview) {
+                '1-day' => Carbon::now()->subDay(),
+                '1-week' => Carbon::now()->subWeek(),
+                '1-month' => Carbon::now()->subMonth(),
+                '3-months' => Carbon::now()->subMonths(3),
+                '6-months' => Carbon::now()->subMonths(6),
+                default => null
+            };
+
+            if ($cutoffDate) {
+                $query->where('last_review_date', '>=', $cutoffDate->toDateTimeString());
+            }
+        }
+
+        if ($reviewsCount) {
+            if ($reviewsCount === 'lt30') {
+                $query->where('total_reviews', '<', 30);
+            } elseif ($reviewsCount === 'lt50') {
+                $query->where('total_reviews', '<', 50);
+            } elseif ($reviewsCount === 'lt100') {
+                $query->where('total_reviews', '<', 100);
+            } elseif ($reviewsCount === 'gte100') {
+                $query->where('total_reviews', '>=', 100);
+            }
+        }
+
+        // Get all leads (not paginated for export) with relationships
+        $leads = $query->with(['countryRelation', 'stateRelation', 'cityRelation'])
+                      ->orderBy('created_at', 'desc')
+                      ->get();
+
+        if ($leads->isEmpty()) {
+            return back()->with('error', 'No leads to export.');
+        }
+
+        // Log export action
+        \App\Models\ExportHistory::create([
+            'user_id' => $user->id,
+            'export_type' => 'leads',
+            'records_count' => $leads->count(),
+            'filters' => json_encode($request->all())
+        ]);
+
+        // Generate filename
+        $filename = 'leads_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        return response()->stream(function() use ($leads) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'Query',
+                'Company',
+                'Number',
+                'Email',
+                'Website',
+                'City',
+                'State',
+                'Country',
+                'Total Reviews',
+                'Latest Review',
+                'GMB Profile',
+                'Facebook',
+                'Instagram',
+                'Twitter',
+                'LinkedIn',
+                'YouTube',
+                'Pinterest'
+            ]);
+
+            // CSV Data
+            foreach ($leads as $lead) {
+                // Decode social links
+                $socialLinks = $lead->social_links ? json_decode($lead->social_links, true) : [];
+
+                // Extract social media links
+                $facebook = '';
+                $instagram = '';
+                $twitter = '';
+                $linkedin = '';
+                $youtube = '';
+                $pinterest = '';
+
+                if (is_array($socialLinks)) {
+                    foreach ($socialLinks as $link) {
+                        if (str_contains($link, 'facebook.com')) {
+                            $facebook = $link;
+                        } elseif (str_contains($link, 'instagram.com')) {
+                            $instagram = $link;
+                        } elseif (str_contains($link, 'twitter.com') || str_contains($link, 'x.com')) {
+                            $twitter = $link;
+                        } elseif (str_contains($link, 'linkedin.com')) {
+                            $linkedin = $link;
+                        } elseif (str_contains($link, 'youtube.com')) {
+                            $youtube = $link;
+                        } elseif (str_contains($link, 'pinterest.com')) {
+                            $pinterest = $link;
+                        }
+                    }
+                }
+
+                // Get latest review date
+                $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
+                $latestReview = '';
+                if (!empty($reviewsSample) && is_array($reviewsSample)) {
+                    $latestTime = 0;
+                    foreach ($reviewsSample as $review) {
+                        if (isset($review['time']) && $review['time'] > $latestTime) {
+                            $latestTime = $review['time'];
+                        }
+                    }
+                    if ($latestTime > 0) {
+                        $latestReview = Carbon::createFromTimestamp($latestTime)->format('Y-m-d H:i:s');
+                    }
+                }
+
+                fputcsv($file, [
+                    $lead->search_query ?? '',
+                    $lead->name ?? '',
+                    $lead->phone ?? '',
+                    $lead->email ?? '',
+                    $lead->website ?? '',
+                    $lead->cityRelation?->name ?? '',
+                    $lead->stateRelation?->name ?? '',
+                    $lead->countryRelation?->name ?? '',
+                    $lead->total_reviews ?? 0,
+                    $latestReview,
+                    $lead->google_profile_url ?? '',
+                    $facebook,
+                    $instagram,
+                    $twitter,
+                    $linkedin,
+                    $youtube,
+                    $pinterest
+                ]);
+            }
+
+            fclose($file);
+        }, 200, $headers);
+    }
+
+    /**
+     * Export leads to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $user = Auth::user();
+
+        // Check export limit based on package
+        $exportLimit = $user->getFeatureLimit('export_leads');
+
+        if ($exportLimit !== -1) {
+            // Count today's exports
+            $todayExportCount = \App\Models\ExportHistory::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
+
+            if ($todayExportCount >= $exportLimit) {
+                return back()->with('error', "You have reached your daily export limit ($exportLimit exports). Please upgrade your package or try again tomorrow.");
+            }
+        }
+
+        // Get the same filtered query as the index page
+        $search = $request->get('search');
+        $countryId = $request->get('country_id');
+        $stateId = $request->get('state_id');
+        $cityId = $request->get('city_id');
+        $status = $request->get('status');
+        $rating = $request->get('rating');
+        $lastReview = $request->get('last_review');
+        $reviewsCount = $request->get('reviews_count');
+
+        // Build query with same filters
+        $query = SavedLead::where('user_id', $user->id);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('address', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('website', 'LIKE', "%{$search}%")
+                  ->orWhere('search_query', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($countryId) {
+            $query->where('country', $countryId);
+        }
+
+        if ($stateId) {
+            $query->where('state', $stateId);
+        }
+
+        if ($cityId) {
+            $query->where('city', $cityId);
+        }
+
+        if ($status) {
+            $query->where('contact_status', $status);
+        }
+
+        if ($rating) {
+            $query->where('rating', '<=', $rating);
+        }
+
+        if ($lastReview) {
+            $cutoffDate = match($lastReview) {
+                '1-day' => Carbon::now()->subDay(),
+                '1-week' => Carbon::now()->subWeek(),
+                '1-month' => Carbon::now()->subMonth(),
+                '3-months' => Carbon::now()->subMonths(3),
+                '6-months' => Carbon::now()->subMonths(6),
+                default => null
+            };
+
+            if ($cutoffDate) {
+                $query->where('last_review_date', '>=', $cutoffDate->toDateTimeString());
+            }
+        }
+
+        if ($reviewsCount) {
+            if ($reviewsCount === 'lt30') {
+                $query->where('total_reviews', '<', 30);
+            } elseif ($reviewsCount === 'lt50') {
+                $query->where('total_reviews', '<', 50);
+            } elseif ($reviewsCount === 'lt100') {
+                $query->where('total_reviews', '<', 100);
+            } elseif ($reviewsCount === 'gte100') {
+                $query->where('total_reviews', '>=', 100);
+            }
+        }
+
+        // Get all leads (not paginated for export) with relationships
+        $leads = $query->with(['countryRelation', 'stateRelation', 'cityRelation'])
+                      ->orderBy('created_at', 'desc')
+                      ->get();
+
+        if ($leads->isEmpty()) {
+            return back()->with('error', 'No leads to export.');
+        }
+
+        // Log export action
+        \App\Models\ExportHistory::create([
+            'user_id' => $user->id,
+            'export_type' => 'leads',
+            'records_count' => $leads->count(),
+            'filters' => json_encode($request->all())
+        ]);
+
+        // Generate filename
+        $filename = 'leads_export_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        // Download Excel file
+        return Excel::download(new LeadsExport($leads), $filename);
+    }
+
+    /**
      * Format lead for API response
      */
     private function formatLeadForResponse($lead)
@@ -284,10 +612,10 @@ public function index(Request $request)
         $openingHours = $lead->opening_hours ? json_decode($lead->opening_hours, true) : [];
         $socialLinks = $lead->social_links ? json_decode($lead->social_links, true) : [];
         $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
-        
+
         // Get latest review date
         $latestReviewDate = $this->getLatestReviewDate($reviewsSample);
-        
+
         return [
             'id' => $lead->id,
             'name' => $lead->name,

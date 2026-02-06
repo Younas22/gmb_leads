@@ -106,21 +106,7 @@
         </div>
     </div>
     
-    @if($errors->has('api'))
-        <div class="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
-            <div class="flex items-start">
-                <i class="fas fa-exclamation-triangle mr-2 mt-0.5 text-red-500"></i>
-                <div>
-                    <strong>Search Error:</strong> {{ $errors->first('api') }}
-                    <div class="mt-2 text-sm">
-                        <button type="button" onclick="retrySearch()" class="text-red-600 hover:text-red-800 underline">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+    {{-- Errors are now shown in modal via JavaScript --}}
     
     @if(session('success'))
         <div class="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
@@ -187,7 +173,7 @@
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800">Search Results</h3>
                         <p class="text-sm text-gray-600">
-                            Found {{ $totalResults ?? count($formattedResults) }} {{ $searchData['query'] }} 
+                            Found {{ $totalResults ?? count($formattedResults) }} {{ $searchData['query'] }} Businesses
                             @if(isset($searchData['location_name']))
                                 in {{ $searchData['location_name'] }}
                             @endif
@@ -370,6 +356,32 @@
     @endif
 </div>
 
+<!-- Error Modal -->
+<div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-3xl text-red-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Search Error</h3>
+            <div id="errorModalMessage" class="text-gray-600 mb-4"></div>
+            <div class="flex space-x-3">
+                <button type="button"
+                        onclick="closeErrorModal()"
+                        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors">
+                    Close
+                </button>
+                <button type="button"
+                        id="retrySearchBtn"
+                        onclick="retrySearchFromModal()"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Save Status Modal -->
 <div id="saveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
@@ -381,7 +393,7 @@
             </div>
             <h3 id="saveModalTitle" class="text-lg font-semibold mb-2">Saving Leads...</h3>
             <p id="saveModalMessage" class="text-gray-600 mb-4">Please wait while we save your selected leads.</p>
-            <button type="button" 
+            <button type="button"
                     id="saveModalClose"
                     onclick="closeSaveModal()"
                     class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg hidden">
@@ -394,54 +406,228 @@
 @endsection
 
 @push('scripts')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Custom Select2 Styling -->
+<style>
+    /* Custom Select2 styling to match your design */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.5rem !important;
+        height: 38px !important;
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px !important;
+        padding-left: 12px !important;
+        padding-right: 20px !important;
+        color: #374151 !important;
+        font-size: 0.875rem !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 8px !important;
+        top: 1px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        outline: none !important;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        margin-top: 4px !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 0.875rem !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted[aria-selected]:hover {
+        background-color: #3b82f6 !important;
+        color: white !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+        background-color: #dbeafe !important;
+        color: #1e40af !important;
+    }
+
+    .select2-container--default .select2-search--dropdown {
+        padding: 8px !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        padding: 6px 12px !important;
+        font-size: 0.875rem !important;
+        outline: none !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-container {
+        width: 100% !important;
+        font-family: inherit !important;
+    }
+
+    .select2-selection__placeholder {
+        color: #9ca3af !important;
+    }
+
+    /* Disabled state */
+    .select2-container--default.select2-container--disabled .select2-selection--single {
+        background-color: #f9fafb !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Clear button styling */
+    .select2-container--default .select2-selection__clear {
+        color: #6b7280 !important;
+        font-size: 1.2em !important;
+        margin-right: 10px !important;
+    }
+
+    .select2-container--default .select2-selection__clear:hover {
+        color: #ef4444 !important;
+    }
+</style>
+
+<!-- Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Global variables
+const baseUrl = "{{ url('/') }}";
+let searchData = @json($searchData ?? []);
+
+// Initialize form handlers
+function initializeFormHandlers() {
     const countrySelect = document.getElementById('country_select');
     const stateSelect = document.getElementById('state_select');
     const citySelect = document.getElementById('city_select');
     const originalStateId = "{{ old('state_id', $searchData['state_id'] ?? '') }}";
     const originalCityId = "{{ old('city_id', $searchData['city_id'] ?? '') }}";
-    const baseUrl = "{{ url('/') }}";
 
-    // Initialize form
-    if (countrySelect.value) {
-        loadStates(countrySelect.value, originalStateId);
+    if (!countrySelect) return;
+
+    // Destroy existing Select2 instances if they exist
+    if ($(countrySelect).hasClass("select2-hidden-accessible")) {
+        $(countrySelect).select2('destroy');
+    }
+    if ($(stateSelect).hasClass("select2-hidden-accessible")) {
+        $(stateSelect).select2('destroy');
+    }
+    if ($(citySelect).hasClass("select2-hidden-accessible")) {
+        $(citySelect).select2('destroy');
     }
 
-    // Event listeners
-    countrySelect.addEventListener('change', function() {
-        resetSelect(stateSelect, 'Select State');
-        resetSelect(citySelect, 'Select City');
+    // Remove existing listeners by cloning
+    const newCountrySelect = countrySelect.cloneNode(true);
+    const newStateSelect = stateSelect.cloneNode(true);
+    const newCitySelect = citySelect.cloneNode(true);
+
+    countrySelect.parentNode.replaceChild(newCountrySelect, countrySelect);
+    stateSelect.parentNode.replaceChild(newStateSelect, stateSelect);
+    citySelect.parentNode.replaceChild(newCitySelect, citySelect);
+
+    const country = document.getElementById('country_select');
+    const state = document.getElementById('state_select');
+    const city = document.getElementById('city_select');
+
+    // Initialize Select2 on all three dropdowns
+    $(country).select2({
+        placeholder: 'Select Country',
+        allowClear: false,
+        width: '100%'
+    });
+
+    $(state).select2({
+        placeholder: 'Select State',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $(city).select2({
+        placeholder: 'Select City',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Initialize form
+    if (country.value) {
+        loadStates(country.value, originalStateId);
+    }
+
+    // Event listeners using Select2 events
+    $(country).on('change', function() {
+        resetSelect(state, 'Select State');
+        resetSelect(city, 'Select City');
         if (this.value) loadStates(this.value);
         clearPageToken();
     });
 
-    stateSelect.addEventListener('change', function() {
-        resetSelect(citySelect, 'Select City');
+    $(state).on('change', function() {
+        resetSelect(city, 'Select City');
         if (this.value) loadCities(this.value);
         clearPageToken();
     });
 
-    citySelect.addEventListener('change', clearPageToken);
-    document.getElementById('search_query').addEventListener('input', clearPageToken);
-    document.getElementById('radius_select').addEventListener('change', clearPageToken);
+    $(city).on('change', clearPageToken);
+
+    const searchQuery = document.getElementById('search_query');
+    const radiusSelect = document.getElementById('radius_select');
+
+    if (searchQuery) searchQuery.addEventListener('input', clearPageToken);
+    if (radiusSelect) radiusSelect.addEventListener('change', clearPageToken);
 
     function resetSelect(select, defaultText) {
+        // Destroy Select2 before resetting
+        if ($(select).hasClass("select2-hidden-accessible")) {
+            $(select).select2('destroy');
+        }
+
         select.innerHTML = `<option value="">${defaultText}</option>`;
         select.disabled = true;
+
+        // Reinitialize Select2
+        $(select).select2({
+            placeholder: defaultText,
+            allowClear: true,
+            width: '100%'
+        });
     }
 
     function loadStates(countryId, selectedStateId = null) {
         fetch(`${baseUrl}/user/api/states/${countryId}`)
             .then(response => response.json())
             .then(states => {
-                resetSelect(stateSelect, 'Select State');
-                states.forEach(state => {
-                    const option = new Option(state.name, state.id);
-                    if (selectedStateId && state.id == selectedStateId) option.selected = true;
-                    stateSelect.add(option);
+                resetSelect(state, 'Select State');
+                states.forEach(st => {
+                    const option = new Option(st.name, st.id);
+                    if (selectedStateId && st.id == selectedStateId) option.selected = true;
+                    state.add(option);
                 });
-                stateSelect.disabled = false;
+                state.disabled = false;
+
+                // Refresh Select2 after adding options
+                $(state).trigger('change.select2');
+
                 if (selectedStateId) loadCities(selectedStateId, originalCityId);
             });
     }
@@ -450,30 +636,164 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`${baseUrl}/user/api/cities/${stateId}`)
             .then(response => response.json())
             .then(cities => {
-                resetSelect(citySelect, 'Select City');
-                cities.forEach(city => {
-                    const option = new Option(city.name, city.id);
-                    if (selectedCityId && city.id == selectedCityId) option.selected = true;
-                    citySelect.add(option);
+                resetSelect(city, 'Select City');
+                cities.forEach(c => {
+                    const option = new Option(c.name, c.id);
+                    if (selectedCityId && c.id == selectedCityId) option.selected = true;
+                    city.add(option);
                 });
-                citySelect.disabled = false;
+                city.disabled = false;
+
+                // Refresh Select2 after adding options
+                $(city).trigger('change.select2');
             });
     }
 
     function clearPageToken() {
-        document.getElementById('page_token').value = '';
+        const pageToken = document.getElementById('page_token');
+        if (pageToken) pageToken.value = '';
     }
+}
+
+// Initialize result handlers
+function initializeResultHandlers() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        // Remove old listener by cloning
+        const newSelectAll = selectAllCheckbox.cloneNode(true);
+        selectAllCheckbox.parentNode.replaceChild(newSelectAll, selectAllCheckbox);
+
+        document.getElementById('selectAll').addEventListener('change', function() {
+            document.querySelectorAll('.result-checkbox').forEach(cb => cb.checked = this.checked);
+            updateSelectedCount();
+        });
+    }
+}
+
+// Use jQuery ready instead of DOMContentLoaded for better Select2 compatibility
+$(document).ready(function() {
+    // Check for server-side errors and show in modal
+    @if($errors->has('api'))
+        showErrorModal(@json($errors->first('api')));
+    @endif
+
+    // Initialize handlers
+    initializeFormHandlers();
+    initializeResultHandlers();
 });
 
 // Search functionality
 let isSearching = false;
 
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    if (!document.getElementById('page_token').value && !showSearchLoading()) {
-        e.preventDefault();
-        return false;
+document.getElementById('searchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (isSearching) return false;
+
+    // Show loading state
+    if (!showSearchLoading()) return false;
+
+    // Start progress bar
+    startProgress();
+
+    // Get form data
+    const formData = new FormData(this);
+
+    try {
+        const response = await fetch('{{ route('user.search.post') }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+
+        const contentType = response.headers.get('content-type');
+
+        // Check if response is JSON (error) or HTML (success)
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+
+            // Handle error response
+            hideSearchLoading();
+            completeProgress();
+
+            if (data.error || data.errors) {
+                let errorMessage = data.error || 'An error occurred';
+
+                // Check for validation errors
+                if (data.errors) {
+                    if (data.errors.api) {
+                        errorMessage = Array.isArray(data.errors.api) ? data.errors.api[0] : data.errors.api;
+                    } else {
+                        // Handle other validation errors
+                        const firstError = Object.values(data.errors)[0];
+                        errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                    }
+                }
+
+                showErrorModal(errorMessage);
+            }
+        } else if (response.ok) {
+            // HTML response - replace page content with results
+            const html = await response.text();
+
+            // Create a temporary container to parse the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            // Extract the content section from the response
+            const newContent = tempDiv.querySelector('.p-4.lg\\:p-8');
+
+            if (newContent) {
+                // Replace current content with new content
+                const currentContent = document.querySelector('.p-4.lg\\:p-8');
+                currentContent.innerHTML = newContent.innerHTML;
+
+                // Extract and update searchData from the new HTML
+                const scripts = tempDiv.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const scriptContent = script.textContent;
+                    if (scriptContent.includes('let searchData =')) {
+                        const match = scriptContent.match(/let searchData = ({.*?});/s);
+                        if (match && match[1]) {
+                            try {
+                                searchData = JSON.parse(match[1]);
+                            } catch (e) {
+                                console.error('Failed to parse searchData:', e);
+                            }
+                        }
+                    }
+                });
+
+                // Reinitialize event handlers for the new content
+                initializeFormHandlers();
+                initializeResultHandlers();
+
+                // Scroll to top to show results
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Fallback: reload page if content structure is different
+                window.location.reload();
+            }
+
+            hideSearchLoading();
+            completeProgress();
+        } else {
+            // Non-JSON error response
+            hideSearchLoading();
+            completeProgress();
+            showErrorModal('An error occurred. Please try again.');
+        }
+
+    } catch (error) {
+        hideSearchLoading();
+        completeProgress();
+        showErrorModal('An unexpected error occurred. Please try again.');
+        console.error('Search error:', error);
     }
-    setTimeout(hideSearchLoading, 120000);
 });
 
 function showSearchLoading() {
@@ -482,7 +802,7 @@ function showSearchLoading() {
     const btn = document.getElementById('searchBtn');
     const icon = document.getElementById('searchIcon');
     const text = document.getElementById('btnText');
-    
+
     btn.disabled = true;
     icon.className = 'fas fa-spinner fa-spin mr-2';
     text.textContent = 'Searching...';
@@ -494,7 +814,7 @@ function hideSearchLoading() {
     const btn = document.getElementById('searchBtn');
     const icon = document.getElementById('searchIcon');
     const text = document.getElementById('btnText');
-    
+
     btn.disabled = false;
     icon.className = 'fas fa-search mr-2';
     text.textContent = 'Search';
@@ -505,16 +825,44 @@ function loadNextPage(nextPageToken) {
     const btn = document.getElementById('loadMoreBtn');
     const icon = document.getElementById('loadMoreIcon');
     const text = document.getElementById('loadMoreText');
-    
+
     btn.disabled = true;
     icon.className = 'fas fa-spinner fa-spin mr-2';
     text.textContent = 'Loading...';
-    
-    document.getElementById('searchForm').submit();
+
+    // Trigger form submission
+    const form = document.getElementById('searchForm');
+    const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+    form.dispatchEvent(submitEvent);
 }
 
 function retrySearch() {
-    document.getElementById('searchForm').submit();
+    closeErrorModal();
+    const form = document.getElementById('searchForm');
+    const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+    form.dispatchEvent(submitEvent);
+}
+
+function retrySearchFromModal() {
+    retrySearch();
+}
+
+function showErrorModal(message) {
+    const modal = document.getElementById('errorModal');
+    const messageEl = document.getElementById('errorModalMessage');
+
+    // Set message (allowing HTML for links)
+    messageEl.innerHTML = message;
+
+    // Show modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeErrorModal() {
+    const modal = document.getElementById('errorModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
 // Select functionality
@@ -550,24 +898,70 @@ function saveSelectedLeads() {
         const index = checkbox.dataset.index;
         const resultDiv = document.querySelector(`[data-result-index="${index}"]`);
         const dataScript = resultDiv.querySelector('.result-data');
-        leadsData.push(JSON.parse(dataScript.textContent));
+        if (dataScript) {
+            try {
+                leadsData.push(JSON.parse(dataScript.textContent));
+            } catch (e) {
+                console.error('Failed to parse lead data:', e);
+            }
+        }
     });
 
+    if (leadsData.length === 0) {
+        showSaveError('No valid leads selected');
+        return;
+    }
+
     showSaveModal();
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+        showSaveError('CSRF token not found. Please refresh the page.');
+        console.error('CSRF token meta tag not found');
+        return;
+    }
+
+    console.log('Saving leads:', {
+        count: leadsData.length,
+        searchData: searchData
+    });
 
     fetch('{{ route("user.leads.save") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             leads: leadsData,
-            search_data: @json($searchData ?? [])
+            search_data: searchData || {}
         })
     })
-    .then(response => response.json())
+    .then(async response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        // Handle redirects (302, 301, etc.)
+        if (response.redirected) {
+            throw new Error('Request was redirected. Please refresh the page and try again.');
+        }
+
+        if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to save leads');
+            } else {
+                throw new Error(`Server error: ${response.status}`);
+            }
+        }
+
+        return response.json();
+    })
     .then(data => {
+        console.log('Save response:', data);
         if (data.success) {
             showSaveSuccess(data.message);
             // Uncheck saved leads
@@ -578,7 +972,8 @@ function saveSelectedLeads() {
         }
     })
     .catch(error => {
-        showSaveError('An error occurred while saving leads');
+        console.error('Save error:', error);
+        showSaveError(error.message || 'An error occurred while saving leads');
     });
 }
 
@@ -669,54 +1064,17 @@ function completeProgress() {
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const progressPercent = document.getElementById('progressPercent');
-    
+
     clearInterval(progressInterval);
-    
+
     progressBar.style.width = '100%';
     progressPercent.textContent = '100%';
     progressText.textContent = 'Search completed successfully!';
-    
+
     // Hide progress after 2 seconds
     setTimeout(() => {
         document.getElementById('progressContainer').classList.add('hidden');
     }, 2000);
-}
-
-// Form submission handler
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    const searchBtn = document.getElementById('searchBtn');
-    const searchIcon = document.getElementById('searchIcon');
-    const btnText = document.getElementById('btnText');
-    
-    // Disable button and show loading state
-    searchBtn.disabled = true;
-    searchIcon.className = 'fas fa-spinner fa-spin mr-2';
-    btnText.textContent = 'Searching...';
-    
-    // Start progress bar
-    startProgress();
-});
-
-// Simulate completion (you'll replace this with actual response handling)
-// This is just for demo - remove in production
-setTimeout(() => {
-    if (document.getElementById('progressContainer') && !document.getElementById('progressContainer').classList.contains('hidden')) {
-        completeProgress();
-        
-        // Reset button
-        const searchBtn = document.getElementById('searchBtn');
-        const searchIcon = document.getElementById('searchIcon');
-        const btnText = document.getElementById('btnText');
-        
-        searchBtn.disabled = false;
-        searchIcon.className = 'fas fa-search mr-2';
-        btnText.textContent = 'Search';
-    }
-}, 5000); // Remove this setTimeout in production
-
-// Retry search function
-function retrySearch() {
-    document.getElementById('searchForm').submit();
 }
 </script>
 

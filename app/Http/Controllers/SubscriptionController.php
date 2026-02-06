@@ -88,10 +88,10 @@ class SubscriptionController extends Controller
                 if ($feature->feature_key === 'leads_per_month') {
                     $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
-                if ($feature->feature_key === 'searches_per_day') {
+                if ($feature->feature_key === 'gmb_searches') {
                     $dailySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
-                if ($feature->feature_key === 'api_keys') {
+                if ($feature->feature_key === 'api_limit') {
                     $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
             }
@@ -235,6 +235,25 @@ class SubscriptionController extends Controller
             'status'            => 'pending',
             'screenshot'        => $screenshotPath,
         ]);
+
+        // Send invoice email
+        try {
+            $paymentMethod = PaymentMethod::find($request->payment_method_id);
+
+            $invoiceData = [
+                'invoice_number' => 'INV-' . $subscription->id . '-' . time(),
+                'payment_date' => now()->format('F d, Y'),
+                'amount' => number_format($package->price, 2),
+                'payment_method' => $paymentMethod ? $paymentMethod->name : 'N/A',
+                'plan_name' => $package->name,
+                'billing_period' => ucfirst($package->billing_type ?? 'one-time'),
+                'next_billing_date' => 'Pending approval',
+            ];
+
+            \App\Services\EmailService::sendSubscriptionInvoice($user, $invoiceData);
+        } catch (\Exception $e) {
+            \Log::error('Invoice email failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('payment_success', true);
     }

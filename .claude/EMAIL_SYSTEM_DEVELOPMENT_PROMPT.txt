@@ -1,0 +1,160 @@
+COPY THIS PROMPT FOR NEW CHAT - Email System Development
+================================================================================
+
+I have an email system in my Laravel application with complete documentation in EMAIL_SYSTEM_GUIDE.md (I'll attach it).
+
+CURRENT SYSTEM STATUS:
+✅ Resend integration complete
+✅ Admin settings page for email configuration (http://localhost/gmb_leads/admin/settings)
+✅ Database-driven settings (settings table)
+✅ 7 email templates with static header/footer
+✅ EmailService helper class for easy email sending
+✅ API key verification feature
+✅ Test email functionality
+
+WHAT I NEED YOU TO DO:
+
+1. REVIEW & UNDERSTAND:
+   - Read the attached EMAIL_SYSTEM_GUIDE.md file
+   - Understand the current architecture
+   - Check all existing files mentioned in the guide
+
+2. IMPLEMENT EMAIL TRIGGERS:
+   I have the EmailService ready, but emails are not automatically triggered. Please integrate email sending at these points:
+
+   A. WELCOME EMAIL:
+      - Location: app/Http/Controllers/AuthController.php
+      - Trigger: After successful user registration (signup method)
+      - Template: welcome_mail.blade.php
+      - Code needed: EmailService::sendWelcomeEmail($user);
+
+   B. SUBSCRIPTION START EMAIL:
+      - Location: app/Http/Controllers/SubscriptionController.php
+      - Trigger: After successful subscription activation
+      - Template: subscription_start_mail.blade.php
+      - Variables needed: plan_name, start_date, renewal_date, searches_limit, exports_limit
+
+   C. SUBSCRIPTION INVOICE EMAIL:
+      - Location: app/Http/Controllers/SubscriptionController.php
+      - Trigger: After successful payment (submitPayment method)
+      - Template: subscription_invoice_mail.blade.php
+      - Variables needed: invoice_number, payment_date, amount, payment_method, plan_name, billing_period, next_billing_date
+
+   D. SUBSCRIPTION END EMAIL:
+      - Location: Need to create a scheduled job/command
+      - Trigger: When subscription expires (check daily)
+      - Template: subscription_end_mail.blade.php
+      - Variables needed: plan_name, end_date
+
+3. CREATE MISSING FEATURES:
+
+   A. ADMIN EMAIL BROADCAST:
+      - Add a new section in admin settings page
+      - Allow admin to send bulk emails to all users
+      - Features:
+        * Select user group (all users, active subscribers, expired subscribers)
+        * Subject line input
+        * WYSIWYG editor for email body
+        * Preview before sending
+        * Send test to admin first
+        * Queue for bulk sending
+
+   B. EMAIL TEMPLATES MANAGER:
+      - Add another tab in admin settings: "Manage Templates"
+      - List all email templates
+      - For each template:
+        * Preview button (show how it looks)
+        * Edit button (inline editor for content - not header/footer)
+        * Test button (send test email)
+        * Enable/Disable toggle
+        * View variables needed
+
+   C. EMAIL LOGS/HISTORY:
+      - Create new table: email_logs
+      - Columns: id, user_id, email, subject, template, status, sent_at, error_message, opened_at
+      - Show in admin dashboard:
+        * Total emails sent today/week/month
+        * Failed emails
+        * Open rate (if tracking added)
+      - Add pagination and filters
+
+   D. EMAIL QUEUE:
+      - Configure Laravel queues for email sending
+      - Update EmailService to use queues
+      - Add retry logic for failed emails
+      - Show queue status in admin dashboard
+
+4. IMPROVE CURRENT SYSTEM:
+
+   A. ADD EMAIL TRACKING:
+      - Open tracking (add 1x1 pixel)
+      - Click tracking (track link clicks)
+      - Store in email_logs table
+
+   B. ADD EMAIL PREFERENCES:
+      - Create user_email_preferences table
+      - Let users unsubscribe from:
+        * Marketing emails
+        * Feature announcements
+        * System notifications
+      - Add preferences page in user dashboard
+      - Add unsubscribe link in email footer
+
+   C. IMPROVE ERROR HANDLING:
+      - Better error messages in admin settings
+      - Log all email errors to database
+      - Send admin notification if emails fail repeatedly
+      - Add retry queue for failed emails
+
+   D. ADD MORE TEMPLATES:
+      - password_reset_mail.blade.php
+      - email_verification_mail.blade.php
+      - subscription_reminder_mail.blade.php (before expiry)
+      - payment_failed_mail.blade.php
+      - account_suspended_mail.blade.php
+
+5. TESTING:
+   - Test all email triggers
+   - Verify email templates render correctly
+   - Check mobile responsiveness
+   - Test with different email clients (Gmail, Outlook, Yahoo)
+   - Load test with bulk emails
+
+6. DOCUMENTATION UPDATES:
+   - Update EMAIL_SYSTEM_GUIDE.md with new features
+   - Add code examples for new templates
+   - Document the email queue setup
+   - Add troubleshooting for new issues
+
+TECHNICAL DETAILS:
+- Framework: Laravel 12
+- Email Service: Resend (already configured)
+- Current Files:
+  * app/Services/EmailService.php
+  * app/Models/Setting.php
+  * app/Http/Controllers/Admin/SettingsController.php
+  * resources/views/emails/*.blade.php
+  * resources/views/admin/settings/index.blade.php
+
+- Database Tables:
+  * settings (exists)
+  * email_logs (need to create)
+  * user_email_preferences (need to create)
+
+- Routes:
+  * admin.settings.index (exists)
+  * admin.settings.email.update (exists)
+  * admin.settings.email.verify (exists)
+  * admin.settings.email.test (exists)
+
+PRIORITIES:
+1. HIGH: Implement email triggers (2A, 2B, 2C, 2D)
+2. HIGH: Email logs/history (3C)
+3. MEDIUM: Admin email broadcast (3A)
+4. MEDIUM: Email queue setup (3D)
+5. LOW: Email preferences (4B)
+6. LOW: Email tracking (4A)
+
+Please start with HIGH priority items first, then move to MEDIUM and LOW.
+
+Show me step-by-step what you're implementing and test each feature before moving to the next.

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\SavedLead;
+use App\Models\SearchHistory;
 use App\Models\WelcomeTutorialTracking;
 use App\Models\UserFeedback;
 use App\Models\Payment;
@@ -43,16 +44,16 @@ class DashboardController extends Controller
         if ($user->isAdmin() && !session('admin_preview_user')) {
             return redirect()->route('admin.dashboard');
         }
-        
+
         // Calculate dynamic stats
         $stats = $this->calculateUserStats($user->id);
-        
+
         // Get recent leads (last 5)
         $recentLeads = SavedLead::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
-            
+
         // Get recent unique searches (fixed GROUP BY issue)
         $recentSearches = SavedLead::where('user_id', $user->id)
             ->select('search_query', 'search_location', DB::raw('MAX(created_at) as created_at'))
@@ -61,8 +62,11 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
-        
-        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches'));
+
+        // Get subscription usage data (same as subscription page)
+        $usageData = $this->calculateUsageData($user);
+
+        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData'));
     }
 
     /**
@@ -72,32 +76,32 @@ class DashboardController extends Controller
     {
         // Get all leads for user
         $totalLeads = SavedLead::where('user_id', $userId)->count();
-        
+
         // Get today's searches - count distinct search queries created today
         $searchesToday = SavedLead::where('user_id', $userId)
             ->whereDate('created_at', Carbon::today())
             ->distinct()
             ->count('search_query');
-            
+
         // Get contacted leads
         $contactedLeads = SavedLead::where('user_id', $userId)
             ->whereIn('contact_status', ['contacted', 'responded', 'converted'])
             ->count();
-            
+
         // Get converted leads
         $convertedLeads = SavedLead::where('user_id', $userId)
             ->where('contact_status', 'converted')
             ->count();
-            
+
         // Calculate rates
         $contactRate = $totalLeads > 0 ? round(($contactedLeads / $totalLeads) * 100, 1) : 0;
         $conversionRate = $totalLeads > 0 ? round(($convertedLeads / $totalLeads) * 100, 1) : 0;
-        
+
         // Calculate trial days left (assuming 30 day trial from registration)
         $userCreatedAt = Auth::user()->created_at;
         $trialEndDate = Carbon::parse($userCreatedAt)->addDays(30);
         $trialDaysLeft = max(0, $trialEndDate->diffInDays(Carbon::now(), false));
-        
+
         return [
             'total_leads' => $totalLeads,
             'searches_today' => $searchesToday,
@@ -106,6 +110,81 @@ class DashboardController extends Controller
             'contact_rate' => $contactRate,
             'conversion_rate' => $conversionRate,
             'trial_days_left' => (int) $trialDaysLeft
+        ];
+    }
+
+    /**
+     * Calculate usage data based on user's subscription
+     */
+    private function calculateUsageData($user)
+    {
+        // Get user's current active or pending subscription
+        $currentSubscription = $user->subscriptions()
+            ->with(['package.features'])
+            ->whereIn('status', ['active', 'pending'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Calculate usage statistics
+        $currentMonth = Carbon::now()->startOfMonth();
+        $today = Carbon::now()->startOfDay();
+
+        // Monthly leads - count saved leads this month
+        $monthlyLeadsUsed = $user->savedLeads()
+            ->where('created_at', '>=', $currentMonth)
+            ->count();
+
+        // Daily searches - count searches today
+        $dailySearchesUsed = $user->searchHistories()
+            ->where('created_at', '>=', $today)
+            ->count();
+
+        // Get limits from current package or default to 0 (no access without subscription)
+        $monthlyLeadsLimit = 0; // Default: no subscription
+        $dailySearchesLimit = 0; // Default: no subscription
+        $apiKeysLimit = 0; // Default: no subscription
+
+        // Get actual API keys count from database
+        $apiKeysUsed = $user->apiKeys()->count();
+
+        if ($currentSubscription && $currentSubscription->package) {
+            $features = $currentSubscription->package->features;
+
+            foreach ($features as $feature) {
+                if ($feature->feature_key === 'leads_per_month') {
+                    $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                }
+                if ($feature->feature_key === 'gmb_searches') {
+                    $dailySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                }
+                if ($feature->feature_key === 'api_limit') {
+                    $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                }
+            }
+        }
+
+        // Usage data
+        return [
+            'monthly_leads' => [
+                'used' => $monthlyLeadsUsed,
+                'limit' => $monthlyLeadsLimit,
+                'remaining' => max(0, $monthlyLeadsLimit - $monthlyLeadsUsed),
+                'percentage' => $monthlyLeadsLimit > 0 ? round(($monthlyLeadsUsed / $monthlyLeadsLimit) * 100) : 0,
+                'is_unlimited' => $monthlyLeadsLimit >= 999999,
+            ],
+            'daily_searches' => [
+                'used' => $dailySearchesUsed,
+                'limit' => $dailySearchesLimit,
+                'remaining' => max(0, $dailySearchesLimit - $dailySearchesUsed),
+                'percentage' => $dailySearchesLimit > 0 ? round(($dailySearchesUsed / $dailySearchesLimit) * 100) : 0,
+                'is_unlimited' => $dailySearchesLimit >= 999999,
+            ],
+            'api_keys' => [
+                'used' => $apiKeysUsed,
+                'limit' => $apiKeysLimit,
+                'percentage' => $apiKeysLimit > 0 ? round(($apiKeysUsed / $apiKeysLimit) * 100) : 0,
+                'is_unlimited' => $apiKeysLimit >= 999999,
+            ],
         ];
     }
 
@@ -143,7 +222,130 @@ class DashboardController extends Controller
                 ->sum('amount'),
         ];
 
-        return view('admin.dashboard', compact('user', 'recentFeedback', 'recentPayments', 'paymentStats'));
+        // Calculate package distribution stats
+        $packageStats = $this->calculatePackageDistribution();
+
+        // Calculate search activity stats
+        $searchStats = $this->calculateSearchStats();
+
+        return view('admin.dashboard', compact('user', 'recentFeedback', 'recentPayments', 'paymentStats', 'packageStats', 'searchStats'));
+    }
+
+    /**
+     * Calculate package distribution statistics
+     */
+    private function calculatePackageDistribution()
+    {
+        $totalUsers = \App\Models\User::where('user_type', 'user')->count();
+
+        // Get all packages with their subscription counts
+        $packages = \App\Models\Package::with(['subscriptions' => function($query) {
+            $query->where('status', 'active');
+        }])->get();
+
+        $distribution = [];
+
+        foreach ($packages as $package) {
+            $subscriberCount = $package->subscriptions->count();
+            $percentage = $totalUsers > 0 ? round(($subscriberCount / $totalUsers) * 100, 1) : 0;
+
+            $distribution[] = [
+                'name' => $package->name,
+                'billing_type' => $package->billing_type,
+                'count' => $subscriberCount,
+                'percentage' => $percentage,
+                'icon' => $this->getPackageIcon($package->name),
+                'color' => $this->getPackageColor($package->name)
+            ];
+        }
+
+        // Calculate users without subscription
+        $usersWithSubscription = \App\Models\Subscription::where('status', 'active')
+            ->distinct('user_id')
+            ->count('user_id');
+        $usersWithoutSubscription = $totalUsers - $usersWithSubscription;
+        $noSubPercentage = $totalUsers > 0 ? round(($usersWithoutSubscription / $totalUsers) * 100, 1) : 0;
+
+        if ($usersWithoutSubscription > 0) {
+            array_unshift($distribution, [
+                'name' => 'No Subscription',
+                'billing_type' => null,
+                'count' => $usersWithoutSubscription,
+                'percentage' => $noSubPercentage,
+                'icon' => 'fa-user',
+                'color' => 'gray'
+            ]);
+        }
+
+        return $distribution;
+    }
+
+    /**
+     * Get icon for package based on name
+     */
+    private function getPackageIcon($packageName)
+    {
+        $name = strtolower($packageName);
+
+        if (str_contains($name, 'free') || str_contains($name, 'trial')) {
+            return 'fa-gift';
+        } elseif (str_contains($name, 'pro') || str_contains($name, 'premium')) {
+            return 'fa-crown';
+        } elseif (str_contains($name, 'basic') || str_contains($name, 'starter')) {
+            return 'fa-star';
+        } elseif (str_contains($name, 'enterprise') || str_contains($name, 'business')) {
+            return 'fa-building';
+        }
+
+        return 'fa-box';
+    }
+
+    /**
+     * Get color for package based on name
+     */
+    private function getPackageColor($packageName)
+    {
+        $name = strtolower($packageName);
+
+        if (str_contains($name, 'free') || str_contains($name, 'trial')) {
+            return 'green';
+        } elseif (str_contains($name, 'pro') || str_contains($name, 'premium')) {
+            return 'primary';
+        } elseif (str_contains($name, 'basic') || str_contains($name, 'starter')) {
+            return 'orange';
+        } elseif (str_contains($name, 'enterprise') || str_contains($name, 'business')) {
+            return 'purple';
+        }
+
+        return 'blue';
+    }
+
+    /**
+     * Calculate search activity statistics
+     */
+    private function calculateSearchStats()
+    {
+        $today = Carbon::today();
+
+        // Total searches today across all users
+        $searchesToday = \App\Models\SearchHistory::whereDate('created_at', $today)->count();
+
+        // Total leads saved today
+        $leadsToday = SavedLead::whereDate('created_at', $today)->count();
+
+        // Average searches per user today
+        $activeUsersToday = \App\Models\SearchHistory::whereDate('created_at', $today)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $avgSearchesPerUser = $activeUsersToday > 0 ? round($searchesToday / $activeUsersToday, 1) : 0;
+
+        return [
+            'searches_today' => $searchesToday,
+            'leads_today' => $leadsToday,
+            'active_users_today' => $activeUsersToday,
+            'avg_searches_per_user' => $avgSearchesPerUser,
+        ];
     }
 
     /**

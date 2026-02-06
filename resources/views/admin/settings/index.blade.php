@@ -1,0 +1,908 @@
+@extends('layouts.admin')
+
+@section('title', 'Settings')
+
+@php
+use App\Models\Setting;
+@endphp
+
+@section('content')
+<div class="p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Page Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">System Settings</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage your application configuration</p>
+        </div>
+
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-2.5 rounded-lg flex items-center justify-between text-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-2.5 rounded-lg flex items-center justify-between text-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        @endif
+
+        <!-- Tabs Navigation -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-5">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px overflow-x-auto" role="tablist">
+                    <button onclick="switchTab('general')" id="tab-general" class="tab-button active px-6 py-3 text-sm font-medium border-b-2 border-primary-600 text-primary-600 whitespace-nowrap">
+                        <i class="fas fa-cog mr-2"></i>General
+                    </button>
+                    <button onclick="switchTab('email')" id="tab-email" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i class="fas fa-envelope mr-2"></i>Email
+                    </button>
+                    <button onclick="switchTab('api')" id="tab-api" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i class="fas fa-plug mr-2"></i>API
+                    </button>
+                    <button onclick="switchTab('system')" id="tab-system" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i class="fas fa-shield-alt mr-2"></i>System
+                    </button>
+                    <button onclick="switchTab('performance')" id="tab-performance" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i class="fas fa-tachometer-alt mr-2"></i>Performance
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-wrapper">
+
+            <!-- ========== GENERAL TAB ========== -->
+            <div id="content-general" class="tab-content">
+                <form action="{{ route('admin.settings.general.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="lg:col-span-2 space-y-5">
+                            <!-- Application Settings -->
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+                                    <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-laptop text-purple-600 mr-2 text-sm"></i>
+                                        Application Settings
+                                    </h2>
+                                </div>
+                                <div class="p-5 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="site_name" class="block text-xs font-medium text-gray-700 mb-1.5">Site Name <span class="text-red-500">*</span></label>
+                                        <input type="text" id="site_name" name="site_name"
+                                               value="{{ old('site_name', Setting::get('site_name', config('app.name'))) }}"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                    </div>
+                                    <div>
+                                        <label for="contact_email" class="block text-xs font-medium text-gray-700 mb-1.5">Contact Email <span class="text-red-500">*</span></label>
+                                        <input type="email" id="contact_email" name="contact_email"
+                                               value="{{ old('contact_email', Setting::get('contact_email')) }}"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label for="site_description" class="block text-xs font-medium text-gray-700 mb-1.5">Site Description</label>
+                                        <textarea id="site_description" name="site_description" rows="2"
+                                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ old('site_description', Setting::get('site_description')) }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label for="contact_phone" class="block text-xs font-medium text-gray-700 mb-1.5">Contact Phone</label>
+                                        <input type="text" id="contact_phone" name="contact_phone"
+                                               value="{{ old('contact_phone', Setting::get('contact_phone')) }}"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="support_email" class="block text-xs font-medium text-gray-700 mb-1.5">Support Email</label>
+                                        <input type="email" id="support_email" name="support_email"
+                                               value="{{ old('support_email', Setting::get('support_email')) }}"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Logo & Favicon -->
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
+                                    <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-image text-indigo-600 mr-2 text-sm"></i>
+                                        Logo & Favicon
+                                    </h2>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <!-- Logo Upload -->
+                                        <div>
+                                            <label for="site_logo" class="block text-xs font-medium text-gray-700 mb-1.5">Site Logo</label>
+                                            @if(Setting::get('site_logo'))
+                                                <div class="mb-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <img src="{{ asset('storage/' . Setting::get('site_logo')) }}" alt="Site Logo" class="h-16 object-contain">
+                                                </div>
+                                            @endif
+                                            <input type="file" id="site_logo" name="site_logo" accept="image/*"
+                                                   class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                                            <p class="mt-1 text-[10px] text-gray-500">Recommended: 200x60px, PNG or JPG</p>
+                                        </div>
+
+                                        <!-- Favicon Upload -->
+                                        <div>
+                                            <label for="site_favicon" class="block text-xs font-medium text-gray-700 mb-1.5">Favicon</label>
+                                            @if(Setting::get('site_favicon'))
+                                                <div class="mb-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <img src="{{ asset('storage/' . Setting::get('site_favicon')) }}" alt="Favicon" class="h-8 w-8 object-contain">
+                                                </div>
+                                            @endif
+                                            <input type="file" id="site_favicon" name="site_favicon" accept="image/x-icon,image/png"
+                                                   class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                                            <p class="mt-1 text-[10px] text-gray-500">Recommended: 32x32px, ICO or PNG</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Business Settings -->
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-amber-50">
+                                    <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-briefcase text-orange-600 mr-2 text-sm"></i>
+                                        Business Settings
+                                    </h2>
+                                </div>
+                                <div class="p-5 grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="default_country" class="block text-xs font-medium text-gray-700 mb-1.5">Default Country</label>
+                                        <select id="default_country" name="default_country"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="US" {{ Setting::get('default_country') == 'US' ? 'selected' : '' }}>United States</option>
+                                            <option value="GB" {{ Setting::get('default_country') == 'GB' ? 'selected' : '' }}>United Kingdom</option>
+                                            <option value="CA" {{ Setting::get('default_country') == 'CA' ? 'selected' : '' }}>Canada</option>
+                                            <option value="AU" {{ Setting::get('default_country') == 'AU' ? 'selected' : '' }}>Australia</option>
+                                            <option value="IN" {{ Setting::get('default_country') == 'IN' ? 'selected' : '' }}>India</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="default_currency" class="block text-xs font-medium text-gray-700 mb-1.5">Default Currency</label>
+                                        <select id="default_currency" name="default_currency"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="USD" {{ Setting::get('default_currency') == 'USD' ? 'selected' : '' }}>USD ($)</option>
+                                            <option value="EUR" {{ Setting::get('default_currency') == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
+                                            <option value="GBP" {{ Setting::get('default_currency') == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
+                                            <option value="INR" {{ Setting::get('default_currency') == 'INR' ? 'selected' : '' }}>INR (₹)</option>
+                                            <option value="AUD" {{ Setting::get('default_currency') == 'AUD' ? 'selected' : '' }}>AUD ($)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="timezone" class="block text-xs font-medium text-gray-700 mb-1.5">Timezone</label>
+                                        <select id="timezone" name="timezone"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="UTC" {{ Setting::get('timezone', 'UTC') == 'UTC' ? 'selected' : '' }}>UTC</option>
+                                            <option value="America/New_York" {{ Setting::get('timezone') == 'America/New_York' ? 'selected' : '' }}>Eastern Time</option>
+                                            <option value="America/Chicago" {{ Setting::get('timezone') == 'America/Chicago' ? 'selected' : '' }}>Central Time</option>
+                                            <option value="America/Los_Angeles" {{ Setting::get('timezone') == 'America/Los_Angeles' ? 'selected' : '' }}>Pacific Time</option>
+                                            <option value="Europe/London" {{ Setting::get('timezone') == 'Europe/London' ? 'selected' : '' }}>London</option>
+                                            <option value="Asia/Kolkata" {{ Setting::get('timezone') == 'Asia/Kolkata' ? 'selected' : '' }}>India</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search Settings -->
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-green-50">
+                                    <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-search text-teal-600 mr-2 text-sm"></i>
+                                        Search Settings
+                                    </h2>
+                                </div>
+                                <div class="p-5 grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="max_search_results" class="block text-xs font-medium text-gray-700 mb-1.5">Max Results Per Page</label>
+                                        <input type="number" id="max_search_results" name="max_search_results"
+                                               value="{{ old('max_search_results', Setting::get('max_search_results', 50)) }}"
+                                               min="10" max="200"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="default_search_radius" class="block text-xs font-medium text-gray-700 mb-1.5">Search Radius (km)</label>
+                                        <input type="number" id="default_search_radius" name="default_search_radius"
+                                               value="{{ old('default_search_radius', Setting::get('default_search_radius', 10)) }}"
+                                               min="1" max="100"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="max_saved_leads" class="block text-xs font-medium text-gray-700 mb-1.5">Max Saved Leads</label>
+                                        <input type="number" id="max_saved_leads" name="max_saved_leads"
+                                               value="{{ old('max_saved_leads', Setting::get('max_saved_leads', 1000)) }}"
+                                               min="10" max="10000"
+                                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Save Button -->
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium">
+                                    <i class="fas fa-save mr-2"></i>Save General Settings
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar for General Tab -->
+                        <div class="space-y-5">
+                            <!-- System Status -->
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-pink-50">
+                                    <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-cogs text-red-600 mr-2 text-xs"></i>
+                                        System Status
+                                    </h2>
+                                </div>
+                                <div class="p-4 space-y-2.5">
+                                    <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div>
+                                            <h5 class="font-medium text-gray-900 text-xs">Registration</h5>
+                                            <p class="text-[10px] text-gray-600">{{ Setting::get('allow_registration', true) ? 'Enabled' : 'Disabled' }}</p>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium {{ Setting::get('allow_registration', true) ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
+                                            {{ Setting::get('allow_registration', true) ? 'ON' : 'OFF' }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div>
+                                            <h5 class="font-medium text-gray-900 text-xs">Cache</h5>
+                                            <p class="text-[10px] text-gray-600">{{ Setting::get('enable_cache', true) ? 'Enabled' : 'Disabled' }}</p>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium {{ Setting::get('enable_cache', true) ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800' }}">
+                                            {{ Setting::get('enable_cache', true) ? 'ON' : 'OFF' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Info -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h6 class="font-semibold text-blue-900 mb-2 flex items-center text-xs">
+                                    <i class="fas fa-info-circle mr-1.5"></i>Quick Info
+                                </h6>
+                                <ul class="space-y-1.5 text-[11px] text-blue-800">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                        <span>Logo displayed in navigation</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                        <span>Favicon shown in browser tab</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                        <span>All settings auto-saved</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ========== EMAIL TAB ========== -->
+            <div id="content-email" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div class="lg:col-span-2 space-y-5">
+                        <!-- Email Configuration -->
+                        <form action="{{ route('admin.settings.email.update') }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                                <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                                    <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                        <i class="fas fa-envelope text-blue-600 mr-2 text-sm"></i>
+                                        Email Configuration
+                                    </h2>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <div>
+                                        <label for="resend_api_key" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                            Resend API Key <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex gap-2">
+                                            <input type="password" id="resend_api_key" name="resend_api_key"
+                                                   value="{{ old('resend_api_key', $settings['resend_api_key'] ?? '') }}"
+                                                   placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx"
+                                                   class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <button type="button" onclick="toggleApiKeyVisibility()"
+                                                    class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm">
+                                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                            </button>
+                                            <button type="button" onclick="verifyApiKey()" id="verifyBtn"
+                                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
+                                                <i class="fas fa-check-circle mr-1"></i>Verify
+                                            </button>
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Get your key from <a href="https://resend.com/api-keys" target="_blank" class="text-blue-600 hover:underline">Resend Dashboard</a>
+                                        </p>
+                                        <div id="verifyResult" class="mt-2"></div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="from_email" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                                From Email <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="email" id="from_email" name="from_email"
+                                                   value="{{ old('from_email', $settings['from_email'] ?? '') }}"
+                                                   placeholder="noreply@yourdomain.com"
+                                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                        <div>
+                                            <label for="from_name" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                                From Name <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" id="from_name" name="from_name"
+                                                   value="{{ old('from_name', $settings['from_name'] ?? config('app.name')) }}"
+                                                   placeholder="{{ config('app.name') }}"
+                                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-2">
+                                        <button type="submit" class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium">
+                                            <i class="fas fa-save mr-1.5"></i>Save Email Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Test Email -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                                <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-paper-plane text-green-600 mr-2 text-sm"></i>
+                                    Test Email
+                                </h2>
+                            </div>
+                            <div class="p-5">
+                                <form action="{{ route('admin.settings.email.test') }}" method="POST" class="flex gap-3">
+                                    @csrf
+                                    <input type="email" name="test_email" placeholder="Enter email address" required
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <button type="submit" class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
+                                        <i class="fas fa-paper-plane mr-1.5"></i>Send
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Templates Sidebar -->
+                    <div class="space-y-5">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-violet-50">
+                                <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-file-alt text-purple-600 mr-2 text-xs"></i>
+                                    Email Templates
+                                </h2>
+                            </div>
+                            <div class="p-4">
+                                <div class="space-y-2.5">
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">Welcome Email</h6>
+                                            <p class="text-[10px] text-gray-500">User registration</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_welcome_email"
+                                                   {{ Setting::get('enable_welcome_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">New Feature</h6>
+                                            <p class="text-[10px] text-gray-500">Announcements</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_new_feature_email"
+                                                   {{ Setting::get('enable_new_feature_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">Invoice</h6>
+                                            <p class="text-[10px] text-gray-500">Payment receipts</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_subscription_invoice_email"
+                                                   {{ Setting::get('enable_subscription_invoice_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">Sub Start</h6>
+                                            <p class="text-[10px] text-gray-500">Subscription begins</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_subscription_start_email"
+                                                   {{ Setting::get('enable_subscription_start_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">Sub End</h6>
+                                            <p class="text-[10px] text-gray-500">Subscription expires</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_subscription_end_email"
+                                                   {{ Setting::get('enable_subscription_end_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
+                                        <div>
+                                            <h6 class="font-medium text-gray-800 text-xs">Maintenance</h6>
+                                            <p class="text-[10px] text-gray-500">System alerts</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                   data-template-key="enable_system_maintenance_email"
+                                                   {{ Setting::get('enable_system_maintenance_email', true) ? 'checked' : '' }}>
+                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="sidebar-toggle-result" class="mt-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Info -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h6 class="font-semibold text-blue-900 mb-2 flex items-center text-xs">
+                                <i class="fas fa-info-circle mr-1.5"></i>Quick Info
+                            </h6>
+                            <ul class="space-y-1.5 text-[11px] text-blue-800">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Responsive email templates</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Dynamic content support</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Automatic delivery</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== API TAB ========== -->
+            <div id="content-api" class="tab-content hidden">
+                <form action="{{ route('admin.settings.general.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 max-w-4xl">
+                        <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-blue-50">
+                            <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-plug text-cyan-600 mr-2 text-sm"></i>
+                                API Settings
+                            </h2>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div>
+                                <label for="google_maps_api_key" class="block text-xs font-medium text-gray-700 mb-1.5">Google Maps API Key</label>
+                                <div class="flex gap-2">
+                                    <input type="password" id="google_maps_api_key" name="google_maps_api_key"
+                                           value="{{ old('google_maps_api_key', Setting::get('google_maps_api_key')) }}"
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <button type="button" onclick="togglePasswordVisibility('google_maps_api_key')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="google_places_api_key" class="block text-xs font-medium text-gray-700 mb-1.5">Google Places API Key</label>
+                                <div class="flex gap-2">
+                                    <input type="password" id="google_places_api_key" name="google_places_api_key"
+                                           value="{{ old('google_places_api_key', Setting::get('google_places_api_key')) }}"
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <button type="button" onclick="togglePasswordVisibility('google_places_api_key')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="api_rate_limit" class="block text-xs font-medium text-gray-700 mb-1.5">API Rate Limit (per min)</label>
+                                    <input type="number" id="api_rate_limit" name="api_rate_limit"
+                                           value="{{ old('api_rate_limit', Setting::get('api_rate_limit', 60)) }}"
+                                           min="1" max="1000"
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div class="flex items-end">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" id="enable_api_logging" name="enable_api_logging" value="1"
+                                               {{ Setting::get('enable_api_logging', false) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                        <span class="ml-2 text-xs font-medium text-gray-700">Enable API Logging</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium">
+                                    <i class="fas fa-save mr-2"></i>Save API Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ========== SYSTEM TAB ========== -->
+            <div id="content-system" class="tab-content hidden">
+                <form action="{{ route('admin.settings.general.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 max-w-4xl">
+                        <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-rose-50">
+                            <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-shield-alt text-red-600 mr-2 text-sm"></i>
+                                System Settings
+                            </h2>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 text-xs">Maintenance Mode</h5>
+                                    <p class="text-[10px] text-gray-600">Restrict site access to admins only</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenance_mode" name="maintenance_mode" value="1"
+                                           {{ Setting::get('maintenance_mode', false) ? 'checked' : '' }}
+                                           class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-600 relative"></div>
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-xs">User Registration</h5>
+                                        <p class="text-[10px] text-gray-600">Allow new signups</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="allow_registration" name="allow_registration" value="1"
+                                               {{ Setting::get('allow_registration', true) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-xs">Email Verification</h5>
+                                        <p class="text-[10px] text-gray-600">Require email verify</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="email_verification" name="email_verification" value="1"
+                                               {{ Setting::get('email_verification', false) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="session_timeout" class="block text-xs font-medium text-gray-700 mb-1.5">Session Timeout (minutes)</label>
+                                    <input type="number" id="session_timeout" name="session_timeout"
+                                           value="{{ old('session_timeout', Setting::get('session_timeout', 120)) }}"
+                                           min="5" max="1440"
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="cache_duration" class="block text-xs font-medium text-gray-700 mb-1.5">Cache Duration (minutes)</label>
+                                    <input type="number" id="cache_duration" name="cache_duration"
+                                           value="{{ old('cache_duration', Setting::get('cache_duration', 60)) }}"
+                                           min="1" max="1440"
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex justify-end">
+                                <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium">
+                                    <i class="fas fa-save mr-2"></i>Save System Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ========== PERFORMANCE TAB ========== -->
+            <div id="content-performance" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl">
+                    <!-- Cache Management -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-amber-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-tachometer-alt text-orange-600 mr-2 text-xs"></i>
+                                Cache Management
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3">Clear application cache to refresh data and improve performance.</p>
+                            <button type="button" onclick="clearCache()"
+                                    class="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-broom mr-1.5"></i>Clear Cache
+                            </button>
+                            <div id="cache-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Database Optimization -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-database text-green-600 mr-2 text-xs"></i>
+                                Database Optimization
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3">Optimize database tables to improve query performance.</p>
+                            <button type="button" onclick="optimizeDatabase()"
+                                    class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-database mr-1.5"></i>Optimize Database
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Tips -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-5 max-w-4xl">
+                    <h6 class="font-semibold text-blue-900 mb-2 flex items-center text-xs">
+                        <i class="fas fa-lightbulb mr-1.5"></i>Performance Tips
+                    </h6>
+                    <ul class="space-y-1.5 text-[11px] text-blue-800">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                            <span>Clear cache regularly for optimal performance</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                            <span>Optimize database monthly or after bulk operations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                            <span>Monitor API rate limits to avoid service disruptions</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Switching Function
+    function switchTab(tabName) {
+        // Hide all tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Remove active state from all tabs
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active', 'border-primary-600', 'text-primary-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+
+        // Show selected tab content
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+
+        // Add active state to selected tab
+        const activeTab = document.getElementById('tab-' + tabName);
+        activeTab.classList.add('active', 'border-primary-600', 'text-primary-600');
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    // Toggle API Key Visibility
+    function toggleApiKeyVisibility() {
+        const input = document.getElementById('resend_api_key');
+        const icon = document.getElementById('toggleIcon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Verify API Key
+    function verifyApiKey() {
+        const apiKey = document.getElementById('resend_api_key').value;
+        const resultDiv = document.getElementById('verifyResult');
+        const btn = document.getElementById('verifyBtn');
+
+        if (!apiKey) {
+            resultDiv.innerHTML = `<div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-triangle mr-1"></i>Enter API key first</div>`;
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Verifying...';
+
+        fetch('{{ route('admin.settings.email.verify') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ api_key: apiKey })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>Valid API Key</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 3000);
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Invalid Key</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Verify';
+        });
+    }
+
+    // Toggle Password Visibility for multiple fields
+    function togglePasswordVisibility(fieldId) {
+        const input = document.getElementById(fieldId);
+        const icon = event.currentTarget.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Clear Cache
+    function clearCache() {
+        const resultDiv = document.getElementById('cache-result');
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Clearing...</div>`;
+
+        fetch('{{ route('admin.settings.cache.clear') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${data.message}</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 3000);
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Failed</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        });
+    }
+
+    // Optimize Database
+    function optimizeDatabase() {
+        const resultDiv = document.getElementById('cache-result');
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Optimizing...</div>`;
+
+        fetch('{{ route('admin.settings.database.optimize') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${data.message}</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 3000);
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Failed</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        });
+    }
+
+    // Handle Email Template Toggle via AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggles = document.querySelectorAll('.email-template-toggle');
+        const resultDiv = document.getElementById('sidebar-toggle-result');
+
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const templateKey = this.dataset.templateKey;
+                const enabled = this.checked;
+
+                resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-2 py-1.5 rounded text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Updating...</div>`;
+
+                fetch('{{ route('admin.settings.email.toggle') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        template_key: templateKey,
+                        enabled: enabled
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-2 py-1.5 rounded text-xs"><i class="fas fa-check-circle mr-1"></i>Updated</div>`;
+                        setTimeout(() => resultDiv.innerHTML = '', 2000);
+                    } else {
+                        resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-2 py-1.5 rounded text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Failed</div>`;
+                        toggle.checked = !enabled;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-2 py-1.5 rounded text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+                    toggle.checked = !enabled;
+                });
+            });
+        });
+    });
+</script>
+@endsection
