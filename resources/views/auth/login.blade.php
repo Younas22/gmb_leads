@@ -267,11 +267,36 @@
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-envelope text-gray-400"></i>
                                     </div>
-                                    <input type="email" name="email" id="signupEmail" required 
+                                    <input type="email" name="email" id="signupEmail" required
                                            class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                                            placeholder="Enter your email">
                                 </div>
                                 <span class="text-red-500 text-sm hidden" id="signupEmailError"></span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Account Type</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-primary-500 transition-colors account-type-option">
+                                        <input type="radio" name="user_type" value="user" checked class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                        <div class="ml-3">
+                                            <span class="block text-sm font-medium text-gray-900">
+                                                <i class="fas fa-user mr-2 text-primary-600"></i>Individual
+                                            </span>
+                                            <span class="block text-xs text-gray-500 mt-1">For personal use</span>
+                                        </div>
+                                    </label>
+                                    <label class="relative flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-primary-500 transition-colors account-type-option">
+                                        <input type="radio" name="user_type" value="company" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300">
+                                        <div class="ml-3">
+                                            <span class="block text-sm font-medium text-gray-900">
+                                                <i class="fas fa-building mr-2 text-orange-600"></i>Company
+                                            </span>
+                                            <span class="block text-xs text-gray-500 mt-1">For team collaboration</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <span class="text-red-500 text-sm hidden" id="userTypeError"></span>
                             </div>
 
                             <div>
@@ -687,9 +712,15 @@
                 opacity: 1;
             }
         }
-        
+
         .animate-slide-in {
             animation: slide-in 0.3s ease-out;
+        }
+
+        /* Account type selection styling */
+        .account-type-option:has(input:checked) {
+            border-color: #2563eb;
+            background-color: #eff6ff;
         }
     </style>
 </body>

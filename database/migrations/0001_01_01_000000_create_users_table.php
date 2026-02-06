@@ -36,7 +36,7 @@ return new class extends Migration
             $table->json('preferences')->nullable();
             $table->enum('login_type', ['custom','google'])->default('custom');
             $table->enum('status', ['active','inactive','suspended'])->default('active');
-            $table->enum('user_type', ['admin','user'])->default('user');
+            $table->enum('user_type', ['admin','user','company'])->default('user');
 
             $table->boolean('welcome_tutorial_seen')->default(false);
             $table->timestamp('welcome_tutorial_seen_at')->nullable();

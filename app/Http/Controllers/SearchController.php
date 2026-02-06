@@ -51,7 +51,25 @@ class SearchController extends Controller
 {
     $user = Auth::user();
     $startTime = microtime(true);
-    
+
+    // Check search limit based on package (only for new searches, not pagination)
+    if (!$request->input('page_token')) {
+        $searchLimit = $user->getFeatureLimit('gmb_searches');
+
+        if ($searchLimit !== -1) {
+            // Count today's searches
+            $todaySearchCount = SearchHistory::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->count();
+
+            if ($todaySearchCount >= $searchLimit) {
+                return back()->withErrors([
+                    'api' => "You have reached your daily search limit ($searchLimit searches). Please upgrade your package or try again tomorrow."
+                ])->withInput();
+            }
+        }
+    }
+
     // Validation
     $request->validate([
         'query' => 'required|string|max:255',
@@ -96,8 +114,25 @@ class SearchController extends Controller
     }
 
     try {
-        // Call your custom API endpoint
-        $apiKey = 'AIzaSyCE39nGPyHxB37_vAWufbum_7UpxusS90Y';
+        // Get user's active and valid API key dynamically
+        $userApiKey = \App\Models\UserApiKey::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->where('is_valid', true)
+            ->orderBy('last_used', 'asc') // Use least recently used key for load balancing
+            ->first();
+
+        if (!$userApiKey) {
+            // Update search history to FAILED
+            if ($searchHistory) {
+                $this->updateSearchHistoryToFailed($searchHistory, 'No active API key found');
+            }
+            return back()->withErrors(['api' => 'No active API key found. Please add and verify your Google Places API key first.']);
+        }
+
+        $apiKey = $userApiKey->api_key;
+
+        // Increment API key usage
+        $userApiKey->incrementUsage();
         
         // testing
         // $apiUrl = 'https://49427c66-cced-4efb-b89d-60208e8abb7a-00-j1idesu3zod2.pike.replit.dev:8080/search';
@@ -351,7 +386,6 @@ private function updateSearchHistoryToFailed($searchHistory, $errorMessage)
  */
 public function saveLeads(Request $request)
 {
-
     $user = Auth::user();
 
     $request->validate([
@@ -362,6 +396,32 @@ public function saveLeads(Request $request)
 
     $leads = $request->input('leads');
     $searchData = $request->input('search_data');
+
+    // Check saved leads limit based on package
+    $savedLeadsLimit = $user->getFeatureLimit('saved_lists');
+
+    if ($savedLeadsLimit !== -1) {
+        // Count current saved leads
+        $currentSavedCount = SavedLead::where('user_id', $user->id)->count();
+        $leadsToSave = count($leads);
+        $totalAfterSave = $currentSavedCount + $leadsToSave;
+
+        if ($currentSavedCount >= $savedLeadsLimit) {
+            return response()->json([
+                'success' => false,
+                'message' => "You have reached your saved leads limit ($savedLeadsLimit). Please upgrade your package to save more leads."
+            ], 403);
+        }
+
+        if ($totalAfterSave > $savedLeadsLimit) {
+            $allowedToSave = $savedLeadsLimit - $currentSavedCount;
+            return response()->json([
+                'success' => false,
+                'message' => "You can only save $allowedToSave more lead(s). You have $currentSavedCount/$savedLeadsLimit saved leads. Please upgrade your package."
+            ], 403);
+        }
+    }
+
     $savedCount = 0;
     $duplicateCount = 0;
 

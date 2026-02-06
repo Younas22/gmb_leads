@@ -58,6 +58,7 @@ class User extends Authenticatable
     // User type constants
     const TYPE_USER = 'user';
     const TYPE_ADMIN = 'admin';
+    const TYPE_COMPANY = 'company';
 
     // Login type constants
     const LOGIN_REGULAR = 'custom';
@@ -77,6 +78,12 @@ class User extends Authenticatable
     public function isUser()
     {
         return $this->user_type === self::TYPE_USER;
+    }
+
+    // Check if user is company
+    public function isCompany()
+    {
+        return $this->user_type === self::TYPE_COMPANY;
     }
 
     // Create user from Google data
@@ -119,6 +126,33 @@ class User extends Authenticatable
     public function searchHistories()
     {
         return $this->hasMany(SearchHistory::class);
+    }
+
+    /**
+     * Get the subscriptions for the user.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(\App\Models\Subscription::class);
+    }
+
+    /**
+     * Check if user has restricted access (no active subscription)
+     * Users without any active subscription can only access subscription page
+     */
+    public function hasRestrictedAccess()
+    {
+        // Admin users are never restricted
+        if ($this->isAdmin()) {
+            return false;
+        }
+
+        $hasActiveSubscription = $this->subscriptions()
+            ->where('status', 'active')
+            ->exists();
+
+        // Restrict access if user has no active subscription
+        return !$hasActiveSubscription;
     }
 
     /**
@@ -223,6 +257,153 @@ class User extends Authenticatable
             'welcome_tutorial_seen' => true,
             'welcome_tutorial_seen_at' => now(),
         ]);
+    }
+
+    /**
+     * Get the active subscription for the user.
+     */
+    public function activeSubscription()
+    {
+        return $this->subscriptions()
+            ->where('status', 'active')
+            ->where(function($query) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', now());
+            })
+            ->with('package.features')
+            ->first();
+    }
+
+    /**
+     * Get a specific feature value from user's active subscription package.
+     *
+     * @param string $featureKey
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getFeatureValue($featureKey, $default = null)
+    {
+        $subscription = $this->activeSubscription();
+
+        if (!$subscription || !$subscription->package) {
+            return $default;
+        }
+
+        $feature = $subscription->package->features
+            ->where('feature_key', $featureKey)
+            ->first();
+
+        if (!$feature) {
+            return $default;
+        }
+
+        // If unlimited, return -1 or true based on context
+        if ($feature->is_unlimited) {
+            return -1; // -1 means unlimited
+        }
+
+        return $feature->feature_value;
+    }
+
+    /**
+     * Check if user has access to a boolean feature.
+     *
+     * @param string $featureKey
+     * @return bool
+     */
+    public function hasFeature($featureKey)
+    {
+        $value = $this->getFeatureValue($featureKey, false);
+
+        // -1 means unlimited
+        if ($value === -1) {
+            return true;
+        }
+
+        // Check for boolean-like values
+        return $value === true || $value === 'true' || $value === '1' || $value === 1;
+    }
+
+    /**
+     * Get the limit for a numeric feature.
+     *
+     * @param string $featureKey
+     * @return int (-1 for unlimited, 0 for not allowed, positive for limit)
+     */
+    public function getFeatureLimit($featureKey)
+    {
+        $value = $this->getFeatureValue($featureKey, 0);
+
+        // Already -1 for unlimited
+        if ($value === -1) {
+            return -1;
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * Check if user can perform an action based on current usage vs limit.
+     *
+     * @param string $featureKey
+     * @param int $currentUsage
+     * @return bool
+     */
+    public function canUseFeature($featureKey, $currentUsage)
+    {
+        $limit = $this->getFeatureLimit($featureKey);
+
+        // -1 means unlimited
+        if ($limit === -1) {
+            return true;
+        }
+
+        return $currentUsage < $limit;
+    }
+
+    /**
+     * Get API keys for the user.
+     */
+    public function apiKeys()
+    {
+        return $this->hasMany(\App\Models\UserApiKey::class);
+    }
+
+    /**
+     * Check if user can add more API keys.
+     *
+     * @return bool
+     */
+    public function canAddApiKey()
+    {
+        $limit = $this->getFeatureLimit('api_limit');
+
+        // -1 means unlimited
+        if ($limit === -1) {
+            return true;
+        }
+
+        $currentCount = $this->apiKeys()->count();
+
+        return $currentCount < $limit;
+    }
+
+    /**
+     * Get remaining API key slots.
+     *
+     * @return int|string (-1 or 'unlimited' for unlimited, otherwise remaining count)
+     */
+    public function getRemainingApiKeySlots()
+    {
+        $limit = $this->getFeatureLimit('api_limit');
+
+        if ($limit === -1) {
+            return 'unlimited';
+        }
+
+        $currentCount = $this->apiKeys()->count();
+
+        return max(0, $limit - $currentCount);
     }
 
 }

@@ -98,6 +98,11 @@
                         Subscriptions
                     </a>
 
+                    <a href="{{ route('admin.payments.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.payments.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-money-bill-wave w-5 text-center mr-3"></i>
+                        Payment History
+                    </a>
+
                     <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
                         <i class="fas fa-chart-bar w-5 text-center mr-3"></i>
                         API Usage

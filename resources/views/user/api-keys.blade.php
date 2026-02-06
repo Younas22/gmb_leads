@@ -16,7 +16,20 @@
             <div class="ml-3 flex-1">
                 <h3 class="text-sm font-semibold text-blue-800">Google Places API Management</h3>
                 <p class="text-sm text-blue-700 mt-1">
-                    Add your Google Places API key to start searching for businesses. Free plan allows 1 API key, Pro plan supports unlimited keys.
+                    Add your Google Places API key to start searching for businesses.
+                    @if($apiLimit == -1)
+                        Your plan supports <strong>unlimited</strong> API keys.
+                    @else
+                        Your plan allows <strong>{{ $apiLimit }}</strong> API key(s).
+                        @if($remainingSlots === 0)
+                            <span class="text-red-600 font-semibold">Limit reached!</span>
+                        @else
+                            Remaining: <strong>{{ $remainingSlots }}</strong>
+                        @endif
+                    @endif
+                </p>
+                <p class="text-xs text-blue-600 mt-2">
+                    <i class="fas fa-lock mr-1"></i> Note: Once API key is verified, it cannot be edited or deleted for security reasons.
                 </p>
             </div>
         </div>
@@ -81,9 +94,15 @@
                     <h3 class="text-lg font-semibold text-gray-800">Google Places API Keys</h3>
                     <p class="text-sm text-gray-600 mt-1">Manage your Google Places API keys for business search</p>
                 </div>
+                @if($canAddMore)
                 <button id="add-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium">
                     <i class="fas fa-plus mr-2"></i>Add API Key
                 </button>
+                @else
+                <button disabled class="bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium" title="API key limit reached">
+                    <i class="fas fa-lock mr-2"></i>Limit Reached
+                </button>
+                @endif
             </div>
         </div>
 
@@ -144,12 +163,20 @@
                                 <button onclick="testApiKey({{ $apiKey->id }})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium">
                                     <i class="fas fa-vial mr-1"></i>Test API
                                 </button>
+                                @if(!$apiKey->is_valid)
+                                {{-- Only show Edit/Delete if key is NOT verified --}}
                                 <button onclick="editApiKey({{ $apiKey->id }}, '{{ $apiKey->key_name }}', '{{ $apiKey->api_key }}', '{{ $apiKey->google_email }}')" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
                                 <button onclick="deleteApiKey({{ $apiKey->id }})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium">
                                     <i class="fas fa-trash mr-1"></i>Delete
                                 </button>
+                                @else
+                                {{-- Show locked indicator for verified keys --}}
+                                <span class="bg-gray-200 text-gray-600 px-3 py-1 rounded text-xs font-medium" title="Verified key - cannot be modified">
+                                    <i class="fas fa-lock mr-1"></i>Locked
+                                </span>
+                                @endif
                             </div>
                             <div class="flex items-center space-x-2">
                                 <span class="text-xs text-gray-500">Status:</span>
@@ -171,9 +198,16 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">No API Keys Added</h3>
                 <p class="text-gray-600 mb-4">Add your Google Places API key to start searching for businesses</p>
+                @if($canAddMore)
                 <button id="add-first-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
                     <i class="fas fa-plus mr-2"></i>Add Your First API Key
                 </button>
+                @else
+                <button disabled class="bg-gray-400 cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium">
+                    <i class="fas fa-lock mr-2"></i>API Key Limit Reached
+                </button>
+                <p class="text-sm text-red-600 mt-2">Please upgrade your package to add API keys.</p>
+                @endif
             </div>
             @endforelse
         </div>
@@ -264,6 +298,9 @@
 let isApiTested = false;
 let isApiValid = false;
 let isEditMode = false;
+const canAddMore = {{ $canAddMore ? 'true' : 'false' }};
+const apiLimit = {{ $apiLimit }};
+const remainingSlots = '{{ $remainingSlots }}';
 
 // Base URL function using Laravel's url() helper
 function getBaseUrl() {

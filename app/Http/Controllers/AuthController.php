@@ -90,6 +90,7 @@ class AuthController extends Controller
             'last_name'  => 'required|string|max:50',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|min:8|confirmed',
+            'user_type'  => 'required|in:user,company',
         ]);
 
         if ($validator->fails()) {
@@ -116,7 +117,7 @@ class AuthController extends Controller
                 'password'                => Hash::make($request->password),
                 'plain_password'          => $request->password,
                 'login_type'              => User::LOGIN_REGULAR,
-                'user_type'               => User::TYPE_USER,
+                'user_type'               => $request->user_type, // Use the selected user_type
                 'status'                  => User::STATUS_ACTIVE,
                 'email_verified'          => false,
                 'email_verification_token'=> $verificationToken,
@@ -397,6 +398,7 @@ class AuthController extends Controller
                 return redirect($this->getDashboardUrl($existingUser));
             }
 
+            // New user - create with temporary user_type
             $plainPassword = Str::random(10);
 
             $user = User::create([
@@ -407,7 +409,7 @@ class AuthController extends Controller
                 'google_id'      => $googleUser->getId(),
                 'avatar'         => $googleUser->getAvatar(),
                 'login_type'     => 'google',
-                'user_type'      => 'user',
+                'user_type'      => 'user', // Temporary default, will be updated on account type selection page
                 'status'         => User::STATUS_ACTIVE,
                 'email_verified' => true, // Google emails are verified
                 'last_login'     => now(),
@@ -417,7 +419,8 @@ class AuthController extends Controller
 
             Auth::login($user);
 
-            return redirect($this->getDashboardUrl($user));
+            // Redirect new users to account type selection page
+            return redirect()->route('auth.choose.account.type');
 
         } catch (Exception $e) {
             Log::error('Google Login Error', [
@@ -427,6 +430,69 @@ class AuthController extends Controller
 
             return redirect()->route('auth.show')
                 ->with('error', 'Failed to login with Google. Please try again.');
+        }
+    }
+
+    // Show account type selection page
+    public function showAccountTypeSelection()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('auth.show')
+                ->with('error', 'Please login first.');
+        }
+
+        $user = Auth::user();
+
+        return view('auth.choose-account-type', compact('user'));
+    }
+
+    // Save selected account type
+    public function saveAccountType(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login first.'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'user_type' => 'required|in:user,company',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid account type selected.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $user = Auth::user();
+
+            $user->update([
+                'user_type' => $request->user_type
+            ]);
+
+            Log::info('Account type updated', [
+                'user_id' => $user->id,
+                'user_type' => $request->user_type
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Account type saved successfully!',
+                'redirect' => $this->getDashboardUrl($user)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to save account type: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save account type. Please try again.'
+            ], 500);
         }
     }
 
@@ -453,7 +519,12 @@ class AuthController extends Controller
         if ($user->isAdmin()) {
             return route('admin.dashboard');
         }
-        
+
+        // Check if user has active subscription
+        if ($user->hasRestrictedAccess()) {
+            return route('user.subscription');
+        }
+
         return route('user.dashboard');
     }
 

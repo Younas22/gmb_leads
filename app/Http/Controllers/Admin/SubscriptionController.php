@@ -140,19 +140,49 @@ class SubscriptionController extends Controller
     public function toggleStatus(Subscription $subscription)
     {
         $newStatus = $subscription->status === 'active' ? 'cancelled' : 'active';
-        $subscription->update(['status' => $newStatus]);
 
-        // Agar pending se active hua to pending payments ko completed karo
+        $updateData = ['status' => $newStatus];
+
+        // Jab subscription active ho to end_date auto set karo package ke billing_type ke hisab se
         if ($newStatus === 'active') {
+            $package = $subscription->package;
+            $startDate = $subscription->start_date ?? now();
+
+            if ($package) {
+                switch ($package->billing_type) {
+                    case 'monthly':
+                        $updateData['end_date'] = Carbon::parse($startDate)->addMonth();
+                        break;
+                    case 'yearly':
+                        $updateData['end_date'] = Carbon::parse($startDate)->addYear();
+                        break;
+                    case 'lifetime':
+                        $updateData['end_date'] = null; // Lifetime has no end
+                        break;
+                    default:
+                        // For other billing types, add 30 days by default
+                        $updateData['end_date'] = Carbon::parse($startDate)->addDays(30);
+                }
+            }
+
+            // Set start_date to today if not set
+            if (!$subscription->start_date) {
+                $updateData['start_date'] = now();
+            }
+
+            // Pending payments ko completed karo
             $subscription->payments()->where('status', 'pending')->update([
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
         }
 
+        $subscription->update($updateData);
+
         return response()->json([
             'success' => true,
             'status' => $subscription->status,
+            'end_date' => $subscription->end_date ? $subscription->end_date->format('M d, Y') : 'Lifetime',
             'message' => 'Subscription status updated successfully.'
         ]);
     }

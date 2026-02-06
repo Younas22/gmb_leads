@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\SavedLead;
 use App\Models\WelcomeTutorialTracking;
 use App\Models\UserFeedback;
+use App\Models\Payment;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -18,11 +19,16 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
-        
+
+        // Redirect users without active subscription to subscription page
+        if ($user->hasRestrictedAccess()) {
+            return redirect()->route('user.subscription');
+        }
+
         return redirect()->route('user.dashboard');
     }
 
@@ -121,7 +127,23 @@ class DashboardController extends Controller
         // Recent feedback (last 5)
         $recentFeedback = UserFeedback::with('user')->latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('user', 'recentFeedback'));
+        // Recent payments (last 10)
+        $recentPayments = Payment::with(['user', 'subscription.package', 'paymentMethod'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Payment stats
+        $paymentStats = [
+            'total_revenue' => Payment::completed()->sum('amount'),
+            'pending_payments' => Payment::pending()->count(),
+            'this_month' => Payment::completed()
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->sum('amount'),
+        ];
+
+        return view('admin.dashboard', compact('user', 'recentFeedback', 'recentPayments', 'paymentStats'));
     }
 
     /**

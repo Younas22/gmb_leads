@@ -15,12 +15,17 @@ class ApiKeysController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         $apiKeys = UserApiKey::where('user_id', $user->id)
                             ->orderBy('created_at', 'desc')
                             ->get();
-        
-        return view('user.api-keys', compact('user', 'apiKeys'));
+
+        // Get API key limit info for the view
+        $apiLimit = $user->getFeatureLimit('api_limit');
+        $canAddMore = $user->canAddApiKey();
+        $remainingSlots = $user->getRemainingApiKeySlots();
+
+        return view('user.api-keys', compact('user', 'apiKeys', 'apiLimit', 'canAddMore', 'remainingSlots'));
     }
 
     /**
@@ -28,9 +33,24 @@ class ApiKeysController extends Controller
      */
     public function store(Request $request)
     {
-        
         $user = Auth::user();
-        
+
+        // Check if user can add more API keys based on package limit
+        if (!$user->canAddApiKey()) {
+            $limit = $user->getFeatureLimit('api_limit');
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "You have reached your API key limit ($limit). Please upgrade your package to add more keys.",
+                    'limit_reached' => true
+                ], 403);
+            }
+
+            return redirect()->route('user.api-keys')
+                ->with('error', "You have reached your API key limit ($limit). Please upgrade your package to add more keys.");
+        }
+
         $request->validate([
             'key_name' => 'required|string|max:255',
             'api_key' => 'required|string|min:30',
@@ -73,9 +93,23 @@ class ApiKeysController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         $apiKey = UserApiKey::where('user_id', $user->id)->findOrFail($id);
-        
+
+        // Block editing if API key is already verified
+        if ($apiKey->is_valid) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verified API keys cannot be edited for security reasons.',
+                    'is_locked' => true
+                ], 403);
+            }
+
+            return redirect()->route('user.api-keys')
+                ->with('error', 'Verified API keys cannot be edited for security reasons.');
+        }
+
         $request->validate([
             'key_name' => 'required|string|max:255',
             'api_key' => 'required|string|min:30',
@@ -84,7 +118,7 @@ class ApiKeysController extends Controller
 
         // Test API key before updating
         $isValid = $this->testGooglePlacesApi($request->api_key);
-        
+
         $apiKey->update([
             'api_key' => $request->api_key,
             'key_name' => $request->key_name,
@@ -131,13 +165,35 @@ class ApiKeysController extends Controller
     /**
      * Delete API key
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $user = Auth::user();
-        
+
         $apiKey = UserApiKey::where('user_id', $user->id)->findOrFail($id);
+
+        // Block deletion if API key is verified
+        if ($apiKey->is_valid) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verified API keys cannot be deleted for security reasons.',
+                    'is_locked' => true
+                ], 403);
+            }
+
+            return redirect()->route('user.api-keys')
+                ->with('error', 'Verified API keys cannot be deleted for security reasons.');
+        }
+
         $apiKey->delete();
-        
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'API key deleted successfully'
+            ]);
+        }
+
         return redirect()->route('user.api-keys')->with('success', 'API key deleted successfully');
     }
 

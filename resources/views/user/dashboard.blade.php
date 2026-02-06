@@ -5,6 +5,45 @@
 @section('content')
 <main class="p-4 lg:p-8">
 @include('user.welcome-tutorial-modal')
+
+<!-- Pending Subscription Warning -->
+@if(auth()->user()->hasRestrictedAccess())
+<div class="mb-6">
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 shadow-sm">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <h3 class="text-lg font-semibold text-yellow-800 mb-1">
+                    <i class="fas fa-clock mr-2"></i>Subscription Pending Activation
+                </h3>
+                <p class="text-sm text-yellow-700 mb-3">
+                    Your payment has been submitted successfully and is currently under review by our admin team.
+                    You will receive full access to all features once your subscription is activated.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{{ route('user.subscription') }}" class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        View Subscription Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Warning flash message from middleware -->
+@if(session('warning'))
+<div class="mb-6">
+    <div class="bg-orange-50 border border-orange-200 text-orange-700 px-5 py-4 rounded-xl flex items-center">
+        <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
+        <div>{{ session('warning') }}</div>
+    </div>
+</div>
+@endif
+
 <!-- Welcome Section -->
 <div class="mb-8">
     <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-4 sm:p-6 text-white">
@@ -14,19 +53,26 @@
                 <p class="text-primary-100 text-sm sm:text-base">Your first month is free with unlimited lead searches. Start building your business network today!</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:flex-shrink-0">
-                <a href="{{ route('user.tutorials') }}" class="inline-flex items-center justify-center bg-orange-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm sm:text-base">
-                    <i class="fas fa-play-circle mr-2"></i>
-                    <span class="hidden sm:inline">Watch </span>Tutorials
-                </a>
-                <a href="{{ route('user.search') }}" class="inline-flex items-center justify-center bg-white text-primary-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base">
-                    <i class="fas fa-search mr-2"></i>
-                    <span class="hidden sm:inline">Start </span>Searching
-                </a>
-                
-                <a href="{{ route('user.leads') }}" class="inline-flex items-center justify-center bg-primary-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors text-sm sm:text-base">
-                    <i class="fas fa-bookmark mr-2"></i>
-                    <span class="hidden sm:inline">View </span>Leads
-                </a>
+                @if(!auth()->user()->hasRestrictedAccess())
+                    <a href="{{ route('user.tutorials') }}" class="inline-flex items-center justify-center bg-orange-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm sm:text-base">
+                        <i class="fas fa-play-circle mr-2"></i>
+                        <span class="hidden sm:inline">Watch </span>Tutorials
+                    </a>
+                    <a href="{{ route('user.search') }}" class="inline-flex items-center justify-center bg-white text-primary-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base">
+                        <i class="fas fa-search mr-2"></i>
+                        <span class="hidden sm:inline">Start </span>Searching
+                    </a>
+
+                    <a href="{{ route('user.leads') }}" class="inline-flex items-center justify-center bg-primary-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors text-sm sm:text-base">
+                        <i class="fas fa-bookmark mr-2"></i>
+                        <span class="hidden sm:inline">View </span>Leads
+                    </a>
+                @else
+                    <a href="{{ route('user.subscription') }}" class="inline-flex items-center justify-center bg-yellow-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm sm:text-base">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span class="hidden sm:inline">View </span>Subscription Status
+                    </a>
+                @endif
             </div>
         </div>
     </div>

@@ -40,6 +40,7 @@ class PackageSeeder extends Seeder
             ['feature_key' => 'leads_per_month',  'feature_value' => '100', 'is_unlimited' => false],
             ['feature_key' => 'export_leads',     'feature_value' => '25',  'is_unlimited' => false],
             ['feature_key' => 'saved_lists',      'feature_value' => '3',   'is_unlimited' => false],
+            ['feature_key' => 'api_limit',        'feature_value' => '1',   'is_unlimited' => false],
             ['feature_key' => 'email_support',    'feature_value' => 'false', 'is_unlimited' => false],
             ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
             ['feature_key' => 'bulk_export',      'feature_value' => 'false', 'is_unlimited' => false],
@@ -65,6 +66,7 @@ class PackageSeeder extends Seeder
             ['feature_key' => 'leads_per_month',  'feature_value' => '1000', 'is_unlimited' => false],
             ['feature_key' => 'export_leads',     'feature_value' => '500',  'is_unlimited' => false],
             ['feature_key' => 'saved_lists',      'feature_value' => '10',   'is_unlimited' => false],
+            ['feature_key' => 'api_limit',        'feature_value' => '3',   'is_unlimited' => false],
             ['feature_key' => 'email_support',    'feature_value' => 'true', 'is_unlimited' => false],
             ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
             ['feature_key' => 'bulk_export',      'feature_value' => 'true', 'is_unlimited' => false],
@@ -90,6 +92,7 @@ class PackageSeeder extends Seeder
             ['feature_key' => 'leads_per_month',  'feature_value' => '1000', 'is_unlimited' => false],
             ['feature_key' => 'export_leads',     'feature_value' => '500',  'is_unlimited' => false],
             ['feature_key' => 'saved_lists',      'feature_value' => '10',   'is_unlimited' => false],
+            ['feature_key' => 'api_limit',        'feature_value' => '3',   'is_unlimited' => false],
             ['feature_key' => 'email_support',    'feature_value' => 'true', 'is_unlimited' => false],
             ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
             ['feature_key' => 'bulk_export',      'feature_value' => 'true', 'is_unlimited' => false],
@@ -124,7 +127,32 @@ class PackageSeeder extends Seeder
 
         // ============ COMPANY PACKAGES (3) ============
 
-        // 5. Business – Monthly
+        // 5. Free
+        $free = Package::create([
+            'name'         => 'Free',
+            'slug'         => 'business-free',
+            'package_for'  => 'company',
+            'billing_type' => 'monthly',
+            'price'        => 0.00,
+            'currency'     => 'USD',
+            'max_users'    => 2,
+            'is_popular'   => false,
+            'description'  => 'Get started with basic GMB lead generation. Perfect for trying out our platform.',
+            'status'       => 'active',
+        ]);
+
+        $this->addFeatures($free->id, [
+            ['feature_key' => 'gmb_searches',    'feature_value' => '50',  'is_unlimited' => false],
+            ['feature_key' => 'leads_per_month',  'feature_value' => '100', 'is_unlimited' => false],
+            ['feature_key' => 'export_leads',     'feature_value' => '25',  'is_unlimited' => false],
+            ['feature_key' => 'saved_lists',      'feature_value' => '3',   'is_unlimited' => false],
+            ['feature_key' => 'email_support',    'feature_value' => 'false', 'is_unlimited' => false],
+            ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
+            ['feature_key' => 'bulk_export',      'feature_value' => 'false', 'is_unlimited' => false],
+            ['feature_key' => 'crm_integration',  'feature_value' => 'false', 'is_unlimited' => false],
+        ]);
+
+        // 6. Business – Monthly
         $bizMonthly = Package::create([
             'name'         => 'Business',
             'slug'         => 'business-monthly',
@@ -155,7 +183,7 @@ class PackageSeeder extends Seeder
             ['feature_key' => 'white_label',        'feature_value' => 'false',  'is_unlimited' => false],
         ]);
 
-        // 6. Business – Yearly
+        // 7. Business – Yearly
         $bizYearly = Package::create([
             'name'         => 'Business',
             'slug'         => 'business-yearly',
@@ -186,7 +214,7 @@ class PackageSeeder extends Seeder
             ['feature_key' => 'white_label',        'feature_value' => 'false',  'is_unlimited' => false],
         ]);
 
-        // 7. Business – Lifetime
+        // 8. Business – Lifetime
         $bizLifetime = Package::create([
             'name'         => 'Business',
             'slug'         => 'business-lifetime',

@@ -49,8 +49,17 @@
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('auth.show') }}" class="text-gray-700 hover:text-primary-blue px-3 py-2 text-sm font-medium">Sign In</a>
-                    <a href="{{ route('auth.show') }}" class="bg-primary-blue hover:bg-dark-blue text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Start Free</a>
+                    @guest
+                        <a href="{{ route('auth.show') }}" class="text-gray-700 hover:text-primary-blue px-3 py-2 text-sm font-medium">Sign In</a>
+                        <a href="{{ route('auth.show') }}" class="bg-primary-blue hover:bg-dark-blue text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Start Free</a>
+                    @endguest
+
+                    @auth
+                        <a href="{{ route('user.dashboard') }}" class="bg-primary-blue hover:bg-dark-blue text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
+                            <i class="fas fa-th-large mr-2"></i>
+                            Dashboard
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -220,13 +229,15 @@
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">Choose the plan that fits your business needs</p>
             </div>
 
-            <!-- Individual / Company Tabs -->
+            <!-- Individual / Company Tabs (only show if both types have packages) -->
+            @if($companyPackages->count() > 0)
             <div class="flex justify-center mb-14">
                 <div class="inline-flex bg-gray-100 rounded-full p-1">
                     <button class="tab-btn bg-primary-blue text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer" data-tab="user">Individual</button>
                     <button class="tab-btn text-gray-600 px-6 py-2 rounded-full text-sm font-semibold transition-colors hover:text-gray-900 cursor-pointer" data-tab="company">Company</button>
                 </div>
             </div>
+            @endif
 
             
             @php
@@ -237,6 +248,7 @@
                     'saved_lists'         => 'Saved Lists',
                     'email_support'       => 'Email Support',
                     'api_access'          => 'API Access',
+                    'api_limit'          => 'API Limit',
                     'bulk_export'         => 'Bulk Export',
                     'crm_integration'     => 'CRM Integration',
                     'priority_support'    => 'Priority Support',
@@ -258,13 +270,15 @@
                 ];
                 $pricingTabs = [
                     ['type' => 'user',    'packages' => $userPackages],
-                    ['type' => 'company', 'packages' => $companyPackages],
                 ];
+                if($companyPackages->count() > 0) {
+                    $pricingTabs[] = ['type' => 'company', 'packages' => $companyPackages];
+                }
             @endphp
 
             @foreach($pricingTabs as $tab)
-            <div class="pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
-                <div class="grid sm:grid-cols-2 {{ $tab['type'] === 'user' ? 'lg:grid-cols-4' : 'lg:grid-cols-3' }} gap-6">
+            <div class="mt-14 pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
+                <div class="grid sm:grid-cols-2 {{ $tab['type'] === 'user' ? 'lg:grid-cols-4' : 'lg:grid-cols-4' }} gap-6">
                     @foreach($tab['packages'] as $package)
                     <div class="rounded-xl p-8 flex flex-col {{ $package->is_popular ? 'bg-primary-blue text-white relative transform scale-105' : 'bg-white border-2 border-gray-200 hover:border-primary-blue transition-colors' }}">
                         @if($package->is_popular)
@@ -506,116 +520,8 @@
         </div>
     </section>
 
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" style="backdrop-filter:blur(2px);">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-                <!-- Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-900">Complete Payment</h3>
-                    <button onclick="closePaymentModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-
-                <div class="p-6">
-                    <!-- Package Info -->
-                    <div class="bg-gradient-to-r from-blue-50 to-orange-50 rounded-xl p-4 mb-5 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-gray-500 uppercase tracking-wide">Package</p>
-                            <p class="text-base font-bold text-gray-900" id="modalPackageName">-</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs text-gray-500">Amount</p>
-                            <p class="text-xl font-bold text-primary-blue" id="modalPackagePrice">-</p>
-                        </div>
-                    </div>
-
-                    <!-- Step 1: Select Payment Method -->
-                    <div id="step1">
-                        <p class="text-sm font-semibold text-gray-700 mb-3">Select a Payment Method</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <!-- Card — Coming Soon (static, disabled) -->
-                            <div class="border-2 border-gray-200 rounded-xl p-4 opacity-55 cursor-not-allowed bg-gray-50">
-                                <div class="flex flex-col items-center text-center">
-                                    <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mb-2">
-                                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"></path></svg>
-                                    </div>
-                                    <span class="text-sm font-medium text-gray-600">Credit / Debit Card</span>
-                                    <span class="text-xs bg-gray-300 text-gray-600 px-2 py-0.5 rounded-full mt-1.5">Coming Soon</span>
-                                </div>
-                            </div>
-
-                            <!-- Dynamic payment methods from DB -->
-                            @foreach($paymentMethods as $method)
-                                @if($method->slug !== 'card')
-                                <div class="border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary-blue hover:shadow-sm transition-all"
-                                     onclick="selectPaymentMethod({{ $method->id }}, '{{ e($method->name) }}', '{{ e($method->slug) }}')">
-                                    <div class="flex flex-col items-center text-center">
-                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-2
-                                            {{ $method->slug === 'jazzcash' ? 'bg-green-100 text-green-700' : '' }}
-                                            {{ $method->slug === 'easypaisa' ? 'bg-teal-100 text-teal-700' : '' }}
-                                            {{ $method->slug === 'bank' ? 'bg-blue-100 text-blue-700' : '' }}
-                                            {{ $method->slug === 'nayapay' ? 'bg-purple-100 text-purple-700' : '' }}
-                                            {{ !in_array($method->slug, ['jazzcash','easypaisa','bank','nayapay']) ? 'bg-gray-100 text-gray-600' : '' }}
-                                        ">
-                                            <span class="text-sm font-bold">{{ strtoupper(substr($method->name, 0, 2)) }}</span>
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-800">{{ $method->name }}</span>
-                                    </div>
-                                </div>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Instructions + Screenshot Upload -->
-                    <div id="step2" class="hidden">
-                        <div class="flex items-center mb-4">
-                            <button onclick="backToStep1()" class="flex items-center text-primary-blue text-sm font-medium hover:text-dark-blue">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                                Back
-                            </button>
-                            <span class="ml-3 text-sm font-semibold text-gray-800" id="selectedMethodLabel">-</span>
-                        </div>
-
-                        <!-- Instructions box -->
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-                            <p class="text-sm font-semibold text-blue-800 mb-1">Payment Instructions</p>
-                            <p class="text-sm text-blue-700 whitespace-pre-line" id="paymentInstructions">-</p>
-                        </div>
-
-                        <!-- Upload Form -->
-                        <form id="paymentForm" method="POST" action="{{ route('user.payment.submit') }}" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="package_id" id="formPackageId">
-                            <input type="hidden" name="payment_method_id" id="formPaymentMethodId">
-
-                            <label class="block">
-                                <span class="text-sm text-gray-600 font-medium">Upload Payment Screenshot *</span>
-                                <div class="mt-2 border-2 border-dashed border-gray-300 rounded-xl p-5 text-center hover:border-primary-blue transition-colors cursor-pointer"
-                                     onclick="document.getElementById('screenshotInput').click()">
-                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <p class="text-sm text-gray-500">Click to upload image</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">JPG, PNG, GIF — max 5MB</p>
-                                    <input type="file" name="screenshot" id="screenshotInput" accept="image/*" required class="hidden" onchange="previewScreenshot(this)">
-                                </div>
-                            </label>
-
-                            <!-- Preview -->
-                            <div id="screenshotPreview" class="hidden mt-3 text-center">
-                                <img id="screenshotPreviewImg" src="" alt="Preview" class="max-h-36 w-auto mx-auto rounded-lg border border-gray-200">
-                            </div>
-
-                            <button type="submit" class="w-full mt-4 bg-primary-blue text-white py-3 rounded-xl font-semibold hover:bg-dark-blue transition-colors">
-                                Submit Payment
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- Payment Modal --}}
+    @include('partials.payment-modal')
 
         <!-- Footer -->
     <footer id="contact" class="bg-gray-900 text-white py-12">
@@ -723,73 +629,6 @@
     </footer> -->
 
     <script>
-        // ── Payment Modal ──
-        var isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
-        var currentPackagePrice = 0;
-
-        var paymentDetailsMap = {
-            'jazzcash':  'Send PKR [AMOUNT] to JazzCash account:\nNumber: 0312-1234567\nReference: BusinessFinder',
-            'easypaisa': 'Send PKR [AMOUNT] to Easypaisa account:\nNumber: 0311-1234567\nReference: BusinessFinder',
-            'bank':      'Transfer PKR [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: BusinessFinder Pvt Ltd\nAccount No: 1234567890123',
-            'nayapay':   'Send PKR [AMOUNT] to NayaPay:\nID: admin@businessfinder.pk\nReference: BusinessFinder'
-        };
-
-        function handleGetStarted(btn) {
-            if (!isAuthenticated) {
-                window.location.href = '{{ route("auth.show") }}';
-                return;
-            }
-            currentPackagePrice = btn.dataset.packagePrice;
-            document.getElementById('modalPackageName').textContent  = btn.dataset.packageName;
-            document.getElementById('modalPackagePrice').textContent = 'PKR ' + Number(currentPackagePrice).toLocaleString();
-            document.getElementById('formPackageId').value            = btn.dataset.packageId;
-
-            document.getElementById('step1').classList.remove('hidden');
-            document.getElementById('step2').classList.add('hidden');
-            document.getElementById('paymentModal').classList.remove('hidden');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden');
-        }
-
-        function selectPaymentMethod(methodId, methodName, methodSlug) {
-            document.getElementById('formPaymentMethodId').value     = methodId;
-            document.getElementById('selectedMethodLabel').textContent = methodName;
-
-            var tpl = paymentDetailsMap[methodSlug] || 'Please complete your payment and upload a screenshot.';
-            document.getElementById('paymentInstructions').textContent = tpl.replace(/\[AMOUNT\]/g, Number(currentPackagePrice).toLocaleString());
-
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
-
-            // Reset file & preview
-            document.getElementById('screenshotInput').value = '';
-            document.getElementById('screenshotPreview').classList.add('hidden');
-        }
-
-        function backToStep1() {
-            document.getElementById('step1').classList.remove('hidden');
-            document.getElementById('step2').classList.add('hidden');
-        }
-
-        function previewScreenshot(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('screenshotPreviewImg').src = e.target.result;
-                    document.getElementById('screenshotPreview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Close modal on backdrop click
-        document.getElementById('paymentModal').addEventListener('click', function(e) {
-            if (e.target === this) closePaymentModal();
-        });
-        // ── End Payment Modal ──
-
         // FAQ Toggle Function
         function toggleFAQ(button) {
             const content = button.nextElementSibling;

@@ -142,7 +142,7 @@
                                     <i class="fas fa-box text-orange-600 text-sm"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <div class="text-sm font-medium text-gray-900">{{ $subscription->package->name ?? 'Deleted Package' }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $subscription->package->name ?? 'Deleted Package' }} ({{ $subscription->package->billing_type }})</div>
                                     <div class="text-xs text-gray-500">{{ $subscription->package ? $subscription->package->currency . ' ' . number_format($subscription->package->price, 2) : 'N/A' }}</div>
                                 </div>
                             </div>
@@ -162,7 +162,7 @@
                             </div>
                             @php $screenshotPath = $subscription->payments->where('screenshot', '!=', null)->first()?->screenshot; @endphp
                             @if($screenshotPath)
-                            <a href="{{ \Illuminate\Support\Facades\Storage::url($screenshotPath) }}" target="_blank" class="mt-1.5 text-xs text-blue-600 hover:underline flex items-center">
+                            <a href="{{ asset('public/' . $screenshotPath) }}" target="_blank" class="mt-1.5 text-xs text-blue-600 hover:underline flex items-center">
                                 <i class="fas fa-image mr-1"></i> View Screenshot
                             </a>
                             @endif
@@ -488,6 +488,11 @@ function toggleStatus(subscriptionId) {
                 dot.classList.add('bg-red-400');
             }
             text.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+
+            // Show success message with end date info
+            if (data.status === 'active' && data.end_date) {
+                alert('Subscription activated! End date: ' + data.end_date + '\nPayment status updated to completed.');
+            }
         }
     });
 }

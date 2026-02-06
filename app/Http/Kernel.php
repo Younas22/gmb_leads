@@ -59,5 +59,6 @@ class Kernel extends HttpKernel
         
         // Custom middleware
         'check.user.type' => \App\Http\Middleware\CheckUserType::class,
+        'subscription.access' => \App\Http\Middleware\CheckSubscriptionAccess::class,
     ];
 }

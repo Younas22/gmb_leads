@@ -31,37 +31,63 @@
     <!-- Navigation - Scrollable -->
     <div class="flex-1 overflow-y-auto">
         <nav class="p-4">
+            @php
+                $isRestricted = auth()->user()->hasRestrictedAccess();
+            @endphp
+
             <div class="space-y-2">
+                <!-- Dashboard - always visible -->
                 <a href="{{ route('user.dashboard') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.dashboard') ? 'text-primary-700 bg-primary-50' : '' }}">
                     <i class="fas fa-home w-5 text-center mr-3"></i>
                     Dashboard
                 </a>
-                <a href="{{ route('user.search') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-search w-5 text-center mr-3"></i>
-                    Search Places
+
+                <!-- Subscription - always visible -->
+                <a href="{{ route('user.subscription') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.subscription') ? 'text-primary-700 bg-primary-50' : '' }}">
+                    <i class="fas fa-crown w-5 text-center mr-3"></i>
+                    Subscription
                 </a>
-                <a href="{{ route('user.leads') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.leads') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-bookmark w-5 text-center mr-3"></i>
-                    Saved Leads
-                </a>
-                <a href="{{ route('user.api-keys') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.api-keys') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-key w-5 text-center mr-3"></i>
-                    API Keys
-                </a>
-                <a href="{{ route('user.search-history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search-history') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-history w-5 text-center mr-3"></i>
-                    Search History
-                </a>
-                <a href="{{ route('user.feedback.history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.feedback.history') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-comments w-5 text-center mr-3"></i>
-                    Feedback History
-                </a>
-                
-                <!-- Profile Link -->
-                <a href="{{ route('user.profile') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.profile') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-user-cog w-5 text-center mr-3"></i>
-                    Profile Settings
-                </a>
+
+                @if($isRestricted)
+                    <!-- Pending Subscription Notice -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-clock text-yellow-600 mr-3 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-yellow-800">Subscription Pending</p>
+                                <p class="text-xs text-yellow-700 mt-1">Your payment is under review. Full access will be granted once activated by admin.</p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <!-- Full navigation for active users -->
+                    <a href="{{ route('user.search') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-search w-5 text-center mr-3"></i>
+                        Search Places
+                    </a>
+                    <a href="{{ route('user.leads') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.leads') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-bookmark w-5 text-center mr-3"></i>
+                        Saved Leads
+                    </a>
+                    <a href="{{ route('user.api-keys') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.api-keys') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-key w-5 text-center mr-3"></i>
+                        API Keys
+                    </a>
+                    <a href="{{ route('user.search-history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search-history') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-history w-5 text-center mr-3"></i>
+                        Search History
+                    </a>
+                    <a href="{{ route('user.feedback.history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.feedback.history') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-comments w-5 text-center mr-3"></i>
+                        Feedback History
+                    </a>
+
+                    <!-- Profile Link -->
+                    <a href="{{ route('user.profile') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.profile') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-user-cog w-5 text-center mr-3"></i>
+                        Profile Settings
+                    </a>
+                @endif
             </div>
 
             <!-- Package Info -->

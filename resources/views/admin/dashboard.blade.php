@@ -28,13 +28,13 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Monthly Revenue</p>
-                            <p class="text-3xl font-bold text-gray-800">$47,892</p>
-                            <p class="text-xs text-green-600 mt-1">
-                                <i class="fas fa-arrow-up mr-1"></i>+15.3% from last month
+                            <p class="text-3xl font-bold text-gray-800">PKR {{ number_format($paymentStats['this_month'] ?? 0, 0) }}</p>
+                            <p class="text-xs text-blue-600 mt-1">
+                                <i class="fas fa-rupee-sign mr-1"></i>Total: PKR {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}
                             </p>
                         </div>
                         <div class="bg-green-100 rounded-lg p-3">
-                            <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                            <i class="fas fa-rupee-sign text-green-600 text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -306,6 +306,115 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History Section -->
+            <div class="mt-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-800">Payment History</h3>
+                            <div class="flex items-center space-x-3">
+                                @if(($paymentStats['pending_payments'] ?? 0) > 0)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {{ $paymentStats['pending_payments'] }} Pending
+                                </span>
+                                @endif
+                                <a href="{{ route('admin.subscriptions.index') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View all</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($recentPayments as $payment)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            @if($payment->user && $payment->user->avatar)
+                                                <img src="{{ asset('public/' . $payment->user->avatar) }}" alt="User" class="w-8 h-8 rounded-full object-cover">
+                                            @else
+                                                <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-xs">
+                                                    {{ strtoupper(substr($payment->user->first_name ?? $payment->user->name ?? 'U', 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $payment->user ? ($payment->user->first_name ? $payment->user->first_name . ' ' . $payment->user->last_name : $payment->user->name) : 'Deleted User' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $payment->subscription->package->name ?? 'N/A' }}</div>
+                                        <div class="text-xs text-gray-500">{{ $payment->subscription->package->billing_type ?? '' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            @if($payment->paymentMethod)
+                                            <i class="fas {{ $payment->paymentMethod->icon ?? 'fa-money-bill' }} text-gray-400 mr-2"></i>
+                                            <span class="text-sm text-gray-900">{{ $payment->paymentMethod->name }}</span>
+                                            @else
+                                            <span class="text-sm text-gray-500">N/A</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-semibold text-gray-900">PKR {{ number_format($payment->amount, 0) }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($payment->status === 'completed')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 mr-1.5"></span>
+                                                Completed
+                                            </span>
+                                        @elseif($payment->status === 'pending')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 mr-1.5"></span>
+                                                Pending
+                                            </span>
+                                        @elseif($payment->status === 'failed')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-400 mr-1.5"></span>
+                                                Failed
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ ucfirst($payment->status) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $payment->created_at->format('M d, Y') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $payment->created_at->diffForHumans() }}</div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <div class="bg-gray-100 rounded-full p-3 mb-3">
+                                                <i class="fas fa-receipt text-gray-400 text-xl"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500">No payments yet</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
