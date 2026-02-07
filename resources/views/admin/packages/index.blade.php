@@ -290,12 +290,12 @@ function openCreateModal() {
 }
 
 function openEditModal(packageId) {
-    fetch(`/gmb_leads/admin/packages/${packageId}/edit`)
+    fetch(`{{ url('admin/packages') }}/${packageId}/edit`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Edit Package';
             document.getElementById('submitBtnText').textContent = 'Update Package';
-            document.getElementById('packageForm').action = `/gmb_leads/admin/packages/${packageId}`;
+            document.getElementById('packageForm').action = `{{ url('admin/packages') }}/${packageId}`;
             document.getElementById('formMethod').value = 'PUT';
 
             document.getElementById('packageName').value = data.name;
@@ -357,7 +357,7 @@ function removeFeature(index) {
 
 function confirmDelete(packageId, packageName) {
     document.getElementById('deletePackageName').textContent = packageName;
-    document.getElementById('deleteForm').action = `/gmb_leads/admin/packages/${packageId}`;
+    document.getElementById('deleteForm').action = `{{ url('admin/packages') }}/${packageId}`;
     document.getElementById('deleteModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -368,7 +368,7 @@ function closeDeleteModal() {
 }
 
 function toggleStatus(packageId) {
-    fetch(`/gmb_leads/admin/packages/${packageId}/toggle-status`, {
+    fetch(`{{ url('admin/packages') }}/${packageId}/toggle-status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

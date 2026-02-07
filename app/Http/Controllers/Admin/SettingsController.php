@@ -209,6 +209,67 @@ class SettingsController extends Controller
     }
 
     /**
+     * Run Composer Command
+     */
+    public function runComposerCommand(Request $request)
+    {
+        $request->validate([
+            'command' => 'required|string|in:install,update,dump-autoload,clear-cache,diagnose,validate',
+        ]);
+
+        $command = $request->command;
+
+        // Map command to actual composer command
+        $composerCommands = [
+            'install' => 'composer install --no-interaction --prefer-dist',
+            'update' => 'composer update --no-interaction --prefer-dist',
+            'dump-autoload' => 'composer dump-autoload --optimize',
+            'clear-cache' => 'composer clear-cache',
+            'diagnose' => 'composer diagnose',
+            'validate' => 'composer validate --no-check-all --no-check-publish',
+        ];
+
+        try {
+            $fullCommand = $composerCommands[$command];
+
+            // Execute the command and capture output
+            $output = [];
+            $returnVar = 0;
+
+            // Change to project root directory
+            $projectRoot = base_path();
+
+            // Execute command
+            exec("cd {$projectRoot} && {$fullCommand} 2>&1", $output, $returnVar);
+
+            $outputText = implode("\n", $output);
+
+            // Format output for HTML display
+            $formattedOutput = htmlspecialchars($outputText);
+
+            if ($returnVar === 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => ucfirst(str_replace('-', ' ', $command)) . ' completed successfully!',
+                    'output' => $formattedOutput
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => ucfirst(str_replace('-', ' ', $command)) . ' failed!',
+                    'output' => $formattedOutput
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to run composer ' . $command . ': ' . $e->getMessage(),
+                'output' => null
+            ], 500);
+        }
+    }
+
+    /**
      * Update email settings
      */
     public function updateEmailSettings(Request $request)

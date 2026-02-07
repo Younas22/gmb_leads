@@ -861,7 +861,7 @@ use App\Models\EmailTemplate;
 
             <!-- ========== PERFORMANCE TAB ========== -->
             <div id="content-performance" class="tab-content hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-6xl">
                     <!-- Cache Management -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                         <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-amber-50">
@@ -894,29 +894,175 @@ use App\Models\EmailTemplate;
                                     class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium">
                                 <i class="fas fa-database mr-1.5"></i>Optimize Database
                             </button>
+                            <div id="database-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Install -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-box text-blue-600 mr-2 text-xs"></i>
+                                Composer Install
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Installing dependencies from composer.json (first setup or after git pull).</p>
+                            <button type="button" onclick="runComposerCommand('install')"
+                                    class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-download mr-1.5"></i>Run Composer Install
+                            </button>
+                            <div id="composer-install-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Update -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-violet-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-sync text-purple-600 mr-2 text-xs"></i>
+                                Composer Update
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Updating all packages to their latest versions according to version constraints.</p>
+                            <button type="button" onclick="runComposerCommand('update')"
+                                    class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-sync-alt mr-1.5"></i>Run Composer Update
+                            </button>
+                            <div id="composer-update-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Dump-Autoload -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-file-code text-yellow-600 mr-2 text-xs"></i>
+                                Dump Autoload
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Regenerating autoload files after adding new classes or namespaces.</p>
+                            <button type="button" onclick="runComposerCommand('dump-autoload')"
+                                    class="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-refresh mr-1.5"></i>Dump Autoload
+                            </button>
+                            <div id="composer-dump-autoload-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Clear Cache -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-pink-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-trash text-red-600 mr-2 text-xs"></i>
+                                Composer Clear Cache
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Fixing composer download issues or forcing fresh package downloads.</p>
+                            <button type="button" onclick="runComposerCommand('clear-cache')"
+                                    class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-eraser mr-1.5"></i>Clear Composer Cache
+                            </button>
+                            <div id="composer-clear-cache-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Diagnose -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-cyan-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-stethoscope text-teal-600 mr-2 text-xs"></i>
+                                Composer Diagnose
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Troubleshooting composer issues and checking system configuration.</p>
+                            <button type="button" onclick="runComposerCommand('diagnose')"
+                                    class="w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-check-circle mr-1.5"></i>Run Diagnose
+                            </button>
+                            <div id="composer-diagnose-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Composer Validate -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-pink-50 to-rose-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-check-double text-pink-600 mr-2 text-xs"></i>
+                                Composer Validate
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3"><strong>Use when:</strong> Validating composer.json and composer.lock file syntax and structure.</p>
+                            <button type="button" onclick="runComposerCommand('validate')"
+                                    class="w-full px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-shield-alt mr-1.5"></i>Validate Composer Files
+                            </button>
+                            <div id="composer-validate-result" class="mt-2"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Performance Tips -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-5 max-w-4xl">
-                    <h6 class="font-semibold text-blue-900 mb-2 flex items-center text-xs">
-                        <i class="fas fa-lightbulb mr-1.5"></i>Performance Tips
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-5 max-w-6xl">
+                    <h6 class="font-semibold text-blue-900 mb-3 flex items-center text-sm">
+                        <i class="fas fa-lightbulb mr-2"></i>Performance & Composer Tips
                     </h6>
-                    <ul class="space-y-1.5 text-[11px] text-blue-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
-                            <span>Clear cache regularly for optimal performance</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
-                            <span>Optimize database monthly or after bulk operations</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
-                            <span>Monitor API rate limits to avoid service disruptions</span>
-                        </li>
-                    </ul>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Performance Tips -->
+                        <div>
+                            <h6 class="font-medium text-blue-800 mb-2 text-xs">Performance Optimization</h6>
+                            <ul class="space-y-1.5 text-[11px] text-blue-800">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Clear cache regularly for optimal performance</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Optimize database monthly or after bulk operations</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span>Monitor API rate limits to avoid service disruptions</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Composer Tips -->
+                        <div>
+                            <h6 class="font-medium text-blue-800 mb-2 text-xs">Composer Best Practices</h6>
+                            <ul class="space-y-1.5 text-[11px] text-blue-800">
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Install:</strong> Use after cloning project or when composer.lock exists</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Update:</strong> Updates all dependencies to latest compatible versions</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Dump-autoload:</strong> Run after creating new classes or files</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Clear-cache:</strong> Fix download or installation errors</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Diagnose:</strong> Check system health and troubleshoot issues</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-600 mr-1.5 mt-0.5 text-[10px]"></i>
+                                    <span><strong>Validate:</strong> Verify composer.json structure before committing</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1047,7 +1193,7 @@ use App\Models\EmailTemplate;
 
     // Optimize Database
     function optimizeDatabase() {
-        const resultDiv = document.getElementById('cache-result');
+        const resultDiv = document.getElementById('database-result');
         resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Optimizing...</div>`;
 
         fetch('{{ route('admin.settings.database.optimize') }}', {
@@ -1068,6 +1214,50 @@ use App\Models\EmailTemplate;
         })
         .catch(error => {
             resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        });
+    }
+
+    // Run Composer Command
+    function runComposerCommand(command) {
+        const resultDiv = document.getElementById(`composer-${command}-result`);
+        const commandLabels = {
+            'install': 'Installing dependencies',
+            'update': 'Updating packages',
+            'dump-autoload': 'Regenerating autoload files',
+            'clear-cache': 'Clearing composer cache',
+            'diagnose': 'Running diagnostics',
+            'validate': 'Validating composer files'
+        };
+
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>${commandLabels[command]}...</div>`;
+
+        fetch('{{ route('admin.settings.composer.run') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ command: command })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let message = data.message;
+                if (data.output) {
+                    message += `<div class="mt-2 p-2 bg-gray-900 text-green-400 rounded text-[10px] font-mono overflow-x-auto max-h-40 overflow-y-auto">${data.output}</div>`;
+                }
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${message}</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 10000);
+            } else {
+                let errorMessage = data.message;
+                if (data.output) {
+                    errorMessage += `<div class="mt-2 p-2 bg-gray-900 text-red-400 rounded text-[10px] font-mono overflow-x-auto max-h-40 overflow-y-auto">${data.output}</div>`;
+                }
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>${errorMessage}</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error: ${error.message}</div>`;
         });
     }
 

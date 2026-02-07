@@ -243,7 +243,7 @@ function updatePaymentStatus(paymentId, status) {
         return;
     }
 
-    fetch(`/gmb_leads/admin/payments/${paymentId}/status`, {
+    fetch(`{{ url('admin/payments') }}/${paymentId}/status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

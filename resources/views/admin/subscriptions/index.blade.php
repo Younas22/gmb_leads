@@ -420,12 +420,12 @@ function openCreateModal() {
 }
 
 function openEditModal(subscriptionId) {
-    fetch(`/gmb_leads/admin/subscriptions/${subscriptionId}/edit`)
+    fetch(`{{ url('admin/subscriptions') }}/${subscriptionId}/edit`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Edit Subscription';
             document.getElementById('submitBtnText').textContent = 'Update Subscription';
-            document.getElementById('subscriptionForm').action = `/gmb_leads/admin/subscriptions/${subscriptionId}`;
+            document.getElementById('subscriptionForm').action = `{{ url('admin/subscriptions') }}/${subscriptionId}`;
             document.getElementById('formMethod').value = 'PUT';
 
             document.getElementById('userId').value = data.user_id;
@@ -451,7 +451,7 @@ function closeModal() {
 
 function confirmDelete(subscriptionId, userName) {
     document.getElementById('deleteUserName').textContent = userName;
-    document.getElementById('deleteForm').action = `/gmb_leads/admin/subscriptions/${subscriptionId}`;
+    document.getElementById('deleteForm').action = `{{ url('admin/subscriptions') }}/${subscriptionId}`;
     document.getElementById('deleteModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -462,7 +462,7 @@ function closeDeleteModal() {
 }
 
 function toggleStatus(subscriptionId) {
-    fetch(`/gmb_leads/admin/subscriptions/${subscriptionId}/toggle-status`, {
+    fetch(`{{ url('admin/subscriptions') }}/${subscriptionId}/toggle-status`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

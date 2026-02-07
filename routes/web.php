@@ -218,6 +218,9 @@ Route::middleware(['web', 'auth'])->group(function () {
             // Cache & Database
             Route::post('/cache/clear', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('cache.clear');
             Route::post('/database/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeDatabase'])->name('database.optimize');
+
+            // Composer Commands
+            Route::post('/composer/run', [App\Http\Controllers\Admin\SettingsController::class, 'runComposerCommand'])->name('composer.run');
         });
     });
 });
