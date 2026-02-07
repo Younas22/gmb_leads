@@ -26,7 +26,7 @@
     </ul>
 
     <p style="text-align: center;">
-        <a href="{{ url('/subscription') }}" class="button">View Subscription</a>
+        <a href="{{ url('/user/subscription') }}" class="button">View Subscription</a>
     </p>
 
     <div class="divider"></div>

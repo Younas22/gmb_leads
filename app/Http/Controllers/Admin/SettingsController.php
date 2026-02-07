@@ -90,6 +90,11 @@ class SettingsController extends Controller
         Setting::set('notify_new_subscription', $request->has('notify_new_subscription') ? 1 : 0, 'boolean', 'general', 'Notify New Subscription');
         Setting::set('notify_payment_received', $request->has('notify_payment_received') ? 1 : 0, 'boolean', 'general', 'Notify Payment Received');
 
+        // Update APP_NAME in .env file
+        $this->updateEnvFile([
+            'APP_NAME' => $request->site_name,
+        ]);
+
         return back()->with('success', 'General settings updated successfully!');
     }
 
