@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Setting;
 use App\Models\EmailTemplate;
+use Illuminate\Support\Facades\Log;
 use Resend;
 
 class EmailService
@@ -87,6 +88,14 @@ class EmailService
      */
     public static function sendWelcomeEmail($user)
     {
+        // Check if welcome email is enabled
+        if (!Setting::get('enable_welcome_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'Welcome email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'welcome',
@@ -102,6 +111,14 @@ class EmailService
      */
     public static function sendNewFeatureEmail($user, $featureData)
     {
+        // Check if new feature email is enabled
+        if (!Setting::get('enable_new_feature_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'New feature email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'new_feature',
@@ -119,6 +136,14 @@ class EmailService
      */
     public static function sendSubscriptionInvoice($user, $invoiceData)
     {
+        // Check if subscription invoice email is enabled
+        if (!Setting::get('enable_subscription_invoice_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'Subscription invoice email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'subscription_invoice',
@@ -141,6 +166,14 @@ class EmailService
      */
     public static function sendSubscriptionStart($user, $subscriptionData)
     {
+        // Check if subscription start email is enabled
+        if (!Setting::get('enable_subscription_start_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'Subscription start email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'subscription_start',
@@ -161,6 +194,14 @@ class EmailService
      */
     public static function sendSubscriptionEnd($user, $subscriptionData)
     {
+        // Check if subscription end email is enabled
+        if (!Setting::get('enable_subscription_end_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'Subscription end email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'subscription_end',
@@ -178,6 +219,14 @@ class EmailService
      */
     public static function sendMaintenanceNotification($user, $maintenanceData)
     {
+        // Check if system maintenance email is enabled
+        if (!Setting::get('enable_system_maintenance_email', true)) {
+            return [
+                'success' => false,
+                'message' => 'System maintenance email is disabled in settings'
+            ];
+        }
+
         return self::sendWithTemplate(
             $user->email,
             'system_maintenance',

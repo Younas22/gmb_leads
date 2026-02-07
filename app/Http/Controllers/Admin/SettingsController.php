@@ -118,6 +118,32 @@ class SettingsController extends Controller
     }
 
     /**
+     * Update Google OAuth settings
+     */
+    public function updateGoogleOAuthSettings(Request $request)
+    {
+        $request->validate([
+            'google_client_id' => 'required|string',
+            'google_client_secret' => 'required|string',
+            'google_redirect_uri' => 'required|url',
+        ]);
+
+        // Save settings in database
+        Setting::set('google_client_id', $request->google_client_id, 'password', 'oauth', 'Google OAuth Client ID');
+        Setting::set('google_client_secret', $request->google_client_secret, 'password', 'oauth', 'Google OAuth Client Secret');
+        Setting::set('google_redirect_uri', $request->google_redirect_uri, 'text', 'oauth', 'Google OAuth Redirect URI');
+
+        // Update .env file
+        $this->updateEnvFile([
+            'GOOGLE_CLIENT_ID' => $request->google_client_id,
+            'GOOGLE_CLIENT_SECRET' => $request->google_client_secret,
+            'GOOGLE_REDIRECT_URI' => $request->google_redirect_uri,
+        ]);
+
+        return back()->with('success', 'Google OAuth settings updated successfully!');
+    }
+
+    /**
      * Update system settings
      */
     public function updateSystemSettings(Request $request)
@@ -205,6 +231,8 @@ class SettingsController extends Controller
         Setting::set('enable_subscription_start_email', $request->has('enable_subscription_start_email') ? 1 : 0, 'boolean', 'email', 'Enable Subscription Start Email');
         Setting::set('enable_subscription_end_email', $request->has('enable_subscription_end_email') ? 1 : 0, 'boolean', 'email', 'Enable Subscription End Email');
         Setting::set('enable_system_maintenance_email', $request->has('enable_system_maintenance_email') ? 1 : 0, 'boolean', 'email', 'Enable System Maintenance Email');
+        Setting::set('enable_verify_email', $request->has('enable_verify_email') ? 1 : 0, 'boolean', 'email', 'Enable Email Verification Email');
+        Setting::set('enable_reset_password_email', $request->has('enable_reset_password_email') ? 1 : 0, 'boolean', 'email', 'Enable Password Reset Email');
 
         // Update .env file dynamically (optional - for Laravel mail config)
         $this->updateEnvFile([
@@ -269,6 +297,225 @@ class SettingsController extends Controller
     }
 
     /**
+     * Send test new feature email
+     */
+    public function sendTestNewFeatureEmail(Request $request)
+    {
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        try {
+            // Create a temporary user object for testing
+            $testUser = new \stdClass();
+            $testUser->email = $request->test_email;
+            $testUser->name = 'Test User';
+
+            $result = \App\Services\EmailService::sendNewFeatureEmail($testUser, [
+                'feature_title' => 'Amazing New Feature',
+                'feature_description' => 'We have added an exciting new feature that will help you get more leads and grow your business faster. Check it out in your dashboard!'
+            ]);
+
+            if ($result['success']) {
+                return back()->with('success', 'New feature test email sent successfully to ' . $request->test_email);
+            } else {
+                return back()->with('error', $result['message']);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to send email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send test maintenance notification email
+     */
+    public function sendTestMaintenanceEmail(Request $request)
+    {
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        try {
+            // Create a temporary user object for testing
+            $testUser = new \stdClass();
+            $testUser->email = $request->test_email;
+            $testUser->name = 'Test User';
+
+            $result = \App\Services\EmailService::sendMaintenanceNotification($testUser, [
+                'start_time' => 'Feb 10, 2026 02:00 AM',
+                'end_time' => 'Feb 10, 2026 05:00 AM',
+                'duration' => '3 hours',
+                'status' => 'Scheduled',
+                'maintenance_reason' => 'System upgrade and performance improvements.'
+            ]);
+
+            if ($result['success']) {
+                return back()->with('success', 'Maintenance notification test email sent successfully to ' . $request->test_email);
+            } else {
+                return back()->with('error', $result['message']);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to send email: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get verified users count
+     */
+    public function getVerifiedUsersCount()
+    {
+        $count = \App\Models\User::where('email_verified', 1)->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
+    }
+
+    /**
+     * Send new feature email to ALL users (Bulk)
+     */
+    public function sendBulkNewFeatureEmail(Request $request)
+    {
+        $request->validate([
+            'feature_title' => 'required|string|max:255',
+            'feature_description' => 'required|string',
+        ]);
+
+        try {
+            $users = \App\Models\User::where('email_verified', 1)->get();
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No verified users found to send email.'
+                ]);
+            }
+
+            $totalUsers = $users->count();
+            $successCount = 0;
+            $failCount = 0;
+
+            foreach ($users as $index => $user) {
+                $result = \App\Services\EmailService::sendNewFeatureEmail($user, [
+                    'feature_title' => $request->feature_title,
+                    'feature_description' => $request->feature_description,
+                ]);
+
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                }
+
+                // Send progress update
+                if (($index + 1) % 5 === 0 || ($index + 1) === $totalUsers) {
+                    $progress = round((($index + 1) / $totalUsers) * 100);
+                    echo json_encode([
+                        'progress' => $progress,
+                        'current' => $index + 1,
+                        'total' => $totalUsers,
+                        'success' => $successCount,
+                        'failed' => $failCount
+                    ]) . "\n";
+
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "New feature email sent to {$successCount} users successfully." . ($failCount > 0 ? " {$failCount} failed." : ""),
+                'total' => $totalUsers,
+                'success_count' => $successCount,
+                'fail_count' => $failCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send bulk email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send maintenance notification to ALL users (Bulk)
+     */
+    public function sendBulkMaintenanceEmail(Request $request)
+    {
+        $request->validate([
+            'start_time' => 'required|string',
+            'end_time' => 'required|string',
+            'duration' => 'required|string',
+            'maintenance_reason' => 'nullable|string',
+        ]);
+
+        try {
+            $users = \App\Models\User::where('email_verified', 1)->get();
+
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No verified users found to send email.'
+                ]);
+            }
+
+            $totalUsers = $users->count();
+            $successCount = 0;
+            $failCount = 0;
+
+            foreach ($users as $index => $user) {
+                $result = \App\Services\EmailService::sendMaintenanceNotification($user, [
+                    'start_time' => $request->start_time,
+                    'end_time' => $request->end_time,
+                    'duration' => $request->duration,
+                    'status' => 'Scheduled',
+                    'maintenance_reason' => $request->maintenance_reason ?? 'System maintenance and updates.',
+                ]);
+
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                }
+
+                // Send progress update
+                if (($index + 1) % 5 === 0 || ($index + 1) === $totalUsers) {
+                    $progress = round((($index + 1) / $totalUsers) * 100);
+                    echo json_encode([
+                        'progress' => $progress,
+                        'current' => $index + 1,
+                        'total' => $totalUsers,
+                        'success' => $successCount,
+                        'failed' => $failCount
+                    ]) . "\n";
+
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Maintenance notification sent to {$successCount} users successfully." . ($failCount > 0 ? " {$failCount} failed." : ""),
+                'total' => $totalUsers,
+                'success_count' => $successCount,
+                'fail_count' => $failCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send bulk email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Toggle email template status via AJAX
      */
     public function toggleEmailTemplate(Request $request)
@@ -287,6 +534,8 @@ class SettingsController extends Controller
                 'enable_subscription_start_email',
                 'enable_subscription_end_email',
                 'enable_system_maintenance_email',
+                'enable_verify_email',
+                'enable_reset_password_email',
             ];
 
             if (!in_array($request->template_key, $validKeys)) {

@@ -76,6 +76,30 @@ class PaymentController extends Controller
 
         $payment->update($updateData);
 
+        // Send invoice email when payment is marked as completed
+        if ($request->status === 'completed' && $payment->subscription && $payment->user) {
+            try {
+                $user = $payment->user;
+                $subscription = $payment->subscription;
+                $package = $subscription->package;
+                $paymentMethod = $payment->paymentMethod;
+
+                $invoiceData = [
+                    'invoice_number' => 'INV-' . $subscription->id . '-' . time(),
+                    'payment_date' => now()->format('F d, Y'),
+                    'amount' => number_format($payment->amount, 2),
+                    'payment_method' => $paymentMethod ? $paymentMethod->name : 'Manual Payment',
+                    'plan_name' => $package ? $package->name : 'Subscription',
+                    'billing_period' => $package ? ucfirst($package->billing_type ?? 'one-time') : 'One-time',
+                    'next_billing_date' => $subscription->end_date ? $subscription->end_date->format('F d, Y') : 'N/A',
+                ];
+
+                \App\Services\EmailService::sendSubscriptionInvoice($user, $invoiceData);
+            } catch (\Exception $e) {
+                \Log::error('Invoice email failed for payment ' . $payment->id . ': ' . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Payment status updated successfully.'

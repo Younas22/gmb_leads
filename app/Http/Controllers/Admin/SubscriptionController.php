@@ -139,6 +139,7 @@ class SubscriptionController extends Controller
      */
     public function toggleStatus(Subscription $subscription)
     {
+
         $newStatus = $subscription->status === 'active' ? 'cancelled' : 'active';
 
         $updateData = ['status' => $newStatus];
@@ -170,11 +171,45 @@ class SubscriptionController extends Controller
                 $updateData['start_date'] = now();
             }
 
+            // Get pending payments before updating
+            $pendingPayments = $subscription->payments()->where('status', 'pending')->get();
+
             // Pending payments ko completed karo
             $subscription->payments()->where('status', 'pending')->update([
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
+
+            // Send invoice email for each approved payment
+            if ($pendingPayments->count() > 0) {
+                try {
+                    $user = $subscription->user;
+                    $package = $subscription->package;
+
+                    foreach ($pendingPayments as $payment) {
+                        $paymentMethod = $payment->paymentMethod;
+
+                        $invoiceData = [
+                            'invoice_number' => 'INV-' . $subscription->id . '-' . time(),
+                            'payment_date' => now()->format('F d, Y'),
+                            'amount' => number_format($payment->amount, 2),
+                            'payment_method' => $paymentMethod ? $paymentMethod->name : 'Manual Payment',
+                            'plan_name' => $package->name,
+                            'billing_period' => ucfirst($package->billing_type ?? 'one-time'),
+                            'next_billing_date' => $updateData['end_date'] ? \Carbon\Carbon::parse($updateData['end_date'])->format('F d, Y') : 'Lifetime',
+                        ];
+
+                        $result = \App\Services\EmailService::sendSubscriptionInvoice($user, $invoiceData);
+                        if ($result['success']) {
+                            \Log::info('Invoice email sent successfully for subscription ' . $subscription->id);
+                        } else {
+                            \Log::error('Invoice email failed: ' . $result['message']);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Invoice email failed for subscription ' . $subscription->id . ': ' . $e->getMessage());
+                }
+            }
 
             // Send subscription start email
             try {
@@ -203,7 +238,12 @@ class SubscriptionController extends Controller
                     'exports_limit' => $exportsLimit,
                 ];
 
-                \App\Services\EmailService::sendSubscriptionStart($user, $subscriptionData);
+                $result = \App\Services\EmailService::sendSubscriptionStart($user, $subscriptionData);
+                if ($result['success']) {
+                    \Log::info('Subscription start email sent successfully for subscription ' . $subscription->id);
+                } else {
+                    \Log::error('Subscription start email failed: ' . $result['message']);
+                }
             } catch (\Exception $e) {
                 \Log::error('Subscription start email failed for subscription ' . $subscription->id . ': ' . $e->getMessage());
             }

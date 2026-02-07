@@ -25,22 +25,30 @@
         }
 
         .email-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px 20px;
+            background: #ffffff;
+            padding: 40px 30px;
             text-align: center;
-            color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .email-header img {
+            max-width: 280px;
+            height: auto;
+            margin: 0 auto;
         }
 
         .email-header h1 {
-            margin: 0;
+            margin: 15px 0 0 0;
             font-size: 28px;
             font-weight: 700;
+            color: #111827;
         }
 
         .email-header p {
             margin: 5px 0 0;
             font-size: 14px;
             opacity: 0.9;
+            color: #6b7280;
         }
 
         .email-body {
@@ -48,7 +56,7 @@
         }
 
         .email-body h2 {
-            color: #667eea;
+            color: #2563eb;
             margin-bottom: 20px;
             font-size: 24px;
         }
@@ -71,14 +79,15 @@
 
         .button {
             display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: #ffffff !important;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             margin: 20px 0;
             font-weight: 600;
             font-size: 16px;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
         }
 
         .button:hover {
@@ -86,11 +95,11 @@
         }
 
         .info-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #667eea;
+            background-color: #f3f4f6;
+            border-left: 4px solid #2563eb;
             padding: 15px;
             margin: 20px 0;
-            border-radius: 5px;
+            border-radius: 6px;
         }
 
         .info-box p {
@@ -111,7 +120,7 @@
         }
 
         .email-footer a {
-            color: #667eea;
+            color: #2563eb;
             text-decoration: none;
         }
 
@@ -155,8 +164,15 @@
     <div class="email-wrapper">
         <!-- Header -->
         <div class="email-header">
-            <h1>{{ config('app.name') }}</h1>
-            <p>Google My Business Lead Generation</p>
+            @php
+                use App\Models\Setting;
+                $siteLogo = Setting::get('site_logo');
+            @endphp
+            @if($siteLogo)
+                <img src="{{ asset('public/' . $siteLogo) }}" alt="{{ config('app.name') }}" />
+            @else
+                <h1>{{ config('app.name') }}</h1>
+            @endif
         </div>
 
         <!-- Body Content -->

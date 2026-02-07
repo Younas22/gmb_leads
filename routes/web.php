@@ -195,7 +195,12 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::put('/email', [App\Http\Controllers\Admin\SettingsController::class, 'updateEmailSettings'])->name('email.update');
             Route::post('/email/verify', [App\Http\Controllers\Admin\SettingsController::class, 'verifyResendKey'])->name('email.verify');
             Route::post('/email/test', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestEmail'])->name('email.test');
+            Route::post('/email/test-new-feature', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestNewFeatureEmail'])->name('email.test.new.feature');
+            Route::post('/email/test-maintenance', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestMaintenanceEmail'])->name('email.test.maintenance');
+            Route::post('/email/bulk-new-feature', [App\Http\Controllers\Admin\SettingsController::class, 'sendBulkNewFeatureEmail'])->name('email.bulk.new.feature');
+            Route::post('/email/bulk-maintenance', [App\Http\Controllers\Admin\SettingsController::class, 'sendBulkMaintenanceEmail'])->name('email.bulk.maintenance');
             Route::post('/email/toggle', [App\Http\Controllers\Admin\SettingsController::class, 'toggleEmailTemplate'])->name('email.toggle');
+            Route::get('/email/verified-users-count', [App\Http\Controllers\Admin\SettingsController::class, 'getVerifiedUsersCount'])->name('email.verified.users.count');
 
             // Email Templates
             Route::get('/email-templates', [App\Http\Controllers\Admin\SettingsController::class, 'emailTemplates'])->name('email-templates.index');
@@ -207,6 +212,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             // General Settings
             Route::put('/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneralSettings'])->name('general.update');
             Route::put('/api', [App\Http\Controllers\Admin\SettingsController::class, 'updateApiSettings'])->name('api.update');
+            Route::put('/oauth', [App\Http\Controllers\Admin\SettingsController::class, 'updateGoogleOAuthSettings'])->name('oauth.update');
             Route::put('/system', [App\Http\Controllers\Admin\SettingsController::class, 'updateSystemSettings'])->name('system.update');
 
             // Cache & Database

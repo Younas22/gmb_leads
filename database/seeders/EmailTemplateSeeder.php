@@ -235,6 +235,91 @@ The {app_name} Team</p>',
 <p>Thank you for your patience and understanding.<br>
 The {app_name} Team</p>',
             ],
+            [
+                'slug' => 'verify_email',
+                'name' => 'Email Verification',
+                'subject' => 'Verify Your Email Address - {app_name}',
+                'available_variables' => ['user_name', 'app_name', 'verification_url', 'dashboard_url'],
+                'body' => '<h2>Verify Your Email Address</h2>
+
+<p>Hi {user_name},</p>
+
+<p>Thank you for signing up! We\'re excited to have you on board. To get started and access all features, please verify your email address.</p>
+
+<div class="info-box">
+    <p><strong>Why verify your email?</strong></p>
+    <p style="margin-top: 10px;">Email verification helps us ensure your account security and enables important notifications about your searches and subscriptions.</p>
+</div>
+
+<p style="text-align: center;">
+    <a href="{verification_url}" class="button">Verify Email Address</a>
+</p>
+
+<p style="font-size: 14px; color: #666; margin-top: 20px;">
+    If the button doesn\'t work, copy and paste this link into your browser:<br>
+    <span style="word-break: break-all; color: #667eea;">{verification_url}</span>
+</p>
+
+<div class="divider"></div>
+
+<p><strong>What\'s next?</strong></p>
+<p>Once verified, you\'ll be able to:</p>
+<ul>
+    <li>Search for business leads worldwide</li>
+    <li>Save and export lead data</li>
+    <li>Access API for integrations</li>
+    <li>Track your search history</li>
+</ul>
+
+<p style="font-size: 14px; color: #999;">
+    This verification link will expire in 24 hours. If you didn\'t create an account, please ignore this email.
+</p>
+
+<p>Best regards,<br>
+The {app_name} Team</p>',
+            ],
+            [
+                'slug' => 'reset_password',
+                'name' => 'Password Reset',
+                'subject' => 'Reset Your Password - {app_name}',
+                'available_variables' => ['user_name', 'app_name', 'reset_url', 'dashboard_url'],
+                'body' => '<h2>Password Reset Request</h2>
+
+<p>Hi {user_name},</p>
+
+<p>We received a request to reset your password for your {app_name} account. If you made this request, click the button below to set a new password.</p>
+
+<p style="text-align: center;">
+    <a href="{reset_url}" class="button">Reset Password</a>
+</p>
+
+<div class="info-box" style="border-left-color: #f59e0b; background-color: #fffbeb;">
+    <p><strong>⚠️ Important Security Notice:</strong></p>
+    <p style="margin-top: 10px;">This password reset link will expire in 24 hours. If you didn\'t request this reset, please ignore this email and your password will remain unchanged.</p>
+</div>
+
+<p style="font-size: 14px; color: #666; margin-top: 20px;">
+    If the button doesn\'t work, copy and paste this link into your browser:<br>
+    <span style="word-break: break-all; color: #667eea;">{reset_url}</span>
+</p>
+
+<div class="divider"></div>
+
+<p><strong>Tips for a strong password:</strong></p>
+<ul>
+    <li>Use at least 8 characters</li>
+    <li>Include uppercase and lowercase letters</li>
+    <li>Add numbers and special characters</li>
+    <li>Avoid common words or personal information</li>
+</ul>
+
+<p style="font-size: 14px; color: #999;">
+    For security reasons, this link will expire in 24 hours.
+</p>
+
+<p>Best regards,<br>
+The {app_name} Team</p>',
+            ],
         ];
 
         foreach ($templates as $template) {

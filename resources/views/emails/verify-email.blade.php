@@ -13,23 +13,22 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #fff 0%, #fff 100%); padding: 40px 30px; text-align: center;">
-                            
-                            <!-- Logo -->
-                            <img src="https://customernearme.com/dark-logo.png" 
-                                 alt="Customer NearMe Logo" 
-                                 style="width: 280px; height: auto;">
-                            
-                            <!-- <h1 style="margin: 0; color: #111; font-size: 28px; font-weight: bold;">
-                                Verify Your Email Address
-                            </h1> -->
-                            <!-- 
-                            <p style="margin: 10px 0 0 0; color: #dbeafe; font-size: 14px;">
-                                Business Lead Generation Platform
-                            </p> -->
+                        <td style="background-color: #ffffff; padding: 40px 30px; text-align: center; border-bottom: 1px solid #e5e7eb;">
+                            @php
+                                use App\Models\Setting;
+                                $siteLogo = Setting::get('site_logo');
+                            @endphp
+                            @if($siteLogo)
+                                <img src="{{ asset('public/' . $siteLogo) }}"
+                                     alt="{{ config('app.name') }}"
+                                     style="width: 280px; height: auto;">
+                            @else
+                                <h1 style="margin: 0; color: #111827; font-size: 28px; font-weight: bold;">
+                                    {{ config('app.name') }}
+                                </h1>
+                            @endif
                         </td>
                     </tr>
-                    <hr>
                     
                     <!-- Body -->
                     <tr>

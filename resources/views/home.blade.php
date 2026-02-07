@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>BusinessFinder - Find Quality Business Leads Fast</title>
-    <link rel="icon" type="image/png" href="{{ asset('public/assets/images/favicon.png') }}">
+    <title>{{ \App\Models\Setting::get('site_name', 'BusinessFinder') }} - Find Quality Business Leads Fast</title>
+
+    @php
+        $siteFavicon = \App\Models\Setting::get('site_favicon');
+    @endphp
+    @if($siteFavicon)
+        <link rel="icon" type="image/png" href="{{ asset('public/' . $siteFavicon) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('public/assets/images/favicon.png') }}">
+    @endif
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,14 +37,26 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-    <div class="flex-shrink-0 flex items-center">
-        <img 
-            src="{{ asset('public/assets/images/logo.svg') }}" 
-            alt="CustomerNearMe Logo" 
-            class="w-50 h-auto object-contain"
-        >
-    </div>
-</div>
+                    <div class="flex-shrink-0 flex items-center">
+                        @php
+                            $siteLogo = \App\Models\Setting::get('site_logo');
+                            $siteName = \App\Models\Setting::get('site_name', config('app.name'));
+                        @endphp
+                        @if($siteLogo)
+                            <img
+                                src="{{ asset('public/' . $siteLogo) }}"
+                                alt="{{ $siteName }} Logo"
+                                class="h-12 w-auto object-contain"
+                            >
+                        @else
+                            <img
+                                src="{{ asset('public/assets/images/logo.svg') }}"
+                                alt="{{ $siteName }} Logo"
+                                class="w-50 h-auto object-contain"
+                            >
+                        @endif
+                    </div>
+                </div>
 
                 
                 <div class="hidden md:block">

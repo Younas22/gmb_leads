@@ -85,6 +85,14 @@ class AuthController extends Controller
     {
         \Log::info('Signup API hit', $request->all());
 
+        // Check if registration is allowed
+        if (!\App\Models\Setting::get('allow_registration', true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User registration is currently disabled. Please contact support.'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:50',
             'last_name'  => 'required|string|max:50',
@@ -124,19 +132,14 @@ class AuthController extends Controller
                 'last_login'              => now(),
             ]);
 
-            // Send verification email
-            $this->sendVerificationEmail($user);
+            // Send verification email only if email verification is enabled
+            if (\App\Models\Setting::get('email_verification', false)) {
+                $this->sendVerificationEmail($user);
+            }
 
             // Auto login after signup
             Auth::login($user);
             $request->session()->regenerate();
-
-            // Send welcome email
-            try {
-                \App\Services\EmailService::sendWelcomeEmail($user);
-            } catch (\Exception $e) {
-                Log::error('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
-            }
 
             return response()->json([
                 'success' => true,
@@ -160,6 +163,18 @@ class AuthController extends Controller
     private function sendVerificationEmail($user)
     {
         try {
+            // Check if email verification is enabled
+            if (!\App\Models\Setting::get('email_verification', false)) {
+                Log::info('Email verification is disabled. Skipping verification email for: ' . $user->email);
+                return;
+            }
+
+            // Check if verify email template is enabled
+            if (!\App\Models\Setting::get('enable_verify_email', true)) {
+                Log::info('Verify email template is disabled. Skipping verification email for: ' . $user->email);
+                return;
+            }
+
             $verificationUrl = route('auth.verify.email', [
                 'token' => $user->email_verification_token
             ]);
@@ -191,6 +206,11 @@ class AuthController extends Controller
         }
 
         if ($user->email_verified) {
+            // If user is already logged in, redirect to dashboard
+            if (Auth::check() && Auth::id() === $user->id) {
+                return redirect($this->getDashboardUrl($user))
+                    ->with('success', 'Your email is already verified!');
+            }
             return redirect()->route('auth.show')
                 ->with('success', 'Your email is already verified. Please login.');
         }
@@ -201,6 +221,21 @@ class AuthController extends Controller
             'email_verified_at' => now()
         ]);
 
+        // Send welcome email after successful verification
+        try {
+            \App\Services\EmailService::sendWelcomeEmail($user);
+            Log::info('Welcome email sent to user ' . $user->id . ' after email verification');
+        } catch (\Exception $e) {
+            Log::error('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+
+        // If user is logged in, redirect to dashboard
+        if (Auth::check() && Auth::id() === $user->id) {
+            return redirect($this->getDashboardUrl($user))
+                ->with('success', 'Email verified successfully! Welcome to ' . config('app.name') . '!');
+        }
+
+        // If not logged in, redirect to login page
         return redirect()->route('auth.show')
             ->with('success', 'Email verified successfully! You can now login.');
     }
@@ -213,6 +248,14 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Please login first.'
             ], 401);
+        }
+
+        // Check if email verification is enabled
+        if (!\App\Models\Setting::get('email_verification', false)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email verification is currently disabled.'
+            ], 403);
         }
 
         $user = Auth::user();
@@ -405,6 +448,12 @@ class AuthController extends Controller
                 return redirect($this->getDashboardUrl($existingUser));
             }
 
+            // Check if registration is allowed for new users
+            if (!\App\Models\Setting::get('allow_registration', true)) {
+                return redirect()->route('auth.show')
+                    ->with('error', 'User registration is currently disabled. Please contact support.');
+            }
+
             // New user - create with temporary user_type
             $plainPassword = Str::random(10);
 
@@ -486,6 +535,15 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'user_type' => $request->user_type
             ]);
+
+            // Send welcome email for Google OAuth users
+            if ($user->login_type === 'google') {
+                try {
+                    \App\Services\EmailService::sendWelcomeEmail($user);
+                } catch (\Exception $e) {
+                    Log::error('Welcome email failed for user ' . $user->id . ': ' . $e->getMessage());
+                }
+            }
 
             return response()->json([
                 'success' => true,

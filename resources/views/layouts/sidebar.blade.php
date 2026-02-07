@@ -5,16 +5,28 @@
 <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
 
     <!-- Close Button (Mobile Only) -->
-    <button id="close-sidebar-btn" style="margin-right: -10px;" class="lg:hidden absolute top-4 right-4 text-white hover:text-gray-200 z-10 transition-colors">
+    <button id="close-sidebar-btn" style="margin-right: -10px; color:black;" class="lg:hidden absolute top-4 right-4 text-white hover:text-gray-200 z-10 transition-colors">
         <i class="fas fa-chevron-left text-xl"></i>
     </button>
 
     <!-- Logo -->
-    <div class="flex items-center justify-center h-16 px-4 bg-primary-600 flex-shrink-0">
+    <div class="flex items-center justify-center h-16 px-4 bg-white-600 flex-shrink-0 border-b border-gray-200">
         <div class="flex items-center space-x-3">
-            <img src="{{ asset('public/assets/images/white-logo.svg') }}" 
-                 alt="BusinessFinder Logo" 
-                 class="h-20 w-auto">
+            @php
+                $siteLogo = \App\Models\Setting::get('site_logo');
+                $siteName = \App\Models\Setting::get('site_name', config('app.name'));
+            @endphp
+            @if($siteLogo)
+                <div class="bg-white rounded-lg px-3 py-2">
+                    <img src="{{ asset('public/' . $siteLogo) }}"
+                         alt="{{ $siteName }} Logo"
+                         class="h-10 w-auto object-contain">
+                </div>
+            @else
+                <img src="{{ asset('public/assets/images/white-logo.svg') }}"
+                     alt="{{ $siteName }} Logo"
+                     class="h-20 w-auto">
+            @endif
         </div>
     </div>
 

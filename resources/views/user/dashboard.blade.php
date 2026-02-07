@@ -6,6 +6,76 @@
 <main class="p-4 lg:p-8">
 @include('user.welcome-tutorial-modal')
 
+<!-- Email Verification Notice -->
+@if(!auth()->user()->email_verified)
+<div class="mb-6">
+    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4 shadow-sm">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-envelope text-blue-600 text-2xl"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <h3 class="text-lg font-semibold text-blue-800 mb-1">
+                    <i class="fas fa-info-circle mr-2"></i>Please Verify Your Email
+                </h3>
+                <p class="text-sm text-blue-700 mb-3">
+                    We've sent a verification email to <strong>{{ auth()->user()->email }}</strong>. Please check your inbox and click the verification link to complete your registration.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="resendVerification()" id="resendBtn" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Resend Verification Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function resendVerification() {
+    const btn = document.getElementById('resendBtn');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+    fetch('{{ route("auth.resend.verification") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Email Sent!';
+            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btn.classList.add('bg-green-600');
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            alert(data.message || 'Failed to send verification email');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error sending verification email');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+</script>
+@endif
+
 <!-- Pending Subscription Warning -->
 @if(auth()->user()->hasRestrictedAccess())
 <div class="mb-6">

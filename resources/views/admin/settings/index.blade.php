@@ -54,6 +54,9 @@ use App\Models\EmailTemplate;
                     <button onclick="switchTab('api')" id="tab-api" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                         <i class="fas fa-plug mr-2"></i>API
                     </button>
+                    <button onclick="switchTab('oauth')" id="tab-oauth" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                        <i class="fab fa-google mr-2"></i>Google OAuth
+                    </button>
                     <button onclick="switchTab('system')" id="tab-system" class="tab-button px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
                         <i class="fas fa-shield-alt mr-2"></i>System
                     </button>
@@ -387,6 +390,138 @@ use App\Models\EmailTemplate;
                                 </form>
                             </div>
                         </div>
+
+                        <!-- Test New Feature Email -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-violet-50">
+                                <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-star text-purple-600 mr-2 text-sm"></i>
+                                    Test New Feature Email
+                                </h2>
+                            </div>
+                            <div class="p-5">
+                                <p class="text-xs text-gray-600 mb-3">Send a test new feature announcement email</p>
+                                <form action="{{ route('admin.settings.email.test.new.feature') }}" method="POST" class="flex gap-3">
+                                    @csrf
+                                    <input type="email" name="test_email" placeholder="Enter email address" required
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                    <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium">
+                                        <i class="fas fa-paper-plane mr-1.5"></i>Send
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Test Maintenance Email -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-amber-50">
+                                <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                    <i class="fas fa-wrench text-orange-600 mr-2 text-sm"></i>
+                                    Test Maintenance Email
+                                </h2>
+                            </div>
+                            <div class="p-5">
+                                <p class="text-xs text-gray-600 mb-3">Send a test system maintenance notification email</p>
+                                <form action="{{ route('admin.settings.email.test.maintenance') }}" method="POST" class="flex gap-3">
+                                    @csrf
+                                    <input type="email" name="test_email" placeholder="Enter email address" required
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                                    <button type="submit" class="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium">
+                                        <i class="fas fa-paper-plane mr-1.5"></i>Send
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Bulk New Feature Email -->
+                        <div class="bg-white rounded-lg shadow-sm border border-red-200 border-2">
+                            <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+                                <h2 class="text-base font-semibold text-gray-900 flex items-center justify-between">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-users text-blue-600 mr-2 text-sm"></i>
+                                        Send New Feature Email to ALL Users
+                                        <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Bulk</span>
+                                    </span>
+                                    <span id="verified_users_count_feature" class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
+                                    </span>
+                                </h2>
+                            </div>
+                            <div class="p-5">
+                                <div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <p class="text-xs text-yellow-800 flex items-start">
+                                        <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+                                        <span><strong>Warning:</strong> This will send email to ALL verified users in the system!</span>
+                                    </p>
+                                </div>
+                                <div class="space-y-3">
+                                    <!-- Progress Bar -->
+                                    <div id="feature_progress_container" class="hidden">
+                                        <div class="mb-2">
+                                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                                <span id="feature_progress_text">Sending emails...</span>
+                                                <span id="feature_progress_percent">0%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="feature_progress_bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div id="feature_progress_stats" class="text-xs text-gray-600"></div>
+                                    </div>
+
+                                    <div id="feature_result_message"></div>
+
+                                    <button type="button" onclick="sendBulkEmail('feature')" id="feature_submit_btn" class="w-full px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">
+                                        <i class="fas fa-paper-plane mr-1.5"></i>Send to ALL Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Maintenance Email -->
+                        <div class="bg-white rounded-lg shadow-sm border border-red-200 border-2">
+                            <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-rose-50">
+                                <h2 class="text-base font-semibold text-gray-900 flex items-center justify-between">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-users text-red-600 mr-2 text-sm"></i>
+                                        Send Maintenance Email to ALL Users
+                                        <span class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Bulk</span>
+                                    </span>
+                                    <span id="verified_users_count_maintenance" class="px-3 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
+                                    </span>
+                                </h2>
+                            </div>
+                            <div class="p-5">
+                                <div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <p class="text-xs text-yellow-800 flex items-start">
+                                        <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+                                        <span><strong>Warning:</strong> This will send email to ALL verified users in the system!</span>
+                                    </p>
+                                </div>
+                                <div class="space-y-3">
+                                    <!-- Progress Bar -->
+                                    <div id="maintenance_progress_container" class="hidden">
+                                        <div class="mb-2">
+                                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                                <span id="maintenance_progress_text">Sending emails...</span>
+                                                <span id="maintenance_progress_percent">0%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="maintenance_progress_bar" class="bg-red-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div id="maintenance_progress_stats" class="text-xs text-gray-600"></div>
+                                    </div>
+
+                                    <div id="maintenance_result_message"></div>
+
+                                    <button type="button" onclick="sendBulkEmail('maintenance')" id="maintenance_submit_btn" class="w-full px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">
+                                        <i class="fas fa-paper-plane mr-1.5"></i>Send to ALL Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Email Templates Sidebar -->
@@ -403,6 +538,8 @@ use App\Models\EmailTemplate;
                                     @php
                                         $templateMap = [
                                             'enable_welcome_email' => ['name' => 'Welcome Email', 'desc' => 'User registration', 'slug' => 'welcome'],
+                                            'enable_verify_email' => ['name' => 'Email Verification', 'desc' => 'Verify email address', 'slug' => 'verify_email'],
+                                            'enable_reset_password_email' => ['name' => 'Password Reset', 'desc' => 'Reset password', 'slug' => 'reset_password'],
                                             'enable_new_feature_email' => ['name' => 'New Feature', 'desc' => 'Announcements', 'slug' => 'new_feature'],
                                             'enable_subscription_invoice_email' => ['name' => 'Invoice', 'desc' => 'Payment receipts', 'slug' => 'subscription_invoice'],
                                             'enable_subscription_start_email' => ['name' => 'Sub Start', 'desc' => 'Subscription begins', 'slug' => 'subscription_start'],
@@ -532,6 +669,115 @@ use App\Models\EmailTemplate;
                         </div>
                     </div>
                 </form>
+            </div>
+
+            <!-- ========== GOOGLE OAUTH TAB ========== -->
+            <div id="content-oauth" class="tab-content hidden">
+                <form action="{{ route('admin.settings.oauth.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 max-w-4xl">
+                        <div class="px-5 py-3 border-b border-gray-200 bg-gradient-to-r from-red-50 to-orange-50">
+                            <h2 class="text-base font-semibold text-gray-900 flex items-center">
+                                <i class="fab fa-google text-red-600 mr-2 text-sm"></i>
+                                Google OAuth Configuration
+                            </h2>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-xs text-blue-800 flex items-start">
+                                    <i class="fas fa-info-circle mr-2 mt-0.5"></i>
+                                    <span>These settings are automatically synced with your .env file. Get your OAuth credentials from <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="underline font-medium">Google Cloud Console</a>.</span>
+                                </p>
+                            </div>
+
+                            <div>
+                                <label for="google_client_id" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                    Google Client ID <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="google_client_id" name="google_client_id"
+                                           value="{{ old('google_client_id', Setting::get('google_client_id', env('GOOGLE_CLIENT_ID'))) }}"
+                                           placeholder="291712108770-xxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           required>
+                                    <button type="button" onclick="copyToClipboard('google_client_id')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm"
+                                            title="Copy to clipboard">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="google_client_secret" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                    Google Client Secret <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="password" id="google_client_secret" name="google_client_secret"
+                                           value="{{ old('google_client_secret', Setting::get('google_client_secret', env('GOOGLE_CLIENT_SECRET'))) }}"
+                                           placeholder="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx"
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           required>
+                                    <button type="button" onclick="togglePasswordVisibility('google_client_secret')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" onclick="copyToClipboard('google_client_secret')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm"
+                                            title="Copy to clipboard">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="google_redirect_uri" class="block text-xs font-medium text-gray-700 mb-1.5">
+                                    Google Redirect URI <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="url" id="google_redirect_uri" name="google_redirect_uri"
+                                           value="{{ old('google_redirect_uri', Setting::get('google_redirect_uri', env('GOOGLE_REDIRECT_URI'))) }}"
+                                           placeholder="http://localhost/gmb_leads/auth/google/callback"
+                                           class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           required>
+                                    <button type="button" onclick="copyToClipboard('google_redirect_uri')"
+                                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm"
+                                            title="Copy to clipboard">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">This URL must be added to authorized redirect URIs in Google Cloud Console</p>
+                            </div>
+
+                            <div class="pt-2 flex justify-between items-center">
+                                <a href="https://console.cloud.google.com/apis/credentials" target="_blank"
+                                   class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Open Google Cloud Console
+                                </a>
+                                <button type="submit" class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium">
+                                    <i class="fas fa-save mr-2"></i>Save OAuth Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Quick Setup Guide -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-5 mt-5 max-w-4xl">
+                    <h6 class="font-semibold text-blue-900 mb-3 flex items-center text-sm">
+                        <i class="fas fa-book mr-2"></i>Quick Setup Guide
+                    </h6>
+                    <ol class="space-y-2 text-xs text-blue-800 list-decimal list-inside">
+                        <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="underline font-medium">Google Cloud Console</a></li>
+                        <li>Create a new OAuth 2.0 Client ID or use existing one</li>
+                        <li>Add the Redirect URI to authorized redirect URIs list</li>
+                        <li>Copy Client ID and Client Secret from Google Console</li>
+                        <li>Paste them in the fields above and click "Save OAuth Settings"</li>
+                        <li>Your .env file will be automatically updated!</li>
+                    </ol>
+                </div>
             </div>
 
             <!-- ========== SYSTEM TAB ========== -->
@@ -874,5 +1120,182 @@ use App\Models\EmailTemplate;
             });
         });
     });
+
+    // Load Verified Users Count
+    function loadVerifiedUsersCount() {
+        fetch('{{ route('admin.settings.email.verified.users.count') }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const countText = `<i class="fas fa-users mr-1"></i>${data.count} Verified Users`;
+                    document.getElementById('verified_users_count_feature').innerHTML = countText;
+                    document.getElementById('verified_users_count_maintenance').innerHTML = countText;
+                } else {
+                    document.getElementById('verified_users_count_feature').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Error';
+                    document.getElementById('verified_users_count_maintenance').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Error';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading verified users count:', error);
+                document.getElementById('verified_users_count_feature').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Error';
+                document.getElementById('verified_users_count_maintenance').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i>Error';
+            });
+    }
+
+    // Send Bulk Email with Progress Bar
+    function sendBulkEmail(type) {
+        const emailType = type === 'feature' ? 'new feature' : 'maintenance';
+        const message = `⚠️ WARNING: You are about to send ${emailType} email to ALL verified users in the system!\n\nAre you absolutely sure you want to continue?`;
+
+        if (!confirm(message)) {
+            return false;
+        }
+
+        const submitBtn = document.getElementById(`${type}_submit_btn`);
+        const progressContainer = document.getElementById(`${type}_progress_container`);
+        const progressBar = document.getElementById(`${type}_progress_bar`);
+        const progressPercent = document.getElementById(`${type}_progress_percent`);
+        const progressText = document.getElementById(`${type}_progress_text`);
+        const progressStats = document.getElementById(`${type}_progress_stats`);
+        const resultMessage = document.getElementById(`${type}_result_message`);
+
+        // Disable submit button and show progress
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i>Initializing...';
+        progressContainer.classList.remove('hidden');
+        resultMessage.innerHTML = '';
+
+        // Prepare form data with default values
+        const formData = new FormData();
+        if (type === 'feature') {
+            formData.append('feature_title', 'New Feature Announcement');
+            formData.append('feature_description', 'We have added exciting new features to improve your experience. Check them out in your dashboard!');
+        } else {
+            formData.append('start_time', 'Tonight at 02:00 AM');
+            formData.append('end_time', 'Tonight at 05:00 AM');
+            formData.append('duration', '3 hours');
+            formData.append('maintenance_reason', 'System upgrade and performance improvements.');
+        }
+
+        // Send AJAX request
+        const url = type === 'feature'
+            ? '{{ route('admin.settings.email.bulk.new.feature') }}'
+            : '{{ route('admin.settings.email.bulk.maintenance') }}';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update progress to 100%
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                progressText.textContent = 'Completed!';
+                progressStats.innerHTML = `
+                    <div class="flex items-center justify-between p-2 bg-green-50 rounded border border-green-200">
+                        <span><i class="fas fa-check-circle text-green-600 mr-1"></i>Successfully sent: ${data.success_count}</span>
+                        ${data.fail_count > 0 ? `<span class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>Failed: ${data.fail_count}</span>` : ''}
+                    </div>
+                `;
+
+                resultMessage.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs">
+                        <i class="fas fa-check-circle mr-1"></i>${data.message}
+                    </div>
+                `;
+
+                // Reset after 5 seconds
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                    progressText.textContent = 'Sending emails...';
+                    progressStats.innerHTML = '';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i>Send to ALL Users';
+                }, 5000);
+            } else {
+                resultMessage.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs">
+                        <i class="fas fa-exclamation-circle mr-1"></i>${data.message}
+                    </div>
+                `;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i>Send to ALL Users';
+                progressContainer.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error sending bulk email:', error);
+            resultMessage.innerHTML = `
+                <div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs">
+                    <i class="fas fa-exclamation-circle mr-1"></i>An error occurred while sending emails.
+                </div>
+            `;
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i>Send to ALL Users';
+            progressContainer.classList.add('hidden');
+        });
+
+        // Simulate progress (since we can't get real-time updates easily with standard JSON response)
+        let simulatedProgress = 0;
+        const progressInterval = setInterval(() => {
+            if (simulatedProgress < 90) {
+                simulatedProgress += 10;
+                progressBar.style.width = simulatedProgress + '%';
+                progressPercent.textContent = simulatedProgress + '%';
+                progressText.textContent = `Sending emails... (${simulatedProgress}%)`;
+            } else {
+                clearInterval(progressInterval);
+            }
+        }, 500);
+
+        return false;
+    }
+
+    // Load verified users count when email tab is accessed
+    document.addEventListener('DOMContentLoaded', function() {
+        loadVerifiedUsersCount();
+
+        // Reload count when email tab is clicked
+        const emailTab = document.getElementById('tab-email');
+        if (emailTab) {
+            emailTab.addEventListener('click', loadVerifiedUsersCount);
+        }
+    });
+
+    // Copy to Clipboard Function
+    function copyToClipboard(fieldId) {
+        const input = document.getElementById(fieldId);
+        const value = input.value;
+
+        if (!value) {
+            return;
+        }
+
+        // Create a temporary textarea element
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = value;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+
+        // Show feedback
+        const button = event.currentTarget;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+        button.classList.add('bg-green-100');
+
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('bg-green-100');
+        }, 1500);
+    }
 </script>
 @endsection
