@@ -199,6 +199,8 @@ Route::middleware(['web', 'auth'])->group(function () {
 
             // General Settings
             Route::put('/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneralSettings'])->name('general.update');
+            Route::put('/api', [App\Http\Controllers\Admin\SettingsController::class, 'updateApiSettings'])->name('api.update');
+            Route::put('/system', [App\Http\Controllers\Admin\SettingsController::class, 'updateSystemSettings'])->name('system.update');
 
             // Cache & Database
             Route::post('/cache/clear', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('cache.clear');

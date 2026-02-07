@@ -139,7 +139,7 @@
                                         <i class="fas {{ $pkg['icon'] }} text-{{ $pkg['color'] }}-600"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-800">{{ $pkg['name'] }}</p>
+                                        <p class="text-sm font-medium text-gray-800">{{ucfirst($pkg['billing_type']).' '. $pkg['name'].' ('.ucfirst($pkg['package_for']).')' }}</p>
                                         <p class="text-xs text-gray-500">{{ number_format($pkg['count']) }} {{ Str::plural('user', $pkg['count']) }}</p>
                                     </div>
                                 </div>

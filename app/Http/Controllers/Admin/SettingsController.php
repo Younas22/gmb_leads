@@ -33,32 +33,31 @@ class SettingsController extends Controller
             'contact_phone' => 'nullable|string|max:50',
             'support_email' => 'nullable|email',
             'site_logo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
-            'favicon' => 'nullable|image|mimes:ico,png|max:512',
+            'site_favicon' => 'nullable|mimes:ico,png|max:512',
             'default_country' => 'nullable|string|max:2',
             'default_currency' => 'nullable|string|max:3',
             'currency_position' => 'nullable|in:before,after',
             'timezone' => 'nullable|string',
             'date_format' => 'nullable|string',
             'time_format' => 'nullable|in:12,24',
-            'google_maps_api_key' => 'nullable|string',
-            'google_places_api_key' => 'nullable|string',
-            'api_rate_limit' => 'nullable|integer|min:1|max:1000',
-            'session_timeout' => 'nullable|integer|min:5|max:1440',
             'max_search_results' => 'nullable|integer|min:10|max:200',
             'default_search_radius' => 'nullable|integer|min:1|max:100',
             'max_saved_leads' => 'nullable|integer|min:10|max:10000',
-            'cache_duration' => 'nullable|integer|min:1|max:1440',
         ]);
 
         // Handle file uploads
         if ($request->hasFile('site_logo')) {
-            $logoPath = $request->file('site_logo')->store('logos', 'public');
-            Setting::set('site_logo', $logoPath, 'text', 'general', 'Site Logo Path');
+            $logo = $request->file('site_logo');
+            $logoName = 'logo_' . time() . '.' . $logo->getClientOriginalExtension();
+            $logo->move(public_path('images/logo'), $logoName);
+            Setting::set('site_logo', 'images/logo/' . $logoName, 'text', 'general', 'Site Logo Path');
         }
 
-        if ($request->hasFile('favicon')) {
-            $faviconPath = $request->file('favicon')->store('favicons', 'public');
-            Setting::set('favicon', $faviconPath, 'text', 'general', 'Favicon Path');
+        if ($request->hasFile('site_favicon')) {
+            $favicon = $request->file('site_favicon');
+            $faviconName = 'favicon_' . time() . '.' . $favicon->getClientOriginalExtension();
+            $favicon->move(public_path('images/logo'), $faviconName);
+            Setting::set('site_favicon', 'images/logo/' . $faviconName, 'text', 'general', 'Favicon Path');
         }
 
         // Application Settings
@@ -76,20 +75,6 @@ class SettingsController extends Controller
         Setting::set('date_format', $request->date_format, 'text', 'general', 'Date Format');
         Setting::set('time_format', $request->time_format, 'text', 'general', 'Time Format');
 
-        // API Settings
-        Setting::set('google_maps_api_key', $request->google_maps_api_key, 'password', 'general', 'Google Maps API Key');
-        Setting::set('google_places_api_key', $request->google_places_api_key, 'password', 'general', 'Google Places API Key');
-        Setting::set('api_rate_limit', $request->api_rate_limit ?? 60, 'integer', 'general', 'API Rate Limit');
-        Setting::set('enable_api_logging', $request->has('enable_api_logging') ? 1 : 0, 'boolean', 'general', 'Enable API Logging');
-
-        // System Settings
-        Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
-        Setting::set('maintenance_message', $request->maintenance_message, 'text', 'general', 'Maintenance Message');
-        Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
-        Setting::set('email_verification', $request->has('email_verification') ? 1 : 0, 'boolean', 'general', 'Email Verification Required');
-        Setting::set('default_user_role', $request->default_user_role ?? 'user', 'text', 'general', 'Default User Role');
-        Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
-
         // Search Settings
         Setting::set('max_search_results', $request->max_search_results ?? 50, 'integer', 'general', 'Max Search Results');
         Setting::set('default_search_radius', $request->default_search_radius ?? 10, 'integer', 'general', 'Default Search Radius');
@@ -104,11 +89,45 @@ class SettingsController extends Controller
         Setting::set('notify_new_subscription', $request->has('notify_new_subscription') ? 1 : 0, 'boolean', 'general', 'Notify New Subscription');
         Setting::set('notify_payment_received', $request->has('notify_payment_received') ? 1 : 0, 'boolean', 'general', 'Notify Payment Received');
 
-        // Cache & Performance
-        Setting::set('enable_cache', $request->has('enable_cache') ? 1 : 0, 'boolean', 'general', 'Enable Cache');
+        return back()->with('success', 'General settings updated successfully!');
+    }
+
+    /**
+     * Update API settings
+     */
+    public function updateApiSettings(Request $request)
+    {
+        $request->validate([
+            'google_maps_api_key' => 'nullable|string',
+            'google_places_api_key' => 'nullable|string',
+            'api_rate_limit' => 'nullable|integer|min:1|max:1000',
+        ]);
+
+        Setting::set('google_maps_api_key', $request->google_maps_api_key, 'password', 'general', 'Google Maps API Key');
+        Setting::set('google_places_api_key', $request->google_places_api_key, 'password', 'general', 'Google Places API Key');
+        Setting::set('api_rate_limit', $request->api_rate_limit ?? 60, 'integer', 'general', 'API Rate Limit');
+        Setting::set('enable_api_logging', $request->has('enable_api_logging') ? 1 : 0, 'boolean', 'general', 'Enable API Logging');
+
+        return back()->with('success', 'API settings updated successfully!');
+    }
+
+    /**
+     * Update system settings
+     */
+    public function updateSystemSettings(Request $request)
+    {
+        $request->validate([
+            'session_timeout' => 'nullable|integer|min:5|max:1440',
+            'cache_duration' => 'nullable|integer|min:1|max:1440',
+        ]);
+
+        Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
+        Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
+        Setting::set('email_verification', $request->has('email_verification') ? 1 : 0, 'boolean', 'general', 'Email Verification Required');
+        Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
         Setting::set('cache_duration', $request->cache_duration ?? 60, 'integer', 'general', 'Cache Duration');
 
-        return back()->with('success', 'General settings updated successfully!');
+        return back()->with('success', 'System settings updated successfully!');
     }
 
     /**

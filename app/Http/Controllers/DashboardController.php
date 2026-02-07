@@ -252,6 +252,7 @@ class DashboardController extends Controller
             $distribution[] = [
                 'name' => $package->name,
                 'billing_type' => $package->billing_type,
+                'package_for' => $package->package_for,
                 'count' => $subscriberCount,
                 'percentage' => $percentage,
                 'icon' => $this->getPackageIcon($package->name),
@@ -270,6 +271,7 @@ class DashboardController extends Controller
             array_unshift($distribution, [
                 'name' => 'No Subscription',
                 'billing_type' => null,
+                'package_for' => null,
                 'count' => $usersWithoutSubscription,
                 'percentage' => $noSubPercentage,
                 'icon' => 'fa-user',

@@ -268,6 +268,8 @@ class ReportController extends Controller
         ->map(function($package) use ($totalSubscriptions) {
             return [
                 'name' => $package->name,
+                'billing_type' => $package->billing_type,
+                'package_for' => $package->package_for,
                 'count' => $package->subscriptions_count,
                 'percentage' => $totalSubscriptions > 0 ? round(($package->subscriptions_count / $totalSubscriptions) * 100, 1) : 0,
                 'revenue' => Payment::completed()
@@ -278,7 +280,9 @@ class ReportController extends Controller
             ];
         });
 
-        $labels = $packageData->pluck('name')->toArray();
+        $labels = $packageData->map(function($package) {
+            return ucfirst($package['billing_type']).' '.$package['name'].' ('.ucfirst($package['package_for']).')';
+        })->toArray();
         $counts = $packageData->pluck('count')->toArray();
 
         return view('admin.reports.package-performance', compact(

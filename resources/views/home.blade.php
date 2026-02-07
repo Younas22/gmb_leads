@@ -291,17 +291,17 @@
                             <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-2">{{ $package->name }}</h3>
                             <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
                                 @if($package->price == 0)
-                                    $0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                    {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
                                 @elseif($package->billing_type === 'yearly')
-                                    ${{ number_format((float)$package->price / 12, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
+                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price / 12, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
                                 @elseif($package->billing_type === 'lifetime')
-                                    ${{ number_format((float)$package->price, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}"> once</span>
+                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}"> once</span>
                                 @else
-                                    ${{ number_format((float)$package->price, 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
                                 @endif
                             </div>
                             @if($package->billing_type === 'yearly' && $package->price > 0)
-                                <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">billed ${{ number_format((float)$package->price, 0) }}/year</div>
+                                <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">billed {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}/year</div>
                             @endif
                         </div>
 
@@ -341,7 +341,8 @@
                         <button onclick="handleGetStarted(this)"
                                 data-package-id="{{ $package->id }}"
                                 data-package-name="{{ e($package->name) }}"
-                                data-package-price="{{ $package->price }}"
+                                data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
+                                data-currency-symbol="{{ $currency['symbol'] }}"
                                 class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                             Get Started
                         </button>

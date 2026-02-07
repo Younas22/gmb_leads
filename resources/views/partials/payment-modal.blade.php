@@ -136,12 +136,14 @@
     // ── Payment Modal ──
     var currentPackagePrice = 0;
     var isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+    var currencySymbol = '{{ $currency["symbol"] ?? "$" }}';
+    var currencyCode = '{{ $currency["code"] ?? "USD" }}';
 
     var paymentDetailsMap = {
-        'jazzcash':  'Send PKR [AMOUNT] to JazzCash account:\nNumber: 0312-1234567\nReference: BusinessFinder',
-        'easypaisa': 'Send PKR [AMOUNT] to Easypaisa account:\nNumber: 0311-1234567\nReference: BusinessFinder',
-        'bank':      'Transfer PKR [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: BusinessFinder Pvt Ltd\nAccount No: 1234567890123',
-        'nayapay':   'Send PKR [AMOUNT] to NayaPay:\nID: admin@businessfinder.pk\nReference: BusinessFinder'
+        'jazzcash':  'Send ' + currencyCode + ' [AMOUNT] to JazzCash account:\nNumber: 0312-1234567\nReference: BusinessFinder',
+        'easypaisa': 'Send ' + currencyCode + ' [AMOUNT] to Easypaisa account:\nNumber: 0311-1234567\nReference: BusinessFinder',
+        'bank':      'Transfer ' + currencyCode + ' [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: BusinessFinder Pvt Ltd\nAccount No: 1234567890123',
+        'nayapay':   'Send ' + currencyCode + ' [AMOUNT] to NayaPay:\nID: admin@businessfinder.pk\nReference: BusinessFinder'
     };
 
     // For home page - handles both auth check and modal open
@@ -157,7 +159,7 @@
     window.openPaymentModal = function(packageId, packageName, packagePrice) {
         currentPackagePrice = packagePrice;
         document.getElementById('modalPackageName').textContent  = packageName;
-        document.getElementById('modalPackagePrice').textContent = 'PKR ' + Number(currentPackagePrice).toLocaleString();
+        document.getElementById('modalPackagePrice').textContent = currencySymbol + ' ' + Number(currentPackagePrice).toLocaleString();
         document.getElementById('formPackageId').value           = packageId;
 
         document.getElementById('step1').classList.remove('hidden');

@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Subscription;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Services\CurrencyHelper;
 
 class SubscriptionController extends Controller
 {
@@ -167,6 +168,8 @@ class SubscriptionController extends Controller
             'leads_change' => $leadsChange,
         ];
 
+        $currency = CurrencyHelper::getVisitorCurrency();
+
         return view('user.subscription', compact(
             'user',
             'currentPlan',
@@ -175,7 +178,8 @@ class SubscriptionController extends Controller
             'usageData',
             'analyticsData',
             'billingHistory',
-            'userPaymentMethod'
+            'userPaymentMethod',
+            'currency'
         ));
     }
 

@@ -134,7 +134,7 @@
                             <div class="text-center mb-6">
                                 <h4 class="text-xl font-bold text-gray-800 mb-2">{{ $plan->name }}</h4>
                                 <div class="text-3xl font-bold text-gray-800 mb-1">
-                                    {{ $plan->currency ?? 'PKR' }} {{ number_format($plan->price, 2) }}
+                                    {{ $currency['symbol'] }} {{ number_format(\App\Services\CurrencyHelper::convert((float)$plan->price, $currency), 0) }}
                                 </div>
                                 <p class="text-sm text-gray-600">{{ $plan->billing_type }}</p>
                                 @if($plan->description)
@@ -185,7 +185,8 @@
                                 <button
                                     data-package-id="{{ $plan->id }}"
                                     data-package-name="{{ $plan->name }}"
-                                    data-package-price="{{ $plan->price }}"
+                                    data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$plan->price, $currency) }}"
+                                    data-currency-symbol="{{ $currency['symbol'] }}"
                                     onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
                                     class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium">
                                     @if($plan->price > 0)

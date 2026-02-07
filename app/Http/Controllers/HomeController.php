@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Package;
 use App\Models\PaymentMethod;
+use App\Services\CurrencyHelper;
 
 class HomeController extends Controller
 {
@@ -25,6 +26,8 @@ class HomeController extends Controller
 
         $paymentMethods = PaymentMethod::active()->get();
 
-        return view('home', compact('userPackages', 'companyPackages', 'paymentMethods'));
+        $currency = CurrencyHelper::getVisitorCurrency();
+
+        return view('home', compact('userPackages', 'companyPackages', 'paymentMethods', 'currency'));
     }
 }

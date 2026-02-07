@@ -130,7 +130,7 @@ use App\Models\Setting;
                                             <label for="site_logo" class="block text-xs font-medium text-gray-700 mb-1.5">Site Logo</label>
                                             @if(Setting::get('site_logo'))
                                                 <div class="mb-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                    <img src="{{ asset('storage/' . Setting::get('site_logo')) }}" alt="Site Logo" class="h-16 object-contain">
+                                                    <img src="{{ asset('public/' . Setting::get('site_logo')) }}" alt="Site Logo" class="h-16 object-contain">
                                                 </div>
                                             @endif
                                             <input type="file" id="site_logo" name="site_logo" accept="image/*"
@@ -143,7 +143,7 @@ use App\Models\Setting;
                                             <label for="site_favicon" class="block text-xs font-medium text-gray-700 mb-1.5">Favicon</label>
                                             @if(Setting::get('site_favicon'))
                                                 <div class="mb-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                    <img src="{{ asset('storage/' . Setting::get('site_favicon')) }}" alt="Favicon" class="h-8 w-8 object-contain">
+                                                    <img src="{{ asset('public/' . Setting::get('site_favicon')) }}" alt="Favicon" class="h-8 w-8 object-contain">
                                                 </div>
                                             @endif
                                             <input type="file" id="site_favicon" name="site_favicon" accept="image/x-icon,image/png"
@@ -167,6 +167,7 @@ use App\Models\Setting;
                                         <label for="default_country" class="block text-xs font-medium text-gray-700 mb-1.5">Default Country</label>
                                         <select id="default_country" name="default_country"
                                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="PK" {{ Setting::get('default_country') == 'PK' ? 'selected' : '' }}>Pakistan</option>
                                             <option value="US" {{ Setting::get('default_country') == 'US' ? 'selected' : '' }}>United States</option>
                                             <option value="GB" {{ Setting::get('default_country') == 'GB' ? 'selected' : '' }}>United Kingdom</option>
                                             <option value="CA" {{ Setting::get('default_country') == 'CA' ? 'selected' : '' }}>Canada</option>
@@ -178,17 +179,15 @@ use App\Models\Setting;
                                         <label for="default_currency" class="block text-xs font-medium text-gray-700 mb-1.5">Default Currency</label>
                                         <select id="default_currency" name="default_currency"
                                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="PKR" {{ Setting::get('default_currency') == 'PKR' ? 'selected' : '' }}>PKR (₨)</option>
                                             <option value="USD" {{ Setting::get('default_currency') == 'USD' ? 'selected' : '' }}>USD ($)</option>
-                                            <option value="EUR" {{ Setting::get('default_currency') == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
-                                            <option value="GBP" {{ Setting::get('default_currency') == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
-                                            <option value="INR" {{ Setting::get('default_currency') == 'INR' ? 'selected' : '' }}>INR (₹)</option>
-                                            <option value="AUD" {{ Setting::get('default_currency') == 'AUD' ? 'selected' : '' }}>AUD ($)</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label for="timezone" class="block text-xs font-medium text-gray-700 mb-1.5">Timezone</label>
                                         <select id="timezone" name="timezone"
                                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                            <option value="Asia/Karachi" {{ Setting::get('timezone') == 'Asia/Karachi' ? 'selected' : '' }}>Pakistan (PKT)</option>
                                             <option value="UTC" {{ Setting::get('timezone', 'UTC') == 'UTC' ? 'selected' : '' }}>UTC</option>
                                             <option value="America/New_York" {{ Setting::get('timezone') == 'America/New_York' ? 'selected' : '' }}>Eastern Time</option>
                                             <option value="America/Chicago" {{ Setting::get('timezone') == 'America/Chicago' ? 'selected' : '' }}>Central Time</option>
@@ -508,7 +507,7 @@ use App\Models\Setting;
 
             <!-- ========== API TAB ========== -->
             <div id="content-api" class="tab-content hidden">
-                <form action="{{ route('admin.settings.general.update') }}" method="POST">
+                <form action="{{ route('admin.settings.api.update') }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -575,7 +574,7 @@ use App\Models\Setting;
 
             <!-- ========== SYSTEM TAB ========== -->
             <div id="content-system" class="tab-content hidden">
-                <form action="{{ route('admin.settings.general.update') }}" method="POST">
+                <form action="{{ route('admin.settings.system.update') }}" method="POST">
                     @csrf
                     @method('PUT')
 
