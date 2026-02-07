@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Models\EmailTemplate;
 use Resend;
 
 class EmailService
@@ -51,15 +52,48 @@ class EmailService
     }
 
     /**
+     * Send email using DB template with placeholders
+     */
+    public static function sendWithTemplate($to, $templateSlug, $placeholders = [])
+    {
+        try {
+            $template = EmailTemplate::getBySlug($templateSlug);
+
+            if (!$template) {
+                throw new \Exception("Email template '{$templateSlug}' not found.");
+            }
+
+            // Always include app_name
+            $placeholders['app_name'] = $placeholders['app_name'] ?? config('app.name');
+
+            // Render subject and body with placeholders
+            $subject = $template->renderSubject($placeholders);
+            $content = $template->renderBody($placeholders);
+
+            // Use dynamic view that extends layout
+            return self::send($to, $subject, 'emails.dynamic', ['content' => $content]);
+        } catch (\Exception $e) {
+            \Log::error('Template email sending failed: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Send welcome email to new user
      */
     public static function sendWelcomeEmail($user)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'Welcome to ' . config('app.name') . '!',
-            'emails.welcome_mail',
-            ['user' => $user]
+            'welcome',
+            [
+                'user_name' => $user->name ?? 'User',
+                'dashboard_url' => url('/dashboard'),
+            ]
         );
     }
 
@@ -68,11 +102,15 @@ class EmailService
      */
     public static function sendNewFeatureEmail($user, $featureData)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'New Feature: ' . ($featureData['feature_title'] ?? 'Update Available'),
-            'emails.newfeature_mail',
-            array_merge(['user' => $user], $featureData)
+            'new_feature',
+            [
+                'user_name' => $user->name ?? 'User',
+                'feature_title' => $featureData['feature_title'] ?? 'Update Available',
+                'feature_description' => $featureData['feature_description'] ?? 'Check out what\'s new in your dashboard.',
+                'dashboard_url' => url('/dashboard'),
+            ]
         );
     }
 
@@ -81,11 +119,20 @@ class EmailService
      */
     public static function sendSubscriptionInvoice($user, $invoiceData)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'Payment Receipt - Invoice #' . ($invoiceData['invoice_number'] ?? 'N/A'),
-            'emails.subscription_invoice_mail',
-            array_merge(['user' => $user], $invoiceData)
+            'subscription_invoice',
+            [
+                'user_name' => $user->name ?? 'User',
+                'invoice_number' => $invoiceData['invoice_number'] ?? 'INV-' . date('Ymd') . '-' . rand(1000, 9999),
+                'payment_date' => $invoiceData['payment_date'] ?? date('F d, Y'),
+                'amount' => isset($invoiceData['amount']) ? '$' . number_format($invoiceData['amount'], 2) : '$0.00',
+                'payment_method' => $invoiceData['payment_method'] ?? 'Credit Card',
+                'plan_name' => $invoiceData['plan_name'] ?? 'Premium Plan',
+                'billing_period' => $invoiceData['billing_period'] ?? 'Monthly',
+                'next_billing_date' => $invoiceData['next_billing_date'] ?? date('F d, Y', strtotime('+1 month')),
+                'subscription_url' => url('/subscription'),
+            ]
         );
     }
 
@@ -94,11 +141,18 @@ class EmailService
      */
     public static function sendSubscriptionStart($user, $subscriptionData)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'Your Subscription is Now Active!',
-            'emails.subscription_start_mail',
-            array_merge(['user' => $user], $subscriptionData)
+            'subscription_start',
+            [
+                'user_name' => $user->name ?? 'User',
+                'plan_name' => $subscriptionData['plan_name'] ?? 'Premium Plan',
+                'start_date' => $subscriptionData['start_date'] ?? date('F d, Y'),
+                'renewal_date' => $subscriptionData['renewal_date'] ?? date('F d, Y', strtotime('+1 month')),
+                'searches_limit' => $subscriptionData['searches_limit'] ?? 'Unlimited',
+                'exports_limit' => $subscriptionData['exports_limit'] ?? 'Unlimited',
+                'dashboard_url' => url('/dashboard'),
+            ]
         );
     }
 
@@ -107,11 +161,15 @@ class EmailService
      */
     public static function sendSubscriptionEnd($user, $subscriptionData)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'Your Subscription Has Ended',
-            'emails.subscription_end_mail',
-            array_merge(['user' => $user], $subscriptionData)
+            'subscription_end',
+            [
+                'user_name' => $user->name ?? 'User',
+                'plan_name' => $subscriptionData['plan_name'] ?? 'Premium Plan',
+                'end_date' => $subscriptionData['end_date'] ?? date('F d, Y'),
+                'subscription_url' => url('/subscription'),
+            ]
         );
     }
 
@@ -120,11 +178,17 @@ class EmailService
      */
     public static function sendMaintenanceNotification($user, $maintenanceData)
     {
-        return self::send(
+        return self::sendWithTemplate(
             $user->email,
-            'Scheduled System Maintenance - ' . config('app.name'),
-            'emails.system_maintenance_mail',
-            array_merge(['user' => $user], $maintenanceData)
+            'system_maintenance',
+            [
+                'user_name' => $user->name ?? 'User',
+                'start_time' => $maintenanceData['start_time'] ?? 'TBD',
+                'end_time' => $maintenanceData['end_time'] ?? 'TBD',
+                'duration' => $maintenanceData['duration'] ?? '2-3 hours',
+                'status' => $maintenanceData['status'] ?? 'Scheduled',
+                'maintenance_reason' => $maintenanceData['maintenance_reason'] ?? '',
+            ]
         );
     }
 

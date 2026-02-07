@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\EmailTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -303,6 +304,99 @@ class SettingsController extends Controller
                 'message' => 'Failed to update template: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Show email templates list
+     */
+    public function emailTemplates()
+    {
+        $templates = EmailTemplate::all();
+        return view('admin.settings.email-templates.index', compact('templates'));
+    }
+
+    /**
+     * Edit email template
+     */
+    public function editEmailTemplate($id)
+    {
+        $template = EmailTemplate::findOrFail($id);
+        return view('admin.settings.email-templates.edit', compact('template'));
+    }
+
+    /**
+     * Update email template
+     */
+    public function updateEmailTemplate(Request $request, $id)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string',
+        ]);
+
+        $template = EmailTemplate::findOrFail($id);
+        $template->update([
+            'subject' => $request->subject,
+            'body' => $request->body,
+        ]);
+
+        return back()->with('success', 'Email template updated successfully!');
+    }
+
+    /**
+     * Preview email template
+     */
+    public function previewEmailTemplate($id)
+    {
+        $template = EmailTemplate::findOrFail($id);
+
+        // Build sample placeholders for preview
+        $sampleData = [];
+        if ($template->available_variables) {
+            foreach ($template->available_variables as $var) {
+                $sampleData[$var] = match ($var) {
+                    'user_name' => 'John Doe',
+                    'app_name' => config('app.name'),
+                    'dashboard_url' => url('/dashboard'),
+                    'subscription_url' => url('/subscription'),
+                    'feature_title' => 'Amazing New Feature',
+                    'feature_description' => 'This is a sample feature description for preview purposes.',
+                    'invoice_number' => 'INV-20260207-1234',
+                    'payment_date' => date('F d, Y'),
+                    'amount' => '$29.99',
+                    'payment_method' => 'Credit Card',
+                    'plan_name' => 'Premium Plan',
+                    'billing_period' => 'Monthly',
+                    'next_billing_date' => date('F d, Y', strtotime('+1 month')),
+                    'start_date' => date('F d, Y'),
+                    'renewal_date' => date('F d, Y', strtotime('+1 month')),
+                    'end_date' => date('F d, Y'),
+                    'searches_limit' => '500',
+                    'exports_limit' => '100',
+                    'start_time' => date('F d, Y h:i A'),
+                    'end_time' => date('F d, Y h:i A', strtotime('+3 hours')),
+                    'duration' => '2-3 hours',
+                    'status' => 'Scheduled',
+                    'maintenance_reason' => 'System upgrade and performance improvements.',
+                    default => '{' . $var . '}',
+                };
+            }
+        }
+
+        $content = $template->renderBody($sampleData);
+
+        return view('emails.dynamic', ['content' => $content]);
+    }
+
+    /**
+     * Reset email template to default
+     */
+    public function resetEmailTemplate($id)
+    {
+        $template = EmailTemplate::findOrFail($id);
+        $template->resetToDefault();
+
+        return back()->with('success', 'Email template reset to default successfully!');
     }
 
     /**

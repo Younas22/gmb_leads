@@ -4,6 +4,7 @@
 
 @php
 use App\Models\Setting;
+use App\Models\EmailTemplate;
 @endphp
 
 @section('content')
@@ -399,83 +400,44 @@ use App\Models\Setting;
                             </div>
                             <div class="p-4">
                                 <div class="space-y-2.5">
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">Welcome Email</h6>
-                                            <p class="text-[10px] text-gray-500">User registration</p>
+                                    @php
+                                        $templateMap = [
+                                            'enable_welcome_email' => ['name' => 'Welcome Email', 'desc' => 'User registration', 'slug' => 'welcome'],
+                                            'enable_new_feature_email' => ['name' => 'New Feature', 'desc' => 'Announcements', 'slug' => 'new_feature'],
+                                            'enable_subscription_invoice_email' => ['name' => 'Invoice', 'desc' => 'Payment receipts', 'slug' => 'subscription_invoice'],
+                                            'enable_subscription_start_email' => ['name' => 'Sub Start', 'desc' => 'Subscription begins', 'slug' => 'subscription_start'],
+                                            'enable_subscription_end_email' => ['name' => 'Sub End', 'desc' => 'Subscription expires', 'slug' => 'subscription_end'],
+                                            'enable_system_maintenance_email' => ['name' => 'Maintenance', 'desc' => 'System alerts', 'slug' => 'system_maintenance'],
+                                        ];
+                                    @endphp
+                                    @foreach($templateMap as $settingKey => $info)
+                                        @php
+                                            $emailTemplate = EmailTemplate::where('slug', $info['slug'])->first();
+                                        @endphp
+                                        <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h6 class="font-medium text-gray-800 text-xs">{{ $info['name'] }}</h6>
+                                                    <p class="text-[10px] text-gray-500">{{ $info['desc'] }}</p>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    @if($emailTemplate)
+                                                        <a href="{{ route('admin.settings.email-templates.edit', $emailTemplate->id) }}"
+                                                           class="px-2 py-1 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-[10px] font-medium transition-colors"
+                                                           title="Edit template content">
+                                                            <i class="fas fa-pen text-[9px] mr-0.5"></i>Edit
+                                                        </a>
+                                                    @endif
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" class="sr-only peer email-template-toggle"
+                                                               data-template-key="{{ $settingKey }}"
+                                                               {{ Setting::get($settingKey, true) ? 'checked' : '' }}>
+                                                        <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_welcome_email"
-                                                   {{ Setting::get('enable_welcome_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
-
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">New Feature</h6>
-                                            <p class="text-[10px] text-gray-500">Announcements</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_new_feature_email"
-                                                   {{ Setting::get('enable_new_feature_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
-
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">Invoice</h6>
-                                            <p class="text-[10px] text-gray-500">Payment receipts</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_subscription_invoice_email"
-                                                   {{ Setting::get('enable_subscription_invoice_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
-
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">Sub Start</h6>
-                                            <p class="text-[10px] text-gray-500">Subscription begins</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_subscription_start_email"
-                                                   {{ Setting::get('enable_subscription_start_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
-
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">Sub End</h6>
-                                            <p class="text-[10px] text-gray-500">Subscription expires</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_subscription_end_email"
-                                                   {{ Setting::get('enable_subscription_end_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
-
-                                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
-                                        <div>
-                                            <h6 class="font-medium text-gray-800 text-xs">Maintenance</h6>
-                                            <p class="text-[10px] text-gray-500">System alerts</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer email-template-toggle"
-                                                   data-template-key="enable_system_maintenance_email"
-                                                   {{ Setting::get('enable_system_maintenance_email', true) ? 'checked' : '' }}>
-                                            <div class="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                        </label>
-                                    </div>
+                                    @endforeach
                                 </div>
                                 <div id="sidebar-toggle-result" class="mt-2"></div>
                             </div>
@@ -862,6 +824,15 @@ use App\Models\Setting;
             resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
         });
     }
+
+    // Auto-switch tab from URL parameter
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab && document.getElementById('content-' + tab)) {
+            switchTab(tab);
+        }
+    });
 
     // Handle Email Template Toggle via AJAX
     document.addEventListener('DOMContentLoaded', function() {

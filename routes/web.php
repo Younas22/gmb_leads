@@ -197,6 +197,13 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::post('/email/test', [App\Http\Controllers\Admin\SettingsController::class, 'sendTestEmail'])->name('email.test');
             Route::post('/email/toggle', [App\Http\Controllers\Admin\SettingsController::class, 'toggleEmailTemplate'])->name('email.toggle');
 
+            // Email Templates
+            Route::get('/email-templates', [App\Http\Controllers\Admin\SettingsController::class, 'emailTemplates'])->name('email-templates.index');
+            Route::get('/email-templates/{id}/edit', [App\Http\Controllers\Admin\SettingsController::class, 'editEmailTemplate'])->name('email-templates.edit');
+            Route::put('/email-templates/{id}', [App\Http\Controllers\Admin\SettingsController::class, 'updateEmailTemplate'])->name('email-templates.update');
+            Route::get('/email-templates/{id}/preview', [App\Http\Controllers\Admin\SettingsController::class, 'previewEmailTemplate'])->name('email-templates.preview');
+            Route::post('/email-templates/{id}/reset', [App\Http\Controllers\Admin\SettingsController::class, 'resetEmailTemplate'])->name('email-templates.reset');
+
             // General Settings
             Route::put('/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneralSettings'])->name('general.update');
             Route::put('/api', [App\Http\Controllers\Admin\SettingsController::class, 'updateApiSettings'])->name('api.update');
