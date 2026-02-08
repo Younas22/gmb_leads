@@ -4,15 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Reset Password - Customer Nearme</title>
+    <title>Reset Password - CustomerNearme</title>
+
+    @php
+        $siteFavicon = \App\Models\Setting::get('site_favicon');
+    @endphp
+    @if($siteFavicon)
+        <link rel="icon" type="image/png" href="{{ asset('public/' . $siteFavicon) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('public/assets/images/favicon.png') }}">
+    @endif
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
                     colors: {
+                        'primary-orange': '#f97316',
+                        'dark-orange': '#ea580c',
+                        'primary-blue': '#3b82f6',
+                        'dark-blue': '#1d4ed8',
                         primary: {
                             50: '#eff6ff',
                             100: '#dbeafe',
@@ -21,154 +43,363 @@
                             700: '#1d4ed8',
                             800: '#1e40af',
                             900: '#1e3a8a'
+                        },
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c'
                         }
                     }
                 }
             }
         }
     </script>
-</head>
-<body class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-blue-50">
-    <!-- Alert Messages -->
-    <div id="alertContainer" class="fixed top-4 right-4 z-40"></div>
-
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl mb-4">
-                    <i class="fas fa-lock text-white text-2xl"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
-                <p class="text-gray-600">Enter your new password below</p>
-            </div>
-
-            <!-- Reset Form -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-                <form id="resetPasswordForm">
-                    @csrf
-                    <input type="hidden" name="token" value="{{ $token }}">
-                    <input type="hidden" name="email" value="{{ $email }}">
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-envelope text-gray-400"></i>
-                            </div>
-                            <input type="email" value="{{ $email }}" readonly
-                                   class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 cursor-not-allowed">
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-gray-400"></i>
-                            </div>
-                            <input type="password" name="password" id="newPassword" required 
-                                   class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                                   placeholder="Enter new password">
-                            <button type="button" onclick="togglePassword('newPassword', 'newPasswordIcon')" 
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                <i class="fas fa-eye text-gray-400 hover:text-gray-600" id="newPasswordIcon"></i>
-                            </button>
-                        </div>
-                        <span class="text-red-500 text-sm hidden" id="passwordError"></span>
-                        <p class="mt-2 text-xs text-gray-500">Must be at least 8 characters long</p>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-gray-400"></i>
-                            </div>
-                            <input type="password" name="password_confirmation" id="confirmPassword" required 
-                                   class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                                   placeholder="Confirm new password">
-                            <button type="button" onclick="togglePassword('confirmPassword', 'confirmPasswordIcon')" 
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                <i class="fas fa-eye text-gray-400 hover:text-gray-600" id="confirmPasswordIcon"></i>
-                            </button>
-                        </div>
-                        <span class="text-red-500 text-sm hidden" id="passwordConfirmationError"></span>
-                    </div>
-
-                    <!-- Password Strength Indicator -->
-                    <div class="mb-6">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="text-xs text-gray-600">Password strength:</span>
-                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div id="passwordStrength" class="h-full bg-gray-300 transition-all duration-300" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <p id="passwordStrengthText" class="text-xs text-gray-500">Enter a password</p>
-                    </div>
-
-                    <button type="submit" id="resetButton"
-                            class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        <span id="resetButtonText">
-                            <i class="fas fa-check-circle mr-2"></i>Reset Password
-                        </span>
-                    </button>
-
-                    <div class="mt-6 text-center">
-                        <a href="{{ route('auth.show') }}" class="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Back to Login
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Security Tips -->
-            <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold text-blue-900 mb-2">Password Security Tips</h3>
-                        <ul class="text-xs text-blue-800 space-y-1">
-                            <li>✓ Use a unique password you don't use elsewhere</li>
-                            <li>✓ Include uppercase, lowercase, numbers & symbols</li>
-                            <li>✓ Avoid personal information like names or dates</li>
-                            <li>✓ Consider using a password manager</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
+        const BASE_URL = '{{ url("/") }}';
+    </script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        /* Animated gradient background blobs */
+        @keyframes blob-drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -50px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(15px, 40px) scale(1.02); }
+        }
+        @keyframes blob-drift-reverse {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-40px, 30px) scale(0.95); }
+            50% { transform: translate(25px, -25px) scale(1.05); }
+            75% { transform: translate(-10px, -40px) scale(0.98); }
+        }
+        .bg-blob-1 {
+            animation: blob-drift 18s ease-in-out infinite;
+        }
+        .bg-blob-2 {
+            animation: blob-drift-reverse 22s ease-in-out infinite;
+        }
+        .bg-blob-3 {
+            animation: blob-drift 25s ease-in-out infinite reverse;
+        }
+
+        /* Card entrance animation */
+        @keyframes card-enter {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-animate {
+            animation: card-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Input focus glow */
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border-color: #f97316;
+        }
+
+        /* Button gradient animation */
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ea580c 0%, #1d4ed8 100%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px -5px rgba(249, 115, 22, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Password toggle button */
+        .pwd-toggle {
+            transition: color 0.2s ease;
+        }
+        .pwd-toggle:hover {
+            color: #f97316;
+        }
+
+        /* Alert slide-in */
+        @keyframes alert-slide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-alert {
+            animation: alert-slide 0.3s ease-out;
+        }
+
+        /* Password strength bar animation */
+        .strength-bar {
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-white font-inter overflow-x-hidden">
+
+    <!-- ===== Decorative Background ===== -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <!-- Gradient mesh -->
+        <div class="absolute inset-0" style="background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249,115,22,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(29,78,216,0.05) 0%, transparent 60%);"></div>
+        <!-- Floating blobs -->
+        <div class="bg-blob-1 absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full" style="background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%);"></div>
+        <div class="bg-blob-2 absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full" style="background: radial-gradient(circle, rgba(29,78,216,0.06) 0%, transparent 70%);"></div>
+        <div class="bg-blob-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full" style="background: radial-gradient(circle, rgba(249,115,22,0.04) 0%, transparent 70%);"></div>
+        <!-- Grid pattern overlay -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E&quot;);"></div>
+    </div>
+
+    <!-- ===== Alert Messages ===== -->
+    <div id="alertContainer" class="fixed top-4 right-4 z-[50] space-y-3 max-w-sm w-full"></div>
+
+    <!-- ===== Main Content ===== -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+
+        <!-- ===== Header / Logo ===== -->
+        <header class="py-6 px-4 sm:px-8">
+            <div class="max-w-md mx-auto flex items-center justify-between">
+                <a href="{{ url('/') }}" class="flex items-center gap-2.5 group">
+                    @php
+                        $siteLogo = \App\Models\Setting::get('site_logo');
+                        $siteName = \App\Models\Setting::get('site_name', config('app.name'));
+                    @endphp
+                    @if($siteLogo)
+                        <img src="{{ asset('public/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-9 w-auto object-contain">
+                    @else
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-orange to-orange-600 flex items-center justify-center shadow-lg shadow-orange-200/50">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-lg font-bold text-gray-900 tracking-tight">Customer<span class="text-primary-orange">Nearme</span></span>
+                        </div>
+                    @endif
+                </a>
+            </div>
+        </header>
+
+        <!-- ===== Reset Password Form Section ===== -->
+        <main class="flex-1 flex items-center justify-center px-4 sm:px-8 py-6 sm:py-10">
+            <div class="w-full max-w-md">
+
+                <!-- Page Header -->
+                <div class="text-center mb-8 card-animate">
+                    <!-- Icon -->
+                    <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-orange to-orange-600 rounded-2xl shadow-xl shadow-orange-200/50 mb-5">
+                        <i class="fas fa-key text-white text-2xl sm:text-3xl"></i>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
+                        Reset Your Password
+                    </h1>
+                    <p class="text-base text-gray-500">
+                        Create a strong new password for your account
+                    </p>
+                </div>
+
+                <!-- Reset Form Card -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden card-animate">
+                    <!-- Card header accent -->
+                    <div class="h-1.5 w-full bg-gradient-to-r from-primary-orange via-orange-400 to-primary-orange"></div>
+
+                    <div class="p-6 sm:p-8">
+                        <form id="resetPasswordForm" class="space-y-5">
+                            @csrf
+                            <input type="hidden" name="token" value="{{ $token }}">
+                            <input type="hidden" name="email" value="{{ $email }}">
+
+                            <!-- Email (Read-only) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400 text-sm"></i>
+                                    </div>
+                                    <input type="email" value="{{ $email }}" readonly
+                                           class="block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-600 cursor-not-allowed">
+                                </div>
+                            </div>
+
+                            <!-- New Password -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400 text-sm"></i>
+                                    </div>
+                                    <input type="password" name="password" id="newPassword" required
+                                           class="input-glow block w-full pl-10 pr-11 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition-all bg-gray-50/50 hover:bg-white"
+                                           placeholder="Enter new password">
+                                    <button type="button" onclick="togglePassword('newPassword', 'newPasswordIcon')"
+                                            class="pwd-toggle absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">
+                                        <i class="fas fa-eye text-sm" id="newPasswordIcon"></i>
+                                    </button>
+                                </div>
+                                <span class="text-red-500 text-xs mt-1 hidden" id="passwordError"></span>
+                                <p class="mt-1.5 text-xs text-gray-500">Must be at least 8 characters long</p>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm New Password</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <i class="fas fa-lock text-gray-400 text-sm"></i>
+                                    </div>
+                                    <input type="password" name="password_confirmation" id="confirmPassword" required
+                                           class="input-glow block w-full pl-10 pr-11 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none transition-all bg-gray-50/50 hover:bg-white"
+                                           placeholder="Confirm new password">
+                                    <button type="button" onclick="togglePassword('confirmPassword', 'confirmPasswordIcon')"
+                                            class="pwd-toggle absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400">
+                                        <i class="fas fa-eye text-sm" id="confirmPasswordIcon"></i>
+                                    </button>
+                                </div>
+                                <span class="text-red-500 text-xs mt-1 hidden" id="passwordConfirmationError"></span>
+                            </div>
+
+                            <!-- Password Strength Indicator -->
+                            <div class="pt-2">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-medium text-gray-600">Password strength:</span>
+                                    <span id="passwordStrengthText" class="text-xs font-medium text-gray-500">Not entered</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div id="passwordStrength" class="strength-bar h-full bg-gray-300 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" id="resetButton" class="btn-primary w-full text-white font-semibold py-3.5 px-4 rounded-xl mt-6 shadow-lg">
+                                <span id="resetButtonText" class="flex items-center justify-center gap-2">
+                                    <i class="fas fa-check-circle text-sm"></i>
+                                    Reset Password
+                                </span>
+                            </button>
+
+                            <!-- Back to Login -->
+                            <div class="text-center pt-2">
+                                <a href="{{ route('auth.show') }}" class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+                                    <i class="fas fa-arrow-left text-xs"></i>
+                                    Back to Login
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Tips -->
+                <div class="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 card-animate">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-gray-900 mb-2.5">Password Security Tips</h3>
+                            <ul class="space-y-2 text-xs text-gray-600">
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-0.5 flex-shrink-0"></i>
+                                    <span>Use a unique password you don't use elsewhere</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-0.5 flex-shrink-0"></i>
+                                    <span>Include uppercase, lowercase, numbers & symbols</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-0.5 flex-shrink-0"></i>
+                                    <span>Avoid personal information like names or dates</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-0.5 flex-shrink-0"></i>
+                                    <span>Consider using a password manager</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ===== Footer ===== -->
+        <footer class="py-6 px-4 sm:px-8">
+            <div class="max-w-md mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-xs text-gray-400">
+                    &copy; {{ date('Y') }} CustomerNearme. All rights reserved.
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="https://wa.me/923460820722" target="_blank" rel="noopener noreferrer" class="text-xs text-green-600 hover:text-green-700 transition-colors flex items-center gap-1">
+                        <i class="fab fa-whatsapp"></i>
+                        Support
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // CSRF setup for AJAX
         $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
 
+        // ========== Password Toggle ==========
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
+        // ========== Password Strength Checker ==========
         function checkPasswordStrength(password) {
             let strength = 0;
             const strengthBar = document.getElementById('passwordStrength');
             const strengthText = document.getElementById('passwordStrengthText');
+
+            if (!password || password.length === 0) {
+                strengthBar.style.width = '0%';
+                strengthBar.className = 'strength-bar h-full bg-gray-300 rounded-full';
+                strengthText.textContent = 'Not entered';
+                strengthText.className = 'text-xs font-medium text-gray-500';
+                return;
+            }
 
             if (password.length >= 8) strength += 25;
             if (password.length >= 12) strength += 25;
@@ -179,21 +410,21 @@
             strengthBar.style.width = strength + '%';
 
             if (strength < 30) {
-                strengthBar.className = 'h-full bg-red-500 transition-all duration-300';
-                strengthText.textContent = 'Weak password';
-                strengthText.className = 'text-xs text-red-600';
+                strengthBar.className = 'strength-bar h-full bg-red-500 rounded-full';
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-xs font-medium text-red-600';
             } else if (strength < 60) {
-                strengthBar.className = 'h-full bg-yellow-500 transition-all duration-300';
-                strengthText.textContent = 'Fair password';
-                strengthText.className = 'text-xs text-yellow-600';
+                strengthBar.className = 'strength-bar h-full bg-yellow-500 rounded-full';
+                strengthText.textContent = 'Fair';
+                strengthText.className = 'text-xs font-medium text-yellow-600';
             } else if (strength < 80) {
-                strengthBar.className = 'h-full bg-blue-500 transition-all duration-300';
-                strengthText.textContent = 'Good password';
-                strengthText.className = 'text-xs text-blue-600';
+                strengthBar.className = 'strength-bar h-full bg-blue-500 rounded-full';
+                strengthText.textContent = 'Good';
+                strengthText.className = 'text-xs font-medium text-blue-600';
             } else {
-                strengthBar.className = 'h-full bg-green-500 transition-all duration-300';
-                strengthText.textContent = 'Strong password';
-                strengthText.className = 'text-xs text-green-600';
+                strengthBar.className = 'strength-bar h-full bg-green-500 rounded-full';
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-xs font-medium text-green-600';
             }
         }
 
@@ -201,52 +432,46 @@
             checkPasswordStrength($(this).val());
         });
 
+        // ========== Alerts ==========
         function showAlert(message, type = 'success') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertId = 'alert-' + Date.now();
-            
-            const alertClass = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            
-            const alertHtml = `
-                <div id="${alertId}" class="${alertClass} text-white px-6 py-4 rounded-lg shadow-lg mb-4 animate-slide-in">
-                    <div class="flex items-center">
-                        <i class="fas ${iconClass} mr-3"></i>
-                        <span>${message}</span>
-                        <button onclick="removeAlert('${alertId}')" class="ml-4 text-white hover:text-gray-200">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+            const container = document.getElementById('alertContainer');
+            const id = 'alert-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+            container.insertAdjacentHTML('beforeend', `
+                <div id="${id}" class="${bgColor} text-white px-5 py-3.5 rounded-xl shadow-lg animate-alert flex items-center gap-3">
+                    <i class="fas ${icon} flex-shrink-0"></i>
+                    <span class="text-sm font-medium flex-1">${message}</span>
+                    <button onclick="removeAlert('${id}')" class="text-white/80 hover:text-white flex-shrink-0">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
                 </div>
-            `;
-            
-            alertContainer.insertAdjacentHTML('beforeend', alertHtml);
-            
-            setTimeout(() => {
-                removeAlert(alertId);
-            }, 5000);
+            `);
+
+            setTimeout(() => removeAlert(id), 5000);
         }
 
-        function removeAlert(alertId) {
-            const alert = document.getElementById(alertId);
-            if (alert) alert.remove();
+        function removeAlert(id) {
+            const el = document.getElementById(id);
+            if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 200); }
         }
 
+        // ========== Clear Errors ==========
         function clearErrors() {
             document.querySelectorAll('[id$="Error"]').forEach(el => {
                 el.classList.add('hidden');
                 el.textContent = '';
             });
-
             document.querySelectorAll('input').forEach(input => {
                 input.classList.remove('border-red-500');
-                input.classList.add('border-gray-300');
             });
         }
 
+        // ========== Form Submission ==========
         $('#resetPasswordForm').on('submit', function(e) {
             e.preventDefault();
-            
+
             const password = $('#newPassword').val();
             const confirmPassword = $('#confirmPassword').val();
 
@@ -263,9 +488,9 @@
             clearErrors();
             const button = $('#resetButton');
             const buttonText = $('#resetButtonText');
-            
+
             button.prop('disabled', true).addClass('opacity-75 cursor-not-allowed');
-            buttonText.html('<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...');
+            buttonText.html('<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>');
 
             $.ajax({
                 url: '{{ route("auth.reset.password.submit") }}',
@@ -281,36 +506,22 @@
                 },
                 error: function(xhr) {
                     const response = xhr.responseJSON;
-                    showAlert(response.message || 'Failed to reset password', 'error');
+                    showAlert(response?.message || 'Failed to reset password', 'error');
                 },
                 complete: function() {
                     button.prop('disabled', false).removeClass('opacity-75 cursor-not-allowed');
-                    buttonText.html('<i class="fas fa-check-circle mr-2"></i>Reset Password');
+                    buttonText.html('<i class="fas fa-check-circle text-sm"></i> Reset Password');
                 }
             });
         });
 
-        // Show Laravel flash messages
+        // ========== Flash Messages ==========
         @if(session('error'))
             showAlert('{{ session("error") }}', 'error');
         @endif
+        @if(session('success'))
+            showAlert('{{ session("success") }}', 'success');
+        @endif
     </script>
-
-    <style>
-        @keyframes slide-in {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .animate-slide-in {
-            animation: slide-in 0.3s ease-out;
-        }
-    </style>
 </body>
 </html>
