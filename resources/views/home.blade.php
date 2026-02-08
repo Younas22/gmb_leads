@@ -161,8 +161,74 @@
         </div>
     </section>
 
+    <!-- Problem Section — Deep Pain -->
+    <section class="py-20 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Heading -->
+            <div class="text-center mb-14">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Why Most Lead Generation <span class="text-red-500">Fails</span></h2>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto">You send emails. You make calls. But clients don't respond.</p>
+            </div>
+
+            <!-- Why? -->
+            <div class="text-center mb-10">
+                <p class="text-xl font-semibold text-gray-800 mb-8">Why? Because you're reaching:</p>
+            </div>
+
+            <!-- Pain Cards -->
+            <div class="grid sm:grid-cols-3 gap-6 mb-14">
+                <!-- Card 1 — Closed Businesses -->
+                <div class="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Closed Businesses</h3>
+                    <p class="text-sm text-gray-500">You're pitching to businesses that shut down months ago.</p>
+                </div>
+
+                <!-- Card 2 — Wrong Phone Numbers -->
+                <div class="bg-orange-50 border border-orange-100 rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3l5 5m0-5l-5 5"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Wrong Phone Numbers</h3>
+                    <p class="text-sm text-gray-500">Disconnected lines and numbers that go nowhere.</p>
+                </div>
+
+                <!-- Card 3 — Outdated Listings -->
+                <div class="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Outdated Listings</h3>
+                    <p class="text-sm text-gray-500">Old databases filled with data that hasn't been updated in years.</p>
+                </div>
+            </div>
+
+            <!-- Solution Line -->
+            <div class="text-center bg-gradient-to-r from-blue-50 to-orange-50 border border-blue-100 rounded-2xl py-8 px-6">
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span class="text-sm font-bold text-green-600 uppercase tracking-wide">The Solution</span>
+                </div>
+                <p class="text-xl sm:text-2xl font-bold text-gray-900">
+                    {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} fixes this by pulling only <span class="text-primary-blue">active businesses</span> directly from <span class="text-primary-orange">Google Maps</span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
-    <section id="features" class="py-20 bg-white">
+    <section id="features" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
