@@ -530,79 +530,174 @@
             </div>
 
             <!-- Audience Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-12">
-                <!-- Digital Marketers -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Digital Marketers</h3>
-                </div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-12">
 
-                <!-- SEO Agencies -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">SEO Agencies</h3>
-                </div>
+    <!-- Digital Marketers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Digital Marketers</h3>
+    </div>
 
-                <!-- Freelancers -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Freelancers</h3>
-                </div>
+    <!-- SEO Agencies -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">SEO Agencies</h3>
+    </div>
 
-                <!-- Cold Emailers -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Cold Emailers</h3>
-                </div>
+    <!-- Freelancers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Freelancers</h3>
+    </div>
 
-                <!-- Sales Teams -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Sales Teams</h3>
-                </div>
+    <!-- Cold Emailers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Cold Emailers</h3>
+    </div>
 
-                <!-- Real Estate & Insurance -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Real Estate & Insurance</h3>
-                </div>
+    <!-- Sales Teams -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Sales Teams</h3>
+    </div>
 
-                <!-- Local Service Providers -->
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-gray-900">Local Service Providers</h3>
-                </div>
-            </div>
+    <!-- Real Estate & Insurance -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Real Estate & Insurance</h3>
+    </div>
+
+    <!-- Local Service Providers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Local Service Providers</h3>
+    </div>
+
+    <!-- Startups & Entrepreneurs -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Startups & Entrepreneurs</h3>
+    </div>
+
+    <!-- Marketing Consultants / Agencies -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18h14V3H5z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6v2H9V7zM9 11h6v2H9v-2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Marketing Consultants</h3>
+    </div>
+
+    <!-- Social Media Managers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 4.98 3.65 9.12 8.44 9.88v-6.99H7.9v-2.89h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.55v1.88h2.78l-.44 2.89h-2.34v6.99C18.35 21.12 22 16.98 22 12c0-5.52-4.48-10-10-10z"/>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Social Media Managers</h3>
+    </div>
+
+    <!-- Content Creators / Copywriters -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M4 5h16M4 12h16"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Content Creators</h3>
+    </div>
+
+    <!-- Web Developers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Web Developers</h3>
+    </div>
+
+    <!-- Mobile App Developers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4h10v16H7z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Mobile App Developers</h3>
+    </div>
+
+    <!-- Graphic Designers -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l9 7-9 7-9-7 9-7z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Graphic Designers</h3>
+    </div>
+
+    <!-- Email Marketing Specialists -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l9 6 9-6v10H3V8z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Email Marketing Specialists</h3>
+    </div>
+
+    <!-- Small Business Owners -->
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h18v18H3V3z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-gray-900">Small Business Owners</h3>
+    </div>
+
+</div>
+
 
             <!-- Closing Line -->
             <div class="text-center">
