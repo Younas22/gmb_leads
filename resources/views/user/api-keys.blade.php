@@ -8,14 +8,14 @@
 <!-- Main Content -->
 <div class="p-4 lg:p-8">
     <!-- Plan Limitation Notice -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-6">
         <div class="flex items-start">
             <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-blue-600 text-lg"></i>
+                <i class="fas fa-info-circle text-blue-600 text-base sm:text-lg"></i>
             </div>
-            <div class="ml-3 flex-1">
-                <h3 class="text-sm font-semibold text-blue-800">Google Places API Management</h3>
-                <p class="text-sm text-blue-700 mt-1">
+            <div class="ml-2 sm:ml-3 flex-1">
+                <h3 class="text-xs sm:text-sm font-semibold text-blue-800">Google Places API Management</h3>
+                <p class="text-xs sm:text-sm text-blue-700 mt-1">
                     Add your Google Places API key to start searching for businesses.
                     @if($apiLimit == -1)
                         Your plan supports <strong>unlimited</strong> API keys.
@@ -28,10 +28,10 @@
                         @endif
                     @endif
                 </p>
-                <p class="text-sm text-blue-700 mt-2">
+                <p class="text-xs sm:text-sm text-blue-700 mt-2">
                     <i class="fas fa-external-link-alt mr-1"></i>
                     Don't have an API key?
-                    <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="font-semibold underline hover:text-blue-900">
+                    <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="font-semibold underline hover:text-blue-900 break-all">
                         Get your Google Places API key here
                     </a>
                 </p>
@@ -43,51 +43,51 @@
     </div>
 
     <!-- Usage Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
             <div class="flex items-center">
-                <div class="p-3 bg-primary-100 rounded-lg">
-                    <i class="fas fa-chart-line text-primary-600 text-xl"></i>
+                <div class="p-2 sm:p-3 bg-primary-100 rounded-lg">
+                    <i class="fas fa-chart-line text-primary-600 text-base sm:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">API Calls Today</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $apiKeys->sum('usage_count') }}</p>
+                <div class="ml-3 sm:ml-4">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">API Calls Today</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $apiKeys->sum('usage_count') }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
             <div class="flex items-center">
-                <div class="p-3 bg-green-100 rounded-lg">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                <div class="p-2 sm:p-3 bg-green-100 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600 text-base sm:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Active Keys</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $apiKeys->where('is_active', true)->count() }}</p>
+                <div class="ml-3 sm:ml-4">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Active Keys</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $apiKeys->where('is_active', true)->count() }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
             <div class="flex items-center">
-                <div class="p-3 bg-orange-100 rounded-lg">
-                    <i class="fas fa-calendar-alt text-orange-600 text-xl"></i>
+                <div class="p-2 sm:p-3 bg-orange-100 rounded-lg">
+                    <i class="fas fa-calendar-alt text-orange-600 text-base sm:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Total Keys</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $apiKeys->count() }}</p>
+                <div class="ml-3 sm:ml-4">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Total Keys</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $apiKeys->count() }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
             <div class="flex items-center">
-                <div class="p-3 bg-red-100 rounded-lg">
-                    <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                <div class="p-2 sm:p-3 bg-red-100 rounded-lg">
+                    <i class="fas fa-exclamation-circle text-red-600 text-base sm:text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Errors Today</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $apiKeys->sum('error_count') }}</p>
+                <div class="ml-3 sm:ml-4">
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Errors Today</p>
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $apiKeys->sum('error_count') }}</p>
                 </div>
             </div>
         </div>
@@ -95,19 +95,19 @@
 
     <!-- API Keys Section -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Google Places API Keys</h3>
-                    <p class="text-sm text-gray-600 mt-1">Manage your Google Places API keys for business search</p>
+        <div class="p-4 sm:p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                <div class="w-full sm:w-auto">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Google Places API Keys</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Manage your Google Places API keys for business search</p>
                 </div>
                 @if($canAddMore)
-                <button id="add-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-plus mr-2"></i>Add API Key
+                <button id="add-api-btn" class="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-center">
+                    <i class="fas fa-plus mr-1 sm:mr-2 text-xs"></i>Add API Key
                 </button>
                 @else
-                <button disabled class="bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium" title="API key limit reached">
-                    <i class="fas fa-lock mr-2"></i>Limit Reached
+                <button disabled class="w-full sm:w-auto bg-gray-400 cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-center" title="API key limit reached">
+                    <i class="fas fa-lock mr-1 sm:mr-2 text-xs"></i>Limit Reached
                 </button>
                 @endif
             </div>
@@ -116,71 +116,73 @@
         <div class="p-6 space-y-4">
             @forelse($apiKeys as $apiKey)
             <!-- API Key Card -->
-            <div class="border border-gray-200 rounded-lg p-4">
+            <div class="border border-gray-200 rounded-lg p-3 sm:p-4">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
-                        <div class="flex items-center space-x-3 mb-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:space-x-3 mb-3">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <i class="fab fa-google text-blue-600"></i>
+                                <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fab fa-google text-blue-600 text-sm sm:text-base"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-semibold text-gray-800">{{ $apiKey->key_name }}</h4>
-                                    <p class="text-sm text-gray-600">{{ $apiKey->google_email }}</p>
+                                    <h4 class="text-sm sm:text-base font-semibold text-gray-800">{{ $apiKey->key_name }}</h4>
+                                    <p class="text-xs sm:text-sm text-gray-600 break-all">{{ $apiKey->google_email }}</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 {{ $apiKey->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full">
-                                {{ $apiKey->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                            <span class="px-2 py-1 {{ $apiKey->is_valid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} text-xs font-medium rounded-full">
-                                {{ $apiKey->is_valid ? 'Valid' : 'Invalid' }}
-                            </span>
+                            <div class="flex gap-2 ml-9 sm:ml-0">
+                                <span class="px-2 py-0.5 sm:py-1 {{ $apiKey->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full whitespace-nowrap">
+                                    {{ $apiKey->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                                <span class="px-2 py-0.5 sm:py-1 {{ $apiKey->is_valid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} text-xs font-medium rounded-full whitespace-nowrap">
+                                    {{ $apiKey->is_valid ? 'Valid' : 'Invalid' }}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4">
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">API Key</p>
                                 <div class="flex items-center space-x-2">
-                                    <code class="text-sm bg-gray-100 px-2 py-1 rounded font-mono">{{ $apiKey->masked_api_key }}</code>
-                                    <button onclick="copyToClipboard('{{ $apiKey->api_key }}')" class="text-gray-400 hover:text-gray-600" title="Copy to clipboard">
-                                        <i class="fas fa-copy text-sm"></i>
+                                    <code class="text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded font-mono break-all">{{ $apiKey->masked_api_key }}</code>
+                                    <button onclick="copyToClipboard('{{ $apiKey->api_key }}')" class="text-gray-400 hover:text-gray-600 flex-shrink-0" title="Copy to clipboard">
+                                        <i class="fas fa-copy text-xs sm:text-sm"></i>
                                     </button>
                                 </div>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Usage Today</p>
-                                <p class="text-sm font-medium text-gray-800">{{ $apiKey->usage_count }} / {{ $apiKey->daily_limit }} calls</p>
-                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <p class="text-xs sm:text-sm font-medium text-gray-800">{{ $apiKey->usage_count }} / {{ $apiKey->daily_limit }} calls</p>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 mt-1">
                                     @php
                                         $percentage = $apiKey->daily_limit > 0 ? ($apiKey->usage_count / $apiKey->daily_limit) * 100 : 0;
                                     @endphp
-                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ min($percentage, 100) }}%"></div>
+                                    <div class="bg-blue-600 h-1.5 sm:h-2 rounded-full" style="width: {{ min($percentage, 100) }}%"></div>
                                 </div>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Last Used</p>
-                                <p class="text-sm font-medium text-gray-800">
+                                <p class="text-xs sm:text-sm font-medium text-gray-800">
                                     {{ $apiKey->last_used ? $apiKey->last_used->diffForHumans() : 'Never' }}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between">
-                            <div class="flex space-x-2">
-                                <button onclick="testApiKey({{ $apiKey->id }})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="testApiKey({{ $apiKey->id }})" class="bg-green-600 hover:bg-green-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
                                     <i class="fas fa-vial mr-1"></i>Test API
                                 </button>
                                 @if(!$apiKey->is_valid)
                                 {{-- Only show Edit/Delete if key is NOT verified --}}
-                                <button onclick="editApiKey({{ $apiKey->id }}, '{{ $apiKey->key_name }}', '{{ $apiKey->api_key }}', '{{ $apiKey->google_email }}')" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium">
+                                <button onclick="editApiKey({{ $apiKey->id }}, '{{ $apiKey->key_name }}', '{{ $apiKey->api_key }}', '{{ $apiKey->google_email }}')" class="bg-primary-600 hover:bg-primary-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
-                                <button onclick="deleteApiKey({{ $apiKey->id }})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium">
+                                <button onclick="deleteApiKey({{ $apiKey->id }})" class="bg-red-600 hover:bg-red-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
                                     <i class="fas fa-trash mr-1"></i>Delete
                                 </button>
                                 @else
                                 {{-- Show locked indicator for verified keys --}}
-                                <span class="bg-gray-200 text-gray-600 px-3 py-1 rounded text-xs font-medium" title="Verified key - cannot be modified">
+                                <span class="bg-gray-200 text-gray-600 px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap" title="Verified key - cannot be modified">
                                     <i class="fas fa-lock mr-1"></i>Locked
                                 </span>
                                 @endif
@@ -188,9 +190,9 @@
                             <div class="flex items-center space-x-2">
                                 <span class="text-xs text-gray-500">Status:</span>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" {{ $apiKey->is_active ? 'checked' : '' }} 
+                                    <input type="checkbox" {{ $apiKey->is_active ? 'checked' : '' }}
                                            onchange="toggleApiKey({{ $apiKey->id }})" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <div class="w-9 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
                         </div>
@@ -199,21 +201,21 @@
             </div>
             @empty
             <!-- Empty State -->
-            <div class="text-center py-12" id="empty-state">
+            <div class="text-center py-12 px-4" id="empty-state">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-key text-gray-400 text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">No API Keys Added</h3>
-                <p class="text-gray-600 mb-4">Add your Google Places API key to start searching for businesses</p>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">No API Keys Added</h3>
+                <p class="text-sm sm:text-base text-gray-600 mb-4">Add your Google Places API key to start searching for businesses</p>
                 @if($canAddMore)
-                <button id="add-first-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
-                    <i class="fas fa-plus mr-2"></i>Add Your First API Key
+                <button id="add-first-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-medium">
+                    <i class="fas fa-plus mr-1 sm:mr-2 text-xs"></i>Add Your First API Key
                 </button>
                 @else
-                <button disabled class="bg-gray-400 cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium">
-                    <i class="fas fa-lock mr-2"></i>API Key Limit Reached
+                <button disabled class="bg-gray-400 cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-medium">
+                    <i class="fas fa-lock mr-1 sm:mr-2 text-xs"></i>API Key Limit Reached
                 </button>
-                <p class="text-sm text-red-600 mt-2">Please upgrade your package to add API keys.</p>
+                <p class="text-xs sm:text-sm text-red-600 mt-2">Please upgrade your package to add API keys.</p>
                 @endif
             </div>
             @endforelse
@@ -228,38 +230,38 @@
 
 <!-- Your existing modal HTML with some additions -->
 <div id="api-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
+    <div class="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white my-4 sm:my-0">
+        <div class="mt-2 sm:mt-3">
             <!-- Modal Header -->
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-semibold text-gray-800" id="modal-title">Add Google Places API Key</h3>
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800" id="modal-title">Add Google Places API Key</h3>
                 <button id="close-modal" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
                 </button>
             </div>
 
             <!-- Modal Form -->
-            <form id="api-form" class="space-y-6">
+            <form id="api-form" class="space-y-4 sm:space-y-6">
                 <input type="hidden" id="api-key-id" value="">
-                
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">API Key Name *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">API Key Name *</label>
                     <input type="text" id="api-key-name" placeholder="e.g., Production API Key" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                           class="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Google Account Email *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Google Account Email *</label>
                     <input type="email" id="google-email" placeholder="your.email@gmail.com" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                           class="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <p class="text-xs text-gray-500 mt-1">The Google account email associated with this API key</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Google Places API Key *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Google Places API Key *</label>
                     <input type="text" id="api-key" placeholder="AIzaSyDxVlabcdef123456789..." required
                            oninput="onApiKeyChange()"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                           class="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <p class="text-xs text-gray-500 mt-1">
                         Enter your Google Places API key from Google Cloud Console
                         <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium ml-1">
@@ -269,33 +271,33 @@
                 </div>
 
                 <!-- Test API Section -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Test API Key</h4>
-                    <div class="grid grid-cols-1 gap-4">
+                <div class="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <h4 class="text-xs sm:text-sm font-semibold text-gray-800 mb-3">Test API Key</h4>
+                    <div class="grid grid-cols-1 gap-3 sm:gap-4">
                         <div>
-                            <input type="text" id="test-query" placeholder="restaurants in Dubai" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                            <input type="text" id="test-query" placeholder="restaurants in Dubai"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <button type="button" id="test-api-btn" onclick="testApiKeyInModal()" 
-                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
-                                <i class="fas fa-vial mr-2"></i>Test API Key
+                            <button type="button" id="test-api-btn" onclick="testApiKeyInModal()"
+                                    class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                <i class="fas fa-vial mr-1 sm:mr-2"></i>Test API Key
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Test Result -->
-                    <div id="test-result" class="mt-4 hidden"></div>
+                    <div id="test-result" class="mt-3 sm:mt-4 hidden"></div>
                 </div>
 
                 <!-- Modal Actions -->
-                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-                    <button type="button" id="cancel-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 sm:space-x-3 pt-4 sm:pt-6 border-t border-gray-200">
+                    <button type="button" id="cancel-btn" class="px-3 sm:px-4 py-2 bg-gray-600 text-white rounded-lg text-sm sm:text-base hover:bg-gray-700 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" id="save-btn" disabled 
-                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        <i class="fas fa-save mr-2"></i>Save API Key
+                    <button type="submit" id="save-btn" disabled
+                            class="px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-lg text-sm sm:text-base hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <i class="fas fa-save mr-1 sm:mr-2"></i>Save API Key
                     </button>
                 </div>
             </form>

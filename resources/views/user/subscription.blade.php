@@ -19,27 +19,27 @@
         <div class="p-4 lg:p-8">
             <!-- Current Plan Overview -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center space-x-4">
-                        <h3 class="text-xl font-bold text-gray-800">Current Plan</h3>
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
+                    <div class="flex items-center flex-wrap gap-2 sm:space-x-4">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Current Plan</h3>
                         @if($currentPlan)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            <span class="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium
                                 {{ $currentPlan['is_active'] ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                <i class="fas {{ $currentPlan['package']->price > 0 ? 'fa-crown' : 'fa-gift' }} mr-2"></i>
+                                <i class="fas {{ $currentPlan['package']->price > 0 ? 'fa-crown' : 'fa-gift' }} mr-1 sm:mr-2 text-xs"></i>
                                 {{ $currentPlan['package']->name }}
                                 @if($currentPlan['is_pending'])
                                     (Pending)
                                 @endif
                             </span>
                         @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                                <i class="fas fa-gift mr-2"></i>No Active Plan
+                            <span class="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-gift mr-1 sm:mr-2 text-xs"></i>No Active Plan
                             </span>
                         @endif
                     </div>
                     @if(!$currentPlan || $currentPlan['package']->price == 0)
-                        <a href="#pricing-plans" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium">
-                            <i class="fas fa-arrow-up mr-2"></i>Upgrade Now
+                        <a href="#pricing-plans" class="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-center">
+                            <i class="fas fa-arrow-up mr-1 sm:mr-2 text-xs"></i>Upgrade Now
                         </a>
                     @endif
                 </div>
@@ -178,7 +178,7 @@
                             </ul>
 
                             @if($isCurrentPlan)
-                                <button class="w-full bg-gray-200 text-gray-500 py-2 rounded-lg font-medium cursor-not-allowed">
+                                <button class="w-full bg-gray-200 text-gray-500 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium cursor-not-allowed">
                                     Current Plan
                                 </button>
                             @else
@@ -188,7 +188,7 @@
                                     data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$plan->price, $currency) }}"
                                     data-currency-symbol="{{ $currency['symbol'] }}"
                                     onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
-                                    class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium">
+                                    class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium">
                                     @if($plan->price > 0)
                                         Upgrade to {{ $plan->name }}
                                     @else
@@ -271,10 +271,10 @@
                 <!-- Billing Information -->
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Billing Information</h3>
+                        <h3 class="text-base sm:text-lg font-bold text-gray-800">Billing Information</h3>
                         @if($userPaymentMethod)
-                            <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                                <i class="fas fa-edit mr-1"></i>Edit
+                            <button class="text-primary-600 hover:text-primary-700 text-xs sm:text-sm font-medium">
+                                <i class="fas fa-edit mr-1 text-xs"></i>Edit
                             </button>
                         @endif
                     </div>
@@ -351,19 +351,19 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-8">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Plan Management</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <a href="#pricing-plans" class="flex items-center justify-center px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium">
-                        <i class="fas fa-arrow-up mr-2"></i>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                    <a href="#pricing-plans" class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                        <i class="fas fa-arrow-up mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Upgrade Plan
                     </a>
 
-                    <button class="flex items-center justify-center px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium">
-                        <i class="fas fa-credit-card mr-2"></i>
+                    <button class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                        <i class="fas fa-credit-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Update Payment
                     </button>
 
-                    <button class="flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium">
-                        <i class="fas fa-times mr-2"></i>
+                    <button class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                        <i class="fas fa-times mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Cancel Plan
                     </button>
                 </div>

@@ -25,6 +25,11 @@ use App\Http\Controllers\Admin\ReportController;
 // Home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Policy pages
+Route::get('/terms-and-conditions', fn() => view('pages.terms'))->name('terms');
+Route::get('/privacy-policy', fn() => view('pages.privacy'))->name('privacy.policy');
+Route::get('/refund-policy', fn() => view('pages.refund'))->name('refund.policy');
+
 // Redirect all requests to /login → auth.show
 Route::get('/login', function () {
     return redirect()->route('auth.show');

@@ -577,9 +577,9 @@
                                                class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/30 transition-colors">
                                         <label for="agreeTerms" class="text-sm text-gray-500 leading-snug">
                                             I agree to the
-                                            <a href="#" class="font-medium text-primary-orange hover:text-dark-orange transition-colors">Terms of Service</a>
+                                            <a href="{{ route('terms') }}" target="_blank" class="font-medium text-primary-orange hover:text-dark-orange transition-colors">Terms of Service</a>
                                             and
-                                            <a href="#" class="font-medium text-primary-orange hover:text-dark-orange transition-colors">Privacy Policy</a>
+                                            <a href="{{ route('privacy.policy') }}" target="_blank" class="font-medium text-primary-orange hover:text-dark-orange transition-colors">Privacy Policy</a>
                                         </label>
                                     </div>
 
@@ -643,9 +643,9 @@
                     &copy; {{ date('Y') }} CustomerNearme. All rights reserved.
                 </p>
                 <div class="flex items-center gap-4">
-                    <a href="#" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Terms of Service</a>
+                    <a href="{{ route('terms') }}" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Terms of Service</a>
                     <span class="text-gray-200">|</span>
-                    <a href="#" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Privacy Policy</a>
+                    <a href="{{ route('privacy.policy') }}" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Privacy Policy</a>
                     <span class="text-gray-200">|</span>
                     <a href="https://wa.me/923460820722" target="_blank" rel="noopener noreferrer" class="text-xs text-green-600 hover:text-green-700 transition-colors flex items-center gap-1">
                         <i class="fab fa-whatsapp"></i>

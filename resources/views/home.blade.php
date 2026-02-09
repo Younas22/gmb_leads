@@ -1446,6 +1446,11 @@
                 <div class="h-px" style="background: linear-gradient(90deg, transparent 0%, rgba(249,115,22,0.3) 30%, rgba(29,78,216,0.2) 70%, transparent 100%);"></div>
 
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-3">
+                        <a href="{{ route('terms') }}" class="text-[12px] text-gray-500 hover:text-primary-orange transition-colors">Terms of Service</a>
+                        <a href="{{ route('privacy.policy') }}" class="text-[12px] text-gray-500 hover:text-primary-orange transition-colors">Privacy Policy</a>
+                        <a href="{{ route('refund.policy') }}" class="text-[12px] text-gray-500 hover:text-primary-orange transition-colors">Refund Policy</a>
+                    </div>
                     <p class="text-[13px] text-gray-500 text-center">
                         &copy; <script>document.write(new Date().getFullYear())</script> CustomerNearme. All rights reserved.
                     </p>
