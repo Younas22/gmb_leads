@@ -791,8 +791,8 @@
             
             @php
                 $featureLabels = [
-                    'gmb_searches'        => 'GMB Searches',
-                    'leads_per_month'     => 'Leads / Month',
+                    'gmb_searches'        => 'Searches',
+                    'leads_per_month'     => 'Leads',
                     'export_leads'        => 'Lead Exports',
                     'saved_lists'         => 'Saved Lists',
                     'email_support'       => 'Email Support',
