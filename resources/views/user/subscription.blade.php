@@ -143,7 +143,19 @@
                             </div>
 
                             <ul class="space-y-3 mb-6">
-                                @forelse($plan->features as $feature)
+                                @php
+                                    // Sort features: numbers first, then true, then false
+                                    $sortedFeatures = $plan->features->sortBy(function($feature) {
+                                        if (is_numeric($feature->feature_value) || $feature->is_unlimited) {
+                                            return 0; // Numbers/unlimited first
+                                        } elseif ($feature->feature_value === 'true') {
+                                            return 1; // True values second
+                                        } else {
+                                            return 2; // False values last
+                                        }
+                                    });
+                                @endphp
+                                @forelse($sortedFeatures as $feature)
                                     <li class="flex items-center text-sm">
                                         @if($feature->feature_value === 'true')
                                             <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
