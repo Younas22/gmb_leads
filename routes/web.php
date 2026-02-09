@@ -74,6 +74,10 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::post('/subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('subscription.upgrade');
             Route::post('/payment/submit', [SubscriptionController::class, 'submitPayment'])->name('payment.submit');
 
+            // Feedback - always accessible (so users can provide feedback regardless of subscription)
+            Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+            Route::get('/feedback/history', [FeedbackController::class, 'userFeedback'])->name('feedback.history');
+
             // Restricted routes - only accessible if user has active subscription
             Route::middleware('subscription.access')->group(function () {
                 // Dashboard
@@ -134,9 +138,6 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::delete('/search-history/{id}', [SearchController::class, 'deleteSearchHistory'])->name('delete-search-history');
                 Route::get('/search-results/{id}', [SearchController::class, 'viewSearchResults'])->name('view-search-results');
                 Route::get('/export-search-history', [SearchController::class, 'exportSearchHistory'])->name('export-search-history');
-
-                Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-                Route::get('/feedback/history', [FeedbackController::class, 'userFeedback'])->name('feedback.history');
             });
         });
     

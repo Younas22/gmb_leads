@@ -276,21 +276,6 @@ function resetForm() {
     document.getElementById('ratingValue').value = '';
 }
 
-// Star rating functionality
-document.querySelectorAll('.star-rating').forEach(star => {
-    star.addEventListener('click', function() {
-        selectedRating = parseInt(this.dataset.rating);
-        document.getElementById('ratingValue').value = selectedRating;
-        updateStarDisplay();
-        updateRatingText();
-    });
-    
-    star.addEventListener('mouseenter', function() {
-        const hoverRating = parseInt(this.dataset.rating);
-        highlightStars(hoverRating);
-    });
-});
-
 // Update star display
 function updateStarDisplay() {
     document.querySelectorAll('.star-rating').forEach((star, index) => {
@@ -315,16 +300,11 @@ function highlightStars(rating) {
     });
 }
 
-// Reset stars on mouse leave
-document.querySelector('.flex.justify-center.space-x-2').addEventListener('mouseleave', function() {
-    updateStarDisplay();
-});
-
 // Update rating text
 function updateRatingText() {
     const ratingTexts = {
         1: 'Poor - Needs major improvements',
-        2: 'Fair - Below expectations', 
+        2: 'Fair - Below expectations',
         3: 'Good - Meets expectations',
         4: 'Very Good - Above expectations',
         5: 'Excellent - Exceeds expectations'
@@ -332,84 +312,127 @@ function updateRatingText() {
     document.getElementById('ratingText').textContent = ratingTexts[selectedRating] || 'Click to rate';
 }
 
-// Form submission
-document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.getElementById('submitFeedback');
-    const originalText = submitBtn.innerHTML;
-    
-    // Validation
-    const message = document.getElementById('feedbackMessage').value.trim();
-    const feedbackType = document.querySelector('input[name="feedback_type"]:checked');
-    
-    if (!selectedRating) {
-        alert('Please provide a rating');
-        return;
-    }
-    
-    if (!feedbackType) {
-        alert('Please select feedback type');
-        return;
-    }
-    
-    if (message.length < 10) {
-        alert('Please provide at least 10 characters of feedback');
-        return;
-    }
-    
-    // Disable button and show loading
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
-    
-    // Prepare form data
-    const formData = new FormData(this);
-    
-    // Fix checkbox value - ensure it's boolean
-    const contactPermission = document.querySelector('input[name="contact_permission"]').checked;
-    formData.set('contact_permission', contactPermission ? '1' : '0');
-    
-    // Submit via AJAX
-    fetch('{{ route("user.feedback.store") }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeFeedbackModal();
-            showSuccessToast();
-        } else {
-            alert(data.message || 'Error submitting feedback');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error submitting feedback. Please try again.');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    });
-});
-
 // Show success toast
 function showSuccessToast() {
     const toast = document.getElementById('successToast');
     toast.classList.remove('hidden');
-    
+
     setTimeout(() => {
         toast.classList.add('hidden');
     }, 3000);
 }
 
-// Close modal when clicking outside
-document.getElementById('feedbackModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeFeedbackModal();
+// Wait for DOM to be ready before attaching event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating functionality
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(this.dataset.rating);
+            document.getElementById('ratingValue').value = selectedRating;
+            updateStarDisplay();
+            updateRatingText();
+        });
+
+        star.addEventListener('mouseenter', function() {
+            const hoverRating = parseInt(this.dataset.rating);
+            highlightStars(hoverRating);
+        });
+    });
+
+    // Reset stars on mouse leave
+    const starContainer = document.querySelector('.flex.justify-center.space-x-2');
+    if (starContainer) {
+        starContainer.addEventListener('mouseleave', function() {
+            updateStarDisplay();
+        });
+    }
+
+    // Form submission
+    const feedbackForm = document.getElementById('feedbackForm');
+    if (feedbackForm) {
+        feedbackForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitFeedback');
+            const originalText = submitBtn.innerHTML;
+
+            // Validation
+            const message = document.getElementById('feedbackMessage').value.trim();
+            const feedbackType = document.querySelector('input[name="feedback_type"]:checked');
+
+            if (!selectedRating) {
+                alert('Please provide a rating');
+                return;
+            }
+
+            if (!feedbackType) {
+                alert('Please select feedback type');
+                return;
+            }
+
+            if (message.length < 10) {
+                alert('Please provide at least 10 characters of feedback');
+                return;
+            }
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+
+            // Prepare form data
+            const formData = new FormData(this);
+
+            // Fix checkbox value - ensure it's boolean
+            const contactPermission = document.querySelector('input[name="contact_permission"]').checked;
+            formData.set('contact_permission', contactPermission ? '1' : '0');
+
+            // Submit via AJAX
+            fetch('{{ route("user.feedback.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    closeFeedbackModal();
+                    showSuccessToast();
+                    // Reload page after 1 second to show updated feedback
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert(data.message || 'Error submitting feedback');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting feedback: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
+    }
+
+    // Close modal when clicking outside
+    const feedbackModal = document.getElementById('feedbackModal');
+    if (feedbackModal) {
+        feedbackModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFeedbackModal();
+            }
+        });
     }
 });
 </script>

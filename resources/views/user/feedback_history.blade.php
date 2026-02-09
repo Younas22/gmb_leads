@@ -230,7 +230,7 @@
 function toggleFeedback(id) {
     const content = document.getElementById(`content-${id}`);
     const icon = document.getElementById(`icon-${id}`);
-    
+
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
         icon.classList.remove('fa-chevron-down');
@@ -240,17 +240,6 @@ function toggleFeedback(id) {
         icon.classList.remove('fa-chevron-up');
         icon.classList.add('fa-chevron-down');
     }
-}
-
-// Feedback modal functions (from previous code)
-function openFeedbackModal() {
-    document.getElementById('feedbackModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeFeedbackModal() {
-    document.getElementById('feedbackModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
 }
 </script>
 @endsection

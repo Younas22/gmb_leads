@@ -293,7 +293,9 @@ function updateFeedbackStatus(feedbackId, status) {
         return;
     }
 
-    fetch(`/admin/feedback/${feedbackId}/status`, {
+    const url = '{{ url("/") }}/admin/feedback/' + feedbackId + '/status';
+
+    fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
