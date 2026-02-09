@@ -17,6 +17,7 @@ class ApiKeysController extends Controller
         $user = Auth::user();
 
         $apiKeys = UserApiKey::where('user_id', $user->id)
+                            ->with('assignedUsers')
                             ->orderBy('created_at', 'desc')
                             ->get();
 
@@ -25,7 +26,13 @@ class ApiKeysController extends Controller
         $canAddMore = $user->canAddApiKey();
         $remainingSlots = $user->getRemainingApiKeySlots();
 
-        return view('user.api-keys', compact('user', 'apiKeys', 'apiLimit', 'canAddMore', 'remainingSlots'));
+        // Get team members if user is a company
+        $teamMembers = [];
+        if ($user->isCompany()) {
+            $teamMembers = $user->teamMembers()->select('id', 'first_name', 'last_name', 'name', 'email')->get();
+        }
+
+        return view('user.api-keys', compact('user', 'apiKeys', 'apiLimit', 'canAddMore', 'remainingSlots', 'teamMembers'));
     }
 
     /**
@@ -55,11 +62,13 @@ class ApiKeysController extends Controller
             'key_name' => 'required|string|max:255',
             'api_key' => 'required|string|min:30',
             'google_email' => 'required|email',
+            'assigned_users' => 'nullable|array',
+            'assigned_users.*' => 'exists:users,id',
         ]);
 
         // Test API key before saving
         $isValid = $this->testGooglePlacesApi($request->api_key);
-        
+
         // Get quota information from Google
         $quotas = $this->getGoogleApiQuotas($request->api_key);
 
@@ -75,6 +84,15 @@ class ApiKeysController extends Controller
             'daily_limit' => $quotas['daily_limit'],
             'monthly_limit' => $quotas['monthly_limit'],
         ]);
+
+        // Assign API key to selected users if company
+        if ($user->isCompany() && $request->has('assigned_users') && is_array($request->assigned_users)) {
+            // Verify that all assigned users belong to this company
+            $validUserIds = $user->teamMembers()->whereIn('id', $request->assigned_users)->pluck('id')->toArray();
+            if (!empty($validUserIds)) {
+                $apiKey->assignedUsers()->attach($validUserIds, ['assigned_at' => now()]);
+            }
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -114,6 +132,8 @@ class ApiKeysController extends Controller
             'key_name' => 'required|string|max:255',
             'api_key' => 'required|string|min:30',
             'google_email' => 'required|email',
+            'assigned_users' => 'nullable|array',
+            'assigned_users.*' => 'exists:users,id',
         ]);
 
         // Test API key before updating
@@ -125,6 +145,18 @@ class ApiKeysController extends Controller
             'google_email' => $request->google_email,
             'is_valid' => $isValid,
         ]);
+
+        // Update assigned users if company
+        if ($user->isCompany()) {
+            if ($request->has('assigned_users') && is_array($request->assigned_users)) {
+                // Verify that all assigned users belong to this company
+                $validUserIds = $user->teamMembers()->whereIn('id', $request->assigned_users)->pluck('id')->toArray();
+                $apiKey->assignedUsers()->sync($validUserIds);
+            } else {
+                // If no users selected, remove all assignments
+                $apiKey->assignedUsers()->sync([]);
+            }
+        }
 
         if ($request->expectsJson()) {
             return response()->json([

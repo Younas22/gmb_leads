@@ -132,6 +132,14 @@ Route::middleware(['web', 'auth'])->group(function () {
                 // routes/web.php or routes/api.php
                 Route::post('/api/test-api-key', [ApiKeysController::class, 'testApiKey'])->name('test-api-keys');
 
+                // Team Members (for company accounts)
+                Route::get('/team-members', [App\Http\Controllers\TeamMembersController::class, 'index'])->name('team-members');
+                Route::post('/team-members', [App\Http\Controllers\TeamMembersController::class, 'store'])->name('team-members.store');
+                Route::get('/team-members/{id}', [App\Http\Controllers\TeamMembersController::class, 'show'])->name('team-members.show');
+                Route::put('/team-members/{id}', [App\Http\Controllers\TeamMembersController::class, 'update'])->name('team-members.update');
+                Route::post('/team-members/{id}/toggle-status', [App\Http\Controllers\TeamMembersController::class, 'toggleStatus'])->name('team-members.toggle-status');
+                Route::delete('/team-members/{id}', [App\Http\Controllers\TeamMembersController::class, 'destroy'])->name('team-members.delete');
+
                 // Search History
                 Route::get('/search-history', [SearchController::class, 'history'])->name('search-history');
                 Route::post('/rerun-search', [SearchController::class, 'rerunSearch'])->name('rerun-search');
@@ -150,6 +158,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::get('/users/{user}', [DashboardController::class, 'showUser'])->name('users.show');
         Route::put('/users/{user}', [DashboardController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [DashboardController::class, 'deleteUser'])->name('users.delete');
+        Route::post('/users/{user}/toggle-signups', [DashboardController::class, 'toggleSignups'])->name('users.toggle.signups');
 
         // Packages CRUD
         Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
@@ -230,6 +239,8 @@ Route::middleware(['web', 'auth'])->group(function () {
             // Cache & Database
             Route::post('/cache/clear', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('cache.clear');
             Route::post('/database/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeDatabase'])->name('database.optimize');
+            Route::post('/performance/seed-settings', [App\Http\Controllers\Admin\SettingsController::class, 'seedPerformanceSettings'])->name('performance.seed-settings');
+            Route::post('/migrations/run', [App\Http\Controllers\Admin\SettingsController::class, 'runMigrations'])->name('migrations.run');
 
             // Composer Commands
             Route::post('/composer/run', [App\Http\Controllers\Admin\SettingsController::class, 'runComposerCommand'])->name('composer.run');

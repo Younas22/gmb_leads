@@ -114,6 +114,14 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Check if company registration is allowed
+        if ($request->user_type === 'company' && !\App\Models\Setting::get('allow_company_registration', true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company registration is currently disabled. Please contact support.'
+            ], 403);
+        }
+
         try {
             $verificationToken = Str::random(64);
             
@@ -522,6 +530,14 @@ class AuthController extends Controller
                 'message' => 'Invalid account type selected.',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Check if company registration is allowed
+        if ($request->user_type === 'company' && !\App\Models\Setting::get('allow_company_registration', true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company registration is currently disabled. Please contact support.'
+            ], 403);
         }
 
         try {

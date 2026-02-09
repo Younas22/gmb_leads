@@ -7,6 +7,7 @@
     <title>Choose Account Type - CustomerNearme</title>
         @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');
+        $allowCompanyRegistration = \App\Models\Setting::get('allow_company_registration', true);
     @endphp
     @if($siteFavicon)
         <link rel="icon" type="image/png" href="{{ asset('public/' . $siteFavicon) }}">
@@ -350,8 +351,8 @@
                         </label>
 
                         <!-- ========== COMPANY CARD ========== -->
-                        <label class="account-type-card relative bg-white rounded-2xl border-2 border-gray-200 p-6 sm:p-8 cursor-pointer">
-                            <input type="radio" name="user_type" value="company" class="peer sr-only">
+                        <label class="account-type-card relative bg-white rounded-2xl border-2 border-gray-200 p-6 sm:p-8 {{ $allowCompanyRegistration ? 'cursor-pointer' : 'cursor-not-allowed opacity-50' }}">
+                            <input type="radio" name="user_type" value="company" class="peer sr-only" {{ $allowCompanyRegistration ? '' : 'disabled' }}>
 
                             <!-- Selection Badge -->
                             <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
@@ -370,8 +371,8 @@
                                 <!-- Title & Description -->
                                 <div>
                                     <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Company</h3>
-                                    <p class="text-sm sm:text-base text-gray-500 leading-relaxed">
-                                        Ideal for teams, agencies, and organizations
+                                    <p class="text-sm sm:text-base {{ $allowCompanyRegistration ? 'text-gray-500' : 'text-red-500' }} leading-relaxed">
+                                        {{ $allowCompanyRegistration ? 'Ideal for teams, agencies, and organizations' : 'Currently disabled - Contact support for access' }}
                                     </p>
                                 </div>
 

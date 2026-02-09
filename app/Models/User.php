@@ -30,12 +30,14 @@ class User extends Authenticatable
         'login_type',
         'status',
         'user_type',
+        'company_id',
         'last_login',
         'preferences',
         'welcome_tutorial_seen',
         'welcome_tutorial_seen_at',
         'email_verified_at',
         'email_verification_token',
+        'signups_enabled',
     ];
 
     protected $hidden = [
@@ -52,6 +54,7 @@ class User extends Authenticatable
             'password_reset_expires' => 'datetime',
             'last_login' => 'datetime',
             'email_verified' => 'boolean',
+            'signups_enabled' => 'boolean',
         ];
     }
 
@@ -84,6 +87,23 @@ class User extends Authenticatable
     public function isCompany()
     {
         return $this->user_type === self::TYPE_COMPANY;
+    }
+
+    // Check if user is a team member (belongs to a company)
+    public function isTeamMember()
+    {
+        return !empty($this->company_id);
+    }
+
+    // Check if company allows new signups
+    public function allowsNewSignups()
+    {
+        // Only relevant for company accounts
+        if (!$this->isCompany()) {
+            return true;
+        }
+
+        return $this->signups_enabled;
     }
 
     // Create user from Google data
@@ -145,6 +165,11 @@ class User extends Authenticatable
         // Admin users are never restricted
         if ($this->isAdmin()) {
             return false;
+        }
+
+        // Team members inherit access from their company
+        if ($this->isTeamMember() && $this->company) {
+            return $this->company->hasRestrictedAccess();
         }
 
         $hasActiveSubscription = $this->subscriptions()
@@ -264,6 +289,11 @@ class User extends Authenticatable
      */
     public function activeSubscription()
     {
+        // Team members inherit subscription from their company
+        if ($this->isTeamMember() && $this->company) {
+            return $this->company->activeSubscription();
+        }
+
         return $this->subscriptions()
             ->where('status', 'active')
             ->where(function($query) {
@@ -383,7 +413,15 @@ class User extends Authenticatable
             return true;
         }
 
-        $currentCount = $this->apiKeys()->count();
+        // Count API keys for company + all team members
+        $accountOwner = $this->isTeamMember() ? $this->company : $this;
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        $currentCount = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
 
         return $currentCount < $limit;
     }
@@ -401,9 +439,102 @@ class User extends Authenticatable
             return 'unlimited';
         }
 
-        $currentCount = $this->apiKeys()->count();
+        // Count API keys for company + all team members
+        $accountOwner = $this->isTeamMember() ? $this->company : $this;
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        $currentCount = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
 
         return max(0, $limit - $currentCount);
+    }
+
+    /**
+     * Get the company this user belongs to.
+     */
+    public function company()
+    {
+        return $this->belongsTo(User::class, 'company_id');
+    }
+
+    /**
+     * Get team members for this company.
+     */
+    public function teamMembers()
+    {
+        return $this->hasMany(User::class, 'company_id');
+    }
+
+    /**
+     * Check if user can add more team members.
+     *
+     * @return bool
+     */
+    public function canAddTeamMember()
+    {
+        // Only company accounts can have team members
+        if (!$this->isCompany()) {
+            return false;
+        }
+
+        $limit = $this->getFeatureLimit('team_members');
+
+        // -1 means unlimited
+        if ($limit === -1) {
+            return true;
+        }
+
+        // No limit in package
+        if ($limit === 0) {
+            return false;
+        }
+
+        $currentCount = $this->teamMembers()->count();
+
+        return $currentCount < $limit;
+    }
+
+    /**
+     * Get remaining team member slots.
+     *
+     * @return int|string (-1 or 'unlimited' for unlimited, otherwise remaining count)
+     */
+    public function getRemainingTeamMemberSlots()
+    {
+        if (!$this->isCompany()) {
+            return 0;
+        }
+
+        $limit = $this->getFeatureLimit('team_members');
+
+        if ($limit === -1) {
+            return 'unlimited';
+        }
+
+        if ($limit === 0) {
+            return 0;
+        }
+
+        $currentCount = $this->teamMembers()->count();
+
+        return max(0, $limit - $currentCount);
+    }
+
+    /**
+     * Get team members count.
+     *
+     * @return int
+     */
+    public function getTeamMembersCount()
+    {
+        if (!$this->isCompany()) {
+            return 0;
+        }
+
+        return $this->teamMembers()->count();
     }
 
 }

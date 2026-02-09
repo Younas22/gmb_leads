@@ -79,6 +79,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Login Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Login</th>
                         <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -155,6 +156,19 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
+                            @if($u->user_type === 'company')
+                                <button onclick="toggleSignups({{ $u->id }}, {{ $u->signups_enabled ? 'true' : 'false' }})"
+                                    class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 {{ $u->signups_enabled ? 'bg-green-500' : 'bg-gray-300' }}"
+                                    id="signupsToggle_{{ $u->id }}"
+                                    title="{{ $u->signups_enabled ? 'Signups Enabled' : 'Signups Disabled' }}">
+                                    <span class="sr-only">Toggle signups</span>
+                                    <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform {{ $u->signups_enabled ? 'translate-x-6' : 'translate-x-1' }}" id="signupsToggleBtn_{{ $u->id }}"></span>
+                                </button>
+                            @else
+                                <span class="text-sm text-gray-400">N/A</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <div>
                                 <p class="text-sm text-gray-600">{{ $u->created_at->format('M d, Y') }}</p>
                                 <p class="text-xs text-gray-400">{{ $u->created_at->diffForHumans() }}</p>
@@ -188,7 +202,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center">
+                        <td colspan="9" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-users text-gray-400 text-3xl"></i>
@@ -559,6 +573,61 @@ function showToast(message, type = 'success') {
 
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// Toggle Company Signups
+function toggleSignups(userId, currentStatus) {
+    const toggle = document.getElementById(`signupsToggle_${userId}`);
+    const btn = document.getElementById(`signupsToggleBtn_${userId}`);
+
+    // Disable toggle while processing
+    toggle.style.pointerEvents = 'none';
+    toggle.style.opacity = '0.6';
+
+    fetch(`{{ url('admin/users') }}/${userId}/toggle-signups`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        toggle.style.pointerEvents = 'auto';
+        toggle.style.opacity = '1';
+
+        if (data.success) {
+            const newStatus = data.signups_enabled;
+
+            // Update toggle appearance
+            if (newStatus) {
+                toggle.classList.remove('bg-gray-300');
+                toggle.classList.add('bg-green-500');
+                btn.classList.remove('translate-x-1');
+                btn.classList.add('translate-x-6');
+                toggle.title = 'Signups Enabled';
+            } else {
+                toggle.classList.remove('bg-green-500');
+                toggle.classList.add('bg-gray-300');
+                btn.classList.remove('translate-x-6');
+                btn.classList.add('translate-x-1');
+                toggle.title = 'Signups Disabled';
+            }
+
+            // Update onclick with new status
+            toggle.setAttribute('onclick', `toggleSignups(${userId}, ${newStatus})`);
+
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message || 'Error updating signups status', 'error');
+        }
+    })
+    .catch(error => {
+        toggle.style.pointerEvents = 'auto';
+        toggle.style.opacity = '1';
+        showToast('Error updating signups status', 'error');
+    });
 }
 </script>
 @endpush

@@ -380,6 +380,18 @@ function resendVerification() {
                             <p class="text-xs text-gray-500">Update your information</p>
                         </div>
                     </a>
+
+                    @if(auth()->user()->isCompany())
+                    <a href="{{ route('user.team-members') }}" class="flex items-center p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group">
+                        <div class="bg-indigo-100 group-hover:bg-indigo-200 rounded-lg p-2 mr-3">
+                            <i class="fas fa-users text-indigo-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">Team Members</p>
+                            <p class="text-xs text-gray-500">Manage your team</p>
+                        </div>
+                    </a>
+                    @endif
                 </div>
             </div>
 

@@ -54,11 +54,21 @@
                     Dashboard
                 </a>
 
-                <!-- Subscription - always visible -->
+                <!-- Subscription - only for company owners and regular users, not team members -->
+                @if(!auth()->user()->isTeamMember())
                 <a href="{{ route('user.subscription') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.subscription') ? 'text-primary-700 bg-primary-50' : '' }}">
                     <i class="fas fa-crown w-5 text-center mr-3"></i>
                     Subscription
                 </a>
+                @endif
+
+                <!-- Team Members - only for company owners -->
+                @if(auth()->user()->isCompany())
+                <a href="{{ route('user.team-members') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.team-members') ? 'text-primary-700 bg-primary-50' : '' }}">
+                    <i class="fas fa-users w-5 text-center mr-3"></i>
+                    Team Members
+                </a>
+                @endif
 
                 @if($isRestricted)
                     <!-- Pending Subscription Notice -->
@@ -81,10 +91,17 @@
                         <i class="fas fa-bookmark w-5 text-center mr-3"></i>
                         Saved Leads
                     </a>
+
+                    @if(!auth()->user()->isTeamMember())
+                    <!-- API Keys - Only for company owners and regular users, NOT team members -->
                     <a href="{{ route('user.api-keys') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.api-keys') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-key w-5 text-center mr-3"></i>
                         API Keys
                     </a>
+                    @endif
+
+                    @if(!auth()->user()->isTeamMember())
+                    <!-- Search History & Feedback - Only for company owners and regular users -->
                     <a href="{{ route('user.search-history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search-history') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-history w-5 text-center mr-3"></i>
                         Search History
@@ -93,8 +110,9 @@
                         <i class="fas fa-comments w-5 text-center mr-3"></i>
                         Feedback History
                     </a>
+                    @endif
 
-                    <!-- Profile Link -->
+                    <!-- Profile Link - Available to all users -->
                     <a href="{{ route('user.profile') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.profile') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-user-cog w-5 text-center mr-3"></i>
                         Profile Settings
@@ -119,7 +137,8 @@
                 </div>
             </div>
 
-            <!-- Feedback Section -->
+            <!-- Feedback Section - Only for company owners and regular users, NOT team members -->
+            @if(!auth()->user()->isTeamMember())
             <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
                 <div class="text-center">
                     <div class="inline-flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full mb-3">
@@ -139,6 +158,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </nav>
     </div>
 
@@ -199,6 +219,7 @@
                         <i class="fas fa-user-edit w-4 mr-3 text-gray-400"></i>
                         Edit Profile
                     </a>
+                    @if(!auth()->user()->isTeamMember())
                     <a href="{{ route('user.profile') }}#security-tab" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                         <i class="fas fa-shield-alt w-4 mr-3 text-gray-400"></i>
                         Security Settings
@@ -207,6 +228,7 @@
                         <i class="fas fa-cog w-4 mr-3 text-gray-400"></i>
                         Preferences
                     </a>
+                    @endif
                 </div>
 
                 <!-- Account Stats -->

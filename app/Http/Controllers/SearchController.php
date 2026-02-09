@@ -57,8 +57,16 @@ class SearchController extends Controller
         $searchLimit = $user->getFeatureLimit('gmb_searches');
 
         if ($searchLimit !== -1) {
-            // Count today's searches
-            $todaySearchCount = SearchHistory::where('user_id', $user->id)
+            // Get all user IDs for quota counting (company + all team members)
+            $accountOwner = $user->isTeamMember() ? $user->company : $user;
+            $userIds = [$accountOwner->id];
+            if ($accountOwner->isCompany()) {
+                $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+                $userIds = array_merge($userIds, $teamMemberIds);
+            }
+
+            // Count today's searches for company + all team members
+            $todaySearchCount = SearchHistory::whereIn('user_id', $userIds)
                 ->whereDate('created_at', today())
                 ->count();
 
@@ -128,11 +136,33 @@ class SearchController extends Controller
     }
 
     try {
-        // Get user's active and valid API key dynamically
-        $userApiKey = \App\Models\UserApiKey::where('user_id', $user->id)
+        // Get account owner (company or user itself) for API key access
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+
+        // Get all user IDs that can provide API keys (company + team members)
+        $apiKeyUserIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $apiKeyUserIds = array_merge($apiKeyUserIds, $teamMemberIds);
+        }
+
+        // Get active and valid API key from company or team members
+        $userApiKeyQuery = \App\Models\UserApiKey::whereIn('user_id', $apiKeyUserIds)
             ->where('is_active', true)
-            ->where('is_valid', true)
-            ->orderBy('last_used', 'asc') // Use least recently used key for load balancing
+            ->where('is_valid', true);
+
+        // If user is a team member, only get keys assigned to them
+        if ($user->isTeamMember()) {
+            $userApiKeyQuery->where(function($query) use ($user) {
+                // Keys directly owned by the user OR keys assigned to the user
+                $query->where('user_id', $user->id)
+                      ->orWhereHas('assignedUsers', function($subQuery) use ($user) {
+                          $subQuery->where('users.id', $user->id);
+                      });
+            });
+        }
+
+        $userApiKey = $userApiKeyQuery->orderBy('last_used', 'asc') // Use least recently used key for load balancing
             ->first();
 
         if (!$userApiKey) {
@@ -445,11 +475,11 @@ public function saveLeads(Request $request)
 {
     $user = Auth::user();
 
-    \Log::info('Save leads request received', [
-        'user_id' => $user->id,
-        'request_data' => $request->all(),
-        'headers' => $request->headers->all()
-    ]);
+    // \Log::info('Save leads request received', [
+    //     'user_id' => $user->id,
+    //     'request_data' => $request->all(),
+    //     'headers' => $request->headers->all()
+    // ]);
 
     try {
         $request->validate([
@@ -471,8 +501,16 @@ public function saveLeads(Request $request)
     $savedLeadsLimit = $user->getFeatureLimit('saved_lists');
 
     if ($savedLeadsLimit !== -1) {
-        // Count current saved leads
-        $currentSavedCount = SavedLead::where('user_id', $user->id)->count();
+        // Get all user IDs for quota counting (company + all team members)
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        // Count current saved leads for company + all team members
+        $currentSavedCount = SavedLead::whereIn('user_id', $userIds)->count();
         $leadsToSave = count($leads);
         $totalAfterSave = $currentSavedCount + $leadsToSave;
 
@@ -725,39 +763,95 @@ private function formatApiResults($results)
 public function history(Request $request)
 {
     $user = Auth::user();
-    
+    $selectedUserId = $request->get('user_id'); // User filter
+
+    // Determine the account owner (company or user itself)
+    $accountOwner = $user->isTeamMember() ? $user->company : $user;
+
+    // Get user IDs to query (company + team members, or specific user if filtered)
+    if ($selectedUserId) {
+        // Filter by specific user (must be company or team member)
+        $userIds = [$selectedUserId];
+    } else {
+        // Show all users (company + team members)
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+    }
+
     // Base query
-    $query = SearchHistory::where('user_id', $user->id);
-    
+    $query = SearchHistory::whereIn('user_id', $userIds);
+
     // Apply filters
     if ($request->filled('date_range') && $request->date_range !== 'all') {
         $days = (int) $request->date_range;
         $query->where('created_at', '>=', now()->subDays($days));
     }
-    
+
     if ($request->filled('query')) {
         $query->where('query', 'like', '%' . $request->query . '%');
     }
-    
+
     if ($request->filled('location')) {
         $query->where('location', 'like', '%' . $request->location . '%');
     }
-    
+
     if ($request->filled('status')) {
         $query->where('status', $request->status);
     }
-    
-    // Get paginated results
-    $histories = $query->orderBy('created_at', 'desc')->paginate(10);
-    
+
+    // Get paginated results with user relationship
+    $histories = $query->with('user')->orderBy('created_at', 'desc')->paginate(10);
+
     // Append query parameters to pagination links
     $histories->appends($request->query());
-    
-    // Calculate stats for the entire user history (not just filtered)
-    $stats = SearchHistory::getUserStats($user->id);
-    
-    return view('user.search-history', compact('user', 'histories', 'stats'));
+
+    // Calculate stats for the filtered user(s)
+    $stats = $this->getSearchHistoryStats($userIds);
+
+    return view('user.search-history', compact('user', 'histories', 'stats', 'selectedUserId'));
 }
+
+    /**
+     * Get search history statistics
+     */
+    private function getSearchHistoryStats($userIds)
+    {
+        if (!is_array($userIds)) {
+            $userIds = [$userIds];
+        }
+
+        $total = SearchHistory::whereIn('user_id', $userIds)->count();
+        $successful = SearchHistory::whereIn('user_id', $userIds)->where('status', 'success')->count();
+        $failed = SearchHistory::whereIn('user_id', $userIds)->where('status', 'failed')->count();
+        $pending = SearchHistory::whereIn('user_id', $userIds)->where('status', 'pending')->count();
+
+        return [
+            'total' => $total,
+            'successful' => $successful,
+            'failed' => $failed,
+            'pending' => $pending,
+            'success_rate' => $total > 0 ? round(($successful / $total) * 100, 1) : 0,
+        ];
+    }
+
+    /**
+     * Get allowed user IDs for accessing search history
+     */
+    private function getAllowedUserIdsForHistory($user)
+    {
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+        $userIds = [$accountOwner->id];
+
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        return $userIds;
+    }
 
 public function rerunSearch(Request $request)
 {
@@ -777,30 +871,34 @@ public function rerunSearch(Request $request)
 public function deleteSearchHistory($id)
 {
     $user = Auth::user();
-    $history = SearchHistory::where('user_id', $user->id)->findOrFail($id);
-    
+    $allowedUserIds = $this->getAllowedUserIdsForHistory($user);
+    $history = SearchHistory::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
     $history->delete();
-    
+
     return redirect()->back()->with('success', 'Search history deleted successfully.');
 }
 
 public function viewSearchResults($id)
 {
     $user = Auth::user();
-    $history = SearchHistory::where('user_id', $user->id)->findOrFail($id);
-    
+    $allowedUserIds = $this->getAllowedUserIdsForHistory($user);
+    $history = SearchHistory::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
     if (!$history->results_data) {
         return redirect()->back()->with('error', 'No results data available for this search.');
     }
-    
+
     return view('user.search-results', compact('history'));
 }
 
 public function exportSearchHistory(Request $request)
 {
     $user = Auth::user();
-    
-    $histories = SearchHistory::where('user_id', $user->id)
+    $allowedUserIds = $this->getAllowedUserIdsForHistory($user);
+
+    $histories = SearchHistory::whereIn('user_id', $allowedUserIds)
+        ->with('user')
         ->orderBy('created_at', 'desc')
         ->get();
     

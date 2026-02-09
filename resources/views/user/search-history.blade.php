@@ -7,6 +7,13 @@
         <div class="p-4 lg:p-8">
             <!-- Filters -->
             <form method="GET" action="{{ route('user.search-history') }}" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+                <!-- User Filter (Company Only) -->
+                @if(auth()->user()->isCompany() || auth()->user()->isTeamMember())
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                    <x-user-filter :selectedUserId="$selectedUserId ?? null" />
+                </div>
+                @endif
+
                 <div class="flex flex-wrap items-end gap-4">
                     <div class="flex-1 min-w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>

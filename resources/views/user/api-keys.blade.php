@@ -5,6 +5,91 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css">
+
+<!-- Custom Choices.js Styling -->
+<style>
+    .choices__inner {
+        background-color: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        min-height: 42px;
+        font-size: 0.875rem;
+    }
+
+    .choices__inner:focus,
+    .choices.is-focused .choices__inner {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .choices__list--multiple .choices__item {
+        background-color: #4f46e5;
+        border: 1px solid #4338ca;
+        border-radius: 0.375rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .choices__list--multiple .choices__item.is-highlighted {
+        background-color: #4338ca;
+        border-color: #3730a3;
+    }
+
+    .choices__button {
+        border-left: 1px solid #6366f1;
+        padding: 0 0.5rem;
+        margin-left: 0.25rem;
+    }
+
+    .choices__list--dropdown {
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        margin-top: 0.25rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 100;
+    }
+
+    .choices__list--dropdown .choices__item--selectable {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .choices__input {
+        font-size: 0.875rem;
+        padding: 0.25rem 0;
+    }
+
+    .choices__placeholder {
+        opacity: 0.5;
+    }
+
+    @media (max-width: 640px) {
+        .choices__inner {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+
+        .choices__list--multiple .choices__item {
+            font-size: 0.6875rem;
+            padding: 0.1875rem 0.375rem;
+        }
+
+        .choices__list--dropdown .choices__item--selectable {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
 <!-- Main Content -->
 <div class="p-4 lg:p-8">
     <!-- Plan Limitation Notice -->
@@ -167,6 +252,20 @@
                             </div>
                         </div>
 
+                        @if($user->isCompany() && $apiKey->assignedUsers->count() > 0)
+                        <div class="mb-4 pb-4 border-b border-gray-200">
+                            <p class="text-xs text-gray-500 mb-2">Assigned to Users:</p>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($apiKey->assignedUsers as $assignedUser)
+                                <span class="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
+                                    <i class="fas fa-user mr-1"></i>
+                                    {{ $assignedUser->first_name }} {{ $assignedUser->last_name }}
+                                </span>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                             <div class="flex flex-wrap gap-2">
                                 <button onclick="testApiKey({{ $apiKey->id }})" class="bg-green-600 hover:bg-green-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
@@ -174,7 +273,7 @@
                                 </button>
                                 @if(!$apiKey->is_valid)
                                 {{-- Only show Edit/Delete if key is NOT verified --}}
-                                <button onclick="editApiKey({{ $apiKey->id }}, '{{ $apiKey->key_name }}', '{{ $apiKey->api_key }}', '{{ $apiKey->google_email }}')" class="bg-primary-600 hover:bg-primary-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
+                                <button onclick='editApiKey({{ $apiKey->id }}, "{{ $apiKey->key_name }}", "{{ $apiKey->api_key }}", "{{ $apiKey->google_email }}", {{ json_encode($apiKey->assignedUsers->pluck("id")->toArray()) }})' class="bg-primary-600 hover:bg-primary-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
                                 <button onclick="deleteApiKey({{ $apiKey->id }})" class="bg-red-600 hover:bg-red-700 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded text-xs font-medium whitespace-nowrap">
@@ -257,6 +356,24 @@
                     <p class="text-xs text-gray-500 mt-1">The Google account email associated with this API key</p>
                 </div>
 
+                @if($user->isCompany() && $teamMembers->count() > 0)
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-users mr-1"></i>Assign to Team Members
+                    </label>
+                    <select id="assigned-users" multiple>
+                        @foreach($teamMembers as $member)
+                        <option value="{{ $member->id }}">
+                            {{ $member->first_name }} {{ $member->last_name }} ({{ $member->email }})
+                        </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-2">
+                        <i class="fas fa-info-circle mr-1"></i>Select team members who can use this API key
+                    </p>
+                </div>
+                @endif
+
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Google Places API Key *</label>
                     <input type="text" id="api-key" placeholder="AIzaSyDxVlabcdef123456789..." required
@@ -306,6 +423,9 @@
 </div>
 
 
+<!-- Choices.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/scripts/choices.min.js"></script>
+
 <!-- Update your existing script section with this enhanced version -->
 <script>
 // Global variables
@@ -315,6 +435,7 @@ let isEditMode = false;
 const canAddMore = {{ $canAddMore ? 'true' : 'false' }};
 const apiLimit = {{ $apiLimit }};
 const remainingSlots = '{{ $remainingSlots }}';
+let choicesInstance = null;
 
 // Base URL function using Laravel's url() helper
 function getBaseUrl() {
@@ -450,6 +571,58 @@ function onApiKeyChange() {
     updateSaveButton();
 }
 
+// Initialize Choices.js for multi-select
+function initializeChoices() {
+    const assignedUsersSelect = document.getElementById('assigned-users');
+    if (assignedUsersSelect && !choicesInstance) {
+        choicesInstance = new Choices(assignedUsersSelect, {
+            removeItemButton: true,
+            searchEnabled: true,
+            searchPlaceholderValue: 'Search team members...',
+            placeholder: true,
+            placeholderValue: 'Select team members',
+            noResultsText: 'No team members found',
+            itemSelectText: 'Click to select',
+            classNames: {
+                containerOuter: 'choices',
+                containerInner: 'choices__inner',
+                input: 'choices__input',
+                inputCloned: 'choices__input--cloned',
+                list: 'choices__list',
+                listItems: 'choices__list--multiple',
+                listSingle: 'choices__list--single',
+                listDropdown: 'choices__list--dropdown',
+                item: 'choices__item',
+                itemSelectable: 'choices__item--selectable',
+                itemDisabled: 'choices__item--disabled',
+                itemChoice: 'choices__item--choice',
+                placeholder: 'choices__placeholder',
+                group: 'choices__group',
+                groupHeading: 'choices__heading',
+                button: 'choices__button',
+                activeState: 'is-active',
+                focusState: 'is-focused',
+                openState: 'is-open',
+                disabledState: 'is-disabled',
+                highlightedState: 'is-highlighted',
+                selectedState: 'is-selected',
+                flippedState: 'is-flipped',
+                loadingState: 'is-loading',
+                noResults: 'has-no-results',
+                noChoices: 'has-no-choices'
+            }
+        });
+    }
+}
+
+// Destroy Choices.js instance
+function destroyChoices() {
+    if (choicesInstance) {
+        choicesInstance.destroy();
+        choicesInstance = null;
+    }
+}
+
 // Open modal for adding new API key
 function openAddModal() {
     modalTitle.textContent = 'Add Google Places API Key';
@@ -458,11 +631,17 @@ function openAddModal() {
     testResult.classList.add('hidden');
     resetFormState();
     modal.classList.remove('hidden');
+
+    // Initialize Choices.js after modal is shown
+    setTimeout(() => {
+        initializeChoices();
+    }, 100);
 }
 
 // Close modal
 function closeApiModal() {
     modal.classList.add('hidden');
+    destroyChoices();
     resetFormState();
 }
 
@@ -494,6 +673,15 @@ document.getElementById('api-form').addEventListener('submit', async (e) => {
     formData.append('api_key', document.getElementById('api-key').value);
     formData.append('google_email', document.getElementById('google-email').value);
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+    // Add assigned users if element exists
+    const assignedUsersSelect = document.getElementById('assigned-users');
+    if (assignedUsersSelect) {
+        const selectedUsers = Array.from(assignedUsersSelect.selectedOptions).map(option => option.value);
+        selectedUsers.forEach((userId, index) => {
+            formData.append(`assigned_users[${index}]`, userId);
+        });
+    }
 
     const isEdit = document.getElementById('api-key-id').value;
     const url = isEdit 
@@ -707,22 +895,34 @@ async function deleteApiKey(apiKeyId) {
 }
 
 // Edit API key
-function editApiKey(apiKeyId, keyName, apiKey, googleEmail) {
+function editApiKey(apiKeyId, keyName, apiKey, googleEmail, assignedUserIds = []) {
     document.getElementById('api-key-id').value = apiKeyId;
     document.getElementById('api-key-name').value = keyName;
     document.getElementById('api-key').value = apiKey;
     document.getElementById('google-email').value = googleEmail;
-    
+
     modalTitle.textContent = 'Edit Google Places API Key';
     testResult.classList.add('hidden');
-    
+
     // Set edit mode
     isEditMode = true;
     isApiTested = true; // Consider existing API as tested
     isApiValid = true; // Assume existing API is valid unless tested again
-    
+
     updateSaveButton();
     modal.classList.remove('hidden');
+
+    // Initialize Choices.js and set selected values
+    setTimeout(() => {
+        initializeChoices();
+
+        // Set assigned users if element exists
+        const assignedUsersSelect = document.getElementById('assigned-users');
+        if (assignedUsersSelect && choicesInstance && assignedUserIds && assignedUserIds.length > 0) {
+            // Set values using Choices.js API
+            choicesInstance.setChoiceByValue(assignedUserIds.map(id => String(id)));
+        }
+    }, 100);
 }
 
 // Copy to clipboard

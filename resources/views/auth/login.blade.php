@@ -7,6 +7,7 @@
     <title>CustomerNearme - Login & Signup</title>
     @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');
+        $allowCompanyRegistration = \App\Models\Setting::get('allow_company_registration', true);
     @endphp
     @if($siteFavicon)
         <link rel="icon" type="image/png" href="{{ asset('public/' . $siteFavicon) }}">
@@ -524,11 +525,11 @@
                                                     <span class="block text-xs text-gray-400">Personal use</span>
                                                 </div>
                                             </label>
-                                            <label class="account-type-option relative flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200">
-                                                <input type="radio" name="user_type" value="company" class="w-4 h-4 text-primary-orange focus:ring-primary-orange/30 border-gray-300">
+                                            <label class="account-type-option relative flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl {{ $allowCompanyRegistration ? 'cursor-pointer hover:border-blue-200' : 'cursor-not-allowed opacity-50' }}">
+                                                <input type="radio" name="user_type" value="company" class="w-4 h-4 text-primary-orange focus:ring-primary-orange/30 border-gray-300" {{ $allowCompanyRegistration ? '' : 'disabled' }}>
                                                 <div>
                                                     <span class="block text-sm font-semibold text-gray-900">Company</span>
-                                                    <span class="block text-xs text-gray-400">Team access</span>
+                                                    <span class="block text-xs {{ $allowCompanyRegistration ? 'text-gray-400' : 'text-red-400' }}">{{ $allowCompanyRegistration ? 'Team access' : 'Currently disabled' }}</span>
                                                 </div>
                                             </label>
                                         </div>

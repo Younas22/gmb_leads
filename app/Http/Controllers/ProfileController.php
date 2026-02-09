@@ -59,19 +59,30 @@ class ProfileController extends Controller
             \Log::warning('No avatar file found in request');
         }
 
-        $request->validate([
+        // Validation rules
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-        ]);
+        ];
+
+        // Only allow email update for non-team members
+        if (!$user->isTeamMember()) {
+            $rules['email'] = ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)];
+        }
+
+        $request->validate($rules);
 
         $data = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'name' => $request->first_name . ' ' . $request->last_name,
-            'email' => $request->email,
         ];
+
+        // Only update email for non-team members
+        if (!$user->isTeamMember() && $request->has('email')) {
+            $data['email'] = $request->email;
+        }
 
         if ($request->hasFile('avatar')) {
             $destinationPath = public_path('assets/avatar');
@@ -91,7 +102,8 @@ class ProfileController extends Controller
             \Log::info('Avatar uploaded successfully', ['path' => $data['avatar']]);
         }
 
-        if ($user->email !== $request->email && $user->login_type !== User::LOGIN_GOOGLE) {
+        // Only check email verification for non-team members
+        if (!$user->isTeamMember() && $request->has('email') && $user->email !== $request->email && $user->login_type !== User::LOGIN_GOOGLE) {
             $data['email_verified'] = false;
             $data['email_verification_token'] = \Str::random(64);
         }

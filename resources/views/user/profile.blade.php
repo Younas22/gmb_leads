@@ -88,6 +88,7 @@
                         <button class="tab-btn active py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-primary-600 text-primary-600 font-medium text-xs sm:text-sm whitespace-nowrap" data-tab="personal">
                             <i class="fas fa-user mr-1 sm:mr-2"></i>Personal Info
                         </button>
+                        @if(!$user->isTeamMember())
                         <button class="tab-btn py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-xs sm:text-sm whitespace-nowrap" data-tab="security">
                             <i class="fas fa-shield-alt mr-1 sm:mr-2"></i>Security
                         </button>
@@ -97,6 +98,7 @@
                         <button class="tab-btn py-3 sm:py-4 px-1 sm:px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-xs sm:text-sm whitespace-nowrap" data-tab="activity">
                             <i class="fas fa-chart-line mr-1 sm:mr-2"></i>Activity
                         </button>
+                        @endif
                     </nav>
                 </div>
 
@@ -125,6 +127,7 @@
                             </div>
                         </div>
 
+                        @if(!$user->isTeamMember())
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <div class="relative">
@@ -147,6 +150,7 @@
                                 <p class="text-red-500 text-xs sm:text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        @endif
 
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Avatar</label>
@@ -170,6 +174,7 @@
                 </div>
 
                 <!-- Security Tab -->
+                @if(!$user->isTeamMember())
                 <div id="security-tab" class="tab-content p-4 sm:p-6 hidden">
                     <div class="space-y-4 sm:space-y-6">
                         <!-- Password Change -->
@@ -262,8 +267,10 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <!-- Preferences Tab -->
+                @if(!$user->isTeamMember())
                 <div id="preferences-tab" class="tab-content p-4 sm:p-6 hidden">
                     <form method="POST" action="{{ route('user.preferences.update') }}" class="space-y-4 sm:space-y-6">
                         @csrf
@@ -330,8 +337,10 @@
                         </div>
                     </form>
                 </div>
+                @endif
 
                 <!-- Activity Tab -->
+                @if(!$user->isTeamMember())
                 <div id="activity-tab" class="tab-content p-4 sm:p-6 hidden">
                     <div class="space-y-4 sm:space-y-6">
                         <!-- Activity Stats -->
@@ -411,9 +420,11 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
 
             <!-- Danger Zone -->
+            @if(!$user->isTeamMember())
             <div class="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-6">
                 <h3 class="text-base sm:text-lg font-semibold text-red-800 mb-4">
                     <i class="fas fa-exclamation-triangle mr-2"></i>Danger Zone
@@ -439,6 +450,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
 
     <!-- Delete Account Modal -->

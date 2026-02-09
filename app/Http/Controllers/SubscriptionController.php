@@ -19,6 +19,12 @@ class SubscriptionController extends Controller
     {
         $user = Auth::user();
 
+        // Team members cannot access subscription page
+        // They inherit subscription from their company owner
+        if ($user->isTeamMember()) {
+            return redirect()->route('user.dashboard')->with('error', 'Team members cannot manage subscriptions. Please contact your company administrator.');
+        }
+
         // Get user's current active or pending subscription
         $currentSubscription = $user->subscriptions()
             ->with(['package.features', 'paymentMethod'])
@@ -64,13 +70,21 @@ class SubscriptionController extends Controller
         $currentMonth = now()->startOfMonth();
         $today = now()->startOfDay();
 
-        // Monthly leads - count saved leads this month
-        $monthlyLeadsUsed = $user->savedLeads()
+        // Get all user IDs that should be counted for this quota (company + all team members)
+        // Since team members can't access this page, $user is always the company owner
+        $userIds = [$user->id];
+        if ($user->isCompany()) {
+            $teamMemberIds = $user->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        // Monthly leads - count saved leads this month for company + all team members
+        $monthlyLeadsUsed = \App\Models\SavedLead::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Daily searches - count searches today
-        $dailySearchesUsed = $user->searchHistories()
+        // Daily searches - count searches today for company + all team members
+        $dailySearchesUsed = \App\Models\SearchHistory::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $today)
             ->count();
 
@@ -79,8 +93,8 @@ class SubscriptionController extends Controller
         $dailySearchesLimit = 0; // Default: no subscription
         $apiKeysLimit = 0; // Default: no subscription
 
-        // Get actual API keys count from database
-        $apiKeysUsed = $user->apiKeys()->count();
+        // Get actual API keys count from database (company + all team members)
+        $apiKeysUsed = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
 
         if ($currentPlan && $currentPlan['package']) {
             $features = $currentPlan['package']->features;
@@ -98,20 +112,20 @@ class SubscriptionController extends Controller
             }
         }
 
-        // Calculate total searches this month (for analytics)
-        $monthlySearches = $user->searchHistories()
+        // Calculate total searches this month (for analytics) - company + all team members
+        $monthlySearches = \App\Models\SearchHistory::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
         // Calculate last month searches for comparison
         $lastMonth = now()->subMonth()->startOfMonth();
         $lastMonthEnd = now()->subMonth()->endOfMonth();
-        $lastMonthSearches = $user->searchHistories()
+        $lastMonthSearches = \App\Models\SearchHistory::whereIn('user_id', $userIds)
             ->whereBetween('created_at', [$lastMonth, $lastMonthEnd])
             ->count();
 
         // Calculate last month leads for comparison
-        $lastMonthLeads = $user->savedLeads()
+        $lastMonthLeads = \App\Models\SavedLead::whereIn('user_id', $userIds)
             ->whereBetween('created_at', [$lastMonth, $lastMonthEnd])
             ->count();
 
@@ -189,7 +203,12 @@ class SubscriptionController extends Controller
     public function upgrade(Request $request)
     {
         $user = Auth::user();
-        
+
+        // Team members cannot upgrade subscription
+        if ($user->isTeamMember()) {
+            return redirect()->route('user.dashboard')->with('error', 'Team members cannot manage subscriptions. Please contact your company administrator.');
+        }
+
         $request->validate([
             'plan_id' => 'required|string',
         ]);
@@ -204,13 +223,18 @@ class SubscriptionController extends Controller
      */
     public function submitPayment(Request $request)
     {
+        $user = Auth::user();
+
+        // Team members cannot submit payment
+        if ($user->isTeamMember()) {
+            return redirect()->route('user.dashboard')->with('error', 'Team members cannot manage subscriptions. Please contact your company administrator.');
+        }
+
         $request->validate([
             'package_id'        => 'required|exists:packages,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'screenshot'        => 'required|file|mimes:jpg,jpeg,png,gif|max:5120',
         ]);
-
-        $user    = Auth::user();
         $package = Package::find($request->package_id);
 
         // Screenshot store karo - public/images/payments folder mein

@@ -155,6 +155,7 @@ class SettingsController extends Controller
 
         Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
         Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
+        Setting::set('allow_company_registration', $request->has('allow_company_registration') ? 1 : 0, 'boolean', 'general', 'Allow Company Registration');
         Setting::set('email_verification', $request->has('email_verification') ? 1 : 0, 'boolean', 'general', 'Email Verification Required');
         Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
         Setting::set('cache_duration', $request->cache_duration ?? 60, 'integer', 'general', 'Cache Duration');
@@ -204,6 +205,49 @@ class SettingsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to optimize database: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Seed performance settings
+     */
+    public function seedPerformanceSettings()
+    {
+        try {
+            Artisan::call('settings:seed-performance', ['--force' => true]);
+            $output = Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Performance settings seeded successfully!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to seed performance settings: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Run database migrations
+     */
+    public function runMigrations()
+    {
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+            $output = Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Migrations ran successfully!',
+                'output' => nl2br(htmlspecialchars($output))
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to run migrations: ' . $e->getMessage()
             ], 500);
         }
     }

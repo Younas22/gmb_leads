@@ -59,10 +59,18 @@ class UserApiKey extends Model
         return substr($key, 0, 6) . str_repeat('•', $length - 10) . substr($key, -4);
     }
 
-    // Relationship with User
+    // Relationship with User (owner of the API key)
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relationship with assigned users (for company keys)
+    public function assignedUsers()
+    {
+        return $this->belongsToMany(User::class, 'api_key_user_assignments', 'api_key_id', 'user_id')
+                    ->withTimestamps()
+                    ->withPivot('assigned_at');
     }
 
     // Check if API key is working

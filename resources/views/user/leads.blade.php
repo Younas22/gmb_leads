@@ -157,6 +157,13 @@
         </a>
     </div>
 
+    <!-- User Filter (Company Only) -->
+    @if(auth()->user()->isCompany() || auth()->user()->isTeamMember())
+    <div class="mb-3">
+        <x-user-filter :selectedUserId="$selectedUserId ?? null" />
+    </div>
+    @endif
+
    <div class="flex flex-col lg:flex-row gap-1.5 lg:flex-nowrap">
 
     <!-- Country -->

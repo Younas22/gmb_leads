@@ -74,22 +74,34 @@ class DashboardController extends Controller
      */
     private function calculateUserStats($userId)
     {
-        // Get all leads for user
-        $totalLeads = SavedLead::where('user_id', $userId)->count();
+        $user = \App\Models\User::find($userId);
+
+        // Determine the account owner (company or user itself)
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+
+        // Get all user IDs that should be counted (company + all team members)
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        // Get all leads for company + team members
+        $totalLeads = SavedLead::whereIn('user_id', $userIds)->count();
 
         // Get today's searches - count distinct search queries created today
-        $searchesToday = SavedLead::where('user_id', $userId)
+        $searchesToday = SavedLead::whereIn('user_id', $userIds)
             ->whereDate('created_at', Carbon::today())
             ->distinct()
             ->count('search_query');
 
         // Get contacted leads
-        $contactedLeads = SavedLead::where('user_id', $userId)
+        $contactedLeads = SavedLead::whereIn('user_id', $userIds)
             ->whereIn('contact_status', ['contacted', 'responded', 'converted'])
             ->count();
 
         // Get converted leads
-        $convertedLeads = SavedLead::where('user_id', $userId)
+        $convertedLeads = SavedLead::whereIn('user_id', $userIds)
             ->where('contact_status', 'converted')
             ->count();
 
@@ -118,24 +130,33 @@ class DashboardController extends Controller
      */
     private function calculateUsageData($user)
     {
-        // Get user's current active or pending subscription
-        $currentSubscription = $user->subscriptions()
-            ->with(['package.features'])
-            ->whereIn('status', ['active', 'pending'])
-            ->orderBy('created_at', 'desc')
-            ->first();
+        // Get user's active subscription (team members inherit from company)
+        $currentSubscription = $user->activeSubscription();
 
         // Calculate usage statistics
         $currentMonth = Carbon::now()->startOfMonth();
         $today = Carbon::now()->startOfDay();
 
-        // Monthly leads - count saved leads this month
-        $monthlyLeadsUsed = $user->savedLeads()
+        // Determine the account owner (company or user itself)
+        // If user is a team member, get their company
+        // If user is a company, use the user itself
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+
+        // Get all user IDs that should be counted for this quota
+        // (company + all team members)
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        // Monthly leads - count saved leads this month for company + all team members
+        $monthlyLeadsUsed = SavedLead::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Daily searches - count searches today
-        $dailySearchesUsed = $user->searchHistories()
+        // Daily searches - count searches today for company + all team members
+        $dailySearchesUsed = SearchHistory::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $today)
             ->count();
 
@@ -144,8 +165,8 @@ class DashboardController extends Controller
         $dailySearchesLimit = 0; // Default: no subscription
         $apiKeysLimit = 0; // Default: no subscription
 
-        // Get actual API keys count from database
-        $apiKeysUsed = $user->apiKeys()->count();
+        // Get actual API keys count from database (company + all team members)
+        $apiKeysUsed = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
 
         if ($currentSubscription && $currentSubscription->package) {
             $features = $currentSubscription->package->features;
@@ -482,6 +503,33 @@ class DashboardController extends Controller
         $user->delete();
 
         return response()->json(['success' => true, 'message' => 'User deleted successfully']);
+    }
+
+    /**
+     * Toggle company signups enabled/disabled
+     */
+    public function toggleSignups(\App\Models\User $user)
+    {
+        if (!Auth::user()->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Only toggle for company accounts
+        if ($user->user_type !== 'company') {
+            return response()->json(['error' => 'This feature is only available for company accounts'], 400);
+        }
+
+        $user->update([
+            'signups_enabled' => !$user->signups_enabled
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'signups_enabled' => $user->signups_enabled,
+            'message' => $user->signups_enabled
+                ? 'New signups enabled for this company'
+                : 'New signups disabled for this company'
+        ]);
     }
 
 }

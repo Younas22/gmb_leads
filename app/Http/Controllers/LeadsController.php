@@ -18,7 +18,7 @@ class LeadsController extends Controller
 public function index(Request $request)
 {
     $user = Auth::user();
-    
+
     // Get filter parameters
     $search = $request->get('search');
     $countryId = $request->get('country_id');
@@ -29,9 +29,26 @@ public function index(Request $request)
     $lastReview = $request->get('last_review');
     $reviewsCount = $request->get('reviews_count');
     $perPage = $request->get('per_page', 30);
-    
+    $selectedUserId = $request->get('user_id'); // User filter
+
+    // Determine the account owner (company or user itself)
+    $accountOwner = $user->isTeamMember() ? $user->company : $user;
+
+    // Get user IDs to query (company + team members, or specific user if filtered)
+    if ($selectedUserId) {
+        // Filter by specific user (must be company or team member)
+        $userIds = [$selectedUserId];
+    } else {
+        // Show all users (company + team members)
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+    }
+
     // Build query
-    $query = SavedLead::where('user_id', $user->id);
+    $query = SavedLead::whereIn('user_id', $userIds);
     
     // Search text filter
     if ($search) {
@@ -103,32 +120,53 @@ public function index(Request $request)
     $leads = $query->orderBy('created_at', 'desc')
                   ->paginate($perPage)
                   ->withQueryString();
-    
-    // Stats
-    $stats = $this->getLeadStats($user->id);
-    
+
+    // Stats (based on filtered user IDs)
+    $stats = $this->getLeadStats($userIds);
+
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats',
         'search', 'countryId', 'stateId', 'cityId',
-        'status', 'rating', 'lastReview', 'reviewsCount'
+        'status', 'rating', 'lastReview', 'reviewsCount', 'selectedUserId'
     ));
     
 }
 
     
     /**
+     * Get allowed user IDs for accessing leads
+     */
+    private function getAllowedUserIds($user)
+    {
+        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+        $userIds = [$accountOwner->id];
+
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+
+        return $userIds;
+    }
+
+    /**
      * Get lead statistics
      */
-    private function getLeadStats($userId)
+    private function getLeadStats($userIds)
     {
-        $total = SavedLead::where('user_id', $userId)->count();
-        $contacted = SavedLead::where('user_id', $userId)->where('contact_status', 'contacted')->count();
-        $pending = SavedLead::where('user_id', $userId)->where('contact_status', 'not_contacted')->count();
-        $converted = SavedLead::where('user_id', $userId)->where('contact_status', 'converted')->count();
-        
+        // Accept array of user IDs for company-wide stats
+        if (!is_array($userIds)) {
+            $userIds = [$userIds];
+        }
+
+        $total = SavedLead::whereIn('user_id', $userIds)->count();
+        $contacted = SavedLead::whereIn('user_id', $userIds)->where('contact_status', 'contacted')->count();
+        $pending = SavedLead::whereIn('user_id', $userIds)->where('contact_status', 'not_contacted')->count();
+        $converted = SavedLead::whereIn('user_id', $userIds)->where('contact_status', 'converted')->count();
+
         return [
             'total' => $total,
             'contacted' => $contacted,
@@ -143,67 +181,71 @@ public function index(Request $request)
     public function show($id)
     {
         $user = Auth::user();
-        $lead = SavedLead::where('user_id', $user->id)->findOrFail($id);
-        
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
         return response()->json([
             'success' => true,
             'lead' => $this->formatLeadForResponse($lead)
         ]);
     }
-    
+
     /**
      * Update lead status
      */
     public function updateStatus(Request $request, $id)
     {
         $user = Auth::user();
-        $lead = SavedLead::where('user_id', $user->id)->findOrFail($id);
-        
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
         $request->validate([
             'status' => 'required|in:not_contacted,contacted,responded,converted,not_interested'
         ]);
-        
+
         $lead->update([
             'contact_status' => $request->status,
             'is_contacted' => $request->status !== 'not_contacted'
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Lead status updated successfully'
         ]);
     }
-    
+
     /**
      * Update lead notes
      */
     public function updateNotes(Request $request, $id)
     {
         $user = Auth::user();
-        $lead = SavedLead::where('user_id', $user->id)->findOrFail($id);
-        
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
         $request->validate([
             'notes' => 'nullable|string|max:1000'
         ]);
-        
+
         $lead->update(['notes' => $request->notes]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Notes updated successfully'
         ]);
     }
-    
+
     /**
      * Delete lead
      */
     public function destroy($id)
     {
         $user = Auth::user();
-        $lead = SavedLead::where('user_id', $user->id)->findOrFail($id);
-        
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
         $lead->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Lead deleted successfully'

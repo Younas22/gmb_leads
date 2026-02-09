@@ -833,6 +833,26 @@ use App\Models\EmailTemplate;
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-xs">Company Registration</h5>
+                                        <p class="text-[10px] text-gray-600">Allow new company signups</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="allow_company_registration" name="allow_company_registration" value="1"
+                                               {{ Setting::get('allow_company_registration', true) ? 'checked' : '' }}
+                                               class="sr-only peer">
+                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900 text-xs">&nbsp;</h5>
+                                        <p class="text-[10px] text-gray-600">&nbsp;</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label for="session_timeout" class="block text-xs font-medium text-gray-700 mb-1.5">Session Timeout (minutes)</label>
                                     <input type="number" id="session_timeout" name="session_timeout"
@@ -895,6 +915,42 @@ use App\Models\EmailTemplate;
                                 <i class="fas fa-database mr-1.5"></i>Optimize Database
                             </button>
                             <div id="database-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Settings Seeder -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-cogs text-purple-600 mr-2 text-xs"></i>
+                                Performance Settings
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3">Initialize or update performance-related settings in the database.</p>
+                            <button type="button" onclick="seedPerformanceSettings()"
+                                    class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-cogs mr-1.5"></i>Seed Performance Settings
+                            </button>
+                            <div id="performance-seed-result" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Run Migrations -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
+                            <h2 class="text-sm font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-sync-alt text-indigo-600 mr-2 text-xs"></i>
+                                Run Migrations
+                            </h2>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            <p class="text-xs text-gray-600 mb-3">Run pending database migrations to update the database schema.</p>
+                            <button type="button" onclick="runMigrations()"
+                                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium">
+                                <i class="fas fa-sync-alt mr-1.5"></i>Run Migrations
+                            </button>
+                            <div id="migrations-result" class="mt-2"></div>
                         </div>
                     </div>
 
@@ -1214,6 +1270,62 @@ use App\Models\EmailTemplate;
         })
         .catch(error => {
             resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        });
+    }
+
+    // Seed Performance Settings
+    function seedPerformanceSettings() {
+        const resultDiv = document.getElementById('performance-seed-result');
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Seeding settings...</div>`;
+
+        fetch('{{ route('admin.settings.performance.seed-settings') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${data.message}</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 3000);
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Failed</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error</div>`;
+        });
+    }
+
+    // Run Migrations
+    function runMigrations() {
+        const resultDiv = document.getElementById('migrations-result');
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Running migrations...</div>`;
+
+        fetch('{{ route('admin.settings.migrations.run') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let message = data.message;
+                if (data.output) {
+                    message += '<br><small class="text-xs">' + data.output + '</small>';
+                }
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${message}</div>`;
+                setTimeout(() => resultDiv.innerHTML = '', 5000);
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error running migrations</div>`;
         });
     }
 
