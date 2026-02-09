@@ -804,6 +804,8 @@
                     'api_calls'           => 'API Calls',
                     'dedicated_manager'   => 'Dedicated Manager',
                     'team_members'        => 'Team Members',
+                    'future_updates'        => 'Future Updates',
+                    'advance_filter'        => 'Advanced Filters',
                     'team_analytics'      => 'Team Analytics',
                     'white_label'         => 'White Label',
                     'custom_branding'     => 'Custom Branding',
