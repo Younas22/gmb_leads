@@ -773,7 +773,7 @@
     <section id="pricing" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
-                <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Pricing</p>
+                <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-3">Pricing</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Flexible Pricing for Every Business</h2>
                 <p class="text-lg text-gray-500 max-w-2xl mx-auto">Free Trial &middot; Monthly &middot; Yearly &middot; Lifetime — pick what works for you.</p>
             </div>
@@ -857,7 +857,25 @@
                         </div>
 
                         <ul class="space-y-4 mb-8 flex-grow">
-                            @foreach($package->features as $feature)
+                            @php
+                                $sortedFeatures = $package->features->sort(function($a, $b) use ($boolFeatures) {
+                                    $aIsBool = in_array($a->feature_key, $boolFeatures);
+                                    $bIsBool = in_array($b->feature_key, $boolFeatures);
+
+                                    // Numeric features come first
+                                    if (!$aIsBool && $bIsBool) return -1;
+                                    if ($aIsBool && !$bIsBool) return 1;
+
+                                    // Both are boolean, sort by value (true before false)
+                                    if ($aIsBool && $bIsBool) {
+                                        if ($a->feature_value === 'true' && $b->feature_value !== 'true') return -1;
+                                        if ($a->feature_value !== 'true' && $b->feature_value === 'true') return 1;
+                                    }
+
+                                    return 0;
+                                });
+                            @endphp
+                            @foreach($sortedFeatures as $feature)
                                 @if(isset($featureLabels[$feature->feature_key]))
                                     <li class="flex items-center">
                                         @if(in_array($feature->feature_key, $boolFeatures))
@@ -867,7 +885,7 @@
                                                 </svg>
                                                 {{ $featureLabels[$feature->feature_key] }}
                                             @else
-                                                <svg class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
                                                 <span class="{{ $package->is_popular ? 'opacity-50' : 'text-gray-400' }}">{{ $featureLabels[$feature->feature_key] }}</span>
