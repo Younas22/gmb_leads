@@ -192,6 +192,12 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::get('/export/all-leads', [ReportController::class, 'exportAllLeads'])->name('export.all-leads');
         });
 
+        // Feedback Management
+        Route::prefix('feedback')->name('feedback.')->group(function () {
+            Route::get('/history', [FeedbackController::class, 'adminIndex'])->name('history');
+            Route::post('/{feedback}/status', [FeedbackController::class, 'updateStatus'])->name('update-status');
+        });
+
         // Settings
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');

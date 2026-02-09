@@ -123,6 +123,11 @@
                         Payment History
                     </a>
 
+                    <a href="{{ route('admin.feedback.history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.feedback.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-comments w-5 text-center mr-3"></i>
+                        User Feedback
+                    </a>
+
                     <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors">
                         <i class="fas fa-chart-bar w-5 text-center mr-3"></i>
                         API Usage

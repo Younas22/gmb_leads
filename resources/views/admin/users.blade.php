@@ -119,12 +119,17 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                     <i class="fas fa-crown mr-1"></i> Admin
                                 </span>
+                            @elseif($u->user_type === 'company')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-building mr-1"></i> Company
+                                </span>
                             @else
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                     <i class="fas fa-user mr-1"></i> User
                                 </span>
                             @endif
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($u->login_type === 'google')
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
