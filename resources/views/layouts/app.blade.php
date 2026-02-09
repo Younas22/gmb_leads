@@ -211,22 +211,29 @@
 
 
     <!-- Feedback Modal -->
+<style>
+    .thin-scrollbar::-webkit-scrollbar { width: 4px; }
+    .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .thin-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+    .thin-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    .thin-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
+</style>
 <div id="feedbackModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen p-2 sm:p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto thin-scrollbar">
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <div class="flex items-center">
-                    <div class="bg-blue-100 rounded-full p-2 mr-3">
-                        <i class="fas fa-comment-alt text-blue-600"></i>
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+                <div class="flex items-center min-w-0">
+                    <div class="bg-blue-100 rounded-full p-2 mr-2 sm:mr-3 flex-shrink-0">
+                        <i class="fas fa-comment-alt text-blue-600 text-sm sm:text-base"></i>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Share Your Feedback</h3>
-                        <p class="text-sm text-gray-500">Help us improve our lead generation tool</p>
+                    <div class="min-w-0">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 truncate">Share Your Feedback</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 truncate">Help us improve our lead generation tool</p>
                     </div>
                 </div>
-                <button onclick="closeFeedbackModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
+                <button onclick="closeFeedbackModal()" class="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2">
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
                 </button>
             </div>
 

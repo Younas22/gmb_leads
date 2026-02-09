@@ -162,77 +162,65 @@
             </div>
         </header>
 
-        <!-- Content -->
         <main class="flex-1 px-4 sm:px-8 py-10 sm:py-16">
-            <div class="max-w-4xl mx-auto card-animate">
+    <div class="max-w-4xl mx-auto card-animate">
 
-                <!-- Page Header -->
-                <div class="text-center mb-10 sm:mb-14">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-xl mb-5" style="background: linear-gradient(135deg, #f97316, #1d4ed8); box-shadow: 0 10px 25px -5px rgba(249,115,22,0.3);">
-                        <i class="fas fa-undo-alt text-white text-2xl"></i>
-                    </div>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Refund Policy</h1>
-                    <p class="text-gray-500 text-base">Effective Date: February 9, 2026</p>
-                    <div class="flex items-center justify-center gap-3 mt-4">
-                        <a href="{{ route('terms') }}" class="text-xs font-medium text-primary-orange hover:text-dark-orange transition-colors">Terms of Service</a>
-                        <span class="text-gray-300">|</span>
-                        <a href="{{ route('privacy.policy') }}" class="text-xs font-medium text-primary-orange hover:text-dark-orange transition-colors">Privacy Policy</a>
-                    </div>
-                </div>
-
-                <!-- Content Card -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
-                    <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #f97316, #1d4ed8, #f97316);"></div>
-
-                    <div class="p-6 sm:p-10 lg:p-12 policy-content">
-
-                        <p>CustomerNearme offers digital SaaS services. Please read our refund policy carefully before making a purchase.</p>
-
-                        <h3><span class="num">1</span> Free Trial</h3>
-                        <p>We offer a free trial on selected plans so users can evaluate the service before purchasing.</p>
-
-                        <h3><span class="num">2</span> Subscription Payments</h3>
-                        <p>Monthly and yearly subscription payments are non-refundable once the billing cycle has started.</p>
-                        <p>You may cancel your subscription at any time to prevent future charges.</p>
-
-                        <h3><span class="num">3</span> One-Time / Lifetime Plans</h3>
-                        <p>Payments for one-time or lifetime plans are non-refundable, unless required by law.</p>
-
-                        <h3><span class="num">4</span> Exceptions</h3>
-                        <p>Refunds may be considered only in cases of:</p>
-                        <ul>
-                            <li>Duplicate charges</li>
-                            <li>Technical billing errors</li>
-                        </ul>
-                        <p>All refund requests must be submitted within <strong>7 days</strong> of the transaction.</p>
-
-                        <h3><span class="num">5</span> Payment Processing</h3>
-                        <p>All payments and refunds are handled by Paddle, our Merchant of Record. Approved refunds will be processed back to the original payment method.</p>
-
-                        <h3><span class="num">6</span> Contact</h3>
-                        <p>For refund-related questions, contact us at:</p>
-                        <div class="flex items-center gap-3 p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(29,78,216,0.08)); border: 1px solid rgba(249,115,22,0.15);">
-                            <i class="fas fa-envelope text-primary-orange"></i>
-                            <a href="mailto:info@customernearme.com" class="text-sm font-semibold text-primary-orange hover:text-dark-orange transition-colors">info@customernearme.com</a>
-                        </div>
-
-                        <!-- Important Notice -->
-                        <div class="mt-8 p-5 bg-amber-50 border border-amber-100 rounded-xl">
-                            <div class="flex items-start gap-3">
-                                <div class="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-exclamation-triangle text-white text-sm"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-bold text-amber-900 mb-1">Important Notice</h4>
-                                    <p class="text-sm text-amber-800 mb-0">We strongly recommend using the free trial to evaluate the service before purchasing a plan. Once a payment is processed, refunds are only available in exceptional circumstances as described above.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+        <!-- Page Header -->
+        <div class="text-center mb-10 sm:mb-14">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-xl mb-5" style="background: linear-gradient(135deg, #f97316, #1d4ed8); box-shadow: 0 10px 25px -5px rgba(249,115,22,0.3);">
+                <i class="fas fa-undo-alt text-white text-2xl"></i>
             </div>
-        </main>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">Refund Policy</h1>
+            <p class="text-gray-500 text-base">Effective Date: February 9, 2026</p>
+            <div class="flex items-center justify-center gap-3 mt-4">
+                <a href="{{ route('terms') }}" class="text-xs font-medium text-primary-orange hover:text-dark-orange transition-colors">Terms of Service</a>
+                <span class="text-gray-300">|</span>
+                <a href="{{ route('privacy.policy') }}" class="text-xs font-medium text-primary-orange hover:text-dark-orange transition-colors">Privacy Policy</a>
+            </div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
+            <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #f97316, #1d4ed8, #f97316);"></div>
+
+            <div class="p-6 sm:p-10 lg:p-12 policy-content">
+
+                <p>CustomerNearme offers digital SaaS services. Please read our refund policy carefully before making a purchase.</p>
+
+                <h3><span class="num">1</span> Free Trial</h3>
+                <p>We offer a free trial on selected plans so users can evaluate the service before purchasing.</p>
+
+                <h3><span class="num">2</span> Subscription & One-Time Payments</h3>
+                <p>All payments, whether subscription-based or one-time (lifetime) plans, are eligible for a <b>full refund within 14 days of purchase</b>, no questions asked. After 14 days, all sales are final.</p>
+
+                <h3><span class="num">3</span> Payment Processing</h3>
+                <p>All payments and refunds are handled by Paddle, our Merchant of Record. Approved refunds will be processed back to the original payment method.</p>
+
+                <h3><span class="num">4</span> Contact</h3>
+                <p>For refund-related questions, contact us at:</p>
+                <div class="flex items-center gap-3 p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(29,78,216,0.08)); border: 1px solid rgba(249,115,22,0.15);">
+                    <i class="fas fa-envelope text-primary-orange"></i>
+                    <a href="mailto:info@customernearme.com" class="text-sm font-semibold text-primary-orange hover:text-dark-orange transition-colors">info@customernearme.com</a>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="mt-8 p-5 bg-amber-50 border border-amber-100 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-amber-900 mb-1">Important Notice</h4>
+                            <p class="text-sm text-amber-800 mb-0">We strongly recommend using the free trial to evaluate the service before purchasing a plan. Refunds are available <b>unconditionally within 14 days</b> of purchase. After this period, payments are final.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
 
         <!-- Footer -->
         <footer class="py-6 px-4 sm:px-8 border-t border-gray-100">
