@@ -817,7 +817,7 @@
                     'email_support', 'api_access', 'bulk_export',
                     'crm_integration', 'priority_support', 'dedicated_manager',
                     'team_analytics', 'white_label', 'custom_branding',
-                    'sla_guarantee', 'custom_integrations', 'onboarding_training',
+                    'sla_guarantee', 'custom_integrations', 'onboarding_training','future_updates','advance_filter'
                 ];
                 $pricingTabs = [
                     ['type' => 'user',    'packages' => $userPackages],
