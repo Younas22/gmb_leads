@@ -53,7 +53,7 @@
                         <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">
                             Outdated & Dead Leads?
                         </span>
-                        <span class="absolute bottom-1 left-0 w-full h-3 bg-orange-200/50 -z-0"></span>
+                        <span class="absolute bottom-1 left-0 w-full h-4 bg-orange-200 -z-0"></span>
                     </span>
                 </h1>
 
@@ -67,27 +67,27 @@
                 </p>
 
                 <!-- Feature Micro-Highlights -->
-                <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-2 mb-5">
-                    <div class="inline-flex items-center gap-1.5 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
-                        <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <div class="flex flex-row flex-wrap justify-center gap-1.5 sm:gap-2 mb-5">
+                    <div class="inline-flex items-center gap-1 sm:gap-1.5 bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-sm border border-gray-200">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
-                        <span class="text-xs sm:text-sm font-medium text-gray-700">Active Businesses Only</span>
+                        <span class="text-[10px] sm:text-sm font-medium text-gray-700">Active Businesses Only</span>
                     </div>
 
-                    <div class="inline-flex items-center gap-1.5 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
-                        <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="inline-flex items-center gap-1 sm:gap-1.5 bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-sm border border-gray-200">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                         </svg>
-                        <span class="text-xs sm:text-sm font-medium text-gray-700">Real Google Maps Data</span>
+                        <span class="text-[10px] sm:text-sm font-medium text-gray-700">Real Google Maps Data</span>
                     </div>
 
-                    <div class="inline-flex items-center gap-1.5 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
-                        <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="inline-flex items-center gap-1 sm:gap-1.5 bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-sm border border-gray-200">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-orange-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/>
                             <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/>
                         </svg>
-                        <span class="text-xs sm:text-sm font-medium text-gray-700">Saved Forever</span>
+                        <span class="text-[10px] sm:text-sm font-medium text-gray-700">Saved Forever</span>
                     </div>
                 </div>
 
