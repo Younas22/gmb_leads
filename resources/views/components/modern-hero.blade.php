@@ -103,7 +103,7 @@
                         </span>
                     </a>
 
-                    <a href="#features" class="group inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <a href="#how-it-works" class="group inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 shadow-sm hover:shadow-md">
                         <span class="flex items-center gap-2">
                             See How It Works
                             <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
