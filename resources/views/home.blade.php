@@ -831,8 +831,16 @@
             <div class="mt-14 pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
                 <div class="grid sm:grid-cols-2 {{ $tab['type'] === 'user' ? 'lg:grid-cols-4' : 'lg:grid-cols-4' }} gap-6">
                     @foreach($tab['packages'] as $package)
-                    <div class="rounded-xl p-8 flex flex-col {{ $package->is_popular ? 'bg-primary-blue text-white relative transform scale-105' : 'bg-white border-2 border-gray-200 hover:border-primary-blue transition-colors' }}">
-                        @if($package->is_popular)
+                    @php
+                        $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
+                        $borderClass = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
+                    @endphp
+                    <div class="rounded-xl p-8 flex flex-col {{ $package->is_popular ? 'bg-primary-blue text-white relative transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
+                        @if($isCurrentPlan)
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                Your Active Plan
+                            </div>
+                        @elseif($package->is_popular)
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
                                 Popular
                             </div>
@@ -902,7 +910,11 @@
                             @endforeach
                         </ul>
 
-                        @if($package->price == 0)
+                        @if($isCurrentPlan)
+                        <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                            Current Plan
+                        </button>
+                        @elseif($package->price == 0)
                         <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                             Start Free
                         </a>
