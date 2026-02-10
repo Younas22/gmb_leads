@@ -140,10 +140,10 @@
     var currencyCode = '{{ $currency["code"] ?? "USD" }}';
 
     var paymentDetailsMap = {
-        'jazzcash':  'Send ' + currencyCode + ' [AMOUNT] to JazzCash account:\nNumber: 0312-1234567\nReference: BusinessFinder',
-        'easypaisa': 'Send ' + currencyCode + ' [AMOUNT] to Easypaisa account:\nNumber: 0311-1234567\nReference: BusinessFinder',
-        'bank':      'Transfer ' + currencyCode + ' [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: BusinessFinder Pvt Ltd\nAccount No: 1234567890123',
-        'nayapay':   'Send ' + currencyCode + ' [AMOUNT] to NayaPay:\nID: admin@businessfinder.pk\nReference: BusinessFinder'
+        'jazzcash':  'Send ' + currencyCode + ' [AMOUNT] to JazzCash account:\nNumber: 03047222723\nName: Muhammad Yousaf',
+        'easypaisa': 'Send ' + currencyCode + ' [AMOUNT] to Easypaisa account:\nNumber: 03174340853\nName: Muhammad Younas',
+        'bank':      'Transfer ' + currencyCode + ' [AMOUNT] to:\nBank: Meezan Bank\nAccount Title: MUHAMMAD YOUNAS\nAccount No: 26980113699163\nIBAN: PK38MEZN0026980113699163',
+        'nayapay':   'Send ' + currencyCode + ' [AMOUNT] to NayaPay:\nNumber: 03174340853\nName: Muhammad Younas'
     };
 
     // For home page - handles both auth check and modal open
