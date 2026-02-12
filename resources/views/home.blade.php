@@ -344,6 +344,16 @@
     }
     </script>
 
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z0E0SPN8D3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Z0E0SPN8D3');
+</script>
+
     <title>{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Find Quality Business Leads Fast via Google Maps</title>
 </head>
 </head>
