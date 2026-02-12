@@ -811,7 +811,7 @@ use App\Models\EmailTemplate;
                                     <div>
                                         <h5 class="font-medium text-gray-900 text-xs">User Registration</h5>
                                         <p class="text-[10px] text-gray-600">Allow new signups</p>
-                                    </div>
+                                    </div> 
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" id="allow_registration" name="allow_registration" value="1"
                                                {{ Setting::get('allow_registration', true) ? 'checked' : '' }}
@@ -819,20 +819,6 @@ use App\Models\EmailTemplate;
                                         <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
                                     </label>
                                 </div>
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div>
-                                        <h5 class="font-medium text-gray-900 text-xs">Email Verification</h5>
-                                        <p class="text-[10px] text-gray-600">Require email verify</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" id="email_verification" name="email_verification" value="1"
-                                               {{ Setting::get('email_verification', false) ? 'checked' : '' }}
-                                               class="sr-only peer">
-                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <div>
                                         <h5 class="font-medium text-gray-900 text-xs">Company Registration</h5>
@@ -844,12 +830,6 @@ use App\Models\EmailTemplate;
                                                class="sr-only peer">
                                         <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600 relative"></div>
                                     </label>
-                                </div>
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                    <div>
-                                        <h5 class="font-medium text-gray-900 text-xs">&nbsp;</h5>
-                                        <p class="text-[10px] text-gray-600">&nbsp;</p>
-                                    </div>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">

@@ -186,9 +186,12 @@
             <p>Professional GMB Lead Generation Platform</p>
 
             <div class="social-links">
-                <a href="#">Facebook</a> |
-                <a href="#">Twitter</a> |
-                <a href="#">LinkedIn</a>
+                <a href="https://www.facebook.com/CustomerNearme">Facebook</a> |
+                <a href="https://x.com/CustomerNearme">Twitter</a> |
+                <a href="https://www.instagram.com/customernearme">Instagram</a>
+                <a href="https://www.linkedin.com/company/customernearme">LinkedIn</a>
+                <a href="https://www.youtube.com/@CustomerNearme">YouTube</a>
+                <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8">WhatsApp Group</a>
             </div>
 
             <div class="divider" style="background-color: #4a5568; margin: 20px auto; width: 80%;"></div>

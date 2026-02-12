@@ -171,12 +171,6 @@ class AuthController extends Controller
     private function sendVerificationEmail($user)
     {
         try {
-            // Check if email verification is enabled
-            if (!\App\Models\Setting::get('email_verification', false)) {
-                Log::info('Email verification is disabled. Skipping verification email for: ' . $user->email);
-                return;
-            }
-
             // Check if verify email template is enabled
             if (!\App\Models\Setting::get('enable_verify_email', true)) {
                 Log::info('Verify email template is disabled. Skipping verification email for: ' . $user->email);
