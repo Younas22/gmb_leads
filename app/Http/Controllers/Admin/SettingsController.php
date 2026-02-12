@@ -156,7 +156,6 @@ class SettingsController extends Controller
         Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
         Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
         Setting::set('allow_company_registration', $request->has('allow_company_registration') ? 1 : 0, 'boolean', 'general', 'Allow Company Registration');
-        Setting::set('email_verification', $request->has('email_verification') ? 1 : 0, 'boolean', 'general', 'Email Verification Required');
         Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
         Setting::set('cache_duration', $request->cache_duration ?? 60, 'integer', 'general', 'Cache Duration');
 
