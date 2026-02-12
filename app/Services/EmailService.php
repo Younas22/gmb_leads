@@ -282,6 +282,7 @@ class EmailService
                 'start_date' => $subscriptionData['start_date'] ?? date('F d, Y'),
                 'renewal_date' => $subscriptionData['renewal_date'] ?? date('F d, Y', strtotime('+1 month')),
                 'searches_limit' => $subscriptionData['searches_limit'] ?? 'Unlimited',
+                'saved_lists' => $subscriptionData['saved_lists'] ?? 'Unlimited',
                 'exports_limit' => $subscriptionData['exports_limit'] ?? 'Unlimited',
                 'dashboard_url' => url('/dashboard'),
             ]
