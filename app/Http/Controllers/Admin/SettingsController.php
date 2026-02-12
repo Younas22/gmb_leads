@@ -732,6 +732,7 @@ class SettingsController extends Controller
                     'end_date' => date('F d, Y'),
                     'searches_limit' => '500',
                     'exports_limit' => '100',
+                    'saved_lists' => '1000',
                     'start_time' => date('F d, Y h:i A'),
                     'end_time' => date('F d, Y h:i A', strtotime('+3 hours')),
                     'duration' => '2-3 hours',
