@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - CustomerNearme</title>
+    <title>Terms of Service - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}</title>
+
+    <meta name="description" content="Terms of Service for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Read our terms and conditions governing the use of our Google Maps lead generation platform." />
+    <meta name="keywords" content="terms of service, CustomerNearme terms, user agreement, terms and conditions, lead generation terms" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <link rel="canonical" href="{{ url('/terms-and-conditions') }}" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Terms of Service - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta property="og:description" content="Terms of Service for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Read our terms and conditions for using the platform." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url('/terms-and-conditions') }}" />
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Terms of Service - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta name="twitter:description" content="Terms of Service for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Read our terms and conditions." />
 
     @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');

@@ -87,8 +87,8 @@
     <!-- 1. ORGANIZATION SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Organization",
+      "@@context": "https://schema.org",
+      "@@type": "Organization",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "url": "{{ url('/') }}",
       "logo": "{{ asset('public/' . \App\Models\Setting::get('site_logo', 'assets/images/logo.png')) }}",
@@ -101,7 +101,7 @@
         "https://www.linkedin.com/company/customernearme"
       ],
       "contactPoint": {
-        "@type": "ContactPoint",
+        "@@type": "ContactPoint",
         "contactType": "Customer Support",
         "telephone": "+92-346-0820722",
         "email": "info@customernearme.com",
@@ -109,7 +109,7 @@
         "availableLanguage": "en-US"
       },
       "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "addressCountry": "PK",
         "addressLocality": "Khanewal",
         "addressRegion": "Punjab"
@@ -121,8 +121,8 @@
     <!-- 2. SAASPRODUCT SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "SaaSProduct",
+      "@@context": "https://schema.org",
+      "@@type": "SaaSProduct",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "description": "Real-time Google Maps lead generation tool for direct client hunting. Find verified business data for cold email, sales, and lead generation campaigns.",
       "url": "{{ url('/') }}",
@@ -133,7 +133,7 @@
       ],
       "operatingSystem": "Web-based",
       "offers": {
-        "@type": "AggregateOffer",
+        "@@type": "AggregateOffer",
         "priceCurrency": "USD",
         "lowPrice": "0",
         "highPrice": "99",
@@ -154,7 +154,7 @@
       "inLanguage": "en-US",
       "isAccessibleForFree": true,
       "aggregateRating": {
-        "@type": "AggregateRating",
+        "@@type": "AggregateRating",
         "ratingValue": "4.8",
         "ratingCount": "247",
         "bestRating": "5",
@@ -166,46 +166,46 @@
     <!-- 3. FAQPAGE SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
+      "@@context": "https://schema.org",
+      "@@type": "FAQPage",
       "mainEntity": [
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "How fresh and up-to-date is the data in CustomerNearme?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "The data is pulled in real-time from Google Maps every time you run a search. Unlike static lead databases that go stale within weeks, our results reflect the current state of Google Maps at the moment of your query. This ensures you never waste time on closed or outdated listings when doing direct client hunting."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "What business information do I get for each lead?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Each lead includes business name, verified phone number, full address, Google Maps link, website URL, social media links, star rating, total review count, and business category. This gives you everything you need to qualify and reach out to prospects without additional research."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Can I export leads from CustomerNearme?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Yes, you can export your saved leads in CSV and Excel formats with a single click. The files are clean and ready to import directly into your CRM, email marketing platform, or cold email tools."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Are my saved leads stored permanently?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "Yes. Every lead you save is permanently stored in your account. You can revisit, filter, tag, and export them whenever you need — your lead data is always there for you."
           }
         },
         {
-          "@type": "Question",
+          "@@type": "Question",
           "name": "Who should use CustomerNearme?",
           "acceptedAnswer": {
-            "@type": "Answer",
+            "@@type": "Answer",
             "text": "CustomerNearme is built for anyone who needs reliable business leads. This includes digital marketers, SEO agencies, freelancers, cold emailers, sales teams, real estate agents, and local service providers."
           }
         }
@@ -216,9 +216,9 @@
     <!-- 4. WEBPAGE SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": "{{ url('/') }}",
+      "@@context": "https://schema.org",
+      "@@type": "WebPage",
+      "@@id": "{{ url('/') }}",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Real Google Maps Business Leads for Direct Client Hunting",
       "description": "Find verified business leads directly from Google Maps for cold email, sales, and direct client hunting. Real-time data, no fake scraping.",
       "url": "{{ url('/') }}",
@@ -227,11 +227,11 @@
       "dateModified": "{{ date('Y-m-d') }}",
       "inLanguage": "en-US",
       "isPartOf": {
-        "@type": "Website",
+        "@@type": "Website",
         "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
       },
       "mainEntity": {
-        "@type": "SaaSProduct",
+        "@@type": "SaaSProduct",
         "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
       }
     }
@@ -240,35 +240,35 @@
     <!-- 5. BREADCRUMBLIST SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
+      "@@context": "https://schema.org",
+      "@@type": "BreadcrumbList",
       "itemListElement": [
         {
-          "@type": "ListItem",
+          "@@type": "ListItem",
           "position": 1,
           "name": "Home",
           "item": "{{ url('/') }}"
         },
         {
-          "@type": "ListItem",
+          "@@type": "ListItem",
           "position": 2,
           "name": "Features",
           "item": "{{ url('/') }}#features"
         },
         {
-          "@type": "ListItem",
+          "@@type": "ListItem",
           "position": 3,
           "name": "How It Works",
           "item": "{{ url('/') }}#how-it-works"
         },
         {
-          "@type": "ListItem",
+          "@@type": "ListItem",
           "position": 4,
           "name": "Pricing",
           "item": "{{ url('/') }}#pricing"
         },
         {
-          "@type": "ListItem",
+          "@@type": "ListItem",
           "position": 5,
           "name": "FAQ",
           "item": "{{ url('/') }}#faq"
@@ -280,21 +280,21 @@
     <!-- 6. PRODUCT SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Product",
+      "@@context": "https://schema.org",
+      "@@type": "Product",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "description": "Real-time Google Maps business lead generation tool for direct client hunting and cold email campaigns",
       "brand": {
-        "@type": "Brand",
+        "@@type": "Brand",
         "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
       },
       "aggregateRating": {
-        "@type": "AggregateRating",
+        "@@type": "AggregateRating",
         "ratingValue": "4.8",
         "ratingCount": "247"
       },
       "offers": {
-        "@type": "AggregateOffer",
+        "@@type": "AggregateOffer",
         "priceCurrency": "USD",
         "lowPrice": "0",
         "highPrice": "99"
@@ -305,12 +305,12 @@
     <!-- 7. LOCALBUSINESS SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
+      "@@context": "https://schema.org",
+      "@@type": "LocalBusiness",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "description": "Global lead generation platform providing Google Maps business data for direct client hunting",
       "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "addressCountry": "PK",
         "addressLocality": "Khanewal",
         "addressRegion": "Punjab"
@@ -319,7 +319,7 @@
       "email": "info@customernearme.com",
       "url": "{{ url('/') }}",
       "serviceArea": {
-        "@type": "Place",
+        "@@type": "Place",
         "name": "Worldwide"
       }
     }
@@ -328,13 +328,13 @@
     <!-- 8. ACTION SCHEMA -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "Action",
+      "@@context": "https://schema.org",
+      "@@type": "Action",
       "name": "Sign Up for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "url": "{{ route('auth.show') }}",
       "description": "Start finding Google Maps business leads for direct client hunting",
       "target": {
-        "@type": "EntryPoint",
+        "@@type": "EntryPoint",
         "urlTemplate": "{{ route('auth.show') }}",
         "actionPlatform": [
           "DesktopWebPlatform",

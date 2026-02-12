@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refund Policy - CustomerNearme</title>
+    <title>Refund Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}</title>
+
+    <meta name="description" content="Read the refund policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn about our refund process, eligibility, and how to request a refund for your subscription." />
+    <meta name="keywords" content="refund policy, CustomerNearme refund, subscription refund, money back policy, cancellation policy" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <link rel="canonical" href="{{ url('/refund-policy') }}" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Refund Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta property="og:description" content="Read the refund policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn about our refund process, eligibility, and conditions." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url('/refund-policy') }}" />
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Refund Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta name="twitter:description" content="Read the refund policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn about our refund process and eligibility." />
 
     @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');

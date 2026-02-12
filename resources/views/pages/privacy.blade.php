@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - CustomerNearme</title>
+    <title>Privacy Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}</title>
+
+    <meta name="description" content="Privacy Policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn how we collect, use, and protect your personal data on our Google Maps lead generation platform." />
+    <meta name="keywords" content="privacy policy, CustomerNearme privacy, data protection, personal data, GDPR, user privacy" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <link rel="canonical" href="{{ url('/privacy-policy') }}" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Privacy Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta property="og:description" content="Privacy Policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn how we collect, use, and protect your personal data." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url('/privacy-policy') }}" />
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Privacy Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta name="twitter:description" content="Privacy Policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn how we handle your data." />
 
     @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');

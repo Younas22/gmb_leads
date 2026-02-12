@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /user
+Disallow: /auth/google
+Disallow: /auth/google/callback
+Disallow: /auth/verify-email
+Disallow: /auth/forgot-password
+Disallow: /auth/reset-password
+Disallow: /api/
+
+Sitemap: https://customernearme.com/sitemap.xml
