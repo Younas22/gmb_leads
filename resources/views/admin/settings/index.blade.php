@@ -806,6 +806,18 @@ use App\Models\EmailTemplate;
                                     <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-600 relative"></div>
                                 </label>
                             </div>
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 text-xs">Dynamic Email Templates</h5>
+                                    <p class="text-[10px] text-gray-600">Use dynamic email templates in emails</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="use_dynamic_emails" name="use_dynamic_emails" value="1"
+                                           {{ Setting::get('use_dynamic_emails', false) ? 'checked' : '' }}
+                                           class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 relative"></div>
+                                </label>
+                            </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                     <div>

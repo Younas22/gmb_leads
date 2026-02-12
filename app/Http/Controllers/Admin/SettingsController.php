@@ -154,6 +154,7 @@ class SettingsController extends Controller
         ]);
 
         Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
+        Setting::set('use_dynamic_emails', $request->has('use_dynamic_emails') ? 1 : 0, 'boolean', 'general', 'Use Dynamic Email Templates');
         Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
         Setting::set('allow_company_registration', $request->has('allow_company_registration') ? 1 : 0, 'boolean', 'general', 'Allow Company Registration');
         Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
