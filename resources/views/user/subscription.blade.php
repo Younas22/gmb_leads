@@ -44,7 +44,24 @@
                     @endif
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Monthly Searches -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-600">Monthly Searches</span>
+                            <span class="text-sm font-semibold {{ $usageData['monthly_searches']['percentage'] >= 90 ? 'text-red-600' : 'text-green-600' }}">
+                                {{ number_format($usageData['monthly_searches']['used']) }}/{{ number_format($usageData['monthly_searches']['limit']) }}
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="{{ $usageData['monthly_searches']['percentage'] >= 90 ? 'bg-red-500' : 'bg-green-500' }} h-2 rounded-full"
+                                style="width: {{ min($usageData['monthly_searches']['percentage'], 100) }}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ number_format($usageData['monthly_searches']['remaining']) }} searches remaining
+                        </p>
+                    </div>
+
                     <!-- Monthly Leads -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
@@ -62,39 +79,44 @@
                         </p>
                     </div>
 
-                    <!-- Daily Searches -->
+                    <!-- Saved Lists -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-600">Daily Searches</span>
-                            <span class="text-sm font-semibold {{ $usageData['daily_searches']['percentage'] >= 90 ? 'text-red-600' : 'text-green-600' }}">
-                                {{ number_format($usageData['daily_searches']['used']) }}/{{ number_format($usageData['daily_searches']['limit']) }}
+                            <span class="text-sm font-medium text-gray-600">Saved Lists</span>
+                            <span class="text-sm font-semibold {{ $usageData['saved_lists']['percentage'] >= 90 ? 'text-red-600' : 'text-blue-600' }}">
+                                {{ number_format($usageData['saved_lists']['used']) }}/{{ number_format($usageData['saved_lists']['limit']) }}
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="{{ $usageData['daily_searches']['percentage'] >= 90 ? 'bg-red-500' : 'bg-green-500' }} h-2 rounded-full"
-                                style="width: {{ min($usageData['daily_searches']['percentage'], 100) }}%"></div>
+                            <div class="{{ $usageData['saved_lists']['percentage'] >= 90 ? 'bg-red-500' : 'bg-blue-500' }} h-2 rounded-full"
+                                style="width: {{ min($usageData['saved_lists']['percentage'], 100) }}%"></div>
                         </div>
                         <p class="text-xs text-gray-500 mt-1">
-                            {{ number_format($usageData['daily_searches']['remaining']) }} searches remaining today
+                            @if($usageData['saved_lists']['limit'] >= 999999)
+                                Unlimited saved lists
+                            @else
+                                {{ number_format($usageData['saved_lists']['remaining']) }} lists remaining
+                            @endif
                         </p>
                     </div>
 
-                    <!-- API Keys -->
+                    <!-- Monthly Export Lists -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-600">API Keys</span>
-                            <span class="text-sm text-blue-600 font-semibold">
-                                {{ $usageData['api_keys']['used'] }}/{{ $usageData['api_keys']['limit'] }}
+                            <span class="text-sm font-medium text-gray-600">Monthly Exports</span>
+                            <span class="text-sm font-semibold {{ $usageData['monthly_exports']['percentage'] >= 90 ? 'text-red-600' : 'text-purple-600' }}">
+                                {{ number_format($usageData['monthly_exports']['used']) }}/{{ number_format($usageData['monthly_exports']['limit']) }}
                             </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: {{ min($usageData['api_keys']['percentage'], 100) }}%"></div>
+                            <div class="{{ $usageData['monthly_exports']['percentage'] >= 90 ? 'bg-red-500' : 'bg-purple-500' }} h-2 rounded-full"
+                                style="width: {{ min($usageData['monthly_exports']['percentage'], 100) }}%"></div>
                         </div>
                         <p class="text-xs text-gray-500 mt-1">
-                            @if($usageData['api_keys']['limit'] >= 999999)
-                                Unlimited API keys
+                            @if($usageData['monthly_exports']['limit'] >= 999999)
+                                Unlimited exports
                             @else
-                                Upgrade for more keys
+                                {{ number_format($usageData['monthly_exports']['remaining']) }} exports remaining
                             @endif
                         </p>
                     </div>
@@ -512,9 +534,9 @@
                     if ($usageData['monthly_leads']['percentage'] >= 85) {
                         $showWarning = true;
                         $warningMessage = "You've used " . $usageData['monthly_leads']['percentage'] . "% of your monthly lead quota. Consider upgrading to avoid interruptions.";
-                    } elseif ($usageData['daily_searches']['percentage'] >= 85) {
+                    } elseif ($usageData['monthly_searches']['percentage'] >= 85) {
                         $showWarning = true;
-                        $warningMessage = "You've used " . $usageData['daily_searches']['percentage'] . "% of your daily search quota. Upgrade for unlimited searches.";
+                        $warningMessage = "You've used " . $usageData['monthly_searches']['percentage'] . "% of your monthly search quota. Upgrade for unlimited searches.";
                     } elseif ($currentPlan && $currentPlan['is_pending']) {
                         $showWarning = true;
                         $warningMessage = "Your subscription is pending approval. You'll have limited access until your payment is verified.";

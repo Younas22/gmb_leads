@@ -190,8 +190,8 @@
                 <h3><span class="num">1</span> Free Trial</h3>
                 <p>We offer a free trial on selected plans so users can evaluate the service before purchasing.</p>
 
-                <h3><span class="num">2</span> Subscription & One-Time Payments</h3>
-                <p>All payments, whether subscription-based or one-time (lifetime) plans, are eligible for a <b>full refund within 14 days of purchase</b>, no questions asked. After 14 days, all sales are final.</p>
+                <h3><span class="num">2</span> Monthly Subscription Plans</h3>
+                <p>All subscription payments are eligible for a <b>full refund within 14 days of purchase</b>, no questions asked. After 14 days, all sales are final.</p>
 
                 <h3><span class="num">3</span> Payment Processing</h3>
                 <p>All payments and refunds are handled by Paddle, our Merchant of Record. Approved refunds will be processed back to the original payment method.</p>

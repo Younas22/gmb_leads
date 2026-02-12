@@ -68,7 +68,6 @@ class SubscriptionController extends Controller
 
         // Calculate usage statistics
         $currentMonth = now()->startOfMonth();
-        $today = now()->startOfDay();
 
         // Get all user IDs that should be counted for this quota (company + all team members)
         // Since team members can't access this page, $user is always the company owner
@@ -83,18 +82,24 @@ class SubscriptionController extends Controller
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Daily searches - count searches today for company + all team members
-        $dailySearchesUsed = \App\Models\SearchHistory::whereIn('user_id', $userIds)
-            ->where('created_at', '>=', $today)
-            ->count();
-
         // Get limits from current package or default to 0 (no access without subscription)
         $monthlyLeadsLimit = 0; // Default: no subscription
-        $dailySearchesLimit = 0; // Default: no subscription
-        $apiKeysLimit = 0; // Default: no subscription
+        $monthlySearchesLimit = 0; // Default: no subscription (gmb_searches is monthly limit)
+        $savedListsLimit = 0; // Default: no subscription
+        $exportLeadsLimit = 0; // Default: no subscription
 
-        // Get actual API keys count from database (company + all team members)
-        $apiKeysUsed = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
+        // Monthly searches count
+        $monthlySearchesUsed = \App\Models\SearchHistory::whereIn('user_id', $userIds)
+            ->where('created_at', '>=', $currentMonth)
+            ->count();
+
+        // Saved leads count (total)
+        $savedListsUsed = \App\Models\SavedLead::whereIn('user_id', $userIds)->count();
+
+        // Monthly exports count
+        $monthlyExportsUsed = \App\Models\ExportHistory::whereIn('user_id', $userIds)
+            ->where('created_at', '>=', $currentMonth)
+            ->count();
 
         if ($currentPlan && $currentPlan['package']) {
             $features = $currentPlan['package']->features;
@@ -104,10 +109,13 @@ class SubscriptionController extends Controller
                     $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
                 if ($feature->feature_key === 'gmb_searches') {
-                    $dailySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                    $monthlySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
-                if ($feature->feature_key === 'api_limit') {
-                    $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                if ($feature->feature_key === 'saved_lists') {
+                    $savedListsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                }
+                if ($feature->feature_key === 'export_leads') {
+                    $exportLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
             }
         }
@@ -155,22 +163,29 @@ class SubscriptionController extends Controller
 
         // Usage data
         $usageData = [
+            'monthly_searches' => [
+                'used' => $monthlySearchesUsed,
+                'limit' => $monthlySearchesLimit,
+                'remaining' => max(0, $monthlySearchesLimit - $monthlySearchesUsed),
+                'percentage' => $monthlySearchesLimit > 0 ? round(($monthlySearchesUsed / $monthlySearchesLimit) * 100) : 0,
+            ],
             'monthly_leads' => [
                 'used' => $monthlyLeadsUsed,
                 'limit' => $monthlyLeadsLimit,
                 'remaining' => max(0, $monthlyLeadsLimit - $monthlyLeadsUsed),
                 'percentage' => $monthlyLeadsLimit > 0 ? round(($monthlyLeadsUsed / $monthlyLeadsLimit) * 100) : 0,
             ],
-            'daily_searches' => [
-                'used' => $dailySearchesUsed,
-                'limit' => $dailySearchesLimit,
-                'remaining' => max(0, $dailySearchesLimit - $dailySearchesUsed),
-                'percentage' => $dailySearchesLimit > 0 ? round(($dailySearchesUsed / $dailySearchesLimit) * 100) : 0,
+            'saved_lists' => [
+                'used' => $savedListsUsed,
+                'limit' => $savedListsLimit,
+                'remaining' => max(0, $savedListsLimit - $savedListsUsed),
+                'percentage' => $savedListsLimit > 0 ? round(($savedListsUsed / $savedListsLimit) * 100) : 0,
             ],
-            'api_keys' => [
-                'used' => $apiKeysUsed,
-                'limit' => $apiKeysLimit,
-                'percentage' => $apiKeysLimit > 0 ? round(($apiKeysUsed / $apiKeysLimit) * 100) : 0,
+            'monthly_exports' => [
+                'used' => $monthlyExportsUsed,
+                'limit' => $exportLeadsLimit,
+                'remaining' => max(0, $exportLeadsLimit - $monthlyExportsUsed),
+                'percentage' => $exportLeadsLimit > 0 ? round(($monthlyExportsUsed / $exportLeadsLimit) * 100) : 0,
             ],
         ];
 

@@ -80,7 +80,6 @@
         </div>
 
         <!-- Row 2: Radius, Max Reviews, Review Within Days, Search Button -->
-        @php $currentPlan = $packageSlug ?? 'starter'; @endphp
         <div class="p-4 pt-3">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
@@ -109,7 +108,7 @@
 
                 <div class="relative">
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-calendar-alt text-[10px] mr-1"></i>Review Within Days</label>
-                    @if($currentPlan === 'starter')
+                    @if(!auth()->user()->hasFeature('latest_review_insights'))
                         <div class="relative">
                             <input type="number"
                                    value="0"

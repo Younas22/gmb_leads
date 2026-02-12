@@ -189,7 +189,7 @@
                         <p>Welcome to CustomerNearme. By accessing or using our website, application, or services, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.</p>
 
                         <h3><span class="num">1</span> About the Service</h3>
-                        <p>CustomerNearme is a SaaS-based lead generation platform that helps users discover and manage active business listings using publicly available Google Maps data. The service is provided on a subscription and/or one-time payment basis.</p>
+                        <p>CustomerNearme is a SaaS-based lead generation platform that helps users discover and manage active business listings using publicly available Google Maps data. The service is provided on a monthly subscription basis.</p>
 
                         <h3><span class="num">2</span> Eligibility</h3>
                         <p>You must be at least 18 years old to use CustomerNearme. By using our service, you confirm that you meet this requirement.</p>

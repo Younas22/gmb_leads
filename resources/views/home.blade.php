@@ -365,7 +365,7 @@
 
             <!-- Features Grid -->
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Google Places Integration -->
+                <!-- Google Maps Business Data -->
                 <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-orange/30 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -375,7 +375,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Google Places Integration</h3>
+                            <h3 class="text-base font-bold text-gray-900 mb-1">Google Maps Integration</h3>
                             <p class="text-sm text-gray-500 leading-relaxed">Real-time verified business data pulled directly from Google Maps.</p>
                         </div>
                     </div>
@@ -460,180 +460,180 @@
     </section>
 
     <!-- Who Is This For -->
-    <section class="py-20 bg-white">
+    <section class="py-12 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Section Heading -->
-            <div class="text-center mb-14">
-                <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Target Audience</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Built for People Who Need Clients</h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} is perfect for:</p>
+            <div class="text-center mb-8">
+                <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-2">Target Audience</p>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Built for People Who Need Clients</h2>
+                <p class="text-base text-gray-500 max-w-2xl mx-auto">{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} is perfect for:</p>
             </div>
 
             <!-- Audience Grid -->
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-12">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
 
     <!-- Digital Marketers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Digital Marketers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Digital Marketers</h3>
     </div>
 
     <!-- SEO Agencies -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">SEO Agencies</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">SEO Agencies</h3>
     </div>
 
     <!-- Freelancers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Freelancers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Freelancers</h3>
     </div>
 
     <!-- Cold Emailers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Cold Emailers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Cold Emailers</h3>
     </div>
 
     <!-- Sales Teams -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Sales Teams</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Sales Teams</h3>
     </div>
 
     <!-- Real Estate & Insurance -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Real Estate & Insurance</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Real Estate & Insurance</h3>
     </div>
 
     <!-- Local Service Providers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Local Service Providers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Local Service Providers</h3>
     </div>
 
     <!-- Startups & Entrepreneurs -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2L2 7l10 5 10-5-10-5z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Startups & Entrepreneurs</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Startups & Entrepreneurs</h3>
     </div>
 
     <!-- Marketing Consultants / Agencies -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18h14V3H5z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6v2H9V7zM9 11h6v2H9v-2z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Marketing Consultants</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Marketing Consultants</h3>
     </div>
 
     <!-- Social Media Managers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12c0 4.98 3.65 9.12 8.44 9.88v-6.99H7.9v-2.89h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.55v1.88h2.78l-.44 2.89h-2.34v6.99C18.35 21.12 22 16.98 22 12c0-5.52-4.48-10-10-10z"/>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Social Media Managers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Social Media Managers</h3>
     </div>
 
     <!-- Content Creators / Copywriters -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M4 5h16M4 12h16"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Content Creators</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Content Creators</h3>
     </div>
 
     <!-- Web Developers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Web Developers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Web Developers</h3>
     </div>
 
     <!-- Mobile App Developers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4h10v16H7z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Mobile App Developers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Mobile App Developers</h3>
     </div>
 
     <!-- Graphic Designers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l9 7-9 7-9-7 9-7z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Graphic Designers</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Graphic Designers</h3>
     </div>
 
     <!-- Email Marketing Specialists -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
-        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l9 6 9-6v10H3V8z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Email Marketing Specialists</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Email Marketing Specialists</h3>
     </div>
 
     <!-- Small Business Owners -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-blue/30 transition-all group">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h18v18H3V3z"></path>
             </svg>
         </div>
-        <h3 class="text-sm font-bold text-gray-900">Small Business Owners</h3>
+        <h3 class="text-xs sm:text-sm font-bold text-gray-900">Small Business Owners</h3>
     </div>
 
 </div>
@@ -641,7 +641,7 @@
 
             <!-- Closing Line -->
             <div class="text-center">
-                <p class="text-xl sm:text-2xl font-bold text-gray-900">
+                <p class="text-lg sm:text-xl font-bold text-gray-900">
                     If your income depends on clients — <span class="text-primary-orange">this tool is for you.</span>
                 </p>
             </div>
@@ -1063,7 +1063,7 @@
                             <div class="text-sm text-gray-600">Sales Director</div>
                         </div>
                     </div>
-                    <p class="text-gray-700">"BusinessFinder helped us identify 500+ potential clients in our target market. The Google Places integration is incredibly accurate."</p>
+                    <p class="text-gray-700">"BusinessFinder helped us identify 500+ potential clients in our target market. The Google Maps data integration is incredibly accurate."</p>
                 </div>
                 
                 <div class="bg-white p-6 rounded-xl shadow-sm">
@@ -1108,39 +1108,6 @@
             <!-- FAQ Accordion -->
             <div class="space-y-3" id="faq-accordion">
 
-                <!-- FAQ 1 -->
-                <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">Where does the business data come from?</span>
-                        <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
-                            <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
-                        <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            Every lead on {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} is sourced directly from the <strong class="text-gray-800">Google Places API</strong> — the same data that powers Google Maps. This means you get real business names, verified phone numbers, actual addresses, ratings, reviews, and website URLs. There is no scraping, no recycled databases, and no fabricated information. What you see on Google Maps is exactly what you get.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 2 -->
-                <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">Is it legal and safe to use this data?</span>
-                        <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
-                            <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
-                        <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            Yes. {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} retrieves publicly available business information through the official <strong class="text-gray-800">Google Places API</strong>, which is fully authorized by Google for commercial use. We do not access any private or restricted data. Every piece of information we display is already public on Google Maps — we simply organize it for your outreach workflow.
-                        </div>
-                    </div>
-                </div>
 
                 <!-- FAQ 3 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
@@ -1159,23 +1126,6 @@
                     </div>
                 </div>
 
-                <!-- FAQ 4 -->
-                <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">Do I need my own Google Places API key?</span>
-                        <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
-                            <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
-                        <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-    Yes. You’ll use your own Google Places API key. Google offers free monthly credits, and CustomerNearme helps you utilize that data efficiently without scraping.
-                    </div>
-                    </div>
-                </div>
-
                 <!-- FAQ 5 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
                     <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
@@ -1188,7 +1138,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
                         <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            Each lead includes the <strong class="text-gray-800">business name, phone number, full address, Google Maps link, website URL, star rating, total review count, and business category</strong>. Depending on the business listing, you may also see operating hours and additional contact details. This gives you everything you need to qualify and reach out to prospects without any additional research.
+                            Each lead includes the <strong class="text-gray-800">business name, phone number, full address, Google Maps link, website URL, social media links (Facebook, Instagram, Twitter, etc.), star rating, total review count, and business category</strong>. Depending on the business listing, you may also see operating hours and additional contact details. This gives you everything you need to qualify and reach out to prospects without any additional research.
                         </div>
                     </div>
                 </div>
@@ -1206,23 +1156,6 @@
                     <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
                         <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
                             Yes. You can export your saved leads in <strong class="text-gray-800">CSV and Excel</strong> formats with a single click. Exported files are clean, organized, and ready to import directly into your CRM, email marketing platform, or outreach tools. Export functionality is available across all paid plans, making it easy to integrate {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} into your existing workflow.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 7 -->
-                <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">Is there a free trial available?</span>
-                        <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
-                            <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
-                        <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            Absolutely. {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} offers a <strong class="text-gray-800">free plan</strong> that lets you test the platform with real searches — no credit card required. You can explore the dashboard, run searches, view full lead profiles, and experience the data quality firsthand. When you are ready for higher volume and advanced features, you can upgrade at any time.
                         </div>
                     </div>
                 </div>
@@ -1264,7 +1197,7 @@
                 <!-- FAQ 10 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
                     <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">What pricing plans are available?</span>
+                        <span class="text-base font-semibold text-gray-900 pr-4">What are the different pricing tiers?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
@@ -1273,24 +1206,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
                         <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            We offer flexible plans to fit every stage of your business — including <strong class="text-gray-800">Free, Monthly, Yearly, and Lifetime</strong> options. Each paid plan unlocks higher search volumes, more lead exports, and premium features like bulk export and priority support. You can start free and upgrade as your needs grow. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for full details.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FAQ 11 -->
-                <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
-                        <span class="text-base font-semibold text-gray-900 pr-4">Can I cancel my subscription at any time?</span>
-                        <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
-                            <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </span>
-                    </button>
-                    <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
-                        <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            Yes. There are <strong class="text-gray-800">no long-term contracts and no cancellation fees</strong>. You can cancel your subscription whenever you want, and your access will remain active until the end of your current billing period. Your saved leads will continue to be available in your account even after cancellation.
+                            We offer three comprehensive plans: <strong class="text-gray-800">Starter ($10/mo)</strong> for basic business discovery, <strong class="text-gray-800">Growth ($20/mo)</strong> for contact-ready leads with unlimited exports, and <strong class="text-gray-800">Pro ($36/mo)</strong> for deep business intelligence with full review data. Each tier unlocks more GMB searches, leads per month, and advanced features. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for complete feature comparison.
                         </div>
                     </div>
                 </div>

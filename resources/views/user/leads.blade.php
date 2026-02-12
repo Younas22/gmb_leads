@@ -20,10 +20,10 @@
                         <i class="fas fa-download text-blue-600 text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-medium text-blue-900">Daily Export Limit</p>
+                        <p class="text-xs font-medium text-blue-900">Monthly Export Limit</p>
                         <p class="text-[10px] text-blue-700">
                             Used <span class="font-semibold">{{ $todayExportCount }}</span> of
-                            <span class="font-semibold">{{ $exportLimit }}</span> exports today
+                            <span class="font-semibold">{{ $exportLimit }}</span> exports this month.
                         </p>
                     </div>
                 </div>
@@ -207,30 +207,68 @@
         <option value="closed">Closed</option>
     </select>
 
-    <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-        <option value="">Rating</option>
-        <option value="4.5">4.5+</option>
-        <option value="4.0">4.0+</option>
-        <option value="3.5">3.5+</option>
-        <option value="3.0">3.0+</option>
-    </select>
+    @if(auth()->user()->hasFeature('advanced_review_filters'))
+        <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+            <option value="">Rating</option>
+            <option value="4.5">4.5+</option>
+            <option value="4.0">4.0+</option>
+            <option value="3.5">3.5+</option>
+            <option value="3.0">3.0+</option>
+        </select>
 
-    <select name="last_review" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-        <option value="">Review</option>
-        <option value="1-day">1 day</option>
-        <option value="1-week">1 week</option>
-        <option value="1-month">1 month</option>
-        <option value="3-months">3 months</option>
-        <option value="6-months">6 months</option>
-    </select>
+        <select name="last_review" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+            <option value="">Review</option>
+            <option value="1-day">1 day</option>
+            <option value="1-week">1 week</option>
+            <option value="1-month">1 month</option>
+            <option value="3-months">3 months</option>
+            <option value="6-months">6 months</option>
+        </select>
 
-    <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-        <option value="">Reviews #</option>
-        <option value="lt30">< 30</option>
-        <option value="lt50">< 50</option>
-        <option value="lt100">< 100</option>
-        <option value="gte100">100+</option>
-    </select>
+        <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
+            <option value="">Reviews #</option>
+            <option value="lt30">< 30</option>
+            <option value="lt50">< 50</option>
+            <option value="lt100">< 100</option>
+            <option value="gte100">100+</option>
+        </select>
+    @else
+        <!-- Rating Filter - Locked -->
+        <div class="relative lg:flex-1">
+            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
+                <option value="">Rating</option>
+            </select>
+            <a href="{{ route('user.subscription') }}"
+               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
+               title="Upgrade to unlock rating filters">
+                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
+            </a>
+        </div>
+
+        <!-- Review Filter - Locked -->
+        <div class="relative lg:flex-1">
+            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
+                <option value="">Review</option>
+            </select>
+            <a href="{{ route('user.subscription') }}"
+               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
+               title="Upgrade to unlock review filters">
+                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
+            </a>
+        </div>
+
+        <!-- Reviews Count Filter - Locked -->
+        <div class="relative lg:flex-1">
+            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
+                <option value="">Reviews #</option>
+            </select>
+            <a href="{{ route('user.subscription') }}"
+               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
+               title="Upgrade to unlock review count filters">
+                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
+            </a>
+        </div>
+    @endif
 
 </div>
 

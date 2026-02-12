@@ -631,7 +631,7 @@ use App\Models\EmailTemplate;
                                 </div>
                             </div>
                             <div>
-                                <label for="google_places_api_key" class="block text-xs font-medium text-gray-700 mb-1.5">Google Places API Key</label>
+                                <label for="google_places_api_key" class="block text-xs font-medium text-gray-700 mb-1.5">Google Maps API Key</label>
                                 <div class="flex gap-2">
                                     <input type="password" id="google_places_api_key" name="google_places_api_key"
                                            value="{{ old('google_places_api_key', Setting::get('google_places_api_key')) }}"

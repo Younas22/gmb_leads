@@ -140,7 +140,7 @@
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                                         <div><strong>Results:</strong> {{ $history->results_count ?? 0 }} businesses</div>
                                         <div><strong>Time:</strong> {{ $history->created_at->diffForHumans() }}</div>
-                                        <div><strong>API:</strong> {{ $history->api_used ?? 'Google Places' }}</div>
+                                        <div><strong>API:</strong> {{ $history->api_used ?? 'Google Maps' }}</div>
                                         <div><strong>Response:</strong> {{ $history->response_time ? number_format($history->response_time, 1) . 's' : 'N/A' }}</div>
                                     </div>
                                     @if($history->error_message && $history->status === 'failed')

@@ -99,9 +99,9 @@
                 <i class="fas fa-info-circle text-blue-600 text-base sm:text-lg"></i>
             </div>
             <div class="ml-2 sm:ml-3 flex-1">
-                <h3 class="text-xs sm:text-sm font-semibold text-blue-800">Google Places API Management</h3>
+                <h3 class="text-xs sm:text-sm font-semibold text-blue-800">Google Maps API Management</h3>
                 <p class="text-xs sm:text-sm text-blue-700 mt-1">
-                    Add your Google Places API key to start searching for businesses.
+                    Add your Google Maps API key to start searching for businesses.
                     @if($apiLimit == -1)
                         Your plan supports <strong>unlimited</strong> API keys.
                     @else
@@ -117,7 +117,7 @@
                     <i class="fas fa-external-link-alt mr-1"></i>
                     Don't have an API key?
                     <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="font-semibold underline hover:text-blue-900 break-all">
-                        Get your Google Places API key here
+                        Get your Google Maps API key here
                     </a>
                 </p>
                 <p class="text-xs text-blue-600 mt-2">
@@ -183,8 +183,8 @@
         <div class="p-4 sm:p-6 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                 <div class="w-full sm:w-auto">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Google Places API Keys</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Manage your Google Places API keys for business search</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">Google Maps API Keys</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Manage your Google Maps API keys for business search</p>
                 </div>
                 @if($canAddMore)
                 <button id="add-api-btn" class="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-center">
@@ -305,7 +305,7 @@
                     <i class="fas fa-key text-gray-400 text-2xl"></i>
                 </div>
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2">No API Keys Added</h3>
-                <p class="text-sm sm:text-base text-gray-600 mb-4">Add your Google Places API key to start searching for businesses</p>
+                <p class="text-sm sm:text-base text-gray-600 mb-4">Add your Google Maps API key to start searching for businesses</p>
                 @if($canAddMore)
                 <button id="add-first-api-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base font-medium">
                     <i class="fas fa-plus mr-1 sm:mr-2 text-xs"></i>Add Your First API Key
@@ -333,7 +333,7 @@
         <div class="mt-2 sm:mt-3">
             <!-- Modal Header -->
             <div class="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800" id="modal-title">Add Google Places API Key</h3>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800" id="modal-title">Add Google Maps API Key</h3>
                 <button id="close-modal" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times text-lg sm:text-xl"></i>
                 </button>
@@ -375,12 +375,12 @@
                 @endif
 
                 <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Google Places API Key *</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Google Maps API Key *</label>
                     <input type="text" id="api-key" placeholder="AIzaSyDxVlabcdef123456789..." required
                            oninput="onApiKeyChange()"
                            class="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <p class="text-xs text-gray-500 mt-1">
-                        Enter your Google Places API key from Google Cloud Console
+                        Enter your Google Maps API key from Google Cloud Console
                         <a href="https://console.cloud.google.com/google/maps-apis/credentials" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium ml-1">
                             <i class="fas fa-external-link-alt"></i> Get API Key
                         </a>
@@ -625,7 +625,7 @@ function destroyChoices() {
 
 // Open modal for adding new API key
 function openAddModal() {
-    modalTitle.textContent = 'Add Google Places API Key';
+    modalTitle.textContent = 'Add Google Maps API Key';
     document.getElementById('api-form').reset();
     document.getElementById('api-key-id').value = '';
     testResult.classList.add('hidden');
@@ -901,7 +901,7 @@ function editApiKey(apiKeyId, keyName, apiKey, googleEmail, assignedUserIds = []
     document.getElementById('api-key').value = apiKey;
     document.getElementById('google-email').value = googleEmail;
 
-    modalTitle.textContent = 'Edit Google Places API Key';
+    modalTitle.textContent = 'Edit Google Maps API Key';
     testResult.classList.add('hidden');
 
     // Set edit mode
