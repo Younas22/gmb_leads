@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class PackageSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -19,241 +16,103 @@ class PackageSeeder extends Seeder
         Package::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // ============ USER PACKAGES (4) ============
+        /**
+         * =========================
+         * USER PACKAGES (MONTHLY)
+         * =========================
+         */
 
-        // 1. Free
-        $free = Package::create([
-            'name'         => 'Free',
-            'slug'         => 'free',
+        // 1️⃣ Starter
+        $starter = Package::create([
+            'name'         => 'Starter',
+            'slug'         => 'starter',
             'package_for'  => 'user',
             'billing_type' => 'monthly',
             'price'        => 0.00,
             'currency'     => 'USD',
             'max_users'    => 1,
             'is_popular'   => false,
-            'description'  => 'Get started with basic GMB lead generation. Perfect for trying out our platform.',
+            'description' => 'Basic business discovery. Ideal for market research and niche validation.',
             'status'       => 'active',
         ]);
 
-        $this->addFeatures($free->id, [
-            ['feature_key' => 'gmb_searches',    'feature_value' => '50',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',  'feature_value' => '100', 'is_unlimited' => false],
-            ['feature_key' => 'export_leads',     'feature_value' => '25',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',      'feature_value' => '3',   'is_unlimited' => false],
-            ['feature_key' => 'api_limit',        'feature_value' => '1',   'is_unlimited' => false],
-            ['feature_key' => 'email_support',    'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',      'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',  'feature_value' => 'false', 'is_unlimited' => false],
+        $this->addFeatures($starter->id, [
+            ['feature_key' => 'gmb_searches',            'feature_value' => '50'],
+            ['feature_key' => 'leads_per_month',        'feature_value' => '100'],
+            ['feature_key' => 'saved_lists',             'feature_value' => '3'],
+            ['feature_key' => 'export_leads',            'feature_value' => '25'],
+
+            // 🔍 Lead data depth
+            ['feature_key' => 'data_depth',              'feature_value' => 'starter'],
+            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'false'],
+            ['feature_key' => 'email_social_discovery',  'feature_value' => 'false'],
+            ['feature_key' => 'latest_review_insights',  'feature_value' => 'false'],
+            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'false'],
+            ['feature_key' => 'full_review_intelligence','feature_value' => 'false'],
         ]);
 
-        // 2. Pro – Monthly
-        $proMonthly = Package::create([
-            'name'         => 'Pro',
-            'slug'         => 'pro-monthly',
+        // 2️⃣ Growth (MOST POPULAR)
+        $growth = Package::create([
+            'name'         => 'Growth',
+            'slug'         => 'growth',
             'package_for'  => 'user',
             'billing_type' => 'monthly',
-            'price'        => 29.00,
+            'price'        => 39.00,
             'currency'     => 'USD',
             'max_users'    => 1,
             'is_popular'   => true,
-            'description'  => 'Ideal for freelancers and small agencies. Unlock bulk export and higher limits.',
+            'description' => 'Contact-ready leads with smart filters. Built for outreach & sales.',
             'status'       => 'active',
         ]);
 
-        $this->addFeatures($proMonthly->id, [
-            ['feature_key' => 'gmb_searches',    'feature_value' => '500',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',  'feature_value' => '1000', 'is_unlimited' => false],
-            ['feature_key' => 'export_leads',     'feature_value' => '500',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',      'feature_value' => '10',   'is_unlimited' => false],
-            ['feature_key' => 'api_limit',        'feature_value' => '3',   'is_unlimited' => false],
-            ['feature_key' => 'email_support',    'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',      'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',  'feature_value' => 'false', 'is_unlimited' => false],
+        $this->addFeatures($growth->id, [
+            ['feature_key' => 'gmb_searches',            'feature_value' => '150'],
+            ['feature_key' => 'leads_per_month',        'feature_value' => '500'],
+            ['feature_key' => 'saved_lists',             'feature_value' => '10'],
+            ['feature_key' => 'export_leads',            'feature_value' => '250'],
+
+            // 🔥 Lead intelligence
+            ['feature_key' => 'data_depth',              'feature_value' => 'growth'],
+            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'true'],
+            ['feature_key' => 'email_social_discovery',  'feature_value' => 'true'],
+            ['feature_key' => 'latest_review_insights',  'feature_value' => 'true'],
+            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'true'],
+            ['feature_key' => 'full_review_intelligence','feature_value' => 'false'],
         ]);
 
-        // 3. Pro – Yearly
-        $proYearly = Package::create([
+        // 3️⃣ Pro
+        $pro = Package::create([
             'name'         => 'Pro',
-            'slug'         => 'pro-yearly',
+            'slug'         => 'pro',
             'package_for'  => 'user',
-            'billing_type' => 'yearly',
-            'price'        => 290.00,
-            'currency'     => 'USD',
-            'max_users'    => 1,
-            'is_popular'   => true,
-            'description'  => 'Ideal for freelancers and small agencies. Save 2 months with yearly billing!',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($proYearly->id, [
-            ['feature_key' => 'gmb_searches',    'feature_value' => '500',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',  'feature_value' => '1000', 'is_unlimited' => false],
-            ['feature_key' => 'export_leads',     'feature_value' => '500',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',      'feature_value' => '10',   'is_unlimited' => false],
-            ['feature_key' => 'api_limit',        'feature_value' => '3',   'is_unlimited' => false],
-            ['feature_key' => 'email_support',    'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',      'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',  'feature_value' => 'false', 'is_unlimited' => false],
-        ]);
-
-        // 4. Pro – Lifetime
-        $proLifetime = Package::create([
-            'name'         => 'Pro',
-            'slug'         => 'pro-lifetime',
-            'package_for'  => 'user',
-            'billing_type' => 'lifetime',
-            'price'        => 499.00,
+            'billing_type' => 'monthly',
+            'price'        => 79.00,
             'currency'     => 'USD',
             'max_users'    => 1,
             'is_popular'   => false,
-            'description'  => 'Pay once, use forever. Get Pro-level access with no recurring fees. Limited time offer!',
+            'description' => 'Deep business intelligence with full review data.',
             'status'       => 'active',
         ]);
 
-        $this->addFeatures($proLifetime->id, [
-            ['feature_key' => 'gmb_searches',    'feature_value' => '2500', 'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',  'feature_value' => '5000', 'is_unlimited' => false],
-            ['feature_key' => 'export_leads',     'feature_value' => '2500', 'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',      'feature_value' => '50',   'is_unlimited' => false],
-            ['feature_key' => 'api_limit',        'feature_value' => '10',   'is_unlimited' => false],
-            ['feature_key' => 'email_support',    'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'api_access',       'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',      'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',  'feature_value' => 'true', 'is_unlimited' => false],
-            ['feature_key' => 'api_calls',        'feature_value' => '10000', 'is_unlimited' => false],
-        ]);
+        $this->addFeatures($pro->id, [
+            ['feature_key' => 'gmb_searches',            'feature_value' => '250'],
+            ['feature_key' => 'leads_per_month',        'feature_value' => '1000'],
+            ['feature_key' => 'saved_lists',             'feature_value' => '25'],
+            ['feature_key' => 'export_leads',            'feature_value' => '1000'],
 
-        // ============ COMPANY PACKAGES (3) ============
-
-        // 5. Free
-        $free = Package::create([
-            'name'         => 'Free',
-            'slug'         => 'business-free',
-            'package_for'  => 'company',
-            'billing_type' => 'monthly',
-            'price'        => 0.00,
-            'currency'     => 'USD',
-            'max_users'    => 2,
-            'is_popular'   => false,
-            'description'  => 'Get started with basic GMB lead generation. Perfect for trying out our platform.',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($free->id, [
-            ['feature_key' => 'gmb_searches',    'feature_value' => '50',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',  'feature_value' => '100', 'is_unlimited' => false],
-            ['feature_key' => 'export_leads',     'feature_value' => '25',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',      'feature_value' => '3',   'is_unlimited' => false],
-            ['feature_key' => 'api_limit',        'feature_value' => '1',   'is_unlimited' => false],
-            ['feature_key' => 'email_support',    'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'api_access',       'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',      'feature_value' => 'false', 'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',  'feature_value' => 'false', 'is_unlimited' => false],
-        ]);
-
-        // 6. Business – Monthly
-        $bizMonthly = Package::create([
-            'name'         => 'Business',
-            'slug'         => 'business-monthly',
-            'package_for'  => 'company',
-            'billing_type' => 'monthly',
-            'price'        => 299.00,
-            'currency'     => 'USD',
-            'max_users'    => 5,
-            'is_popular'   => false,
-            'description'  => 'Perfect for small teams. Collaborate with up to 5 team members on lead generation projects.',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($bizMonthly->id, [
-            ['feature_key' => 'gmb_searches',      'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',    'feature_value' => '25000',  'is_unlimited' => false],
-            ['feature_key' => 'export_leads',       'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',        'feature_value' => '100',    'is_unlimited' => false],
-            ['feature_key' => 'api_limit',          'feature_value' => '0',      'is_unlimited' => true],
-            ['feature_key' => 'email_support',      'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_access',         'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',        'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',    'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'priority_support',   'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_calls',          'feature_value' => '100000', 'is_unlimited' => false],
-            ['feature_key' => 'team_members',       'feature_value' => '5',      'is_unlimited' => false],
-            ['feature_key' => 'team_analytics',     'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'dedicated_manager',  'feature_value' => 'false',  'is_unlimited' => false],
-            ['feature_key' => 'white_label',        'feature_value' => 'false',  'is_unlimited' => false],
-        ]);
-
-        // 7. Business – Yearly
-        $bizYearly = Package::create([
-            'name'         => 'Business',
-            'slug'         => 'business-yearly',
-            'package_for'  => 'company',
-            'billing_type' => 'yearly',
-            'price'        => 2990.00,
-            'currency'     => 'USD',
-            'max_users'    => 5,
-            'is_popular'   => true,
-            'description'  => 'Perfect for small teams. Save 2 months with yearly billing!',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($bizYearly->id, [
-            ['feature_key' => 'gmb_searches',      'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',    'feature_value' => '25000',  'is_unlimited' => false],
-            ['feature_key' => 'export_leads',       'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',        'feature_value' => '100',    'is_unlimited' => false],
-            ['feature_key' => 'api_limit',          'feature_value' => '0',      'is_unlimited' => true],
-            ['feature_key' => 'email_support',      'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_access',         'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',        'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',    'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'priority_support',   'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_calls',          'feature_value' => '100000', 'is_unlimited' => false],
-            ['feature_key' => 'team_members',       'feature_value' => '5',      'is_unlimited' => false],
-            ['feature_key' => 'team_analytics',     'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'dedicated_manager',  'feature_value' => 'false',  'is_unlimited' => false],
-            ['feature_key' => 'white_label',        'feature_value' => 'false',  'is_unlimited' => false],
-        ]);
-
-        // 8. Business – Lifetime
-        $bizLifetime = Package::create([
-            'name'         => 'Business',
-            'slug'         => 'business-lifetime',
-            'package_for'  => 'company',
-            'billing_type' => 'lifetime',
-            'price'        => 2999.00,
-            'currency'     => 'USD',
-            'max_users'    => 5,
-            'is_popular'   => false,
-            'description'  => 'Pay once, use forever. Full Business-level access for your team with no recurring fees.',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($bizLifetime->id, [
-            ['feature_key' => 'gmb_searches',      'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'leads_per_month',    'feature_value' => '25000',  'is_unlimited' => false],
-            ['feature_key' => 'export_leads',       'feature_value' => '10000',  'is_unlimited' => false],
-            ['feature_key' => 'saved_lists',        'feature_value' => '100',    'is_unlimited' => false],
-            ['feature_key' => 'api_limit',          'feature_value' => '0',      'is_unlimited' => true],
-            ['feature_key' => 'email_support',      'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_access',         'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'bulk_export',        'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'crm_integration',    'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'priority_support',   'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'api_calls',          'feature_value' => '100000', 'is_unlimited' => false],
-            ['feature_key' => 'team_members',       'feature_value' => '5',      'is_unlimited' => false],
-            ['feature_key' => 'team_analytics',     'feature_value' => 'true',   'is_unlimited' => false],
-            ['feature_key' => 'dedicated_manager',  'feature_value' => 'false',  'is_unlimited' => false],
-            ['feature_key' => 'white_label',        'feature_value' => 'false',  'is_unlimited' => false],
+            // 🚀 Full power
+            ['feature_key' => 'data_depth',              'feature_value' => 'pro'],
+            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'true'],
+            ['feature_key' => 'email_social_discovery',  'feature_value' => 'true'],
+            ['feature_key' => 'latest_review_insights',  'feature_value' => 'true'],
+            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'true'],
+            ['feature_key' => 'full_review_intelligence','feature_value' => 'true'],
         ]);
     }
 
-    /**
-     * Add features to a package.
-     */
     private function addFeatures(int $packageId, array $features): void
     {
         foreach ($features as $feature) {
@@ -261,7 +120,7 @@ class PackageSeeder extends Seeder
                 'package_id'    => $packageId,
                 'feature_key'   => $feature['feature_key'],
                 'feature_value' => $feature['feature_value'],
-                'is_unlimited'  => $feature['is_unlimited'],
+                'is_unlimited'  => false,
             ]);
         }
     }

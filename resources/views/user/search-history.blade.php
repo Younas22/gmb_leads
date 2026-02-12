@@ -103,7 +103,7 @@
             </div>
 
             <!-- Export Section -->
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-6">
+            <!-- <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-6">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-gray-600">Export your search history data</p>
                     <a href="{{ route('user.export-search-history') }}" class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
@@ -111,7 +111,7 @@
                         Export CSV
                     </a>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Search History Table -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">

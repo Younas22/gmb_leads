@@ -92,13 +92,13 @@
                         Saved Leads
                     </a>
 
-                    @if(!auth()->user()->isTeamMember())
+                    {{-- @if(!auth()->user()->isTeamMember())
                     <!-- API Keys - Only for company owners and regular users, NOT team members -->
                     <a href="{{ route('user.api-keys') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.api-keys') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-key w-5 text-center mr-3"></i>
                         API Keys
                     </a>
-                    @endif
+                    @endif --}}
 
                     @if(!auth()->user()->isTeamMember())
                     <!-- Search History & Feedback - Only for company owners and regular users -->

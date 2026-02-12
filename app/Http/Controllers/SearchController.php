@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use App\Models\AdminApiKey;
 use App\Models\Country;
 use App\Models\SavedLead;
 use App\Models\SearchHistory;
@@ -20,8 +21,9 @@ class SearchController extends Controller
     {
         $user = Auth::user();
         $countries = Country::orderBy('name')->get();
-        
-        return view('user.search', compact('user', 'countries'));
+        $packageSlug = $user->activeSubscription()?->package?->slug ?? 'starter';
+
+        return view('user.search', compact('user', 'countries', 'packageSlug'));
     }
 
     /**
@@ -48,7 +50,7 @@ class SearchController extends Controller
      */
 
     public function search(Request $request)
-{
+{ 
     $user = Auth::user();
     $startTime = microtime(true);
 
@@ -92,6 +94,8 @@ class SearchController extends Controller
         'state_id' => 'nullable|integer|exists:states,id',
         'city_id' => 'nullable|integer|exists:cities,id',
         'radius' => 'nullable|integer|min:1|max:100',
+        'review_max' => 'nullable|integer|min:0',
+        'latest_review_within_days' => 'nullable|integer|min:0',
         'page_token' => 'nullable|string'
     ]);
 
@@ -136,41 +140,14 @@ class SearchController extends Controller
     }
 
     try {
-        // Get account owner (company or user itself) for API key access
-        $accountOwner = $user->isTeamMember() ? $user->company : $user;
+        // Get active admin API key
+        $adminApiKey = AdminApiKey::active()->first();
 
-        // Get all user IDs that can provide API keys (company + team members)
-        $apiKeyUserIds = [$accountOwner->id];
-        if ($accountOwner->isCompany()) {
-            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
-            $apiKeyUserIds = array_merge($apiKeyUserIds, $teamMemberIds);
-        }
-
-        // Get active and valid API key from company or team members
-        $userApiKeyQuery = \App\Models\UserApiKey::whereIn('user_id', $apiKeyUserIds)
-            ->where('is_active', true)
-            ->where('is_valid', true);
-
-        // If user is a team member, only get keys assigned to them
-        if ($user->isTeamMember()) {
-            $userApiKeyQuery->where(function($query) use ($user) {
-                // Keys directly owned by the user OR keys assigned to the user
-                $query->where('user_id', $user->id)
-                      ->orWhereHas('assignedUsers', function($subQuery) use ($user) {
-                          $subQuery->where('users.id', $user->id);
-                      });
-            });
-        }
-
-        $userApiKey = $userApiKeyQuery->orderBy('last_used', 'asc') // Use least recently used key for load balancing
-            ->first();
-
-        if (!$userApiKey) {
-            // Update search history to FAILED
+        if (!$adminApiKey) {
             if ($searchHistory) {
                 $this->updateSearchHistoryToFailed($searchHistory, 'No active API key found');
             }
-            $errorMessage = 'No active API key found. Please add and verify your Google Places API key first.';
+            $errorMessage = 'Search service is currently unavailable. Please try again later.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'error' => $errorMessage,
@@ -180,20 +157,21 @@ class SearchController extends Controller
             return back()->withErrors(['api' => $errorMessage]);
         }
 
-        $apiKey = $userApiKey->api_key;
+        // Get user's active package slug for plan parameter
+        $packageSlug = $user->activeSubscription()?->package?->slug ?? 'starter';
 
-        // Increment API key usage
-        $userApiKey->incrementUsage();
-        
-        // testing
-        // $apiUrl = 'https://49427c66-cced-4efb-b89d-60208e8abb7a-00-j1idesu3zod2.pike.replit.dev:8080/search';
-        // live
-        $apiUrl = 'https://api.customernearme.com/search'; // Alternative URL if needed
+        $reviewMax = (int) $request->input('review_max', 0);
+        $latestReviewWithinDays = (int) $request->input('latest_review_within_days', 0);
+
+        $apiUrl = 'https://api.customernearme.com/search';
         $params = [
-            'key' => $apiKey,
+            'key' => $adminApiKey->api_key,
+            'plan' => $packageSlug,
             'query' => $query,
             'location' => $coordinates['lat'] . ',' . $coordinates['lng'],
             'radius' => $radius * 1000, // Convert km to meters
+            'review_max' => $reviewMax,
+            'latest_review_within_days' => $latestReviewWithinDays,
         ];
 
         \Log::info('Search API params', $params);
@@ -257,9 +235,17 @@ class SearchController extends Controller
         if ($response->successful()) {
             $endTime = microtime(true);
             $executionTime = round($endTime - $startTime, 3);
-            
+
             $apiData = $response->json();
-            
+
+            // Record API usage from response meta
+            $apiCalls = $apiData['meta']['api_calls'] ?? [];
+            $textSearchCalls = (int) ($apiCalls['text_search'] ?? 0);
+            $detailsCalls = (int) ($apiCalls['place_details'] ?? 0);
+            if ($textSearchCalls > 0 || $detailsCalls > 0) {
+                $adminApiKey->recordApiUsage($textSearchCalls, $detailsCalls);
+            }
+
             // Extract results and next page token
             $results = $apiData['results'] ?? $apiData;
             $nextPageToken = $apiData['next_page_token'] ?? null;
@@ -284,7 +270,7 @@ class SearchController extends Controller
             // Get countries for form repopulation
             $countries = Country::orderBy('name')->get();
             
-            return view('user.search', compact('user', 'formattedResults', 'countries'))
+            return view('user.search', compact('user', 'formattedResults', 'countries', 'packageSlug'))
                 ->with('searchPerformed', true)
                 ->with('totalResults', count($formattedResults))
                 ->with('nextPageToken', $nextPageToken)
@@ -294,6 +280,8 @@ class SearchController extends Controller
                     'state_id' => $stateId,
                     'city_id' => $cityId,
                     'radius' => $radius,
+                    'review_max' => $reviewMax,
+                    'latest_review_within_days' => $latestReviewWithinDays,
                     'location_name' => $this->buildLocationString($city, $state, $country),
                     'page_token' => $pageToken
                 ]);
@@ -562,9 +550,17 @@ public function saveLeads(Request $request)
 
             // Find latest review date (if any)
             $lastReviewDate = null;
-            if (!empty($reviewsSample)) {
-                $latestTime = max(array_column($reviewsSample, 'time')); // get max UNIX timestamp
-                $lastReviewDate = date('Y-m-d H:i:s', $latestTime); // convert to MySQL datetime
+            // First try from API's latest_review_date field (available in growth/pro plans)
+            if (!empty($leadData['latest_review_date']) && is_numeric($leadData['latest_review_date'])) {
+                $lastReviewDate = date('Y-m-d H:i:s', $leadData['latest_review_date']);
+            }
+            // Fallback to reviews sample (pro plan has full reviews)
+            elseif (!empty($reviewsSample)) {
+                $times = array_column($reviewsSample, 'time');
+                if (!empty($times)) {
+                    $latestTime = max($times);
+                    $lastReviewDate = date('Y-m-d H:i:s', $latestTime);
+                }
             }
 
             try {
@@ -743,17 +739,14 @@ private function formatApiResults($results)
                 'profile' => $place['profile'] ?? null,
                 'rating' => isset($place['rating']) ? (float) $place['rating'] : 0,
                 'total_reviews' => isset($place['total_reviews']) ? (int) $place['total_reviews'] : 0,
-                'opening_hours' => $place['opening_hours'] ?? [],
-                'emails' => $place['emails'] ?? [],
-                'social_links' => $place['social_links'] ?? [],
-                'reviews' => $place['reviews'] ?? []
+                'opening_hours' => is_array($place['opening_hours'] ?? null) ? $place['opening_hours'] : [],
+                'emails' => is_array($place['emails'] ?? null) ? $place['emails'] : [],
+                'social_links' => is_array($place['social_links'] ?? null) ? $place['social_links'] : [],
+                'reviews' => is_array($place['reviews'] ?? null) ? $place['reviews'] : [],
+                'latest_review_date' => $place['latest_review_date'] ?? null,
             ];
         })
-        ->filter(function ($place) {
-            // ✅ Phone ya Emails dono missing na hon
-            return !empty($place['phone']) || !empty($place['emails']);
-        })
-        ->values() // reindex array
+        ->values()
         ->toArray();
 }
 

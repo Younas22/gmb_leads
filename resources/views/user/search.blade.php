@@ -7,92 +7,140 @@
 <div class="p-4 lg:p-8">
 
 <!-- Search Form -->
-<div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-6">
-    <form action="{{ route('user.search.post') }}" method="POST" class="flex flex-wrap items-end gap-4" id="searchForm">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+    <form action="{{ route('user.search.post') }}" method="POST" id="searchForm">
         @csrf
-        
-        <!-- Hidden field for page token -->
         <input type="hidden" name="page_token" id="page_token" value="">
-        
-        <div class="flex-1 min-w-60">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Search Query *</label>
-            <input type="text" 
-                   name="query" 
-                   id="search_query"
-                   value="{{ old('query', $searchData['query'] ?? '') }}"
-                   placeholder="e.g. travel agency, restaurant" 
-                   required
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-            @error('query')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+
+        <!-- Row 1: Search Query, Country, State, City -->
+        <div class="p-4 pb-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-search text-[10px] mr-1"></i>Search Query <span class="text-red-400">*</span></label>
+                    <input type="text"
+                           name="query"
+                           id="search_query"
+                           value="{{ old('query', $searchData['query'] ?? '') }}"
+                           placeholder="e.g. travel agency, restaurant"
+                           required
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    @error('query')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-globe text-[10px] mr-1"></i>Country <span class="text-red-400">*</span></label>
+                    <select name="country_id"
+                            id="country_select"
+                            required
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option value="">Select Country</option>
+                        @if(isset($countries))
+                            @foreach($countries as $country)
+                                <option value="{{ $country->id }}"
+                                        data-name="{{ $country->name }}"
+                                        {{ old('country_id', $searchData['country_id'] ?? '') == $country->id ? 'selected' : '' }}>
+                                    {{ $country->name }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                    @error('country_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-map text-[10px] mr-1"></i>State</label>
+                    <select name="state_id"
+                            id="state_select"
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                            disabled>
+                        <option value="">Select State</option>
+                    </select>
+                    @error('state_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-city text-[10px] mr-1"></i>City</label>
+                    <select name="city_id"
+                            id="city_select"
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                            disabled>
+                        <option value="">Select City</option>
+                    </select>
+                    @error('city_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
         </div>
-        
-        <div class="flex-1 min-w-40">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
-            <select name="country_id" 
-                    id="country_select" 
-                    required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                <option value="">Select Country</option>
-                @if(isset($countries))
-                    @foreach($countries as $country)
-                        <option value="{{ $country->id }}" 
-                                data-name="{{ $country->name }}"
-                                {{ old('country_id', $searchData['country_id'] ?? '') == $country->id ? 'selected' : '' }}>
-                            {{ $country->name }}
-                        </option>
-                    @endforeach
-                @endif
-            </select>
-            @error('country_id')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+
+        <!-- Row 2: Radius, Max Reviews, Review Within Days, Search Button -->
+        @php $currentPlan = $packageSlug ?? 'starter'; @endphp
+        <div class="p-4 pt-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-crosshairs text-[10px] mr-1"></i>Radius</label>
+                    <select name="radius"
+                            id="radius_select"
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
+                        <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
+                        <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
+                        <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
+                        <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-star text-[10px] mr-1"></i>Max Reviews</label>
+                    <input type="number"
+                           name="review_max"
+                           id="review_max"
+                           value="{{ old('review_max', $searchData['review_max'] ?? 0) }}"
+                           placeholder="0 = No filter"
+                           min="0"
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                </div>
+
+                <div class="relative">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-calendar-alt text-[10px] mr-1"></i>Review Within Days</label>
+                    @if($currentPlan === 'starter')
+                        <div class="relative">
+                            <input type="number"
+                                   value="0"
+                                   disabled
+                                   class="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 text-sm cursor-not-allowed">
+                            <input type="hidden" name="latest_review_within_days" value="0">
+                            <a href="{{ route('user.subscription') }}"
+                               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow"
+                               title="Upgrade to unlock this filter">
+                                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
+                            </a>
+                        </div>
+                    @else
+                        <input type="number"
+                               name="latest_review_within_days"
+                               id="latest_review_within_days"
+                               value="{{ old('latest_review_within_days', $searchData['latest_review_within_days'] ?? 0) }}"
+                               placeholder="0 = No filter"
+                               min="0"
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    @endif
+                </div>
+
+                <div class="flex items-end">
+                    <button type="submit" id="searchBtn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold px-8 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none text-sm">
+                        <i class="fas fa-search mr-2" id="searchIcon"></i>
+                        <span id="btnText">Search</span>
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div class="flex-1 min-w-32">
-            <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
-            <select name="state_id" 
-                    id="state_select" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                    disabled>
-                <option value="">Select State</option>
-            </select>
-            @error('state_id')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-        
-        <div class="flex-1 min-w-32">
-            <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
-            <select name="city_id" 
-                    id="city_select" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                    disabled>
-                <option value="">Select City</option>
-            </select>
-            @error('city_id')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-        
-        <div class="min-w-24">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Radius</label>
-            <select name="radius" 
-                    id="radius_select"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
-                <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
-                <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
-                <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
-                <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
-            </select>
-        </div>
-        
-        <button type="submit" id="searchBtn" class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-            <i class="fas fa-search mr-2" id="searchIcon"></i>
-            <span id="btnText">Search</span>
-        </button>
     </form>
     
     <!-- Progress Bar (Hidden by default) -->
@@ -252,29 +300,35 @@
                                             <span class="text-gray-600">{{ $result['address'] }}</span>
                                         </div>
                                     @endif
-                                    @if($result['phone'])
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-phone text-primary-600"></i>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-phone text-primary-600"></i>
+                                        @if($result['phone'])
                                             <span class="text-gray-600">{{ $result['phone'] }}</span>
-                                        </div>
-                                    @endif
+                                        @else
+                                            <span class="text-gray-400 italic">N/A</span>
+                                        @endif
+                                    </div>
                                 </div>
-                                
+
                                 <div class="space-y-2">
-                                    @if(!empty($result['emails']) && count($result['emails']) > 0)
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-envelope text-primary-600"></i>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-envelope text-primary-600"></i>
+                                        @if(!empty($result['emails']) && count($result['emails']) > 0)
                                             <span class="text-gray-600">{{ $result['emails'][0] }}</span>
-                                        </div>
-                                    @endif
-                                    @if($result['website'])
-                                        <div class="flex items-center space-x-2">
-                                            <i class="fas fa-globe text-primary-600"></i>
+                                        @else
+                                            <span class="text-gray-400 italic">N/A</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-globe text-primary-600"></i>
+                                        @if($result['website'])
                                             <a href="{{ $result['website'] }}" target="_blank" class="text-blue-600 hover:text-blue-800">
                                                 {{ str_replace(['http://', 'https://'], '', $result['website']) }}
                                             </a>
-                                        </div>
-                                    @endif
+                                        @else
+                                            <span class="text-gray-400 italic">N/A</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 
@@ -325,12 +379,16 @@
                                     @endif
                                 </div>
                                 <div class="text-right">
-                                    @if(!empty($result['opening_hours']) && count($result['opening_hours']) > 0)
+                                    @if(!empty($result['opening_hours']) && is_array($result['opening_hours']) && count($result['opening_hours']) > 0)
                                         <span class="text-xs text-gray-500">{{ $result['opening_hours'][0] ?? '' }}</span>
                                     @endif
-                                    @if(!empty($result['reviews']) && count($result['reviews']) > 0)
+                                    @if(!empty($result['reviews']) && is_array($result['reviews']) && count($result['reviews']) > 0)
                                         <p class="text-xs text-gray-400 mt-1">
                                             Latest review: {{ \Carbon\Carbon::createFromTimestamp($result['reviews'][0]['time'])->diffForHumans() }}
+                                        </p>
+                                    @elseif(!empty($result['latest_review_date']) && is_numeric($result['latest_review_date']))
+                                        <p class="text-xs text-gray-400 mt-1">
+                                            Latest review: {{ \Carbon\Carbon::createFromTimestamp($result['latest_review_date'])->diffForHumans() }}
                                         </p>
                                     @endif
                                 </div>

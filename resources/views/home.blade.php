@@ -774,8 +774,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
                 <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-3">Pricing</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Flexible Pricing for Every Business</h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">Free Trial &middot; Monthly &middot; Yearly &middot; Lifetime — pick what works for you.</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto">Start free. Upgrade when you need deeper lead intelligence and more exports.</p>
             </div>
 
             <!-- Individual / Company Tabs (only show if both types have packages) -->
@@ -791,34 +791,52 @@
             
             @php
                 $featureLabels = [
-                    'gmb_searches'        => 'Searches',
-                    'leads_per_month'     => 'Leads',
-                    'export_leads'        => 'Lead Exports',
-                    'saved_lists'         => 'Saved Lists',
-                    'email_support'       => 'Email Support',
-                    'api_access'          => 'API Access',
-                    'api_limit'          => 'API Limit',
-                    'bulk_export'         => 'Bulk Export',
-                    'crm_integration'     => 'CRM Integration',
-                    'priority_support'    => 'Priority Support',
-                    'api_calls'           => 'API Calls',
-                    'dedicated_manager'   => 'Dedicated Manager',
-                    'team_members'        => 'Team Members',
-                    'future_updates'        => 'Future Updates',
-                    'advance_filter'        => 'Advanced Filters',
-                    'team_analytics'      => 'Team Analytics',
-                    'white_label'         => 'White Label',
-                    'custom_branding'     => 'Custom Branding',
-                    'sla_guarantee'       => 'SLA Guarantee',
-                    'custom_integrations' => 'Custom Integrations',
-                    'onboarding_training' => 'Onboarding & Training',
+                    'gmb_searches'            => 'GMB Searches',
+                    'leads_per_month'         => 'Leads / Month',
+                    'export_leads'            => 'Lead Exports',
+                    'saved_lists'             => 'Saved Lists',
+                    'email_support'           => 'Email Support',
+                    'api_access'              => 'API Access',
+                    'api_limit'               => 'API Limit',
+                    'bulk_export'             => 'Bulk Export',
+                    'crm_integration'         => 'CRM Integration',
+                    'priority_support'        => 'Priority Support',
+                    'api_calls'               => 'API Calls',
+                    'dedicated_manager'       => 'Dedicated Manager',
+                    'team_members'            => 'Team Members',
+                    'future_updates'          => 'Future Updates',
+                    'advance_filter'          => 'Advanced Filters',
+                    'team_analytics'          => 'Team Analytics',
+                    'white_label'             => 'White Label',
+                    'custom_branding'         => 'Custom Branding',
+                    'sla_guarantee'           => 'SLA Guarantee',
+                    'custom_integrations'     => 'Custom Integrations',
+                    'onboarding_training'     => 'Onboarding & Training',
+                    'basic_business_signals'  => 'Basic Business Signals',
+                    'contact_ready_leads'     => 'Contact-Ready Leads',
+                    'email_social_discovery'  => 'Email & Social Discovery',
+                    'latest_review_insights'  => 'Latest Review Insights',
+                    'advanced_review_filters' => 'Advanced Review Filters',
+                    'full_review_intelligence'=> 'Full Review Intelligence',
                 ];
                 $boolFeatures = [
                     'email_support', 'api_access', 'bulk_export',
                     'crm_integration', 'priority_support', 'dedicated_manager',
                     'team_analytics', 'white_label', 'custom_branding',
-                    'sla_guarantee', 'custom_integrations', 'onboarding_training','future_updates','advance_filter'
+                    'sla_guarantee', 'custom_integrations', 'onboarding_training',
+                    'future_updates', 'advance_filter',
+                    'basic_business_signals', 'contact_ready_leads',
+                    'email_social_discovery', 'latest_review_insights',
+                    'advanced_review_filters', 'full_review_intelligence',
                 ];
+                // Features to show in the separate intelligence table (not in cards)
+                $intelligenceFeatures = [
+                    'basic_business_signals', 'contact_ready_leads',
+                    'email_social_discovery', 'latest_review_insights',
+                    'advanced_review_filters', 'full_review_intelligence',
+                ];
+                // Features to hide from cards (shown in table instead)
+                $hideFromCards = array_merge($intelligenceFeatures, ['data_depth']);
                 $pricingTabs = [
                     ['type' => 'user',    'packages' => $userPackages],
                 ];
@@ -829,7 +847,7 @@
 
             @foreach($pricingTabs as $tab)
             <div class="mt-14 pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
-                <div class="grid sm:grid-cols-2 {{ $tab['type'] === 'user' ? 'lg:grid-cols-4' : 'lg:grid-cols-4' }} gap-6">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     @foreach($tab['packages'] as $package)
                     @php
                         $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
@@ -847,7 +865,10 @@
                         @endif
 
                         <div class="text-center mb-6">
-                            <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-2">{{ $package->name }}</h3>
+                            <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-1">{{ $package->name }}</h3>
+                            @if($package->description)
+                                <p class="text-sm {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-3">{{ $package->description }}</p>
+                            @endif
                             <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
                                 @if($package->price == 0)
                                     {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
@@ -884,7 +905,7 @@
                                 });
                             @endphp
                             @foreach($sortedFeatures as $feature)
-                                @if(isset($featureLabels[$feature->feature_key]))
+                                @if(isset($featureLabels[$feature->feature_key]) && !in_array($feature->feature_key, $hideFromCards))
                                     <li class="flex items-center">
                                         @if(in_array($feature->feature_key, $boolFeatures))
                                             @if($feature->feature_value === 'true')
@@ -933,6 +954,80 @@
                 </div>
             </div>
             @endforeach
+
+            <!-- Lead Intelligence Comparison -->
+            @if($userPackages->count() > 0)
+            <div class="mt-20">
+                <div class="text-center mb-10">
+                    <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-3">What's Included</p>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Lead Intelligence by Plan</h3>
+                    <p class="text-gray-500 max-w-xl mx-auto">Each plan unlocks deeper business data. See exactly what intelligence you get at every tier.</p>
+                </div>
+
+                <div class="max-w-5xl mx-auto overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
+                                @foreach($userPackages as $package)
+                                    <th class="text-center py-4 px-4 w-1/5">
+                                        <span class="text-sm font-bold {{ $package->is_popular ? 'text-primary-blue' : 'text-gray-900' }}">{{ $package->name }}</span>
+                                        <div class="text-xs text-gray-400 mt-0.5">
+                                            @if($package->price == 0)
+                                                Free
+                                            @else
+                                                {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}/mo
+                                            @endif
+                                        </div>
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $intelligenceLabels = [
+                                    'basic_business_signals'  => ['name' => 'Basic Business Signals',  'desc' => 'Name, address, profile, category, rating, total reviews'],
+                                    'contact_ready_leads'     => ['name' => 'Contact-Ready Leads',     'desc' => 'Verified phone & website data'],
+                                    'email_social_discovery'  => ['name' => 'Email & Social Discovery', 'desc' => 'Emails, Facebook, Instagram, etc.'],
+                                    'latest_review_insights'  => ['name' => 'Latest Review Insights',  'desc' => 'Recent review text & sentiment'],
+                                    'advanced_review_filters' => ['name' => 'Advanced Review Filters', 'desc' => 'Filter by rating, recency & keywords'],
+                                    'full_review_intelligence'=> ['name' => 'Full Review Intelligence','desc' => 'Complete review history & analysis'],
+                                ];
+                            @endphp
+                            @foreach($intelligenceLabels as $featureKey => $meta)
+                                <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                                    <td class="py-4 px-4">
+                                        <div class="font-medium text-gray-900 text-sm">{{ $meta['name'] }}</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">{{ $meta['desc'] }}</div>
+                                    </td>
+                                    @foreach($userPackages as $package)
+                                        @php
+                                            $feat = $package->features->firstWhere('feature_key', $featureKey);
+                                            $hasFeature = $feat && $feat->feature_value === 'true';
+                                        @endphp
+                                        <td class="text-center py-4 px-4">
+                                            @if($hasFeature)
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100">
+                                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
+                                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </span>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
         </div>
     </section>
 

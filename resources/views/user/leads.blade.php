@@ -366,6 +366,9 @@
                                             </a>
                                         </div>
                                     @endif
+                                    @if(!$lead->phone && !$lead->email && !$lead->website)
+                                        <span class="text-xs text-gray-400 italic">No contact info</span>
+                                    @endif
                                 </div>
                             </td>
 
@@ -401,12 +404,12 @@
         </div>
         @if($lead->total_reviews > 0)
             <div class="text-xs text-gray-500">{{ number_format($lead->total_reviews) }} reviews</div>
-            
+
             @php
-                // Get latest review date from reviews_sample
+                // Try reviews_sample first (pro plan), then fall back to last_review_date column (growth plan)
                 $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
                 $latestReviewDate = null;
-                
+
                 if (!empty($reviewsSample) && is_array($reviewsSample)) {
                     $latestTime = 0;
                     foreach ($reviewsSample as $review) {
@@ -418,8 +421,13 @@
                         $latestReviewDate = \Carbon\Carbon::createFromTimestamp($latestTime);
                     }
                 }
+
+                // Fallback to last_review_date DB column (saved from API's latest_review_date)
+                if (!$latestReviewDate && $lead->last_review_date) {
+                    $latestReviewDate = \Carbon\Carbon::parse($lead->last_review_date);
+                }
             @endphp
-            
+
             @if($latestReviewDate)
                 <p class="text-xs text-gray-400 mt-1">
                     Last: {{ $latestReviewDate->diffForHumans() }}

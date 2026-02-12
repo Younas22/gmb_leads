@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ApiUsageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -200,6 +201,17 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::get('/export/search', [ReportController::class, 'exportSearch'])->name('export.search');
             Route::get('/export/package-performance', [ReportController::class, 'exportPackagePerformance'])->name('export.package-performance');
             Route::get('/export/all-leads', [ReportController::class, 'exportAllLeads'])->name('export.all-leads');
+        });
+
+        // API Usage Management
+        Route::prefix('api-usage')->name('api-usage.')->group(function () {
+            Route::get('/', [ApiUsageController::class, 'index'])->name('index');
+            Route::post('/', [ApiUsageController::class, 'store'])->name('store');
+            Route::get('/{apiKey}/edit', [ApiUsageController::class, 'edit'])->name('edit');
+            Route::put('/{apiKey}', [ApiUsageController::class, 'update'])->name('update');
+            Route::delete('/{apiKey}', [ApiUsageController::class, 'destroy'])->name('destroy');
+            Route::post('/{apiKey}/toggle-status', [ApiUsageController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{apiKey}/reset-counts', [ApiUsageController::class, 'resetCounts'])->name('reset-counts');
         });
 
         // Feedback Management
