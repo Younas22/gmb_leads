@@ -84,26 +84,125 @@ class EmailService
     }
 
     /**
+     * Send verification email to new user
+     */
+    public static function sendVerificationEmail($user, $verificationUrl)
+    {
+        // Check if verify email is enabled
+        if (!Setting::get('enable_verify_email', true)) {
+            Log::info('Verify email is disabled. Skipping verification email for: ' . $user->email);
+            return [
+                'success' => false,
+                'message' => 'Verification email is disabled in settings'
+            ];
+        }
+
+        // Check if dynamic emails are enabled
+        $useDynamicEmails = Setting::get('use_dynamic_emails', false);
+
+        if ($useDynamicEmails) {
+            // Use dynamic email template from database
+            return self::sendWithTemplate(
+                $user->email,
+                'verify_email',
+                [
+                    'user_name' => $user->first_name ?? $user->name ?? 'User',
+                    'verification_url' => $verificationUrl,
+                ]
+            );
+        } else {
+            // Use static blade template
+            return self::send(
+                $user->email,
+                'Verify Your Email - ' . config('app.name'),
+                'emails.verify-email',
+                [
+                    'user' => $user,
+                    'verificationUrl' => $verificationUrl,
+                ]
+            );
+        }
+    }
+
+    /**
      * Send welcome email to new user
      */
     public static function sendWelcomeEmail($user)
     {
         // Check if welcome email is enabled
         if (!Setting::get('enable_welcome_email', true)) {
+            Log::info('Welcome email is disabled. Skipping welcome email for: ' . $user->email);
             return [
                 'success' => false,
                 'message' => 'Welcome email is disabled in settings'
             ];
         }
 
-        return self::sendWithTemplate(
-            $user->email,
-            'welcome',
-            [
-                'user_name' => $user->name ?? 'User',
-                'dashboard_url' => url('/dashboard'),
-            ]
-        );
+        // Check if dynamic emails are enabled
+        $useDynamicEmails = Setting::get('use_dynamic_emails', false);
+
+        if ($useDynamicEmails) {
+            // Use dynamic email template from database
+            return self::sendWithTemplate(
+                $user->email,
+                'welcome',
+                [
+                    'user_name' => $user->name ?? 'User',
+                    'dashboard_url' => url('/dashboard'),
+                ]
+            );
+        } else {
+            // Use static blade template
+            return self::send(
+                $user->email,
+                'Welcome to ' . config('app.name'),
+                'emails.welcome_mail',
+                [
+                    'user' => $user,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Send password reset email
+     */
+    public static function sendPasswordResetEmail($user, $resetUrl)
+    {
+        // Check if password reset email is enabled
+        if (!Setting::get('enable_password_reset_email', true)) {
+            Log::info('Password reset email is disabled. Skipping reset email for: ' . $user->email);
+            return [
+                'success' => false,
+                'message' => 'Password reset email is disabled in settings'
+            ];
+        }
+
+        // Check if dynamic emails are enabled
+        $useDynamicEmails = Setting::get('use_dynamic_emails', false);
+
+        if ($useDynamicEmails) {
+            // Use dynamic email template from database
+            return self::sendWithTemplate(
+                $user->email,
+                'password_reset',
+                [
+                    'user_name' => $user->first_name ?? $user->name ?? 'User',
+                    'reset_url' => $resetUrl,
+                ]
+            );
+        } else {
+            // Use static blade template
+            return self::send(
+                $user->email,
+                'Reset Your Password - ' . config('app.name'),
+                'emails.reset-password',
+                [
+                    'user' => $user,
+                    'resetUrl' => $resetUrl,
+                ]
+            );
+        }
     }
 
     /**

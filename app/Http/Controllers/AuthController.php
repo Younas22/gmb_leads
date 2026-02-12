@@ -171,27 +171,17 @@ class AuthController extends Controller
     private function sendVerificationEmail($user)
     {
         try {
-            // Check if verify email template is enabled
-            if (!\App\Models\Setting::get('enable_verify_email', true)) {
-                Log::info('Verify email template is disabled. Skipping verification email for: ' . $user->email);
-                return;
-            }
-
             $verificationUrl = route('auth.verify.email', [
                 'token' => $user->email_verification_token
             ]);
 
-            Resend::emails()->send([
-                'from' => config('mail.from.address'),
-                'to' => [$user->email],
-                'subject' => 'Verify Your Email - ' . config('mail.from.name'),
-                'html' => view('emails.verify-email', [
-                    'user' => $user,
-                    'verificationUrl' => $verificationUrl
-                ])->render()
-            ]);
+            $result = \App\Services\EmailService::sendVerificationEmail($user, $verificationUrl);
 
-            Log::info('Verification email sent to: ' . $user->email);
+            if ($result['success']) {
+                Log::info('Verification email sent to: ' . $user->email);
+            } else {
+                Log::info($result['message']);
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send verification email: ' . $e->getMessage());
         }
@@ -321,15 +311,11 @@ class AuthController extends Controller
             // Send reset email
             $resetUrl = route('auth.reset.password', ['token' => $token, 'email' => $user->email]);
 
-            Resend::emails()->send([
-                'from' => config('mail.from.address'),
-                'to' => [$user->email],
-                'subject' => 'Reset Your Password - ' . config('mail.from.name'),
-                'html' => view('emails.reset-password', [
-                    'user' => $user,
-                    'resetUrl' => $resetUrl
-                ])->render()
-            ]);
+            $result = \App\Services\EmailService::sendPasswordResetEmail($user, $resetUrl);
+
+            if (!$result['success']) {
+                Log::warning($result['message']);
+            }
 
             return response()->json([
                 'success' => true,
