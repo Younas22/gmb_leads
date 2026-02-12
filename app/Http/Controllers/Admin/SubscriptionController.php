@@ -220,6 +220,7 @@ class SubscriptionController extends Controller
                 $features = $package->features;
                 $searchesLimit = 'Standard';
                 $exportsLimit = 'Standard';
+                $saved_lists = 'Standard';
 
                 foreach ($features as $feature) {
                     if ($feature->feature_key === 'gmb_searches') {
@@ -227,6 +228,9 @@ class SubscriptionController extends Controller
                     }
                     if ($feature->feature_key === 'leads_per_month') {
                         $exportsLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    }
+                    if ($feature->feature_key === 'saved_lists') {
+                        $saved_lists = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
                     }
                 }
 
@@ -236,6 +240,7 @@ class SubscriptionController extends Controller
                     'renewal_date' => $updateData['end_date'] ? \Carbon\Carbon::parse($updateData['end_date'])->format('F d, Y') : 'Lifetime',
                     'searches_limit' => $searchesLimit,
                     'exports_limit' => $exportsLimit,
+                    'saved_lists' => $saved_lists,
                 ];
 
                 $result = \App\Services\EmailService::sendSubscriptionStart($user, $subscriptionData);
