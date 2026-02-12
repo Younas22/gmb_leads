@@ -72,20 +72,21 @@
                 </div>
 
                 <!-- Main Heading -->
-                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-4 leading-tight">
-                    Direct Client Hunting,
+                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-4 leading-tight tracking-tight">
+                    Build a Direct Client Funnel
                     <span class="relative inline-block">
                         <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">
-                            Done Right
+                            Using Google Maps
                         </span>
                     </span>
-                    <span class="inline-block">🚀</span>
+                    <span class="inline-block"> 🚀</span>
                 </h1>
 
                 <!-- Subheading -->
                 <p class="text-base sm:text-lg text-gray-600 mb-6 leading-relaxed max-w-2xl mx-auto">
-                    Stop wasting time on dead leads or marketplaces. Discover real, active businesses from Google Maps and pitch clients before anyone else.
-                </p>
+                    Find verified local and global businesses in minutes.
+                    Skip marketplaces and create your own client pipeline.
+                 </p>
 
                 <!-- Feature Highlights -->
                 <!-- <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-6">
@@ -116,15 +117,15 @@
                 </div> -->
 
                 <!-- CTA Buttons -->
-                <div class="flex flex-wrap gap-3 sm:gap-4 justify-center items-center mb-3">
-                    <a href="{{ route('auth.show') }}" class="inline-flex items-center justify-center w-[180px] sm:w-[200px] px-6 py-3.5 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
+                <div class="flex flex-nowrap gap-2 sm:gap-4 justify-center items-center mb-3">
+                    <a href="{{ route('auth.show') }}" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
                         Start Free Trial
-                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
                     </a>
 
-                    <a href="#how-it-works" class="inline-flex items-center justify-center w-[180px] sm:w-[200px] px-6 py-3.5 text-sm sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-600 transition-all duration-200">
+                    <a href="#how-it-works" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-600 transition-all duration-200">
                         How It Works
                     </a>
                 </div>
