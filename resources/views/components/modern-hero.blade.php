@@ -3,60 +3,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
 <style>
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+    @keyframes blob-drift {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(30px, -50px) scale(1.05); }
+        50% { transform: translate(-20px, 20px) scale(0.95); }
+        75% { transform: translate(15px, 40px) scale(1.02); }
     }
-
-    @keyframes float-1 {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(5deg); }
+    @keyframes blob-drift-reverse {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(-40px, 30px) scale(0.95); }
+        50% { transform: translate(25px, -25px) scale(1.05); }
+        75% { transform: translate(-10px, -40px) scale(0.98); }
     }
-
-    @keyframes float-2 {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-30px) rotate(-5deg); }
-    }
-
-    @keyframes float-3 {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-25px) rotate(3deg); }
-    }
-
-    @keyframes float-4 {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-15px) rotate(-3deg); }
-    }
-
-    .floating-emoji {
-        position: absolute;
-        font-size: 2rem;
-        opacity: 0.15;
-        pointer-events: none;
-        user-select: none;
-    }
+    .hero-blob-1 { animation: blob-drift 18s ease-in-out infinite; }
+    .hero-blob-2 { animation: blob-drift-reverse 22s ease-in-out infinite; }
 </style>
 
 <!-- Hero Section -->
-<section class="relative py-12 sm:py-16 bg-gradient-to-br from-white via-orange-50/30 to-blue-50/40 overflow-hidden" style="font-family: 'Roboto', sans-serif;">
+<section class="relative py-12 sm:py-16 bg-white overflow-hidden" style="font-family: 'Roboto', sans-serif;">
 
-    <!-- Background Decorative Elements -->
-    <div class="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-transparent rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-orange-400/10 to-transparent rounded-full blur-3xl"></div>
-
-    <!-- Floating Emoji Background -->
-    <div class="floating-emoji" style="top: 10%; left: 5%; animation: float-1 6s ease-in-out infinite;">💼</div>
-    <div class="floating-emoji" style="top: 20%; right: 8%; animation: float-2 7s ease-in-out infinite;">💰</div>
-    <div class="floating-emoji" style="top: 60%; left: 10%; animation: float-3 5s ease-in-out infinite;">💼</div>
-    <div class="floating-emoji" style="top: 70%; right: 15%; animation: float-4 8s ease-in-out infinite;">💰</div>
-    <div class="floating-emoji" style="top: 40%; left: 3%; animation: float-1 7s ease-in-out infinite 0.5s;">💰</div>
-    <div class="floating-emoji" style="top: 50%; right: 5%; animation: float-2 6s ease-in-out infinite 1s;">💼</div>
-    <div class="floating-emoji" style="top: 30%; right: 20%; animation: float-3 6.5s ease-in-out infinite 0.8s;">💼</div>
-    <div class="floating-emoji" style="top: 80%; left: 8%; animation: float-4 7.5s ease-in-out infinite 1.2s;">💰</div>
-    <div class="floating-emoji" style="top: 15%; left: 18%; animation: float-2 5.5s ease-in-out infinite 0.3s;">💰</div>
-    <div class="floating-emoji" style="top: 85%; right: 12%; animation: float-1 8.5s ease-in-out infinite 1.5s;">💼</div>
-    <div class="floating-emoji" style="top: 25%; left: 25%; animation: float-3 7s ease-in-out infinite 0.6s;">💰</div>
-    <div class="floating-emoji" style="top: 65%; right: 25%; animation: float-4 6s ease-in-out infinite 1.8s;">💼</div>
+    <!-- Decorative Background (refund-style) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute inset-0" style="background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249,115,22,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 20% 80%, rgba(29,78,216,0.05) 0%, transparent 60%);"></div>
+        <div class="hero-blob-1 absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full" style="background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%);"></div>
+        <div class="hero-blob-2 absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full" style="background: radial-gradient(circle, rgba(29,78,216,0.06) 0%, transparent 70%);"></div>
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url(&quot;data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none' stroke='%23000' stroke-width='0.5'/%3E%3C/svg%3E&quot;);"></div>
+    </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center">
