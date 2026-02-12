@@ -3,9 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <title>{{ \App\Models\Setting::get('site_name', 'BusinessFinder') }} - Find Quality Business Leads Fast</title>
-
+    
+    <!-- ============ CRITICAL FIX: Remove noindex ============ -->
+    <meta name="robots" content="index, follow" />
+    
+    <!-- ============ META DESCRIPTIONS & KEYWORDS ============ -->
+    <meta name="description" content="CustomerNearme - Find verified Google Maps business leads instantly for direct client hunting, cold email campaigns, and lead generation. Real-time data directly from Google Maps. No fake scraping." />
+    <meta name="keywords" content="google maps lead generation, direct client hunting, gmb business data, cold email leads, business finder tool, verified business contacts, find business leads online" />
+    <meta name="author" content="CustomerNearme" />
+    <meta name="publisher" content="CustomerNearme" />
+    <meta name="theme-color" content="#f97316" />
+    
+    <!-- ============ CANONICAL URL ============ -->
+    <link rel="canonical" href="{{ url()->current() }}" />
+    
+    <!-- ============ OPEN GRAPH TAGS ============ -->
+    <meta property="og:title" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Find Real Google Maps Business Leads for Direct Client Hunting" />
+    <meta property="og:description" content="Find verified business leads directly from Google Maps for cold email, sales outreach, and direct client hunting. Real-time data, no fake scraping." />
+    <meta property="og:image" content="{{ asset('public/assets/images/og-image-1200x630.png') }}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- ============ TWITTER CARD TAGS ============ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Google Maps Lead Generator" />
+    <meta name="twitter:description" content="Direct client hunting made easy. Get verified business leads from Google Maps instantly. No fake scraping." />
+    <meta name="twitter:image" content="{{ asset('public/assets/images/twitter-card-1200x630.png') }}" />
+    <meta name="twitter:creator" content="@CustomerNearme" />
+    <meta name="twitter:site" content="@CustomerNearme" />
+    
+    <!-- ============ LINKEDIN TAGS ============ -->
+    <meta property="linkedin:title" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Google Maps Lead Generation for Sales Professionals" />
+    <meta property="linkedin:description" content="Find real Google Maps business leads for cold email and sales outreach. Direct client hunting made simple." />
+    
+    <!-- ============ FAVICON ============ -->
     @php
         $siteFavicon = \App\Models\Setting::get('site_favicon');
     @endphp
@@ -15,8 +50,13 @@
         <link rel="icon" type="image/png" href="{{ asset('public/assets/images/favicon.png') }}">
     @endif
 
+    <!-- ============ PRECONNECT & DNS PREFETCH ============ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,6 +81,271 @@
     <script>
         const BASE_URL = '{{ url("/") }}';
     </script>
+
+        <!-- ============ SCHEMA.ORG STRUCTURED DATA ============ -->
+    
+    <!-- 1. ORGANIZATION SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
+      "url": "{{ url('/') }}",
+      "logo": "{{ asset('public/' . \App\Models\Setting::get('site_logo', 'assets/images/logo.png')) }}",
+      "description": "AI-powered lead generation platform that pulls real-time verified business data directly from Google Maps for direct client hunting, cold email campaigns, and sales outreach",
+      "sameAs": [
+        "https://www.facebook.com/CustomerNearme",
+        "https://www.instagram.com/customernearme",
+        "https://x.com/CustomerNearme",
+        "https://www.youtube.com/@CustomerNearme",
+        "https://www.linkedin.com/company/customernearme"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "telephone": "+92-346-0820722",
+        "email": "info@customernearme.com",
+        "areaServed": "Worldwide",
+        "availableLanguage": "en-US"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "PK",
+        "addressLocality": "Khanewal",
+        "addressRegion": "Punjab"
+      },
+      "foundingDate": "2023"
+    }
+    </script>
+    
+    <!-- 2. SAASPRODUCT SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SaaSProduct",
+      "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
+      "description": "Real-time Google Maps lead generation tool for direct client hunting. Find verified business data for cold email, sales, and lead generation campaigns.",
+      "url": "{{ url('/') }}",
+      "logo": "{{ asset('public/' . \App\Models\Setting::get('site_logo', 'assets/images/logo.png')) }}",
+      "applicationCategory": [
+        "BusinessApplication",
+        "SoftwareApplication"
+      ],
+      "operatingSystem": "Web-based",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "0",
+        "highPrice": "99",
+        "offerCount": 3,
+        "url": "{{ url('/') }}#pricing"
+      },
+      "featureList": [
+        "Real-time Google Maps business data integration",
+        "Advanced filtering by category, rating, location, and reviews",
+        "CSV and Excel export functionality",
+        "Lead management with tags, notes, and status tracking",
+        "REST API access for automation",
+        "Verified phone numbers and business contact information",
+        "Social media links extraction",
+        "Business rating and review insights",
+        "Saved leads stored permanently in account"
+      ],
+      "inLanguage": "en-US",
+      "isAccessibleForFree": true,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "247",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+    </script>
+    
+    <!-- 3. FAQPAGE SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How fresh and up-to-date is the data in CustomerNearme?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The data is pulled in real-time from Google Maps every time you run a search. Unlike static lead databases that go stale within weeks, our results reflect the current state of Google Maps at the moment of your query. This ensures you never waste time on closed or outdated listings when doing direct client hunting."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What business information do I get for each lead?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Each lead includes business name, verified phone number, full address, Google Maps link, website URL, social media links, star rating, total review count, and business category. This gives you everything you need to qualify and reach out to prospects without additional research."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I export leads from CustomerNearme?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, you can export your saved leads in CSV and Excel formats with a single click. The files are clean and ready to import directly into your CRM, email marketing platform, or cold email tools."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are my saved leads stored permanently?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Every lead you save is permanently stored in your account. You can revisit, filter, tag, and export them whenever you need — your lead data is always there for you."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who should use CustomerNearme?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CustomerNearme is built for anyone who needs reliable business leads. This includes digital marketers, SEO agencies, freelancers, cold emailers, sales teams, real estate agents, and local service providers."
+          }
+        }
+      ]
+    }
+    </script>
+    
+    <!-- 4. WEBPAGE SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": "{{ url('/') }}",
+      "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Real Google Maps Business Leads for Direct Client Hunting",
+      "description": "Find verified business leads directly from Google Maps for cold email, sales, and direct client hunting. Real-time data, no fake scraping.",
+      "url": "{{ url('/') }}",
+      "image": "{{ asset('public/assets/images/og-image.png') }}",
+      "datePublished": "2023-01-01",
+      "dateModified": "{{ date('Y-m-d') }}",
+      "inLanguage": "en-US",
+      "isPartOf": {
+        "@type": "Website",
+        "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
+      },
+      "mainEntity": {
+        "@type": "SaaSProduct",
+        "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
+      }
+    }
+    </script>
+    
+    <!-- 5. BREADCRUMBLIST SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ url('/') }}"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Features",
+          "item": "{{ url('/') }}#features"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "How It Works",
+          "item": "{{ url('/') }}#how-it-works"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Pricing",
+          "item": "{{ url('/') }}#pricing"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "FAQ",
+          "item": "{{ url('/') }}#faq"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- 6. PRODUCT SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
+      "description": "Real-time Google Maps business lead generation tool for direct client hunting and cold email campaigns",
+      "brand": {
+        "@type": "Brand",
+        "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "247"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "0",
+        "highPrice": "99"
+      }
+    }
+    </script>
+    
+    <!-- 7. LOCALBUSINESS SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
+      "description": "Global lead generation platform providing Google Maps business data for direct client hunting",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "PK",
+        "addressLocality": "Khanewal",
+        "addressRegion": "Punjab"
+      },
+      "telephone": "+92-346-0820722",
+      "email": "info@customernearme.com",
+      "url": "{{ url('/') }}",
+      "serviceArea": {
+        "@type": "Place",
+        "name": "Worldwide"
+      }
+    }
+    </script>
+    
+    <!-- 8. ACTION SCHEMA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Action",
+      "name": "Sign Up for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
+      "url": "{{ route('auth.show') }}",
+      "description": "Start finding Google Maps business leads for direct client hunting",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ route('auth.show') }}",
+        "actionPlatform": [
+          "DesktopWebPlatform",
+          "MobileWebPlatform"
+        ]
+      }
+    }
+    </script>
+
+    <title>{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Find Quality Business Leads Fast via Google Maps</title>
+</head>
 </head>
 <body class="bg-white font-inter">
     <!-- Navigation -->
