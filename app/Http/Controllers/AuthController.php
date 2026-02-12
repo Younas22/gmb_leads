@@ -141,7 +141,7 @@ class AuthController extends Controller
             ]);
 
             // Send verification email only if email verification is enabled
-            if (\App\Models\Setting::get('email_verification', false)) {
+            if (\App\Models\Setting::get('enable_verify_email', false)) {
                 $this->sendVerificationEmail($user);
             }
 
@@ -243,7 +243,7 @@ class AuthController extends Controller
         }
 
         // Check if email verification is enabled
-        if (!\App\Models\Setting::get('email_verification', false)) {
+        if (!\App\Models\Setting::get('enable_verify_email', false)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email verification is currently disabled.'
