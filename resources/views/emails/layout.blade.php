@@ -29,31 +29,16 @@
         }
 
         .email-header {
-            background: linear-gradient(135deg, rgb(234, 88, 12) 0%, #c2410c 100%);
+            background: #ffffff;
             padding: 50px 30px;
             text-align: center;
             position: relative;
-        }
-
-        .email-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
+            border-bottom: 3px solid rgb(234, 88, 12);
         }
 
         .logo-container {
-            background-color: #ffffff;
             display: inline-block;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            position: relative;
-            z-index: 1;
+            padding: 10px;
         }
 
         .email-header img {
@@ -67,19 +52,31 @@
             margin: 15px 0 0 0;
             font-size: 28px;
             font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            color: rgb(234, 88, 12);
         }
 
         .email-header p {
             margin: 5px 0 0;
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
         }
 
         .email-body {
             padding: 45px 35px;
-            background-color: #ffffff;
+            background: linear-gradient(135deg, #fff5f1 0%, #ffedd5 50%, #fff5f1 100%);
+            position: relative;
+        }
+
+        .email-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="1.5" fill="rgba(234, 88, 12, 0.05)"/></svg>');
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         .email-body h2 {
@@ -90,6 +87,8 @@
             border-bottom: 3px solid rgb(234, 88, 12);
             padding-bottom: 10px;
             display: inline-block;
+            position: relative;
+            z-index: 1;
         }
 
         .email-body p {
@@ -97,11 +96,15 @@
             color: #4a5568;
             font-size: 16px;
             line-height: 1.8;
+            position: relative;
+            z-index: 1;
         }
 
         .email-body ul {
             margin-bottom: 20px;
             padding-left: 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .email-body li {
@@ -122,6 +125,8 @@
             font-size: 16px;
             box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
         }
 
         .button:hover {
@@ -130,12 +135,14 @@
         }
 
         .info-box {
-            background: linear-gradient(135deg, #fff5f1 0%, #ffedd5 100%);
+            background: #ffffff;
             border-left: 5px solid rgb(234, 88, 12);
             padding: 20px;
             margin: 25px 0;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(234, 88, 12, 0.1);
+            box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+            position: relative;
+            z-index: 1;
         }
 
         .info-box p {
