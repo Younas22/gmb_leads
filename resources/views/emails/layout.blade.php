@@ -206,7 +206,7 @@
             </p>
 
             <p style="font-size: 12px; margin-top: 10px;">
-                <a href="{{ url('/') }}">Visit our website</a> |
+                <a href="{{ url('/') }}">Visit our website</a>
                 <!-- <a href="#">Privacy Policy</a> |
                 <a href="#">Terms of Service</a> -->
             </p>
