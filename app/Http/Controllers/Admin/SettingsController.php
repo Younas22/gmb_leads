@@ -153,6 +153,7 @@ class SettingsController extends Controller
             'cache_duration' => 'nullable|integer|min:1|max:1440',
         ]);
 
+        Setting::set('app_mode', $request->has('app_mode') ? 'development' : 'production', 'text', 'system', 'Application Mode (development/production)');
         Setting::set('maintenance_mode', $request->has('maintenance_mode') ? 1 : 0, 'boolean', 'general', 'Maintenance Mode');
         Setting::set('use_dynamic_emails', $request->has('use_dynamic_emails') ? 1 : 0, 'boolean', 'general', 'Use Dynamic Email Templates');
         Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');

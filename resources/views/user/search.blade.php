@@ -742,7 +742,8 @@ $(document).ready(function() {
 // Search functionality
 let isSearching = false;
 
-document.getElementById('searchForm').addEventListener('submit', async function(e) {
+document.addEventListener('submit', async function(e) {
+    if (e.target.id !== 'searchForm') return;
     e.preventDefault();
 
     if (isSearching) return false;
@@ -754,7 +755,7 @@ document.getElementById('searchForm').addEventListener('submit', async function(
     startProgress();
 
     // Get form data
-    const formData = new FormData(this);
+    const formData = new FormData(e.target);
 
     try {
         const response = await fetch('{{ route('user.search.post') }}', {

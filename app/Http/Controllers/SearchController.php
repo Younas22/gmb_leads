@@ -9,6 +9,7 @@ use App\Models\AdminApiKey;
 use App\Models\Country;
 use App\Models\SavedLead;
 use App\Models\SearchHistory;
+use App\Models\Setting;
 use App\Models\State;
 use App\Models\City;
 
@@ -163,6 +164,92 @@ class SearchController extends Controller
         $reviewMax = (int) $request->input('review_max', 0);
         $latestReviewWithinDays = (int) $request->input('latest_review_within_days', 0);
 
+        // Check if development mode is enabled
+        $isDevelopmentMode = Setting::get('app_mode', 'production') === 'development';
+
+        if ($isDevelopmentMode) {
+            // Use mock API data instead of live API
+            $mockParams = [
+                'key' => 'dev_test_key',
+                'plan' => $packageSlug,
+                'query' => $query,
+                'location' => $coordinates['lat'] . ',' . $coordinates['lng'],
+                'radius' => $radius * 1000,
+                'review_max' => $reviewMax,
+                'latest_review_within_days' => $latestReviewWithinDays,
+            ];
+            if ($pageToken) {
+                $mockParams['pagetoken'] = $pageToken;
+            }
+
+            $mockApiUrl = url('/mock-api/search');
+            $fullUrl = $mockApiUrl . '?' . http_build_query($mockParams);
+
+            \Log::info('=== DEVELOPMENT MODE: Mock API Request ===');
+            \Log::info('Mock API URL: ' . $mockApiUrl);
+            \Log::info('Full URL with params: ' . $fullUrl);
+            \Log::info('Request params:', $mockParams);
+            \Log::info('Is Load More: ' . ($pageToken ? 'YES (token: ' . substr($pageToken, 0, 50) . '...)' : 'NO (new search)'));
+
+            $apiStartTime = microtime(true);
+            $mockController = new MockApiController();
+            $mockRequest = new Request([
+                'plan' => $packageSlug,
+                'pagetoken' => $pageToken,
+                'review_max' => $reviewMax,
+                'latest_review_within_days' => $latestReviewWithinDays,
+            ]);
+            $mockResponse = $mockController->search($mockRequest);
+            $apiData = json_decode($mockResponse->getContent(), true);
+            $apiEndTime = microtime(true);
+            $apiResponseTime = round($apiEndTime - $apiStartTime, 3);
+
+            $endTime = microtime(true);
+            $executionTime = round($endTime - $startTime, 3);
+
+            $results = $apiData['results'] ?? [];
+            $nextPageToken = $apiData['next_page_token'] ?? null;
+
+            \Log::info('=== DEVELOPMENT MODE: Mock API Response ===');
+            \Log::info('Response time: ' . $apiResponseTime . 's');
+            \Log::info('Plan: ' . ($apiData['meta']['plan'] ?? 'unknown'));
+            \Log::info('Results count: ' . count($results));
+            \Log::info('Next page token: ' . ($nextPageToken ? substr($nextPageToken, 0, 50) . '...' : 'null (last page)'));
+            \Log::info('Meta:', $apiData['meta'] ?? []);
+
+            if (empty($results)) {
+                if ($searchHistory) {
+                    $this->updateSearchHistoryToSuccess($searchHistory, [], $executionTime, $apiResponseTime);
+                }
+                return back()->with('info', 'No results found for your search criteria. Try adjusting your search terms or location.');
+            }
+
+            $formattedResults = $this->formatApiResults($results);
+
+            if ($searchHistory) {
+                $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
+            }
+
+            $countries = Country::orderBy('name')->get();
+
+            return view('user.search', compact('user', 'formattedResults', 'countries', 'packageSlug'))
+                ->with('searchPerformed', true)
+                ->with('totalResults', count($formattedResults))
+                ->with('nextPageToken', $nextPageToken)
+                ->with('searchData', [
+                    'query' => $query,
+                    'country_id' => $countryId,
+                    'state_id' => $stateId,
+                    'city_id' => $cityId,
+                    'radius' => $radius,
+                    'review_max' => $reviewMax,
+                    'latest_review_within_days' => $latestReviewWithinDays,
+                    'location_name' => $this->buildLocationString($city, $state, $country),
+                    'page_token' => $pageToken
+                ]);
+        }
+
+        // Production mode: Use live API
         $apiUrl = 'https://api.customernearme.com/search';
         $params = [
             'key' => $adminApiKey->api_key,
@@ -174,19 +261,25 @@ class SearchController extends Controller
             'latest_review_within_days' => $latestReviewWithinDays,
         ];
 
-        \Log::info('Search API params', $params);
-
         // Add page token if provided
         if ($pageToken) {
             $params['pagetoken'] = $pageToken;
         }
-        
+
+        $fullUrl = $apiUrl . '?' . http_build_query($params);
+
+        \Log::info('=== PRODUCTION MODE: Live API Request ===');
+        \Log::info('API URL: ' . $apiUrl);
+        \Log::info('Full URL with params: ' . $fullUrl);
+        \Log::info('Request params:', $params);
+        \Log::info('Is Load More: ' . ($pageToken ? 'YES (token: ' . substr($pageToken, 0, 50) . '...)' : 'NO (new search)'));
+
         // Make API call with retry mechanism and longer timeout
         $maxRetries = 3;
         $retryCount = 0;
         $response = null;
         $apiStartTime = microtime(true); // Track API response time
-        
+
         while ($retryCount < $maxRetries) {
             try {
                 $response = Http::timeout(90) // Increased timeout to 90 seconds
@@ -197,18 +290,18 @@ class SearchController extends Controller
                         'http_errors' => false, // Don't throw exception on HTTP errors
                     ])
                     ->get($apiUrl, $params);
-                
+
                 // If we get a response, break out of retry loop
                 if ($response && $response->status() !== 0) {
                     break;
                 }
-                
+
             } catch (\Exception $e) {
                 $retryCount++;
                 if ($retryCount >= $maxRetries) {
                     throw $e;
                 }
-                
+
                 // Wait before retrying (exponential backoff)
                 sleep(pow(2, $retryCount));
             }
@@ -249,7 +342,7 @@ class SearchController extends Controller
             // Extract results and next page token
             $results = $apiData['results'] ?? $apiData;
             $nextPageToken = $apiData['next_page_token'] ?? null;
-            
+
             // Check if results is empty
             if (empty($results)) {
                 // Update search history to SUCCESS but with 0 results
@@ -258,18 +351,18 @@ class SearchController extends Controller
                 }
                 return back()->with('info', 'No results found for your search criteria. Try adjusting your search terms or location.');
             }
-            
+
             // Process and format results
             $formattedResults = $this->formatApiResults($results);
-            
+
             // Update search history to SUCCESS (only for new searches, not pagination)
             if ($searchHistory) {
                 $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
             }
-            
+
             // Get countries for form repopulation
             $countries = Country::orderBy('name')->get();
-            
+
             return view('user.search', compact('user', 'formattedResults', 'countries', 'packageSlug'))
                 ->with('searchPerformed', true)
                 ->with('totalResults', count($formattedResults))

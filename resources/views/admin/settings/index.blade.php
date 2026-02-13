@@ -794,6 +794,27 @@ use App\Models\EmailTemplate;
                             </h2>
                         </div>
                         <div class="p-5 space-y-4">
+                            <!-- Development / Production Mode Toggle -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border {{ Setting::get('app_mode', 'production') === 'development' ? 'bg-orange-50 border-orange-300' : 'bg-green-50 border-green-300' }}" id="app-mode-container">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 text-xs">Application Mode</h5>
+                                    <p class="text-[10px] text-gray-600">Switch between Development and Production mode</p>
+                                    <p class="text-[10px] mt-1 font-medium {{ Setting::get('app_mode', 'production') === 'development' ? 'text-orange-600' : 'text-green-600' }}" id="app-mode-status">
+                                        Currently: <span class="uppercase">{{ Setting::get('app_mode', 'production') }}</span> Mode
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-medium {{ Setting::get('app_mode', 'production') === 'production' ? 'text-green-700' : 'text-gray-400' }}" id="prod-label">Production</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="app_mode" name="app_mode" value="development"
+                                               {{ Setting::get('app_mode', 'production') === 'development' ? 'checked' : '' }}
+                                               class="sr-only peer"
+                                               onchange="updateModeUI(this)">
+                                        <div class="w-9 h-5 bg-green-500 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500 relative"></div>
+                                    </label>
+                                    <span class="text-[10px] font-medium {{ Setting::get('app_mode', 'production') === 'development' ? 'text-orange-700' : 'text-gray-400' }}" id="dev-label">Development</span>
+                                </div>
+                            </div>
                             <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                 <div>
                                     <h5 class="font-medium text-gray-900 text-xs">Maintenance Mode</h5>
@@ -1139,6 +1160,28 @@ use App\Models\EmailTemplate;
         const activeTab = document.getElementById('tab-' + tabName);
         activeTab.classList.add('active', 'border-primary-600', 'text-primary-600');
         activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    // Update Development/Production Mode UI
+    function updateModeUI(checkbox) {
+        const container = document.getElementById('app-mode-container');
+        const status = document.getElementById('app-mode-status');
+        const prodLabel = document.getElementById('prod-label');
+        const devLabel = document.getElementById('dev-label');
+
+        if (checkbox.checked) {
+            container.className = 'flex items-center justify-between p-3 rounded-lg border bg-orange-50 border-orange-300';
+            status.className = 'text-[10px] mt-1 font-medium text-orange-600';
+            status.innerHTML = 'Currently: <span class="uppercase">DEVELOPMENT</span> Mode';
+            prodLabel.className = 'text-[10px] font-medium text-gray-400';
+            devLabel.className = 'text-[10px] font-medium text-orange-700';
+        } else {
+            container.className = 'flex items-center justify-between p-3 rounded-lg border bg-green-50 border-green-300';
+            status.className = 'text-[10px] mt-1 font-medium text-green-600';
+            status.innerHTML = 'Currently: <span class="uppercase">PRODUCTION</span> Mode';
+            prodLabel.className = 'text-[10px] font-medium text-green-700';
+            devLabel.className = 'text-[10px] font-medium text-gray-400';
+        }
     }
 
     // Toggle API Key Visibility
