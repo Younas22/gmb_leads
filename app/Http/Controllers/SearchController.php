@@ -286,38 +286,17 @@ class SearchController extends Controller
         \Log::info('Request params:', $params);
         \Log::info('Is Load More: ' . ($pageToken ? 'YES (token: ' . substr($pageToken, 0, 50) . '...)' : 'NO (new search)'));
 
-        // Make API call with retry mechanism and longer timeout
-        $maxRetries = 3;
-        $retryCount = 0;
+        // Make API call with longer timeout
         $response = null;
-        $apiStartTime = microtime(true); // Track API response time
+        $apiStartTime = microtime(true);
 
-        while ($retryCount < $maxRetries) {
-            try {
-                $response = Http::timeout(90) // Increased timeout to 90 seconds
-                    ->connectTimeout(30) // Connection timeout
-                    ->retry(2, 1000) // Retry 2 times with 1 second delay
-                    ->withOptions([
-                        'verify' => false, // Skip SSL verification if needed
-                        'http_errors' => false, // Don't throw exception on HTTP errors
-                    ])
-                    ->get($apiUrl, $params);
-
-                // If we get a response, break out of retry loop
-                if ($response && $response->status() !== 0) {
-                    break;
-                }
-
-            } catch (\Exception $e) {
-                $retryCount++;
-                if ($retryCount >= $maxRetries) {
-                    throw $e;
-                }
-
-                // Wait before retrying (exponential backoff)
-                sleep(pow(2, $retryCount));
-            }
-        }
+        $response = Http::timeout(90)
+            ->connectTimeout(30)
+            ->withOptions([
+                'verify' => false,
+                'http_errors' => false,
+            ])
+            ->get($apiUrl, $params);
 
         $apiEndTime = microtime(true);
         $apiResponseTime = round($apiEndTime - $apiStartTime, 3);
@@ -395,7 +374,17 @@ class SearchController extends Controller
         } else {
             // Handle specific HTTP error codes
             $statusCode = $response->status();
+            $apiErrorBody = $response->json();
+            $apiErrorMessage = $apiErrorBody['message'] ?? null;
+
+            \Log::error('API Error Response', [
+                'status' => $statusCode,
+                'body' => $apiErrorBody,
+                'is_load_more' => !empty($pageToken),
+            ]);
+
             $errorMessage = match($statusCode) {
+                400 => $apiErrorMessage ?? 'Invalid request. Please try again.',
                 429 => 'API rate limit exceeded. Please wait a moment and try again.',
                 500, 502, 503, 504 => 'Search service is temporarily unavailable. Please try again later.',
                 404 => 'Search service not found. Please contact support.',
