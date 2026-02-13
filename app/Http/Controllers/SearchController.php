@@ -112,8 +112,18 @@ class SearchController extends Controller
     $state = $stateId ? State::find($stateId) : null;
     $city = $cityId ? City::find($cityId) : null;
 
-    // Get coordinates
-    $coordinates = $this->getCoordinates($city, $state, $country);
+    // For load more requests, use original coordinates (dropdowns may be disabled/not loaded)
+    $originalLat = $request->input('original_lat');
+    $originalLng = $request->input('original_lng');
+
+    if ($pageToken && $originalLat && $originalLng) {
+        $coordinates = [
+            'lat' => (float) $originalLat,
+            'lng' => (float) $originalLng,
+        ];
+    } else {
+        $coordinates = $this->getCoordinates($city, $state, $country);
+    }
 
     if (!$coordinates) {
         $errorMessage = 'Unable to determine location coordinates';
@@ -245,7 +255,9 @@ class SearchController extends Controller
                     'review_max' => $reviewMax,
                     'latest_review_within_days' => $latestReviewWithinDays,
                     'location_name' => $this->buildLocationString($city, $state, $country),
-                    'page_token' => $pageToken
+                    'page_token' => $pageToken,
+                    'original_lat' => $coordinates['lat'],
+                    'original_lng' => $coordinates['lng'],
                 ]);
         }
 
@@ -376,7 +388,9 @@ class SearchController extends Controller
                     'review_max' => $reviewMax,
                     'latest_review_within_days' => $latestReviewWithinDays,
                     'location_name' => $this->buildLocationString($city, $state, $country),
-                    'page_token' => $pageToken
+                    'page_token' => $pageToken,
+                    'original_lat' => $coordinates['lat'],
+                    'original_lng' => $coordinates['lng'],
                 ]);
         } else {
             // Handle specific HTTP error codes

@@ -11,6 +11,8 @@
     <form action="{{ route('user.search.post') }}" method="POST" id="searchForm">
         @csrf
         <input type="hidden" name="page_token" id="page_token" value="">
+        <input type="hidden" name="original_lat" id="original_lat" value="{{ $searchData['original_lat'] ?? '' }}">
+        <input type="hidden" name="original_lng" id="original_lng" value="{{ $searchData['original_lng'] ?? '' }}">
 
         <!-- Row 1: Search Query, Country, State, City -->
         <div class="p-4 pb-0">
