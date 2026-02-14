@@ -312,8 +312,16 @@
                         $canExport = $exportLimit === -1 || $todayExportCount < $exportLimit;
                     @endphp
 
-                    <!-- Export Dropdown Button -->
-                    <div class="relative inline-block text-left">
+                    <div class="flex items-center gap-2">
+                        <!-- Hide/Show Button -->
+                        <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn"
+                                class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
+                            <i class="fas fa-eye-slash" id="visibilityIcon"></i>
+                            <span id="visibilityText">Hide Details</span>
+                        </button>
+
+                        <!-- Export Dropdown Button -->
+                        <div class="relative inline-block text-left">
                         @if($canExport)
                             <button type="button" onclick="toggleExportDropdown()"
                                     class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
@@ -345,6 +353,7 @@
                                 <span>Export (Limit Reached)</span>
                             </button>
                         @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -379,7 +388,7 @@
 
                                 <td class="px-6 py-4">
                                     <div>
-                                        <div class="text-sm font-semibold text-gray-900">{{ $lead->name }}</div>
+                                        <div class="text-sm font-semibold text-gray-900 contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
                                         <div class="text-xs text-orange-600 font-medium">{{ $lead->category ?? 'Business' }}</div>
                                     </div>
                                 </td>
@@ -387,21 +396,38 @@
                                <td class="px-6 py-4 max-w-xs">
                                 <div class="space-y-1 truncate">
                                     @if($lead->phone)
-                                        <div class="text-sm text-gray-600">
-                                            <i class="fas fa-phone w-4"></i> {{ $lead->phone }}
+                                        <div class="flex items-center text-sm text-gray-600 gap-2">
+                                            <i class="fas fa-phone w-4"></i>
+                                            <span class="contact-detail" data-type="phone" data-original="{{ $lead->phone }}">{{ $lead->phone }}</span>
+                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->phone }}', this)"
+                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
+                                                    title="Copy phone">
+                                                <i class="fas fa-copy text-xs"></i>
+                                            </button>
                                         </div>
                                     @endif
                                     @if($lead->email)
-                                        <div class="text-sm text-gray-600">
-                                            <i class="fas fa-envelope w-4"></i> {{ $lead->email }}
+                                        <div class="flex items-center text-sm text-gray-600 gap-2">
+                                            <i class="fas fa-envelope w-4"></i>
+                                            <span class="contact-detail" data-type="email" data-original="{{ $lead->email }}">{{ $lead->email }}</span>
+                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->email }}', this)"
+                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
+                                                    title="Copy email">
+                                                <i class="fas fa-copy text-xs"></i>
+                                            </button>
                                         </div>
                                     @endif
                                     @if($lead->website)
-                                        <div class="text-sm text-gray-600">
+                                        <div class="flex items-center text-sm text-gray-600 gap-2">
                                             <i class="fas fa-globe w-4"></i>
-                                            <a href="{{ $lead->website }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate">
+                                            <a href="{{ $lead->website }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate contact-detail" data-type="website" data-original="{{ str_replace(['http://', 'https://'], '', $lead->website) }}">
                                                 {{ str_replace(['http://', 'https://'], '', $lead->website) }}
                                             </a>
+                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->website }}', this)"
+                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
+                                                    title="Copy website">
+                                                <i class="fas fa-copy text-xs"></i>
+                                            </button>
                                         </div>
                                     @endif
                                     @if(!$lead->phone && !$lead->email && !$lead->website)
@@ -412,7 +438,7 @@
 
 
                                 <td class="px-6 py-4 w-48">
-                                    <div class="text-sm text-gray-600">
+                                    <div class="text-sm text-gray-600 contact-detail" data-type="location" data-original="{{ $lead->search_location }}">
                                         {{ $lead->search_location }}
                                     </div>
 
@@ -504,10 +530,28 @@
                                 </td>
 
                                 <td class="px-6 py-4 w-24">
-                                    <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn"
-                                            onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})">
-                                        <i class="fas fa-eye mr-1"></i>View
-                                    </button>
+                                    <div class="flex flex-col gap-1">
+                                        <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn"
+                                                onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})">
+                                            <i class="fas fa-eye mr-1"></i>
+                                        </button>
+                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium copy-all-btn"
+                                                onclick="event.stopPropagation(); copyAllLeadData({{ json_encode([
+                                                    'name' => $lead->name,
+                                                    'category' => $lead->category,
+                                                    'phone' => $lead->phone,
+                                                    'email' => $lead->email,
+                                                    'website' => $lead->website,
+                                                    'location' => $lead->search_location,
+                                                    'address' => $lead->address,
+                                                    'rating' => $lead->rating,
+                                                    'total_reviews' => $lead->total_reviews,
+                                                    'status' => $lead->contact_status
+                                                ]) }})"
+                                                title="Copy all lead data">
+                                            <i class="fas fa-copy mr-1"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -1291,5 +1335,158 @@ document.addEventListener('click', function(event) {
         dropdown.classList.add('hidden');
     }
 });
+
+// Toggle leads visibility (hide/show contact details)
+let isDetailsHidden = false;
+
+function toggleLeadsVisibility() {
+    const contactDetails = document.querySelectorAll('.contact-detail');
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    const copyAllButtons = document.querySelectorAll('.copy-all-btn');
+    const visibilityIcon = document.getElementById('visibilityIcon');
+    const visibilityText = document.getElementById('visibilityText');
+
+    isDetailsHidden = !isDetailsHidden;
+
+    contactDetails.forEach(function(element) {
+        const original = element.getAttribute('data-original');
+        const type = element.getAttribute('data-type');
+
+        if (isDetailsHidden) {
+            // Mask the second half
+            let masked = maskText(original, type);
+            element.textContent = masked;
+
+            // If it's a link, update href too
+            if (element.tagName === 'A') {
+                element.href = 'javascript:void(0)';
+                element.classList.add('pointer-events-none');
+            }
+        } else {
+            // Show original
+            element.textContent = original;
+
+            // If it's a link, restore href
+            if (element.tagName === 'A') {
+                const fullWebsite = element.getAttribute('data-original');
+                element.href = fullWebsite.startsWith('http') ? fullWebsite : 'https://' + fullWebsite;
+                element.classList.remove('pointer-events-none');
+            }
+        }
+    });
+
+    // Toggle individual copy buttons visibility
+    copyButtons.forEach(function(btn) {
+        if (isDetailsHidden) {
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'inline-block';
+        }
+    });
+
+    // Toggle "Copy All" buttons visibility
+    copyAllButtons.forEach(function(btn) {
+        if (isDetailsHidden) {
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'block';
+        }
+    });
+
+    // Update button text and icon
+    if (isDetailsHidden) {
+        visibilityIcon.className = 'fas fa-eye';
+        visibilityText.textContent = 'Show Details';
+    } else {
+        visibilityIcon.className = 'fas fa-eye-slash';
+        visibilityText.textContent = 'Hide Details';
+    }
+}
+
+function maskText(text, type) {
+    if (!text) return '';
+
+    const length = text.length;
+    const halfLength = Math.ceil(length / 2);
+
+    if (type === 'email') {
+        // For email: show part before @ and mask rest
+        const atIndex = text.indexOf('@');
+        if (atIndex > 0) {
+            const beforeAt = text.substring(0, Math.min(3, atIndex));
+            return beforeAt + '***@***';
+        }
+    } else if (type === 'name') {
+        // For name: show first word, mask rest
+        const words = text.split(' ');
+        if (words.length > 1) {
+            return words[0] + ' ***';
+        }
+        // If single word, show first half
+        const firstHalf = text.substring(0, Math.ceil(length / 2));
+        return firstHalf + '***';
+    } else if (type === 'location') {
+        // For location: show first part, mask rest
+        const parts = text.split(',');
+        if (parts.length > 1) {
+            return parts[0] + ', ***';
+        }
+        // If no comma, show first half
+        const firstHalf = text.substring(0, Math.ceil(length / 2));
+        return firstHalf + '***';
+    }
+
+    // For phone and website: show first half, mask second half
+    const firstHalf = text.substring(0, halfLength);
+    const stars = '*'.repeat(Math.min(length - halfLength, 10)); // Limit stars to 10 for readability
+    return firstHalf + stars;
+}
+
+// Copy to clipboard function
+function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Store original HTML
+        const originalHTML = button.innerHTML;
+
+        // Change icon to check
+        button.innerHTML = '<i class="fas fa-check text-xs"></i>';
+        button.classList.remove('text-blue-500', 'hover:text-blue-700');
+        button.classList.add('text-green-500');
+
+        // Reset after 2 seconds
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+            button.classList.remove('text-green-500');
+            button.classList.add('text-blue-500', 'hover:text-blue-700');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy to clipboard');
+    });
+}
+
+// Copy all lead data function
+function copyAllLeadData(leadData) {
+    // Format the lead data as a readable string
+    let text = '';
+
+    if (leadData.name) text += `Business Name: ${leadData.name}\n`;
+    if (leadData.category) text += `Category: ${leadData.category}\n`;
+    if (leadData.phone) text += `Phone: ${leadData.phone}\n`;
+    if (leadData.email) text += `Email: ${leadData.email}\n`;
+    if (leadData.website) text += `Website: ${leadData.website}\n`;
+    if (leadData.location) text += `Location: ${leadData.location}\n`;
+    if (leadData.address) text += `Address: ${leadData.address}\n`;
+    if (leadData.rating) text += `Rating: ${leadData.rating} (${leadData.total_reviews || 0} reviews)\n`;
+    if (leadData.status) text += `Status: ${leadData.status}\n`;
+
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        alert('All lead data copied to clipboard!');
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy to clipboard');
+    });
+}
 </script>
 @endpush
