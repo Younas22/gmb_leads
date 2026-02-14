@@ -180,11 +180,11 @@ function resendVerification() {
             </div>
         </div>
 
-        <!-- Search Credits -->
+        <!-- Credits -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Search Credits</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Credits</p>
                     <p class="text-3xl font-bold text-gray-800">
                         {{ $usageData['search_credits']['is_unlimited'] ? '∞' : number_format($usageData['search_credits']['used']) . '/' . number_format($usageData['search_credits']['limit']) }}
                     </p>

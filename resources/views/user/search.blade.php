@@ -14,17 +14,17 @@
         <input type="hidden" name="original_lat" id="original_lat" value="{{ $searchData['original_lat'] ?? '' }}">
         <input type="hidden" name="original_lng" id="original_lng" value="{{ $searchData['original_lng'] ?? '' }}">
 
-        <!-- Search Credits Indicator -->
+        <!-- Credits Indicator -->
         @php
-            $creditLimit = $user->getSearchCreditLimit();
-            $creditsUsed = $user->getSearchCreditsUsed();
+            $creditLimit = $user->getCreditLimit();
+            $creditsUsed = $user->getCreditsUsed();
             $creditsRemaining = $creditLimit === -1 ? 'unlimited' : max(0, $creditLimit - $creditsUsed);
             $creditPercentage = ($creditLimit > 0 && $creditLimit !== -1) ? round(($creditsUsed / $creditLimit) * 100) : 0;
         @endphp
         <div class="px-4 pt-4 pb-0">
             <div class="flex items-center justify-between text-sm mb-2">
                 <span class="font-medium text-gray-700">
-                    <i class="fas fa-coins text-orange-500 mr-1"></i>Search Credits
+                    <i class="fas fa-coins text-orange-500 mr-1"></i>Credits
                 </span>
                 <span class="font-semibold {{ $creditsRemaining === 'unlimited' ? 'text-blue-600' : ($creditPercentage >= 90 ? 'text-red-600' : 'text-gray-700') }}">
                     @if($creditsRemaining === 'unlimited')

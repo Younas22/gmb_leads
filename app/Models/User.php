@@ -392,7 +392,7 @@ class User extends Authenticatable
     }
 
     // ──────────────────────────────────────────────
-    // Search Credits System
+    // Credits System (API Calls Tracking)
     // ──────────────────────────────────────────────
 
     /**
@@ -418,9 +418,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the number of search credits used in the current billing month.
+     * Get the number of credits (API calls) used in the current billing month.
      */
-    public function getSearchCreditsUsed()
+    public function getCreditsUsed()
     {
         $userIds = $this->getQuotaUserIds();
 
@@ -430,47 +430,53 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the monthly search credit limit from the user's package.
+     * Get the monthly credit limit from the user's package.
      */
-    public function getSearchCreditLimit()
+    public function getCreditLimit()
     {
         return $this->getFeatureLimit('search_credits');
     }
 
     /**
-     * Get remaining search credits for the current billing month.
+     * Get remaining credits for the current billing month.
      */
-    public function getRemainingSearchCredits()
+    public function getRemainingCredits()
     {
-        $limit = $this->getSearchCreditLimit();
+        $limit = $this->getCreditLimit();
 
         if ($limit === -1) {
             return 'unlimited';
         }
 
-        $used = $this->getSearchCreditsUsed();
+        $used = $this->getCreditsUsed();
         return max(0, $limit - $used);
     }
 
     /**
-     * Check if user has search credits remaining.
+     * Check if user has credits remaining.
      */
-    public function hasSearchCredits()
+    public function hasCredits()
     {
-        $limit = $this->getSearchCreditLimit();
+        $limit = $this->getCreditLimit();
 
         if ($limit === -1) {
             return true;
         }
 
-        return $this->getSearchCreditsUsed() < $limit;
+        return $this->getCreditsUsed() < $limit;
     }
 
     /**
-     * Record one search credit usage in api_usages table.
+     * Record credits (API calls) used in api_usages table.
+     *
+     * @param int $credits Number of API calls consumed (text_search + place_details)
      */
-    public function recordSearchCredit()
+    public function recordCreditsUsed($credits)
     {
+        if ($credits <= 0) {
+            return null;
+        }
+
         $accountOwner = $this->getAccountOwner();
 
         $usage = \App\Models\ApiUsage::firstOrCreate(
@@ -485,7 +491,7 @@ class User extends Authenticatable
             ]
         );
 
-        $usage->increment('searches_used');
+        $usage->increment('searches_used', $credits);
 
         return $usage;
     }

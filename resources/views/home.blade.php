@@ -1106,7 +1106,7 @@
             
             @php
                 $featureLabels = [
-                    'search_credits'          => 'Search Credits / Month',
+                    'search_credits'          => 'Credits / Month',
                     'leads_per_month'         => 'Leads / Month',
                     'export_leads'            => 'Lead Exports',
                     'saved_lists'             => 'Saved Lists',

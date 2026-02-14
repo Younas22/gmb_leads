@@ -37,7 +37,7 @@ class PackageSeeder extends Seeder
         ]);
 
         $this->addFeatures($starter->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '50'],
+            ['feature_key' => 'search_credits',           'feature_value' => '500'],
             ['feature_key' => 'leads_per_month',        'feature_value' => '100'],
             ['feature_key' => 'saved_lists',             'feature_value' => '3'],
             ['feature_key' => 'export_leads',            'feature_value' => '25'],
@@ -67,7 +67,7 @@ class PackageSeeder extends Seeder
         ]);
 
         $this->addFeatures($growth->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '150'],
+            ['feature_key' => 'search_credits',           'feature_value' => '2000'],
             ['feature_key' => 'leads_per_month',        'feature_value' => '500'],
             ['feature_key' => 'saved_lists',             'feature_value' => '10'],
             ['feature_key' => 'export_leads',            'feature_value' => '250'],
@@ -97,7 +97,7 @@ class PackageSeeder extends Seeder
         ]);
 
         $this->addFeatures($pro->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '250'],
+            ['feature_key' => 'search_credits',           'feature_value' => '5000'],
             ['feature_key' => 'leads_per_month',        'feature_value' => '1000'],
             ['feature_key' => 'saved_lists',             'feature_value' => '25'],
             ['feature_key' => 'export_leads',            'feature_value' => '1000'],

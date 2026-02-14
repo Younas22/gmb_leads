@@ -56,23 +56,21 @@ class SearchController extends Controller
     $user = Auth::user();
     $startTime = microtime(true);
 
-    // Check search credits based on package (only for new searches, not pagination)
-    if (!$request->input('page_token')) {
-        $creditLimit = $user->getSearchCreditLimit();
+    // Check credits (API calls quota) before making any request
+    $creditLimit = $user->getCreditLimit();
 
-        if ($creditLimit !== -1 && !$user->hasSearchCredits()) {
-            $creditsUsed = $user->getSearchCreditsUsed();
-            $errorMessage = "You have used all your search credits ($creditsUsed/$creditLimit) for this month. Please <a href='" . route('user.subscription') . "' class='text-blue-600 underline'>upgrade your package</a> for more credits.";
+    if ($creditLimit !== -1 && !$user->hasCredits()) {
+        $creditsUsed = $user->getCreditsUsed();
+        $errorMessage = "You have used all your credits ($creditsUsed/$creditLimit) for this month. Please <a href='" . route('user.subscription') . "' class='text-blue-600 underline'>upgrade your package</a> for more credits.";
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'error' => $errorMessage,
-                    'errors' => ['api' => [$errorMessage]]
-                ], 429);
-            }
-
-            return back()->withErrors(['api' => $errorMessage])->withInput();
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'error' => $errorMessage,
+                'errors' => ['api' => [$errorMessage]]
+            ], 429);
         }
+
+        return back()->withErrors(['api' => $errorMessage])->withInput();
     }
 
     // Validation
@@ -223,9 +221,14 @@ class SearchController extends Controller
 
             $formattedResults = $this->formatApiResults($results);
 
+            // Record credits from mock API calls
+            $mockApiCalls = $apiData['meta']['api_calls'] ?? [];
+            $mockTextSearch = (int) ($mockApiCalls['text_search'] ?? 1);
+            $mockDetails = (int) ($mockApiCalls['place_details'] ?? count($results));
+            $user->recordCreditsUsed($mockTextSearch + $mockDetails);
+
             if ($searchHistory) {
                 $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
-                $user->recordSearchCredit();
             }
 
             $countries = Country::orderBy('name')->get();
@@ -316,6 +319,8 @@ class SearchController extends Controller
             $detailsCalls = (int) ($apiCalls['place_details'] ?? 0);
             if ($textSearchCalls > 0 || $detailsCalls > 0) {
                 $adminApiKey->recordApiUsage($textSearchCalls, $detailsCalls);
+                // Record per-user credits (1 API call = 1 credit)
+                $user->recordCreditsUsed($textSearchCalls + $detailsCalls);
             }
 
             // Extract results and next page token
@@ -337,7 +342,6 @@ class SearchController extends Controller
             // Update search history to SUCCESS (only for new searches, not pagination)
             if ($searchHistory) {
                 $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
-                $user->recordSearchCredit();
             }
 
             // Get countries for form repopulation

@@ -79,6 +79,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Login Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Credits</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Login</th>
@@ -156,6 +157,26 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
+                            @if($u->user_type !== 'admin')
+                                @php
+                                    $uCreditLimit = $u->getCreditLimit();
+                                    $uCreditsUsed = \App\Models\ApiUsage::where('user_id', $u->id)
+                                        ->where('date', '>=', now()->startOfMonth()->toDateString())
+                                        ->sum('searches_used');
+                                @endphp
+                                <div>
+                                    <span class="text-sm font-medium {{ $uCreditLimit !== -1 && $uCreditLimit > 0 && $uCreditsUsed >= $uCreditLimit ? 'text-red-600' : 'text-gray-800' }}">
+                                        {{ $uCreditsUsed }}@if($uCreditLimit !== -1)/{{ $uCreditLimit }}@endif
+                                    </span>
+                                    @if($uCreditLimit === -1)
+                                        <span class="text-xs text-blue-500 block">Unlimited</span>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-sm text-gray-400">N/A</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             @if($u->user_type === 'company')
                                 <button onclick="toggleSignups({{ $u->id }}, {{ $u->signups_enabled ? 'true' : 'false' }})"
                                     class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 {{ $u->signups_enabled ? 'bg-green-500' : 'bg-gray-300' }}"
@@ -202,7 +223,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-12 text-center">
+                        <td colspan="10" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-users text-gray-400 text-3xl"></i>
