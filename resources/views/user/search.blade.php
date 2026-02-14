@@ -881,17 +881,11 @@ document.addEventListener('submit', async function(e) {
                 scripts.forEach(script => {
                     const scriptContent = script.textContent;
                     if (scriptContent.includes('let searchData =')) {
-                        // More robust regex to extract JSON object
-                        const match = scriptContent.match(/let searchData = (@json\(.*?\)|{[\s\S]*?});/);
+                        // Extract JSON object from script
+                        const match = scriptContent.match(/let searchData = ({[\s\S]*?});/);
                         if (match && match[1]) {
                             try {
-                                // If it's a @json() blade directive result, it's already valid JSON
-                                let jsonStr = match[1];
-                                if (jsonStr.startsWith('@json')) {
-                                    // Extract the JSON from @json() output
-                                    jsonStr = jsonStr.replace(/@json\((.*?)\)/, '$1');
-                                }
-                                searchData = JSON.parse(jsonStr);
+                                searchData = JSON.parse(match[1]);
                                 console.log('Updated searchData:', searchData);
 
                                 // Update hidden inputs with new searchData
