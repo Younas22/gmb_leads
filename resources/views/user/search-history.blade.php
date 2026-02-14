@@ -163,14 +163,14 @@
                                             <i class="fas fa-eye mr-1"></i>View
                                         </a>
                                     @endif
-                                    <form method="POST" action="{{ route('user.delete-search-history', $history->id) }}" class="inline" 
+                                    <!-- <form method="POST" action="{{ route('user.delete-search-history', $history->id) }}" class="inline" 
                                           onsubmit="return confirm('Are you sure you want to delete this search history?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs">
                                             <i class="fas fa-trash mr-1"></i>Delete
                                         </button>
-                                    </form>
+                                    </form> -->
                                 </div>
                             </div>
                         </div>
