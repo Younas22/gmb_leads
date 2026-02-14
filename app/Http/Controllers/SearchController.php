@@ -25,7 +25,10 @@ class SearchController extends Controller
         $countries = Country::orderBy('name')->get();
         $packageSlug = $user->activeSubscription()?->package?->slug ?? 'starter';
 
-        return view('user.search', compact('user', 'countries', 'packageSlug'));
+        // Get search data from session if available
+        $searchData = session('search_data', []);
+
+        return view('user.search', compact('user', 'countries', 'packageSlug', 'searchData'));
     }
 
     /**
@@ -97,9 +100,23 @@ class SearchController extends Controller
     $state = $stateId ? State::find($stateId) : null;
     $city = $cityId ? City::find($cityId) : null;
 
-    // For load more requests, use original coordinates (dropdowns may be disabled/not loaded)
+    // For load more requests, use original coordinates and location IDs (dropdowns may be disabled/not loaded)
     $originalLat = $request->input('original_lat');
     $originalLng = $request->input('original_lng');
+    $originalStateId = $request->input('original_state_id');
+    $originalCityId = $request->input('original_city_id');
+
+    // For Load More, preserve original state/city if not provided in form
+    if ($pageToken) {
+        if ($originalStateId && !$stateId) {
+            $stateId = $originalStateId;
+            $state = State::find($stateId);
+        }
+        if ($originalCityId && !$cityId) {
+            $cityId = $originalCityId;
+            $city = City::find($cityId);
+        }
+    }
 
     if ($pageToken && $originalLat && $originalLng) {
         $coordinates = [
@@ -233,23 +250,32 @@ class SearchController extends Controller
 
             $countries = Country::orderBy('name')->get();
 
+            // Prepare search data
+            $searchData = [
+                'query' => $query,
+                'country_id' => $countryId,
+                'state_id' => $stateId,
+                'city_id' => $cityId,
+                'radius' => $radius,
+                'review_max' => $reviewMax,
+                'latest_review_within_days' => $latestReviewWithinDays,
+                'location_name' => $this->buildLocationString($city, $state, $country),
+                'country_name' => $country->name ?? '',
+                'state_name' => $state->name ?? '',
+                'city_name' => $city->name ?? '',
+                'page_token' => $pageToken,
+                'original_lat' => $coordinates['lat'],
+                'original_lng' => $coordinates['lng'],
+            ];
+
+            // Store search data in session for form persistence and lead saving
+            session(['search_data' => $searchData]);
+
             return view('user.search', compact('user', 'formattedResults', 'countries', 'packageSlug'))
                 ->with('searchPerformed', true)
                 ->with('totalResults', count($formattedResults))
                 ->with('nextPageToken', $nextPageToken)
-                ->with('searchData', [
-                    'query' => $query,
-                    'country_id' => $countryId,
-                    'state_id' => $stateId,
-                    'city_id' => $cityId,
-                    'radius' => $radius,
-                    'review_max' => $reviewMax,
-                    'latest_review_within_days' => $latestReviewWithinDays,
-                    'location_name' => $this->buildLocationString($city, $state, $country),
-                    'page_token' => $pageToken,
-                    'original_lat' => $coordinates['lat'],
-                    'original_lng' => $coordinates['lng'],
-                ]);
+                ->with('searchData', $searchData);
         }
 
         // Production mode: Use live API
@@ -347,23 +373,32 @@ class SearchController extends Controller
             // Get countries for form repopulation
             $countries = Country::orderBy('name')->get();
 
+            // Prepare search data
+            $searchData = [
+                'query' => $query,
+                'country_id' => $countryId,
+                'state_id' => $stateId,
+                'city_id' => $cityId,
+                'radius' => $radius,
+                'review_max' => $reviewMax,
+                'latest_review_within_days' => $latestReviewWithinDays,
+                'location_name' => $this->buildLocationString($city, $state, $country),
+                'country_name' => $country->name ?? '',
+                'state_name' => $state->name ?? '',
+                'city_name' => $city->name ?? '',
+                'page_token' => $pageToken,
+                'original_lat' => $coordinates['lat'],
+                'original_lng' => $coordinates['lng'],
+            ];
+
+            // Store search data in session for form persistence and lead saving
+            session(['search_data' => $searchData]);
+
             return view('user.search', compact('user', 'formattedResults', 'countries', 'packageSlug'))
                 ->with('searchPerformed', true)
                 ->with('totalResults', count($formattedResults))
                 ->with('nextPageToken', $nextPageToken)
-                ->with('searchData', [
-                    'query' => $query,
-                    'country_id' => $countryId,
-                    'state_id' => $stateId,
-                    'city_id' => $cityId,
-                    'radius' => $radius,
-                    'review_max' => $reviewMax,
-                    'latest_review_within_days' => $latestReviewWithinDays,
-                    'location_name' => $this->buildLocationString($city, $state, $country),
-                    'page_token' => $pageToken,
-                    'original_lat' => $coordinates['lat'],
-                    'original_lng' => $coordinates['lng'],
-                ]);
+                ->with('searchData', $searchData);
         } else {
             // Handle specific HTTP error codes
             $statusCode = $response->status();
@@ -574,6 +609,12 @@ public function saveLeads(Request $request)
     $leads = $request->input('leads');
     $searchData = $request->input('search_data');
 
+    // Fallback to session data if search_data is incomplete
+    $sessionSearchData = session('search_data', []);
+    if (empty($searchData['state_id']) || empty($searchData['city_id'])) {
+        $searchData = array_merge($sessionSearchData, $searchData);
+    }
+
     // Check saved leads limit based on package
     $savedLeadsLimit = $user->getFeatureLimit('saved_lists');
 
@@ -663,9 +704,9 @@ public function saveLeads(Request $request)
                     'email' => $email,
                     'latitude' => null,
                     'longitude' => null,
-                    'city' => $searchData['city_id'] ?? null,
-                    'state' => $searchData['state_id'] ?? null,
-                    'country' => $searchData['country_id'] ?? null,
+                    'city' => $searchData['city_name'] ?? null,
+                    'state' => $searchData['state_name'] ?? null,
+                    'country' => $searchData['country_name'] ?? null,
                     'postal_code' => $locationParts['postal_code'] ?? null,
                     'category' => $searchData['query'] ?? null,
                     'rating' => isset($leadData['rating']) ? (float) $leadData['rating'] : null,

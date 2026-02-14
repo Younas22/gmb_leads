@@ -13,6 +13,8 @@
         <input type="hidden" name="page_token" id="page_token" value="">
         <input type="hidden" name="original_lat" id="original_lat" value="{{ $searchData['original_lat'] ?? '' }}">
         <input type="hidden" name="original_lng" id="original_lng" value="{{ $searchData['original_lng'] ?? '' }}">
+        <input type="hidden" name="original_state_id" id="original_state_id" value="{{ $searchData['state_id'] ?? '' }}">
+        <input type="hidden" name="original_city_id" id="original_city_id" value="{{ $searchData['city_id'] ?? '' }}">
 
         <!-- Credits Indicator -->
         @php
@@ -608,8 +610,10 @@ function initializeFormHandlers() {
     const countrySelect = document.getElementById('country_select');
     const stateSelect = document.getElementById('state_select');
     const citySelect = document.getElementById('city_select');
-    const originalStateId = "{{ old('state_id', $searchData['state_id'] ?? '') }}";
-    const originalCityId = "{{ old('city_id', $searchData['city_id'] ?? '') }}";
+
+    // Use current searchData for state/city IDs (this gets updated after AJAX)
+    const originalStateId = searchData.state_id || "";
+    const originalCityId = searchData.city_id || "";
 
     if (!countrySelect) return;
 
@@ -665,17 +669,49 @@ function initializeFormHandlers() {
     $(country).on('change', function() {
         resetSelect(state, 'Select State');
         resetSelect(city, 'Select City');
-        if (this.value) loadStates(this.value);
+        if (this.value) {
+            loadStates(this.value);
+            // Update searchData
+            searchData.country_id = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            searchData.country_name = selectedOption ? selectedOption.text : '';
+        }
         clearPageToken();
     });
 
     $(state).on('change', function() {
         resetSelect(city, 'Select City');
-        if (this.value) loadCities(this.value);
+        if (this.value) {
+            loadCities(this.value);
+            // Update hidden input
+            document.getElementById('original_state_id').value = this.value;
+            // Update searchData
+            searchData.state_id = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            searchData.state_name = selectedOption ? selectedOption.text : '';
+        } else {
+            document.getElementById('original_state_id').value = '';
+            searchData.state_id = '';
+            searchData.state_name = '';
+        }
         clearPageToken();
     });
 
-    $(city).on('change', clearPageToken);
+    $(city).on('change', function() {
+        if (this.value) {
+            // Update hidden input
+            document.getElementById('original_city_id').value = this.value;
+            // Update searchData
+            searchData.city_id = this.value;
+            const selectedOption = this.options[this.selectedIndex];
+            searchData.city_name = selectedOption ? selectedOption.text : '';
+        } else {
+            document.getElementById('original_city_id').value = '';
+            searchData.city_id = '';
+            searchData.city_name = '';
+        }
+        clearPageToken();
+    });
 
     const searchQuery = document.getElementById('search_query');
     const radiusSelect = document.getElementById('radius_select');
@@ -845,12 +881,26 @@ document.addEventListener('submit', async function(e) {
                 scripts.forEach(script => {
                     const scriptContent = script.textContent;
                     if (scriptContent.includes('let searchData =')) {
-                        const match = scriptContent.match(/let searchData = ({.*?});/s);
+                        // More robust regex to extract JSON object
+                        const match = scriptContent.match(/let searchData = (@json\(.*?\)|{[\s\S]*?});/);
                         if (match && match[1]) {
                             try {
-                                searchData = JSON.parse(match[1]);
+                                // If it's a @json() blade directive result, it's already valid JSON
+                                let jsonStr = match[1];
+                                if (jsonStr.startsWith('@json')) {
+                                    // Extract the JSON from @json() output
+                                    jsonStr = jsonStr.replace(/@json\((.*?)\)/, '$1');
+                                }
+                                searchData = JSON.parse(jsonStr);
+                                console.log('Updated searchData:', searchData);
+
+                                // Update hidden inputs with new searchData
+                                if (searchData.original_lat) document.getElementById('original_lat').value = searchData.original_lat;
+                                if (searchData.original_lng) document.getElementById('original_lng').value = searchData.original_lng;
+                                if (searchData.state_id) document.getElementById('original_state_id').value = searchData.state_id;
+                                if (searchData.city_id) document.getElementById('original_city_id').value = searchData.city_id;
                             } catch (e) {
-                                console.error('Failed to parse searchData:', e);
+                                console.error('Failed to parse searchData:', e, 'Content:', match[1]);
                             }
                         }
                     }
@@ -910,6 +960,17 @@ function hideSearchLoading() {
 
 function loadNextPage(nextPageToken) {
     document.getElementById('page_token').value = nextPageToken;
+
+    // Preserve state_id and city_id from searchData for Load More requests
+    if (searchData.state_id) {
+        const stateSelect = document.getElementById('state_select');
+        if (stateSelect) stateSelect.value = searchData.state_id;
+    }
+    if (searchData.city_id) {
+        const citySelect = document.getElementById('city_select');
+        if (citySelect) citySelect.value = searchData.city_id;
+    }
+
     const btn = document.getElementById('loadMoreBtn');
     const icon = document.getElementById('loadMoreIcon');
     const text = document.getElementById('loadMoreText');
