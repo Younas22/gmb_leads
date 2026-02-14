@@ -48,7 +48,7 @@
                     <!-- Monthly Searches -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-600">Monthly Searches</span>
+                            <span class="text-sm font-medium text-gray-600">Monthly Credits</span>
                             <span class="text-sm font-semibold {{ $usageData['monthly_searches']['percentage'] >= 90 ? 'text-red-600' : 'text-green-600' }}">
                                 {{ number_format($usageData['monthly_searches']['used']) }}/{{ number_format($usageData['monthly_searches']['limit']) }}
                             </span>
