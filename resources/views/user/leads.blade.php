@@ -298,9 +298,9 @@
                         <button onclick="bulkUpdateStatus()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
                             Update Status
                         </button>
-                        <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                        <!-- <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
                             Delete Selected
-                        </button>
+                        </button> -->
                     </div>
 
                     <!-- Export Button -->
