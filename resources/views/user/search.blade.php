@@ -14,6 +14,34 @@
         <input type="hidden" name="original_lat" id="original_lat" value="{{ $searchData['original_lat'] ?? '' }}">
         <input type="hidden" name="original_lng" id="original_lng" value="{{ $searchData['original_lng'] ?? '' }}">
 
+        <!-- Search Credits Indicator -->
+        @php
+            $creditLimit = $user->getSearchCreditLimit();
+            $creditsUsed = $user->getSearchCreditsUsed();
+            $creditsRemaining = $creditLimit === -1 ? 'unlimited' : max(0, $creditLimit - $creditsUsed);
+            $creditPercentage = ($creditLimit > 0 && $creditLimit !== -1) ? round(($creditsUsed / $creditLimit) * 100) : 0;
+        @endphp
+        <div class="px-4 pt-4 pb-0">
+            <div class="flex items-center justify-between text-sm mb-2">
+                <span class="font-medium text-gray-700">
+                    <i class="fas fa-coins text-orange-500 mr-1"></i>Search Credits
+                </span>
+                <span class="font-semibold {{ $creditsRemaining === 'unlimited' ? 'text-blue-600' : ($creditPercentage >= 90 ? 'text-red-600' : 'text-gray-700') }}">
+                    @if($creditsRemaining === 'unlimited')
+                        Unlimited
+                    @else
+                        {{ number_format($creditsRemaining) }} / {{ number_format($creditLimit) }} remaining
+                    @endif
+                </span>
+            </div>
+            @if($creditsRemaining !== 'unlimited')
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all {{ $creditPercentage >= 90 ? 'bg-red-500' : ($creditPercentage >= 70 ? 'bg-orange-500' : 'bg-green-500') }}"
+                     style="width: {{ min(100, $creditPercentage) }}%"></div>
+            </div>
+            @endif
+        </div>
+
         <!-- Row 1: Search Query, Country, State, City -->
         <div class="p-4 pb-0">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -145,7 +173,7 @@
     </form>
     
     <!-- Progress Bar (Hidden by default) -->
-    <div id="progressContainer" class="mt-4 hidden">
+    <div id="progressContainer" class="mt-4 px-4 pb-4 hidden">
         <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
             <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
         </div>

@@ -84,14 +84,14 @@ class SubscriptionController extends Controller
 
         // Get limits from current package or default to 0 (no access without subscription)
         $monthlyLeadsLimit = 0; // Default: no subscription
-        $monthlySearchesLimit = 0; // Default: no subscription (gmb_searches is monthly limit)
+        $monthlySearchesLimit = 0; // Default: no subscription (search_credits is monthly limit)
         $savedListsLimit = 0; // Default: no subscription
         $exportLeadsLimit = 0; // Default: no subscription
 
-        // Monthly searches count
-        $monthlySearchesUsed = \App\Models\SearchHistory::whereIn('user_id', $userIds)
-            ->where('created_at', '>=', $currentMonth)
-            ->count();
+        // Monthly search credits count (from api_usages table)
+        $monthlySearchesUsed = \App\Models\ApiUsage::whereIn('user_id', $userIds)
+            ->where('date', '>=', $currentMonth->toDateString())
+            ->sum('searches_used');
 
         // Saved leads count (total)
         $savedListsUsed = \App\Models\SavedLead::whereIn('user_id', $userIds)->count();
@@ -108,7 +108,7 @@ class SubscriptionController extends Controller
                 if ($feature->feature_key === 'leads_per_month') {
                     $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
-                if ($feature->feature_key === 'gmb_searches') {
+                if ($feature->feature_key === 'search_credits') {
                     $monthlySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
                 if ($feature->feature_key === 'saved_lists') {

@@ -223,7 +223,7 @@ class SubscriptionController extends Controller
                 $saved_lists = 'Standard';
 
                 foreach ($features as $feature) {
-                    if ($feature->feature_key === 'gmb_searches') {
+                    if ($feature->feature_key === 'search_credits') {
                         $searchesLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
                     }
                     if ($feature->feature_key === 'leads_per_month') {

@@ -391,6 +391,105 @@ class User extends Authenticatable
         return $currentUsage < $limit;
     }
 
+    // ──────────────────────────────────────────────
+    // Search Credits System
+    // ──────────────────────────────────────────────
+
+    /**
+     * Get the account owner (resolves team members to their company owner).
+     */
+    public function getAccountOwner()
+    {
+        return $this->isTeamMember() ? $this->company : $this;
+    }
+
+    /**
+     * Get all user IDs that share the quota (company + team members).
+     */
+    public function getQuotaUserIds()
+    {
+        $accountOwner = $this->getAccountOwner();
+        $userIds = [$accountOwner->id];
+        if ($accountOwner->isCompany()) {
+            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
+            $userIds = array_merge($userIds, $teamMemberIds);
+        }
+        return $userIds;
+    }
+
+    /**
+     * Get the number of search credits used in the current billing month.
+     */
+    public function getSearchCreditsUsed()
+    {
+        $userIds = $this->getQuotaUserIds();
+
+        return \App\Models\ApiUsage::whereIn('user_id', $userIds)
+            ->where('date', '>=', now()->startOfMonth()->toDateString())
+            ->sum('searches_used');
+    }
+
+    /**
+     * Get the monthly search credit limit from the user's package.
+     */
+    public function getSearchCreditLimit()
+    {
+        return $this->getFeatureLimit('search_credits');
+    }
+
+    /**
+     * Get remaining search credits for the current billing month.
+     */
+    public function getRemainingSearchCredits()
+    {
+        $limit = $this->getSearchCreditLimit();
+
+        if ($limit === -1) {
+            return 'unlimited';
+        }
+
+        $used = $this->getSearchCreditsUsed();
+        return max(0, $limit - $used);
+    }
+
+    /**
+     * Check if user has search credits remaining.
+     */
+    public function hasSearchCredits()
+    {
+        $limit = $this->getSearchCreditLimit();
+
+        if ($limit === -1) {
+            return true;
+        }
+
+        return $this->getSearchCreditsUsed() < $limit;
+    }
+
+    /**
+     * Record one search credit usage in api_usages table.
+     */
+    public function recordSearchCredit()
+    {
+        $accountOwner = $this->getAccountOwner();
+
+        $usage = \App\Models\ApiUsage::firstOrCreate(
+            [
+                'user_id' => $this->id,
+                'company_id' => $accountOwner->id !== $this->id ? $accountOwner->id : null,
+                'date' => now()->toDateString(),
+            ],
+            [
+                'searches_used' => 0,
+                'leads_fetched' => 0,
+            ]
+        );
+
+        $usage->increment('searches_used');
+
+        return $usage;
+    }
+
     /**
      * Get API keys for the user.
      */

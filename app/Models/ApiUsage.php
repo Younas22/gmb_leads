@@ -31,4 +31,20 @@ class ApiUsage extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the company user for this usage record.
+     */
+    public function company()
+    {
+        return $this->belongsTo(User::class, 'company_id');
+    }
+
+    /**
+     * Scope to filter by billing period start date.
+     */
+    public function scopeInBillingPeriod($query, $startDate)
+    {
+        return $query->where('date', '>=', $startDate);
+    }
 }

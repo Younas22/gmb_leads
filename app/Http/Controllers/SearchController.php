@@ -9,6 +9,7 @@ use App\Models\AdminApiKey;
 use App\Models\Country;
 use App\Models\SavedLead;
 use App\Models\SearchHistory;
+use App\Models\ApiUsage;
 use App\Models\Setting;
 use App\Models\State;
 use App\Models\City;
@@ -55,36 +56,22 @@ class SearchController extends Controller
     $user = Auth::user();
     $startTime = microtime(true);
 
-    // Check search limit based on package (only for new searches, not pagination)
+    // Check search credits based on package (only for new searches, not pagination)
     if (!$request->input('page_token')) {
-        $searchLimit = $user->getFeatureLimit('gmb_searches');
+        $creditLimit = $user->getSearchCreditLimit();
 
-        if ($searchLimit !== -1) {
-            // Get all user IDs for quota counting (company + all team members)
-            $accountOwner = $user->isTeamMember() ? $user->company : $user;
-            $userIds = [$accountOwner->id];
-            if ($accountOwner->isCompany()) {
-                $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
-                $userIds = array_merge($userIds, $teamMemberIds);
+        if ($creditLimit !== -1 && !$user->hasSearchCredits()) {
+            $creditsUsed = $user->getSearchCreditsUsed();
+            $errorMessage = "You have used all your search credits ($creditsUsed/$creditLimit) for this month. Please <a href='" . route('user.subscription') . "' class='text-blue-600 underline'>upgrade your package</a> for more credits.";
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'error' => $errorMessage,
+                    'errors' => ['api' => [$errorMessage]]
+                ], 429);
             }
 
-            // Count today's searches for company + all team members
-            $todaySearchCount = SearchHistory::whereIn('user_id', $userIds)
-                ->whereDate('created_at', today())
-                ->count();
-
-            if ($todaySearchCount >= $searchLimit) {
-                $errorMessage = "You have reached your daily search limit ($searchLimit searches). Please <a href='" . route('user.subscription') . "' class='text-blue-600 underline'>upgrade your package</a> or try again tomorrow.";
-
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'error' => $errorMessage,
-                        'errors' => ['api' => [$errorMessage]]
-                    ], 429);
-                }
-
-                return back()->withErrors(['api' => $errorMessage])->withInput();
-            }
+            return back()->withErrors(['api' => $errorMessage])->withInput();
         }
     }
 
@@ -238,6 +225,7 @@ class SearchController extends Controller
 
             if ($searchHistory) {
                 $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
+                $user->recordSearchCredit();
             }
 
             $countries = Country::orderBy('name')->get();
@@ -349,6 +337,7 @@ class SearchController extends Controller
             // Update search history to SUCCESS (only for new searches, not pagination)
             if ($searchHistory) {
                 $this->updateSearchHistoryToSuccess($searchHistory, $formattedResults, $executionTime, $apiResponseTime);
+                $user->recordSearchCredit();
             }
 
             // Get countries for form repopulation

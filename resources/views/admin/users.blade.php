@@ -418,8 +418,12 @@ function viewUser(userId) {
                     <p class="font-medium text-gray-800">${data.saved_leads_count}</p>
                 </div>
                 <div class="bg-gray-50 p-3 rounded-lg">
-                    <p class="text-gray-500 mb-1">Searches</p>
+                    <p class="text-gray-500 mb-1">Total Searches</p>
                     <p class="font-medium text-gray-800">${data.search_histories_count}</p>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-gray-500 mb-1">Credits Used (This Month)</p>
+                    <p class="font-medium text-gray-800">${data.monthly_search_credits_used}</p>
                 </div>
             </div>
         `;

@@ -121,14 +121,14 @@ function resendVerification() {
             <div class="flex-1 lg:pr-6">
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Welcome back, {{ $user->first_name }}!</h1>
                 <p class="text-primary-100 text-sm sm:text-base">
-                    @if($usageData['monthly_leads']['is_unlimited'] && $usageData['daily_searches']['is_unlimited'])
+                    @if($usageData['monthly_leads']['is_unlimited'] && $usageData['search_credits']['is_unlimited'])
                         You have unlimited access this month. Start building your business network today!
                     @elseif($usageData['monthly_leads']['is_unlimited'])
-                        You have unlimited leads this month with {{ number_format($usageData['daily_searches']['limit']) }} daily searches!
-                    @elseif($usageData['daily_searches']['is_unlimited'])
-                        You have unlimited searches with {{ number_format($usageData['monthly_leads']['limit']) }} leads this month!
+                        You have unlimited leads this month with {{ number_format($usageData['search_credits']['limit']) }} search credits!
+                    @elseif($usageData['search_credits']['is_unlimited'])
+                        You have unlimited search credits with {{ number_format($usageData['monthly_leads']['limit']) }} leads this month!
                     @else
-                        You have {{ number_format($usageData['monthly_leads']['remaining']) }} leads and {{ number_format($usageData['daily_searches']['remaining']) }} searches remaining!
+                        You have {{ number_format($usageData['monthly_leads']['remaining']) }} leads and {{ number_format($usageData['search_credits']['remaining']) }} credits remaining!
                     @endif
                 </p>
             </div>
@@ -180,22 +180,24 @@ function resendVerification() {
             </div>
         </div>
 
-        <!-- Searches Today -->
+        <!-- Search Credits -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Searches Today</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['searches_today']) }}</p>
-                    <p class="text-xs {{ $usageData['daily_searches']['is_unlimited'] ? 'text-blue-600' : 'text-orange-600' }} mt-1">
-                        @if($usageData['daily_searches']['is_unlimited'])
-                            <i class="fas fa-rocket mr-1"></i>Unlimited searches today
+                    <p class="text-sm font-medium text-gray-600 mb-1">Search Credits</p>
+                    <p class="text-3xl font-bold text-gray-800">
+                        {{ $usageData['search_credits']['is_unlimited'] ? '∞' : number_format($usageData['search_credits']['used']) . '/' . number_format($usageData['search_credits']['limit']) }}
+                    </p>
+                    <p class="text-xs {{ $usageData['search_credits']['is_unlimited'] ? 'text-blue-600' : 'text-orange-600' }} mt-1">
+                        @if($usageData['search_credits']['is_unlimited'])
+                            <i class="fas fa-rocket mr-1"></i>Unlimited credits
                         @else
-                            <i class="fas fa-search mr-1"></i>{{ number_format($usageData['daily_searches']['remaining']) }} searches left
+                            <i class="fas fa-coins mr-1"></i>{{ number_format($usageData['search_credits']['remaining']) }} credits remaining
                         @endif
                     </p>
                 </div>
                 <div class="bg-orange-100 rounded-lg p-3">
-                    <i class="fas fa-search text-orange-600 text-xl"></i>
+                    <i class="fas fa-coins text-orange-600 text-xl"></i>
                 </div>
             </div>
         </div>

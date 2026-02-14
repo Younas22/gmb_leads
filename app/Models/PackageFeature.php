@@ -32,6 +32,7 @@ class PackageFeature extends Model
     {
         $names = [
             'leads_per_month' => 'Monthly Leads',
+            'search_credits' => 'Search Credits',
             'searches_per_day' => 'Daily Searches',
             'api_keys' => 'API Keys',
             'export_csv' => 'Export to CSV/Excel',

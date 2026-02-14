@@ -155,14 +155,14 @@ class DashboardController extends Controller
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Daily searches - count searches today for company + all team members
-        $dailySearchesUsed = SearchHistory::whereIn('user_id', $userIds)
-            ->where('created_at', '>=', $today)
-            ->count();
+        // Monthly search credits - count from api_usages table for current month
+        $monthlyCreditsUsed = \App\Models\ApiUsage::whereIn('user_id', $userIds)
+            ->where('date', '>=', $currentMonth->toDateString())
+            ->sum('searches_used');
 
         // Get limits from current package or default to 0 (no access without subscription)
         $monthlyLeadsLimit = 0; // Default: no subscription
-        $dailySearchesLimit = 0; // Default: no subscription
+        $monthlyCreditsLimit = 0; // Default: no subscription
         $apiKeysLimit = 0; // Default: no subscription
 
         // Get actual API keys count from database (company + all team members)
@@ -175,8 +175,8 @@ class DashboardController extends Controller
                 if ($feature->feature_key === 'leads_per_month') {
                     $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
-                if ($feature->feature_key === 'gmb_searches') {
-                    $dailySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                if ($feature->feature_key === 'search_credits') {
+                    $monthlyCreditsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
                 }
                 if ($feature->feature_key === 'api_limit') {
                     $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
@@ -193,12 +193,12 @@ class DashboardController extends Controller
                 'percentage' => $monthlyLeadsLimit > 0 ? round(($monthlyLeadsUsed / $monthlyLeadsLimit) * 100) : 0,
                 'is_unlimited' => $monthlyLeadsLimit >= 999999,
             ],
-            'daily_searches' => [
-                'used' => $dailySearchesUsed,
-                'limit' => $dailySearchesLimit,
-                'remaining' => max(0, $dailySearchesLimit - $dailySearchesUsed),
-                'percentage' => $dailySearchesLimit > 0 ? round(($dailySearchesUsed / $dailySearchesLimit) * 100) : 0,
-                'is_unlimited' => $dailySearchesLimit >= 999999,
+            'search_credits' => [
+                'used' => $monthlyCreditsUsed,
+                'limit' => $monthlyCreditsLimit,
+                'remaining' => max(0, $monthlyCreditsLimit - $monthlyCreditsUsed),
+                'percentage' => $monthlyCreditsLimit > 0 ? round(($monthlyCreditsUsed / $monthlyCreditsLimit) * 100) : 0,
+                'is_unlimited' => $monthlyCreditsLimit >= 999999,
             ],
             'api_keys' => [
                 'used' => $apiKeysUsed,
@@ -454,6 +454,9 @@ class DashboardController extends Controller
             'last_login' => $user->last_login ? $user->last_login->format('M d, Y h:i A') : 'Never',
             'saved_leads_count' => $user->savedLeads()->count(),
             'search_histories_count' => $user->searchHistories()->count(),
+            'monthly_search_credits_used' => \App\Models\ApiUsage::where('user_id', $user->id)
+                ->where('date', '>=', now()->startOfMonth()->toDateString())
+                ->sum('searches_used'),
         ]);
     }
 
