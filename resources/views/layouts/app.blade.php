@@ -56,11 +56,16 @@
     <!-- Sidebar -->
         @include('layouts.sidebar')
     <!-- Main Content -->
-    <div class="lg:ml-64 min-h-screen">
+    <div id="main-content" class="lg:ml-64 min-h-screen transition-all duration-300">
         <!-- Top Bar -->
         <header class="bg-white shadow-sm border-b border-gray-200">
             <div class="flex items-center justify-between px-4 lg:px-8 py-4 pl-16 lg:pl-8">
                 <div class="flex items-center space-x-4">
+                    <!-- Fullscreen / Sidebar Toggle -->
+                    <button id="sidebar-toggle-btn" onclick="toggleSidebarFullscreen()" title="Toggle Fullscreen"
+                        class="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+                        <i id="sidebar-toggle-icon" class="fas fa-expand-alt text-sm"></i>
+                    </button>
                     <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
                     @php
                         $activeSubscription = auth()->user()->activeSubscription();
@@ -493,6 +498,33 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
 });
+</script>
+
+<!-- Fullscreen / Sidebar Toggle -->
+<script>
+let sidebarHidden = false;
+
+function toggleSidebarFullscreen() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const icon = document.getElementById('sidebar-toggle-icon');
+
+    sidebarHidden = !sidebarHidden;
+
+    if (sidebarHidden) {
+        sidebar.style.transform = 'translateX(-100%)';
+        mainContent.classList.remove('lg:ml-64');
+        mainContent.classList.add('ml-0');
+        icon.classList.remove('fa-expand-alt');
+        icon.classList.add('fa-compress-alt');
+    } else {
+        sidebar.style.transform = '';
+        mainContent.classList.add('lg:ml-64');
+        mainContent.classList.remove('ml-0');
+        icon.classList.remove('fa-compress-alt');
+        icon.classList.add('fa-expand-alt');
+    }
+}
 </script>
 
 <!-- JavaScript for Mobile Menu Toggle -->

@@ -55,6 +55,11 @@ class AdminApiKey extends Model
 
     public function scopeActive($query)
     {
+        // If extension mode is enabled, disable all APIs
+        if (\App\Models\Setting::get('extension_mode', false)) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->where('status', 'active');
     }
 

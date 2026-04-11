@@ -82,40 +82,25 @@ class SubscriptionController extends Controller
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Get limits from current package or default to 0 (no access without subscription)
-        $monthlyLeadsLimit = 0; // Default: no subscription
-        $monthlySearchesLimit = 0; // Default: no subscription (search_credits is monthly limit)
-        $savedListsLimit = 0; // Default: no subscription
-        $exportLeadsLimit = 0; // Default: no subscription
-
-        // Monthly search credits count (from api_usages table)
-        $monthlySearchesUsed = \App\Models\ApiUsage::whereIn('user_id', $userIds)
-            ->where('date', '>=', $currentMonth->toDateString())
-            ->sum('searches_used');
-
-        // Saved leads count (total)
-        $savedListsUsed = \App\Models\SavedLead::whereIn('user_id', $userIds)->count();
-
-        // Monthly exports count
-        $monthlyExportsUsed = \App\Models\ExportHistory::whereIn('user_id', $userIds)
-            ->where('created_at', '>=', $currentMonth)
+        // Daily leads: how many leads saved today vs daily_leads_limit
+        $todayLeadsUsed = \App\Models\SavedLead::whereIn('user_id', $userIds)
+            ->whereDate('created_at', today())
             ->count();
 
-        if ($currentPlan && $currentPlan['package']) {
-            $features = $currentPlan['package']->features;
+        $dailyLeadsLimit = 0;
+        $exportLeadsUnlimited = false;
+        $maxDevices = 1;
 
-            foreach ($features as $feature) {
-                if ($feature->feature_key === 'leads_per_month') {
-                    $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
-                }
-                if ($feature->feature_key === 'search_credits') {
-                    $monthlySearchesLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
-                }
-                if ($feature->feature_key === 'saved_lists') {
-                    $savedListsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+        if ($currentPlan && $currentPlan['package']) {
+            foreach ($currentPlan['package']->features as $feature) {
+                if ($feature->feature_key === 'daily_leads_limit') {
+                    $dailyLeadsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited') ? 999999 : (int)$feature->feature_value;
                 }
                 if ($feature->feature_key === 'export_leads') {
-                    $exportLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+                    $exportLeadsUnlimited = ($feature->is_unlimited || $feature->feature_value === 'unlimited');
+                }
+                if ($feature->feature_key === 'max_devices') {
+                    $maxDevices = (int)$feature->feature_value;
                 }
             }
         }
@@ -161,32 +146,20 @@ class SubscriptionController extends Controller
             $userPaymentMethod = $currentPlan['subscription']->paymentMethod;
         }
 
-        // Usage data
+        // Usage data (daily leads vs limit)
         $usageData = [
-            'monthly_searches' => [
-                'used' => $monthlySearchesUsed,
-                'limit' => $monthlySearchesLimit,
-                'remaining' => max(0, $monthlySearchesLimit - $monthlySearchesUsed),
-                'percentage' => $monthlySearchesLimit > 0 ? round(($monthlySearchesUsed / $monthlySearchesLimit) * 100) : 0,
+            'daily_leads' => [
+                'used'       => $todayLeadsUsed,
+                'limit'      => $dailyLeadsLimit,
+                'unlimited'  => $dailyLeadsLimit >= 999999,
+                'remaining'  => $dailyLeadsLimit >= 999999 ? 999999 : max(0, $dailyLeadsLimit - $todayLeadsUsed),
+                'percentage' => ($dailyLeadsLimit > 0 && $dailyLeadsLimit < 999999)
+                                    ? round(($todayLeadsUsed / $dailyLeadsLimit) * 100) : 0,
             ],
-            'monthly_leads' => [
-                'used' => $monthlyLeadsUsed,
-                'limit' => $monthlyLeadsLimit,
-                'remaining' => max(0, $monthlyLeadsLimit - $monthlyLeadsUsed),
-                'percentage' => $monthlyLeadsLimit > 0 ? round(($monthlyLeadsUsed / $monthlyLeadsLimit) * 100) : 0,
+            'export_leads' => [
+                'unlimited' => $exportLeadsUnlimited,
             ],
-            'saved_lists' => [
-                'used' => $savedListsUsed,
-                'limit' => $savedListsLimit,
-                'remaining' => max(0, $savedListsLimit - $savedListsUsed),
-                'percentage' => $savedListsLimit > 0 ? round(($savedListsUsed / $savedListsLimit) * 100) : 0,
-            ],
-            'monthly_exports' => [
-                'used' => $monthlyExportsUsed,
-                'limit' => $exportLeadsLimit,
-                'remaining' => max(0, $exportLeadsLimit - $monthlyExportsUsed),
-                'percentage' => $exportLeadsLimit > 0 ? round(($monthlyExportsUsed / $exportLeadsLimit) * 100) : 0,
-            ],
+            'max_devices' => $maxDevices,
         ];
 
         // Analytics data

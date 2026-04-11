@@ -158,6 +158,7 @@ class SettingsController extends Controller
         Setting::set('use_dynamic_emails', $request->has('use_dynamic_emails') ? 1 : 0, 'boolean', 'general', 'Use Dynamic Email Templates');
         Setting::set('allow_registration', $request->has('allow_registration') ? 1 : 0, 'boolean', 'general', 'Allow Registration');
         Setting::set('allow_company_registration', $request->has('allow_company_registration') ? 1 : 0, 'boolean', 'general', 'Allow Company Registration');
+        Setting::set('extension_mode', $request->has('extension_mode') ? 1 : 0, 'boolean', 'general', 'Extension Mode (Disables all APIs)');
         Setting::set('session_timeout', $request->session_timeout ?? 120, 'integer', 'general', 'Session Timeout');
         Setting::set('cache_duration', $request->cache_duration ?? 60, 'integer', 'general', 'Cache Duration');
 

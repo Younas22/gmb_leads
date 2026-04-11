@@ -121,14 +121,12 @@ function resendVerification() {
             <div class="flex-1 lg:pr-6">
                 <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Welcome back, {{ $user->first_name }}!</h1>
                 <p class="text-primary-100 text-sm sm:text-base">
-                    @if($usageData['monthly_leads']['is_unlimited'] && $usageData['search_credits']['is_unlimited'])
-                        You have unlimited access this month. Start building your business network today!
-                    @elseif($usageData['monthly_leads']['is_unlimited'])
-                        You have unlimited leads this month with {{ number_format($usageData['search_credits']['limit']) }} search credits!
-                    @elseif($usageData['search_credits']['is_unlimited'])
-                        You have unlimited search credits with {{ number_format($usageData['monthly_leads']['limit']) }} leads this month!
+                    @if($usageData['daily_leads']['is_unlimited'])
+                        You have unlimited leads today. Start building your business network!
+                    @elseif($usageData['daily_leads']['has_plan'])
+                        You have {{ number_format($usageData['daily_leads']['remaining']) }} leads remaining today out of {{ number_format($usageData['daily_leads']['limit']) }}.
                     @else
-                        You have {{ number_format($usageData['monthly_leads']['remaining']) }} leads and {{ number_format($usageData['search_credits']['remaining']) }} credits remaining!
+                        Start searching for businesses to build your lead database.
                     @endif
                 </p>
             </div>
@@ -158,75 +156,53 @@ function resendVerification() {
     </div>
 </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Saved Leads -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <!-- Lead Status Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Leads -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Saved Leads</p>
+                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Total Leads</p>
                     <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['total_leads']) }}</p>
-                    <p class="text-xs {{ $usageData['monthly_leads']['is_unlimited'] ? 'text-green-600' : 'text-orange-600' }} mt-1">
-                        @if($usageData['monthly_leads']['is_unlimited'])
-                            <i class="fas fa-infinity mr-1"></i>Unlimited this month
-                        @else
-                            <i class="fas fa-chart-line mr-1"></i>{{ number_format($usageData['monthly_leads']['remaining']) }} left this month
-                        @endif
-                    </p>
                 </div>
-                <div class="bg-primary-100 rounded-lg p-3">
-                    <i class="fas fa-bookmark text-primary-600 text-xl"></i>
+                <div class="bg-indigo-100 rounded-lg p-3">
+                    <i class="fas fa-users text-indigo-600 text-xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Credits -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <!-- Contacted -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Credits</p>
-                    <p class="text-3xl font-bold text-gray-800">
-                        {{ $usageData['search_credits']['is_unlimited'] ? '∞' : number_format($usageData['search_credits']['used']) . '/' . number_format($usageData['search_credits']['limit']) }}
-                    </p>
-                    <p class="text-xs {{ $usageData['search_credits']['is_unlimited'] ? 'text-blue-600' : 'text-orange-600' }} mt-1">
-                        @if($usageData['search_credits']['is_unlimited'])
-                            <i class="fas fa-rocket mr-1"></i>Unlimited credits
-                        @else
-                            <i class="fas fa-coins mr-1"></i>{{ number_format($usageData['search_credits']['remaining']) }} credits remaining
-                        @endif
-                    </p>
-                </div>
-                <div class="bg-orange-100 rounded-lg p-3">
-                    <i class="fas fa-coins text-orange-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Rate -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Contacted</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['contacted_leads']) }}</p>
-                    <p class="text-xs text-gray-500 mt-1">
-                        {{ $stats['contact_rate'] }}% contact rate
-                    </p>
+                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Contacted</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ number_format($stats['contacted_leads']) }}</p>
                 </div>
                 <div class="bg-blue-100 rounded-lg p-3">
-                    <i class="fas fa-phone text-blue-600 text-xl"></i>
+                    <i class="fas fa-phone-alt text-blue-600 text-xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Success Rate -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <!-- Pending -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Converted</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['converted_leads']) }}</p>
-                    <p class="text-xs text-green-600 mt-1">
-                        <i class="fas fa-arrow-up mr-1"></i>{{ $stats['conversion_rate'] }}% success rate
-                    </p>
+                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Pending</p>
+                    <p class="text-3xl font-bold text-orange-500">{{ number_format($stats['pending_leads']) }}</p>
+                </div>
+                <div class="bg-orange-100 rounded-lg p-3">
+                    <i class="fas fa-clock text-orange-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Converted -->
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Converted</p>
+                    <p class="text-3xl font-bold text-green-600">{{ number_format($stats['converted_leads']) }}</p>
                 </div>
                 <div class="bg-green-100 rounded-lg p-3">
                     <i class="fas fa-check-circle text-green-600 text-xl"></i>
@@ -234,6 +210,126 @@ function resendVerification() {
             </div>
         </div>
     </div>
+
+    <!-- Current Plan Stats -->
+    @if($currentPlan)
+    @php
+        $pf           = $currentPlan['package']->features->keyBy('feature_key');
+        $dl           = $usageData['daily_leads'];
+        $dlFeature    = $pf->get('daily_leads_limit');
+        $exportLeads  = $pf->get('export_leads');
+        $maxDevices   = $pf->get('max_devices');
+        $prioritySupp = $pf->get('priority_support');
+    @endphp
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-chart-bar text-orange-500"></i>
+                Current Plan — Leads Limit
+            </h3>
+            <a href="{{ route('user.subscription') }}" class="text-xs text-primary-600 hover:underline">View Plan</a>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100">
+
+            <!-- Daily Leads Limit -->
+            <div class="px-6 py-5">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-map-marker-alt text-orange-500 text-xs"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500">Daily Leads Limit</span>
+                </div>
+                <div class="mt-2">
+                    @if($dl['is_unlimited'])
+                        <span class="text-xl font-bold text-gray-800">Unlimited</span>
+                    @else
+                        <span class="text-xl font-bold {{ $dl['percentage'] >= 85 ? 'text-red-600' : 'text-gray-800' }}">
+                            {{ number_format($dl['used']) }}
+                        </span>
+                        <span class="text-sm text-gray-500">/ {{ number_format($dl['limit']) }} today</span>
+                    @endif
+                </div>
+                @if(!$dl['is_unlimited'])
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2 mb-1">
+                        <div class="h-1.5 rounded-full {{ $dl['percentage'] >= 85 ? 'bg-red-500' : 'bg-orange-400' }}"
+                             style="width:<?php echo min($dl['percentage'], 100); ?>%"></div>
+                    </div>
+                    <p class="text-xs {{ $dl['percentage'] >= 85 ? 'text-red-500' : 'text-gray-400' }}">
+                        {{ number_format($dl['remaining']) }} remaining today
+                        @if($dl['percentage'] >= 85) · <span class="font-medium">Near limit</span> @endif
+                    </p>
+                @else
+                    <p class="text-xs text-gray-400 mt-1">No daily limit on your plan</p>
+                @endif
+            </div>
+
+            <!-- Export Leads -->
+            <div class="px-6 py-5">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-download text-green-500 text-xs"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500">Export Leads</span>
+                </div>
+                <div class="mt-2">
+                    @if($exportLeads && $exportLeads->feature_value === 'unlimited')
+                        <span class="text-xl font-bold text-gray-800">Unlimited</span>
+                    @elseif($exportLeads && $exportLeads->feature_value !== 'false')
+                        <span class="text-xl font-bold text-gray-800">{{ number_format((int)$exportLeads->feature_value) }}</span>
+                        <span class="text-sm text-gray-500">/mo</span>
+                    @else
+                        <span class="text-xl font-bold text-gray-400">Not included</span>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-400 mt-1">CSV / Excel downloads</p>
+            </div>
+
+            <!-- Devices Access -->
+            <div class="px-6 py-5">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-laptop text-blue-500 text-xs"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500">Devices Access</span>
+                </div>
+                <div class="mt-2">
+                    @if($maxDevices)
+                        <span class="text-xl font-bold text-gray-800">{{ $maxDevices->feature_value }}</span>
+                        <span class="text-sm text-gray-500">{{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
+                    @else
+                        <span class="text-xl font-bold text-gray-400">—</span>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Simultaneous logins</p>
+            </div>
+
+            <!-- Priority Support -->
+            <div class="px-6 py-5">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-headset text-purple-500 text-xs"></i>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500">Priority Support</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    @if($prioritySupp && $prioritySupp->feature_value === 'true')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            Included
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-sm font-semibold">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Not included
+                        </span>
+                    @endif
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Fast-track support response</p>
+            </div>
+
+        </div>
+    </div>
+    @endif
 
     @if($stats['total_leads'] == 0)
     <!-- Getting Started Guide -->
@@ -245,10 +341,12 @@ function resendVerification() {
             <div class="flex-1">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Get Started with Lead Generation</h3>
                 <p class="text-gray-600 mb-4">
-                    @if($usageData['monthly_leads']['is_unlimited'])
+                    @if($usageData['daily_leads']['is_unlimited'])
                         You have unlimited access! Here's how to get started:
+                    @elseif($usageData['daily_leads']['has_plan'])
+                        You have {{ number_format($usageData['daily_leads']['remaining']) }} leads remaining today. Here's how to get started:
                     @else
-                        You have {{ number_format($usageData['monthly_leads']['limit']) }} leads available this month. Here's how to get started:
+                        Here's how to get started:
                     @endif
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -295,7 +393,7 @@ function resendVerification() {
     @endif
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="display: none;">
         <!-- Recent Leads (2/3 width) -->
         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="p-6 border-b border-gray-200">

@@ -1,0 +1,184 @@
+{
+  "info": {
+    "name": "GMB Leads — Extension API",
+    "description": "All API endpoints for the Chrome Extension. Base URL: http://localhost/gmb_leads/api/extension\n\nAuth: After login, copy the token and set it as the collection variable `token`. All authenticated requests use Bearer token automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/gmb_leads/api/extension",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Paste the token from the Login response here"
+    },
+    {
+      "key": "device_fingerprint",
+      "value": "test-device-fp-001",
+      "type": "string"
+    },
+    {
+      "key": "device_id",
+      "value": "1",
+      "type": "string",
+      "description": "Device ID returned from Register Device or List Devices"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json.token) {",
+              "    pm.collectionVariables.set('token', json.token);",
+              "    console.log('Token saved:', json.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept",       "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/login",
+          "host": ["{{base_url}}"],
+          "path": ["login"]
+        },
+        "description": "Authenticate user and get extension token.\n\n✅ Public — no token required.\n\nOn success the Test script auto-saves the token to collection variable."
+      }
+    },
+    {
+      "name": "2. Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/logout",
+          "host": ["{{base_url}}"],
+          "path": ["logout"]
+        },
+        "description": "Revokes the current extension token.\n\n🔒 Requires Bearer token."
+      }
+    },
+    {
+      "name": "3. Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/status?device_fingerprint={{device_fingerprint}}",
+          "host": ["{{base_url}}"],
+          "path": ["status"],
+          "query": [
+            {
+              "key": "device_fingerprint",
+              "value": "{{device_fingerprint}}",
+              "description": "Optional. If provided, verifies device is registered and updates last_seen."
+            }
+          ]
+        },
+        "description": "Returns user subscription info, daily leads credits used/limit, and device count.\n\n🔒 Requires Bearer token."
+      }
+    },
+    {
+      "name": "4. Register Device",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_fingerprint\": \"{{device_fingerprint}}\",\n  \"device_name\": \"My Chrome Browser\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/register-device",
+          "host": ["{{base_url}}"],
+          "path": ["register-device"]
+        },
+        "description": "Registers a new device for the user. Fails if the device limit for the plan is reached.\n\n- Free Trial: 1 device\n- Starter: 2 devices\n- Growth: 5 devices\n\n🔒 Requires Bearer token."
+      }
+    },
+    {
+      "name": "5. List Devices",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/devices",
+          "host": ["{{base_url}}"],
+          "path": ["devices"]
+        },
+        "description": "Returns all registered devices for the current user along with device limit.\n\n🔒 Requires Bearer token."
+      }
+    },
+    {
+      "name": "6. Remove Device",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/devices/{{device_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["devices", "{{device_id}}"]
+        },
+        "description": "Removes (deactivates) a registered device by ID.\n\nSet the `device_id` collection variable to the ID from List Devices.\n\n🔒 Requires Bearer token."
+      }
+    },
+    {
+      "name": "7. Save Leads",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "Accept",        "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_fingerprint\": \"{{device_fingerprint}}\",\n  \"search_data\": {\n    \"query\": \"plumber\",\n    \"location_name\": \"New York\",\n    \"city_name\": \"New York\",\n    \"state_name\": \"NY\",\n    \"country_name\": \"US\",\n    \"radius\": 10\n  },\n  \"leads\": [\n    {\n      \"name\": \"ABC Plumbing Services\",\n      \"address\": \"123 Main St, New York, NY 10001\",\n      \"phone\": \"+1-212-555-0100\",\n      \"website\": \"https://abcplumbing.com\",\n      \"emails\": [\"info@abcplumbing.com\"],\n      \"rating\": 4.5,\n      \"total_reviews\": 128,\n      \"latest_review_date\": \"2 months ago\",\n      \"profile\": \"https://maps.google.com/?cid=1234567890\",\n      \"opening_hours\": [\n        \"Monday: 8:00 AM – 6:00 PM\",\n        \"Tuesday: 8:00 AM – 6:00 PM\"\n      ],\n      \"social_links\": {\n        \"facebook\": \"https://facebook.com/abcplumbing\",\n        \"instagram\": \"https://instagram.com/abcplumbing\"\n      },\n      \"reviews\": [\n        {\n          \"text\": \"Great service!\",\n          \"rating\": 5,\n          \"time\": 1711900000\n        }\n      ]\n    },\n    {\n      \"name\": \"XYZ Pipe Experts\",\n      \"address\": \"456 Broadway, New York, NY 10012\",\n      \"phone\": \"+1-212-555-0199\",\n      \"website\": \"https://xyzpipe.com\",\n      \"emails\": [],\n      \"rating\": 4.1,\n      \"total_reviews\": 47,\n      \"latest_review_date\": \"a week ago\",\n      \"profile\": \"https://maps.google.com/?cid=9876543210\",\n      \"opening_hours\": [],\n      \"social_links\": {},\n      \"reviews\": []\n    }\n  ]\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/save-leads",
+          "host": ["{{base_url}}"],
+          "path": ["save-leads"]
+        },
+        "description": "Saves scraped Google Maps leads. Checks:\n- Device must be registered\n- Daily leads limit (50/day for Free Trial, Unlimited for Starter & Growth)\n- Duplicate leads are skipped automatically\n\n**Fields per lead:**\n- `name` (required)\n- `address`, `phone`, `website`, `emails[]`\n- `rating`, `total_reviews`\n- `latest_review_date` — relative string (e.g. '3 months ago') or unix timestamp\n- `profile` — Google Maps URL or place ID\n- `opening_hours[]`, `social_links{}`, `reviews[]`\n\n🔒 Requires Bearer token."
+      }
+    }
+  ]
+}

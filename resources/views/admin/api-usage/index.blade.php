@@ -2,6 +2,8 @@
 
 @section('title', 'API Usage Management')
 
+@php use App\Models\Setting; @endphp
+
 @section('content')
 <main class="p-4 lg:p-8">
     <!-- Page Header -->
@@ -15,6 +17,16 @@
             Add API Key
         </button>
     </div>
+
+    @if(Setting::get('extension_mode', false))
+    <div class="mb-6 bg-purple-50 border border-purple-300 text-purple-800 px-4 py-3 rounded-lg flex items-center gap-3">
+        <i class="fas fa-puzzle-piece text-purple-600 text-lg"></i>
+        <div>
+            <p class="text-sm font-semibold">Extension Mode is Enabled</p>
+            <p class="text-xs text-purple-600 mt-0.5">All API keys are currently disabled. Searches will not work until Extension Mode is turned off in <a href="{{ route('admin.settings.index') }}" class="underline font-medium">System Settings</a>.</p>
+        </div>
+    </div>
+    @endif
 
     <!-- Success/Error Messages -->
     @if(session('success'))

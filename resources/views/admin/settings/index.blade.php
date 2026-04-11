@@ -865,6 +865,27 @@ use App\Models\EmailTemplate;
                                     </label>
                                 </div>
                             </div>
+                            <!-- Extension Mode Toggle -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border {{ Setting::get('extension_mode', false) ? 'bg-purple-50 border-purple-300' : 'bg-gray-50 border-gray-200' }}" id="extension-mode-container">
+                                <div>
+                                    <h5 class="font-medium text-gray-900 text-xs flex items-center gap-1.5">
+                                        <i class="fas fa-puzzle-piece text-purple-600"></i>
+                                        Extension Mode
+                                    </h5>
+                                    <p class="text-[10px] text-gray-600 mt-0.5">Enable Chrome Extension support — disables all Google API keys</p>
+                                    <p class="text-[10px] mt-1 font-medium {{ Setting::get('extension_mode', false) ? 'text-purple-600' : 'text-gray-400' }}" id="extension-mode-status">
+                                        {{ Setting::get('extension_mode', false) ? 'Enabled — APIs are disabled' : 'Disabled — APIs are active' }}
+                                    </p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="extension_mode" name="extension_mode" value="1"
+                                           {{ Setting::get('extension_mode', false) ? 'checked' : '' }}
+                                           class="sr-only peer"
+                                           onchange="updateExtensionModeUI(this)">
+                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 relative"></div>
+                                </label>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label for="session_timeout" class="block text-xs font-medium text-gray-700 mb-1.5">Session Timeout (minutes)</label>
@@ -1181,6 +1202,21 @@ use App\Models\EmailTemplate;
             status.innerHTML = 'Currently: <span class="uppercase">PRODUCTION</span> Mode';
             prodLabel.className = 'text-[10px] font-medium text-green-700';
             devLabel.className = 'text-[10px] font-medium text-gray-400';
+        }
+    }
+
+    function updateExtensionModeUI(checkbox) {
+        const container = document.getElementById('extension-mode-container');
+        const status = document.getElementById('extension-mode-status');
+
+        if (checkbox.checked) {
+            container.className = 'flex items-center justify-between p-3 rounded-lg border bg-purple-50 border-purple-300';
+            status.className = 'text-[10px] mt-1 font-medium text-purple-600';
+            status.textContent = 'Enabled — APIs are disabled';
+        } else {
+            container.className = 'flex items-center justify-between p-3 rounded-lg border bg-gray-50 border-gray-200';
+            status.className = 'text-[10px] mt-1 font-medium text-gray-400';
+            status.textContent = 'Disabled — APIs are active';
         }
     }
 

@@ -60,14 +60,9 @@ class SubscriptionController extends Controller
         $validated['is_trial'] = $request->boolean('is_trial');
         $validated['auto_renew'] = $request->boolean('auto_renew');
 
-        // Check if user already has an active subscription
-        $existingActive = Subscription::where('user_id', $validated['user_id'])
-            ->where('status', 'active')
-            ->first();
-
-        if ($existingActive) {
-            // Mark existing as expired
-            $existingActive->update(['status' => 'expired']);
+        // If creating an active subscription, expire all other active/pending ones
+        if ($validated['status'] === 'active') {
+            $this->expireOtherSubscriptions($validated['user_id']);
         }
 
         $subscription = Subscription::create($validated);
@@ -118,6 +113,11 @@ class SubscriptionController extends Controller
         $validated['is_trial'] = $request->boolean('is_trial');
         $validated['auto_renew'] = $request->boolean('auto_renew');
 
+        // If updating to active, expire all other active/pending subscriptions for this user
+        if ($validated['status'] === 'active' && $subscription->status !== 'active') {
+            $this->expireOtherSubscriptions($validated['user_id'], $subscription->id);
+        }
+
         $subscription->update($validated);
 
         return redirect()->route('admin.subscriptions.index')->with('success', 'Subscription updated successfully.');
@@ -143,6 +143,11 @@ class SubscriptionController extends Controller
         $newStatus = $subscription->status === 'active' ? 'cancelled' : 'active';
 
         $updateData = ['status' => $newStatus];
+
+        // Jab subscription active ho to baaki active/pending expire karo
+        if ($newStatus === 'active') {
+            $this->expireOtherSubscriptions($subscription->user_id, $subscription->id);
+        }
 
         // Jab subscription active ho to end_date auto set karo package ke billing_type ke hisab se
         if ($newStatus === 'active') {
@@ -218,29 +223,29 @@ class SubscriptionController extends Controller
 
                 // Get package features
                 $features = $package->features;
-                $searchesLimit = 'Standard';
-                $exportsLimit = 'Standard';
-                $saved_lists = 'Standard';
+                $dailyLeadsLimit = 'Unlimited';
+                $exportsLimit    = 'Unlimited';
+                $devicesLimit    = '1';
 
                 foreach ($features as $feature) {
-                    if ($feature->feature_key === 'search_credits') {
-                        $searchesLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    if ($feature->feature_key === 'daily_leads_limit') {
+                        $dailyLeadsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited') ? 'Unlimited' : $feature->feature_value . '/day';
                     }
-                    if ($feature->feature_key === 'leads_per_month') {
-                        $exportsLimit = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    if ($feature->feature_key === 'export_leads') {
+                        $exportsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited') ? 'Unlimited' : $feature->feature_value;
                     }
-                    if ($feature->feature_key === 'saved_lists') {
-                        $saved_lists = $feature->is_unlimited ? 'Unlimited' : $feature->feature_value;
+                    if ($feature->feature_key === 'max_devices') {
+                        $devicesLimit = $feature->feature_value;
                     }
                 }
 
                 $subscriptionData = [
-                    'plan_name' => $package->name,
-                    'start_date' => $subscription->start_date ? $subscription->start_date->format('F d, Y') : now()->format('F d, Y'),
-                    'renewal_date' => $updateData['end_date'] ? \Carbon\Carbon::parse($updateData['end_date'])->format('F d, Y') : 'Lifetime',
-                    'searches_limit' => $searchesLimit,
-                    'exports_limit' => $exportsLimit,
-                    'saved_lists' => $saved_lists,
+                    'plan_name'       => $package->name,
+                    'start_date'      => $subscription->start_date ? $subscription->start_date->format('F d, Y') : now()->format('F d, Y'),
+                    'renewal_date'    => $updateData['end_date'] ? \Carbon\Carbon::parse($updateData['end_date'])->format('F d, Y') : 'Lifetime',
+                    'searches_limit'  => $dailyLeadsLimit,
+                    'exports_limit'   => $exportsLimit,
+                    'saved_lists'     => $devicesLimit . ' Device(s)',
                 ];
 
                 $result = \App\Services\EmailService::sendSubscriptionStart($user, $subscriptionData);
@@ -262,6 +267,17 @@ class SubscriptionController extends Controller
             'end_date' => $subscription->end_date ? $subscription->end_date->format('M d, Y') : 'Lifetime',
             'message' => 'Subscription status updated successfully.'
         ]);
+    }
+
+    /**
+     * Expire all active/pending subscriptions for a user except the given one.
+     */
+    private function expireOtherSubscriptions(int $userId, int $exceptId = 0): void
+    {
+        Subscription::where('user_id', $userId)
+            ->whereIn('status', ['active', 'pending'])
+            ->when($exceptId, fn($q) => $q->where('id', '!=', $exceptId))
+            ->update(['status' => 'expired']);
     }
 
     /**

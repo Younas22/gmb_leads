@@ -2,6 +2,8 @@
 
 @section('title', 'User Dashboard')
 
+@php $extensionMode = \App\Models\Setting::get('extension_mode', false); @endphp
+
 @section('content')
 
 <div class="p-4 lg:p-8">
@@ -72,6 +74,8 @@
                             @foreach($countries as $country)
                                 <option value="{{ $country->id }}"
                                         data-name="{{ $country->name }}"
+                                        data-lat="{{ $country->latitude }}"
+                                        data-lng="{{ $country->longitude }}"
                                         {{ old('country_id', $searchData['country_id'] ?? '') == $country->id ? 'selected' : '' }}>
                                     {{ $country->name }}
                                 </option>
@@ -113,6 +117,30 @@
 
         <!-- Row 2: Radius, Max Reviews, Review Within Days, Search Button -->
         <div class="p-4 pt-3">
+            @if($extensionMode)
+            {{-- Extension Mode: 2-col layout --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-crosshairs text-[10px] mr-1"></i>Radius</label>
+                    <select name="radius"
+                            id="radius_select"
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
+                        <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
+                        <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
+                        <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
+                        <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" id="searchBtn" class="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold px-8 py-2.5 rounded-lg transition-all shadow-sm hover:shadow text-sm flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+                        <span id="btnText">Open in Google Maps</span>
+                    </button>
+                </div>
+            </div>
+            @else
+            {{-- Normal Mode: 4-col layout --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-crosshairs text-[10px] mr-1"></i>Radius</label>
@@ -126,7 +154,6 @@
                         <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
                     </select>
                 </div>
-
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-star text-[10px] mr-1"></i>Max Reviews</label>
                     <input type="number"
@@ -137,7 +164,6 @@
                            min="0"
                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
                 </div>
-
                 <div class="relative">
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-calendar-alt text-[10px] mr-1"></i>Review Within Days</label>
                     @if(!auth()->user()->hasFeature('latest_review_insights'))
@@ -163,7 +189,6 @@
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
                     @endif
                 </div>
-
                 <div class="flex items-end">
                     <button type="submit" id="searchBtn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold px-8 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none text-sm">
                         <i class="fas fa-search mr-2" id="searchIcon"></i>
@@ -171,6 +196,7 @@
                     </button>
                 </div>
             </div>
+            @endif
         </div>
     </form>
     
@@ -215,20 +241,20 @@
                 <div>
                     <h4 class="font-medium text-gray-700 mb-2">Search Query Examples:</h4>
                     <ul class="space-y-1 text-gray-600">
-                        <li>• "restaurants near me"</li>
-                        <li>• "travel agencies"</li>
-                        <li>• "hotels in lahore"</li>
-                        <li>• "car dealerships"</li>
-                        <li>• "beauty salons"</li>
+                        <li>• restaurants</li>
+                        <li>• hotels</li>
+                        <li>• travel agencies</li>
+                        <li>• car dealerships</li>
+                        <li>• beauty salons</li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-medium text-gray-700 mb-2">Pro Tips:</h4>
                     <ul class="space-y-1 text-gray-600">
-                        <li>• Use specific business types for better results</li>
-                        <li>• Select location for targeted search</li>
-                        <li>• Adjust radius based on area density</li>
-                        <li>• Try different keywords if no results</li>
+                        <li>• Enter only the business type — no city or country needed</li>
+                        <li>• Use the location field below to target a specific area</li>
+                        <li>• Adjust the radius to widen or narrow your search area</li>
+                        <li>• Try different keywords if results are too few</li>
                     </ul>
                 </div>
             </div>
@@ -743,6 +769,8 @@ function initializeFormHandlers() {
                 resetSelect(state, 'Select State');
                 states.forEach(st => {
                     const option = new Option(st.name, st.id);
+                    if (st.latitude)  option.dataset.lat = st.latitude;
+                    if (st.longitude) option.dataset.lng = st.longitude;
                     if (selectedStateId && st.id == selectedStateId) option.selected = true;
                     state.add(option);
                 });
@@ -762,6 +790,8 @@ function initializeFormHandlers() {
                 resetSelect(city, 'Select City');
                 cities.forEach(c => {
                     const option = new Option(c.name, c.id);
+                    if (c.latitude)  option.dataset.lat = c.latitude;
+                    if (c.longitude) option.dataset.lng = c.longitude;
                     if (selectedCityId && c.id == selectedCityId) option.selected = true;
                     city.add(option);
                 });
@@ -808,9 +838,66 @@ $(document).ready(function() {
 // Search functionality
 let isSearching = false;
 
+const extensionMode = {{ $extensionMode ? 'true' : 'false' }};
+
 document.addEventListener('submit', async function(e) {
     if (e.target.id !== 'searchForm') return;
     e.preventDefault();
+
+    // Extension Mode: open Google Maps in new tab
+    if (extensionMode) {
+        const query = (document.getElementById('search_query')?.value || '').trim();
+        if (!query) return;
+
+        const countryEl = document.getElementById('country_select');
+        const stateEl   = document.getElementById('state_select');
+        const cityEl    = document.getElementById('city_select');
+
+        const cityOpt    = cityEl?.selectedIndex > 0   ? cityEl.options[cityEl.selectedIndex]   : null;
+        const stateOpt   = stateEl?.selectedIndex > 0  ? stateEl.options[stateEl.selectedIndex]  : null;
+        const countryOpt = countryEl?.selectedIndex > 0 ? countryEl.options[countryEl.selectedIndex] : null;
+
+        // Build location string — deduplicate city/state if same name
+        const cityName    = cityOpt?.text    || '';
+        const stateName   = stateOpt?.text   || '';
+        const countryName = countryOpt?.text || '';
+        const uniqueParts = [];
+        if (cityName    && !cityName.startsWith('Select'))    uniqueParts.push(cityName);
+        if (stateName   && !stateName.startsWith('Select') && stateName.toLowerCase() !== cityName.toLowerCase())   uniqueParts.push(stateName);
+        if (countryName && !countryName.startsWith('Select') && countryName.toLowerCase() !== stateName.toLowerCase() && countryName.toLowerCase() !== cityName.toLowerCase()) uniqueParts.push(countryName);
+        const location = uniqueParts.join(', ');
+
+        const fullQuery = location ? `${query} in ${location}` : query;
+        const encodedQuery = fullQuery.replace(/[\s,]+/g, '+');
+
+        // Get coordinates: city > state > country (same priority as backend)
+        let lat = null, lng = null;
+        if (cityOpt?.dataset.lat && cityOpt?.dataset.lng) {
+            lat = parseFloat(cityOpt.dataset.lat);
+            lng = parseFloat(cityOpt.dataset.lng);
+        } else if (stateOpt?.dataset.lat && stateOpt?.dataset.lng) {
+            lat = parseFloat(stateOpt.dataset.lat);
+            lng = parseFloat(stateOpt.dataset.lng);
+        } else if (countryOpt?.dataset.lat && countryOpt?.dataset.lng) {
+            lat = parseFloat(countryOpt.dataset.lat);
+            lng = parseFloat(countryOpt.dataset.lng);
+        }
+
+        // Convert radius (km) to Google Maps zoom level
+        const radius = parseInt(document.getElementById('radius_select')?.value || 10);
+        const radiusToZoom = { 5: 13, 10: 12, 25: 11, 50: 10, 100: 9 };
+        const zoom = radiusToZoom[radius] ?? 12;
+
+        let mapsUrl;
+        if (lat && lng) {
+            mapsUrl = `https://www.google.com/maps/search/${encodedQuery}/@${lat},${lng},${zoom}z`;
+        } else {
+            mapsUrl = `https://www.google.com/maps/search/${encodedQuery}?entry=ttu`;
+        }
+
+        window.open(mapsUrl, '_blank');
+        return;
+    }
 
     if (isSearching) return false;
 

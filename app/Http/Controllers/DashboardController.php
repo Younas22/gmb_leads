@@ -63,10 +63,24 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Get subscription usage data (same as subscription page)
+        // Get subscription usage data
         $usageData = $this->calculateUsageData($user);
 
-        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData'));
+        // Get current plan with features (same as subscription page)
+        $currentPlan = null;
+        $activeSubscription = $user->activeSubscription();
+        if ($activeSubscription) {
+            $currentPlan = [
+                'subscription' => $activeSubscription,
+                'package'      => $activeSubscription->package,
+                'is_active'    => $activeSubscription->isActive(),
+                'is_pending'   => $activeSubscription->status === 'pending',
+                'end_date'     => $activeSubscription->end_date ? \Carbon\Carbon::parse($activeSubscription->end_date) : null,
+            ];
+            $currentPlan['package']->load('features');
+        }
+
+        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData', 'currentPlan'));
     }
 
     /**
@@ -105,6 +119,11 @@ class DashboardController extends Controller
             ->where('contact_status', 'converted')
             ->count();
 
+        // Get pending leads (not contacted yet)
+        $pendingLeads = SavedLead::whereIn('user_id', $userIds)
+            ->where('contact_status', 'not_contacted')
+            ->count();
+
         // Calculate rates
         $contactRate = $totalLeads > 0 ? round(($contactedLeads / $totalLeads) * 100, 1) : 0;
         $conversionRate = $totalLeads > 0 ? round(($convertedLeads / $totalLeads) * 100, 1) : 0;
@@ -119,6 +138,7 @@ class DashboardController extends Controller
             'searches_today' => $searchesToday,
             'contacted_leads' => $contactedLeads,
             'converted_leads' => $convertedLeads,
+            'pending_leads' => $pendingLeads,
             'contact_rate' => $contactRate,
             'conversion_rate' => $conversionRate,
             'trial_days_left' => (int) $trialDaysLeft
@@ -150,33 +170,36 @@ class DashboardController extends Controller
             $userIds = array_merge($userIds, $teamMemberIds);
         }
 
-        // Monthly leads - count saved leads this month for company + all team members
+        // Today's leads used
+        $todayLeadsUsed = SavedLead::whereIn('user_id', $userIds)
+            ->whereDate('created_at', today())
+            ->count();
+
+        // Monthly leads used
         $monthlyLeadsUsed = SavedLead::whereIn('user_id', $userIds)
             ->where('created_at', '>=', $currentMonth)
             ->count();
 
-        // Monthly search credits - count from api_usages table for current month
-        $monthlyCreditsUsed = \App\Models\ApiUsage::whereIn('user_id', $userIds)
+        // Monthly searches used
+        $monthlySearchesUsed = \App\Models\ApiUsage::whereIn('user_id', $userIds)
             ->where('date', '>=', $currentMonth->toDateString())
             ->sum('searches_used');
 
-        // Get limits from current package or default to 0 (no access without subscription)
-        $monthlyLeadsLimit = 0; // Default: no subscription
-        $monthlyCreditsLimit = 0; // Default: no subscription
-        $apiKeysLimit = 0; // Default: no subscription
+        // Get limits from current package using correct feature keys
+        $dailyLeadsLimit = 0;
+        $apiKeysLimit    = 0;
+        $hasSubscription = false;
 
-        // Get actual API keys count from database (company + all team members)
+        // Get actual API keys count
         $apiKeysUsed = \App\Models\UserApiKey::whereIn('user_id', $userIds)->count();
 
         if ($currentSubscription && $currentSubscription->package) {
-            $features = $currentSubscription->package->features;
-
-            foreach ($features as $feature) {
-                if ($feature->feature_key === 'leads_per_month') {
-                    $monthlyLeadsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
-                }
-                if ($feature->feature_key === 'search_credits') {
-                    $monthlyCreditsLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
+            $hasSubscription = true;
+            foreach ($currentSubscription->package->features as $feature) {
+                if ($feature->feature_key === 'daily_leads_limit') {
+                    $dailyLeadsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited')
+                        ? 999999
+                        : (int)$feature->feature_value;
                 }
                 if ($feature->feature_key === 'api_limit') {
                     $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
@@ -184,26 +207,39 @@ class DashboardController extends Controller
             }
         }
 
-        // Usage data
         return [
+            // daily_leads: used for the Leads Limit section & stat cards
+            'daily_leads' => [
+                'used'         => $todayLeadsUsed,
+                'limit'        => $dailyLeadsLimit,
+                'remaining'    => $dailyLeadsLimit >= 999999 ? 999999 : max(0, $dailyLeadsLimit - $todayLeadsUsed),
+                'percentage'   => ($dailyLeadsLimit > 0 && $dailyLeadsLimit < 999999)
+                                    ? round(($todayLeadsUsed / $dailyLeadsLimit) * 100) : 0,
+                'is_unlimited' => $dailyLeadsLimit >= 999999,
+                'has_plan'     => $hasSubscription,
+            ],
+            // monthly_leads: kept for the "Saved Leads" stat card subtitle
             'monthly_leads' => [
-                'used' => $monthlyLeadsUsed,
-                'limit' => $monthlyLeadsLimit,
-                'remaining' => max(0, $monthlyLeadsLimit - $monthlyLeadsUsed),
-                'percentage' => $monthlyLeadsLimit > 0 ? round(($monthlyLeadsUsed / $monthlyLeadsLimit) * 100) : 0,
-                'is_unlimited' => $monthlyLeadsLimit >= 999999,
+                'used'         => $monthlyLeadsUsed,
+                'limit'        => $dailyLeadsLimit,
+                'remaining'    => $dailyLeadsLimit >= 999999 ? 999999 : max(0, $dailyLeadsLimit - $todayLeadsUsed),
+                'percentage'   => ($dailyLeadsLimit > 0 && $dailyLeadsLimit < 999999)
+                                    ? round(($todayLeadsUsed / $dailyLeadsLimit) * 100) : 0,
+                'is_unlimited' => $dailyLeadsLimit >= 999999,
+                'has_plan'     => $hasSubscription,
             ],
             'search_credits' => [
-                'used' => $monthlyCreditsUsed,
-                'limit' => $monthlyCreditsLimit,
-                'remaining' => max(0, $monthlyCreditsLimit - $monthlyCreditsUsed),
-                'percentage' => $monthlyCreditsLimit > 0 ? round(($monthlyCreditsUsed / $monthlyCreditsLimit) * 100) : 0,
-                'is_unlimited' => $monthlyCreditsLimit >= 999999,
+                'used'         => $monthlySearchesUsed,
+                'limit'        => 0,
+                'remaining'    => 0,
+                'percentage'   => 0,
+                'is_unlimited' => $hasSubscription,
+                'has_plan'     => $hasSubscription,
             ],
             'api_keys' => [
-                'used' => $apiKeysUsed,
-                'limit' => $apiKeysLimit,
-                'percentage' => $apiKeysLimit > 0 ? round(($apiKeysUsed / $apiKeysLimit) * 100) : 0,
+                'used'         => $apiKeysUsed,
+                'limit'        => $apiKeysLimit,
+                'percentage'   => $apiKeysLimit > 0 ? round(($apiKeysUsed / $apiKeysLimit) * 100) : 0,
                 'is_unlimited' => $apiKeysLimit >= 999999,
             ],
         ];

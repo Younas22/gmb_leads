@@ -38,6 +38,7 @@ class User extends Authenticatable
         'email_verified_at',
         'email_verification_token',
         'signups_enabled',
+        'extension_token',
     ];
 
     protected $hidden = [
@@ -327,9 +328,9 @@ class User extends Authenticatable
             return $default;
         }
 
-        // If unlimited, return -1 or true based on context
-        if ($feature->is_unlimited) {
-            return -1; // -1 means unlimited
+        // If unlimited flag set or value is 'unlimited' string, return -1
+        if ($feature->is_unlimited || $feature->feature_value === 'unlimited') {
+            return -1;
         }
 
         return $feature->feature_value;
@@ -418,23 +419,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the number of credits (API calls) used in the current billing month.
+     * Get the number of leads saved today (used against daily_leads_limit).
      */
     public function getCreditsUsed()
     {
         $userIds = $this->getQuotaUserIds();
 
-        return \App\Models\ApiUsage::whereIn('user_id', $userIds)
-            ->where('date', '>=', now()->startOfMonth()->toDateString())
-            ->sum('searches_used');
+        return \App\Models\SavedLead::whereIn('user_id', $userIds)
+            ->whereDate('created_at', today())
+            ->count();
     }
 
     /**
-     * Get the monthly credit limit from the user's package.
+     * Get the daily leads limit from the user's package.
+     * Returns -1 for unlimited, 0 if no subscription.
      */
     public function getCreditLimit()
     {
-        return $this->getFeatureLimit('search_credits');
+        return $this->getFeatureLimit('daily_leads_limit');
     }
 
     /**

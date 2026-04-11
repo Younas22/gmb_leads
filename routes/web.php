@@ -11,6 +11,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TutorialsController;
+use App\Http\Controllers\ExtensionController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -91,6 +92,9 @@ Route::middleware(['web', 'auth'])->group(function () {
     // Account Type Selection (for Google OAuth new users)
     Route::get('/choose-account-type', [AuthController::class, 'showAccountTypeSelection'])->name('auth.choose.account.type');
     Route::post('/save-account-type', [AuthController::class, 'saveAccountType'])->name('auth.save.account.type');
+
+    // Extension auto-login via web session
+    Route::get('/extension/web-token', [ExtensionController::class, 'webAutoLogin'])->name('extension.web-token');
 
     // General dashboard route
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

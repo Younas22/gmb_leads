@@ -1106,75 +1106,82 @@
             
             @php
                 $featureLabels = [
-                    'search_credits'          => 'Credits / Month',
-                    'leads_per_month'         => 'Leads / Month',
-                    'export_leads'            => 'Lead Exports',
-                    'saved_lists'             => 'Saved Lists',
-                    'email_support'           => 'Email Support',
-                    'api_access'              => 'API Access',
-                    'api_limit'               => 'API Limit',
-                    'bulk_export'             => 'Bulk Export',
-                    'crm_integration'         => 'CRM Integration',
-                    'priority_support'        => 'Priority Support',
-                    'api_calls'               => 'API Calls',
-                    'dedicated_manager'       => 'Dedicated Manager',
-                    'team_members'            => 'Team Members',
-                    'future_updates'          => 'Future Updates',
-                    'advance_filter'          => 'Advanced Filters',
-                    'team_analytics'          => 'Team Analytics',
-                    'white_label'             => 'White Label',
-                    'custom_branding'         => 'Custom Branding',
-                    'sla_guarantee'           => 'SLA Guarantee',
-                    'custom_integrations'     => 'Custom Integrations',
-                    'onboarding_training'     => 'Onboarding & Training',
+                    'unlimited_map_scraping'  => 'Unlimited Map Scraping',
+                    'daily_leads_limit'       => 'Daily Leads Limit',
                     'basic_business_signals'  => 'Basic Business Signals',
                     'contact_ready_leads'     => 'Contact-Ready Leads',
-                    'email_social_discovery'  => 'Email & Social Discovery',
+                    'email_scraping'          => 'Email Scraping',
+                    'social_media_scraping'   => 'Social Media Scraping',
+                    'website_extraction'      => 'Website Extraction',
                     'latest_review_insights'  => 'Latest Review Insights',
                     'advanced_review_filters' => 'Advanced Review Filters',
-                    'full_review_intelligence'=> 'Full Review Intelligence',
+                    'export_leads'            => 'Export Leads',
+                    'max_devices'             => 'Devices Access',
+                    'priority_support'        => 'Priority Support',
                 ];
                 $boolFeatures = [
-                    'email_support', 'api_access', 'bulk_export',
-                    'crm_integration', 'priority_support', 'dedicated_manager',
-                    'team_analytics', 'white_label', 'custom_branding',
-                    'sla_guarantee', 'custom_integrations', 'onboarding_training',
-                    'future_updates', 'advance_filter',
-                    'basic_business_signals', 'contact_ready_leads',
-                    'email_social_discovery', 'latest_review_insights',
-                    'advanced_review_filters', 'full_review_intelligence',
+                    'unlimited_map_scraping', 'basic_business_signals', 'contact_ready_leads',
+                    'email_scraping', 'social_media_scraping', 'website_extraction',
+                    'latest_review_insights', 'advanced_review_filters', 'priority_support',
                 ];
-                // Features to show in the separate intelligence table (not in cards)
+                // Features shown in the intelligence comparison table
                 $intelligenceFeatures = [
-                    'basic_business_signals', 'contact_ready_leads',
-                    'email_social_discovery', 'latest_review_insights',
-                    'advanced_review_filters', 'full_review_intelligence',
+                    'unlimited_map_scraping', 'basic_business_signals', 'contact_ready_leads',
+                    'email_scraping', 'social_media_scraping', 'website_extraction',
+                    'latest_review_insights', 'advanced_review_filters',
                 ];
-                // Features to hide from cards (shown in table instead)
-                $hideFromCards = array_merge($intelligenceFeatures, ['data_depth']);
+                $hideFromCards = $intelligenceFeatures;
+
+                // Split packages into monthly / yearly groups
+                $monthlyUserPackages = $userPackages->filter(fn($p) => $p->billing_type === 'monthly');
+                $yearlyUserPackages  = $userPackages->filter(fn($p) => $p->price == 0 || $p->billing_type === 'yearly');
+
                 $pricingTabs = [
-                    ['type' => 'user',    'packages' => $userPackages],
+                    ['type' => 'user', 'packages' => $userPackages],
                 ];
-                if($companyPackages->count() > 0) {
+                if ($companyPackages->count() > 0) {
                     $pricingTabs[] = ['type' => 'company', 'packages' => $companyPackages];
                 }
             @endphp
 
-            @foreach($pricingTabs as $tab)
-            <div class="mt-14 pricing-grid {{ $tab['type'] === 'user' ? '' : 'hidden' }}" data-tab="{{ $tab['type'] }}">
+            <!-- Monthly / Yearly Billing Toggle -->
+            <div class="flex justify-center mb-4">
+                <div class="inline-flex items-center bg-gray-100 rounded-full p-1 gap-1">
+                    <button id="billing-monthly-btn"
+                            onclick="switchBilling('monthly')"
+                            class="billing-toggle-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors bg-primary-blue text-white cursor-pointer">
+                        Monthly
+                    </button>
+                    <button id="billing-yearly-btn"
+                            onclick="switchBilling('yearly')"
+                            class="billing-toggle-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-2">
+                        Yearly
+                        <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">Save 2 months</span>
+                    </button>
+                </div>
+            </div>
+
+            @php
+                $packageCardMacro = function($package, $isCurrentPlan, $boolFeatures, $featureLabels, $hideFromCards, $currency) {
+                    return compact('package', 'isCurrentPlan', 'boolFeatures', 'featureLabels', 'hideFromCards', 'currency');
+                };
+            @endphp
+
+            {{-- Monthly Packages Grid --}}
+            <div id="billing-monthly-grid" class="mt-10">
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                    @foreach($tab['packages'] as $package)
+                    @foreach($monthlyUserPackages as $package)
                     @php
                         $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
-                        $borderClass = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
+                        $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
                     @endphp
-                    <div class="rounded-xl p-8 flex flex-col {{ $package->is_popular ? 'bg-primary-blue text-white relative transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
+                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-blue text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
                         @if($isCurrentPlan)
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                                 Your Active Plan
                             </div>
                         @elseif($package->is_popular)
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
                                 Popular
                             </div>
                         @endif
@@ -1187,88 +1194,95 @@
                             <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
                                 @if($package->price == 0)
                                     {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
-                                @elseif($package->billing_type === 'yearly')
-                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price / 12, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
-                                @elseif($package->billing_type === 'lifetime')
-                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}"> once</span>
                                 @else
                                     {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
                                 @endif
                             </div>
-                            @if($package->billing_type === 'yearly' && $package->price > 0)
-                                <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">billed {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}/year</div>
-                            @endif
                         </div>
 
-                        <ul class="space-y-4 mb-8 flex-grow">
-                            @php
-                                $sortedFeatures = $package->features->sort(function($a, $b) use ($boolFeatures) {
-                                    $aIsBool = in_array($a->feature_key, $boolFeatures);
-                                    $bIsBool = in_array($b->feature_key, $boolFeatures);
-
-                                    // Numeric features come first
-                                    if (!$aIsBool && $bIsBool) return -1;
-                                    if ($aIsBool && !$bIsBool) return 1;
-
-                                    // Both are boolean, sort by value (true before false)
-                                    if ($aIsBool && $bIsBool) {
-                                        if ($a->feature_value === 'true' && $b->feature_value !== 'true') return -1;
-                                        if ($a->feature_value !== 'true' && $b->feature_value === 'true') return 1;
-                                    }
-
-                                    return 0;
-                                });
-                            @endphp
-                            @foreach($sortedFeatures as $feature)
-                                @if(isset($featureLabels[$feature->feature_key]) && !in_array($feature->feature_key, $hideFromCards))
-                                    <li class="flex items-center">
-                                        @if(in_array($feature->feature_key, $boolFeatures))
-                                            @if($feature->feature_value === 'true')
-                                                <svg class="w-5 h-5 {{ $package->is_popular ? 'text-green-400' : 'text-green-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                                {{ $featureLabels[$feature->feature_key] }}
-                                            @else
-                                                <svg class="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                                <span class="{{ $package->is_popular ? 'opacity-50' : 'text-gray-400' }}">{{ $featureLabels[$feature->feature_key] }}</span>
-                                            @endif
-                                        @else
-                                            <svg class="w-5 h-5 {{ $package->is_popular ? 'text-green-400' : 'text-green-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                            </svg>
-                                            {{ $featureLabels[$feature->feature_key] }}:
-                                            <strong class="ml-1">{{ $feature->is_unlimited ? 'Unlimited' : number_format((int)$feature->feature_value) }}</strong>
-                                        @endif
-                                    </li>
-                                @endif
-                            @endforeach
-                        </ul>
+                        @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
 
                         @if($isCurrentPlan)
-                        <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
-                            Current Plan
-                        </button>
+                            <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
                         @elseif($package->price == 0)
-                        <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
-                            Start Free
-                        </a>
+                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                Start Free
+                            </a>
                         @else
-                        <button onclick="handleGetStarted(this)"
-                                data-package-id="{{ $package->id }}"
-                                data-package-name="{{ e($package->name) }}"
-                                data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
-                                data-currency-symbol="{{ $currency['symbol'] }}"
-                                class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
-                            Get Started
-                        </button>
+                            <button onclick="handleGetStarted(this)"
+                                    data-package-id="{{ $package->id }}"
+                                    data-package-name="{{ e($package->name) }}"
+                                    data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
+                                    data-currency-symbol="{{ $currency['symbol'] }}"
+                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                Get Started
+                            </button>
                         @endif
                     </div>
                     @endforeach
                 </div>
             </div>
-            @endforeach
+
+            {{-- Yearly Packages Grid --}}
+            <div id="billing-yearly-grid" class="mt-10 hidden">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                    @foreach($yearlyUserPackages as $package)
+                    @php
+                        $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
+                        $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
+                    @endphp
+                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-blue text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
+                        @if($isCurrentPlan)
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                Your Active Plan
+                            </div>
+                        @elseif($package->is_popular)
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                Popular
+                            </div>
+                        @endif
+
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-1">{{ $package->name }}</h3>
+                            @if($package->description)
+                                <p class="text-sm {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-3">{{ $package->description }}</p>
+                            @endif
+                            <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
+                                @if($package->price == 0)
+                                    {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                @else
+                                    {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price / 12, $currency), 0) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
+                                @endif
+                            </div>
+                            @if($package->billing_type === 'yearly' && $package->price > 0)
+                                <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">
+                                    billed {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 0) }}/year
+                                </div>
+                            @endif
+                        </div>
+
+                        @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
+
+                        @if($isCurrentPlan)
+                            <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
+                        @elseif($package->price == 0)
+                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                Start Free
+                            </a>
+                        @else
+                            <button onclick="handleGetStarted(this)"
+                                    data-package-id="{{ $package->id }}"
+                                    data-package-name="{{ e($package->name) }}"
+                                    data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
+                                    data-currency-symbol="{{ $currency['symbol'] }}"
+                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                Get Started
+                            </button>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
 
             <!-- Lead Intelligence Comparison -->
             @if($userPackages->count() > 0)
@@ -1284,7 +1298,7 @@
                         <thead>
                             <tr class="border-b-2 border-gray-200">
                                 <th class="text-left py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
-                                @foreach($userPackages as $package)
+                                @foreach($monthlyUserPackages as $package)
                                     <th class="text-center py-4 px-4 w-1/5">
                                         <span class="text-sm font-bold {{ $package->is_popular ? 'text-primary-blue' : 'text-gray-900' }}">{{ $package->name }}</span>
                                         <div class="text-xs text-gray-400 mt-0.5">
@@ -1301,12 +1315,20 @@
                         <tbody>
                             @php
                                 $intelligenceLabels = [
-                                    'basic_business_signals'  => ['name' => 'Basic Business Signals',  'desc' => 'Name, address, profile, category, rating, total reviews'],
-                                    'contact_ready_leads'     => ['name' => 'Contact-Ready Leads',     'desc' => 'Verified phone & website data'],
-                                    'email_social_discovery'  => ['name' => 'Email & Social Discovery', 'desc' => 'Emails, Facebook, Instagram, etc.'],
-                                    'latest_review_insights'  => ['name' => 'Latest Review Insights',  'desc' => 'Recent review text & sentiment'],
-                                    'advanced_review_filters' => ['name' => 'Advanced Review Filters', 'desc' => 'Filter by rating, recency & keywords'],
-                                    'full_review_intelligence'=> ['name' => 'Full Review Intelligence','desc' => 'Complete review history & analysis'],
+                                    // Boolean features
+                                    'unlimited_map_scraping'  => ['name' => 'Unlimited Map Scraping',   'desc' => 'Scrape as many Google Maps results as you need',   'type' => 'bool'],
+                                    'basic_business_signals'  => ['name' => 'Basic Business Signals',   'desc' => 'Name, address, category, rating, total reviews',   'type' => 'bool'],
+                                    'contact_ready_leads'     => ['name' => 'Contact-Ready Leads',      'desc' => 'Verified phone & website data included',           'type' => 'bool'],
+                                    'email_scraping'          => ['name' => 'Email Scraping',           'desc' => 'Extract emails from business websites',            'type' => 'bool'],
+                                    'social_media_scraping'   => ['name' => 'Social Media Scraping',    'desc' => 'Facebook, Instagram, Twitter & more',              'type' => 'bool'],
+                                    'website_extraction'      => ['name' => 'Website Extraction',       'desc' => 'Pull full website URL from listings',              'type' => 'bool'],
+                                    'latest_review_insights'  => ['name' => 'Latest Review Insights',  'desc' => 'Recent review text & sentiment signals',           'type' => 'bool'],
+                                    'advanced_review_filters' => ['name' => 'Advanced Review Filters', 'desc' => 'Filter by rating, recency & keywords',             'type' => 'bool'],
+                                    // Value-based features
+                                    'daily_leads_limit'       => ['name' => 'Daily Leads Limit',        'desc' => 'Max leads you can collect per day',                'type' => 'value', 'suffix' => '/day'],
+                                    'export_leads'            => ['name' => 'Export Leads',             'desc' => 'Download leads as CSV / Excel',                    'type' => 'value', 'suffix' => ''],
+                                    'max_devices'             => ['name' => 'Devices Access',           'desc' => 'Number of devices that can access your account',   'type' => 'value', 'suffix' => ''],
+                                    'priority_support'        => ['name' => 'Priority Support',         'desc' => 'Fast-track support response',                      'type' => 'bool'],
                                 ];
                             @endphp
                             @foreach($intelligenceLabels as $featureKey => $meta)
@@ -1315,24 +1337,46 @@
                                         <div class="font-medium text-gray-900 text-sm">{{ $meta['name'] }}</div>
                                         <div class="text-xs text-gray-400 mt-0.5">{{ $meta['desc'] }}</div>
                                     </td>
-                                    @foreach($userPackages as $package)
+                                    @foreach($monthlyUserPackages as $package)
                                         @php
                                             $feat = $package->features->firstWhere('feature_key', $featureKey);
-                                            $hasFeature = $feat && $feat->feature_value === 'true';
+                                            $val  = $feat ? $feat->feature_value : null;
                                         @endphp
                                         <td class="text-center py-4 px-4">
-                                            @if($hasFeature)
-                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100">
-                                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
-                                                </span>
+                                            @if($meta['type'] === 'bool')
+                                                @if($val === 'true')
+                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100">
+                                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </span>
+                                                @endif
                                             @else
-                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
-                                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                    </svg>
-                                                </span>
+                                                @if(!$val || $val === 'false')
+                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </span>
+                                                @elseif($val === 'unlimited')
+                                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                                        Unlimited
+                                                    </span>
+                                                @else
+                                                    <span class="text-sm font-semibold text-gray-800">
+                                                        @if($featureKey === 'max_devices')
+                                                            {{ $val }} {{ (int)$val === 1 ? 'Device' : 'Devices' }}
+                                                        @else
+                                                            {{ number_format((int)$val) }}{{ $meta['suffix'] }}
+                                                        @endif
+                                                    </span>
+                                                @endif
                                             @endif
                                         </td>
                                     @endforeach
@@ -1521,7 +1565,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
                         <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            We offer three comprehensive plans: <strong class="text-gray-800">Starter ($10/mo)</strong> for basic business discovery, <strong class="text-gray-800">Growth ($20/mo)</strong> for contact-ready leads with unlimited exports, and <strong class="text-gray-800">Pro ($36/mo)</strong> for deep business intelligence with full review data. Each tier unlocks more GMB searches, leads per month, and advanced features. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for complete feature comparison.
+                            We offer three plans: <strong class="text-gray-800">Free Trial</strong> with 50 leads/day to get started, <strong class="text-gray-800">Starter ($19/mo)</strong> for unlimited map scraping with contact-ready leads and 1,000 exports/month, and <strong class="text-gray-800">Growth ($39/mo)</strong> for full lead intelligence including email scraping, social media, website extraction, and unlimited exports. All paid plans are available on monthly or yearly billing — save 2 months with annual. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for a complete feature comparison.
                         </div>
                     </div>
                 </div>
@@ -1818,6 +1862,26 @@
                 });
             });
         })();
+
+        // Pricing: Monthly/Yearly billing toggle
+        function switchBilling(type) {
+            var monthlyGrid  = document.getElementById('billing-monthly-grid');
+            var yearlyGrid   = document.getElementById('billing-yearly-grid');
+            var monthlyBtn   = document.getElementById('billing-monthly-btn');
+            var yearlyBtn    = document.getElementById('billing-yearly-btn');
+
+            var isMonthly = type === 'monthly';
+            monthlyGrid.classList.toggle('hidden', !isMonthly);
+            yearlyGrid.classList.toggle('hidden', isMonthly);
+
+            monthlyBtn.classList.toggle('bg-primary-blue', isMonthly);
+            monthlyBtn.classList.toggle('text-white', isMonthly);
+            monthlyBtn.classList.toggle('text-gray-600', !isMonthly);
+
+            yearlyBtn.classList.toggle('bg-primary-blue', !isMonthly);
+            yearlyBtn.classList.toggle('text-white', !isMonthly);
+            yearlyBtn.classList.toggle('text-gray-600', isMonthly);
+        }
     </script>
 </body>
 </html>

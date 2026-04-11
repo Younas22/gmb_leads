@@ -18,99 +18,152 @@ class PackageSeeder extends Seeder
 
         /**
          * =========================
-         * USER PACKAGES (MONTHLY)
+         * FREE TRIAL
          * =========================
          */
-
-        // 1️⃣ Starter
-        $starter = Package::create([
-            'name'         => 'Starter',
-            'slug'         => 'starter',
+        $freeTrial = Package::create([
+            'name'         => 'Free Trial',
+            'slug'         => 'free-trial',
             'package_for'  => 'user',
             'billing_type' => 'monthly',
             'price'        => 0.00,
             'currency'     => 'USD',
             'max_users'    => 1,
             'is_popular'   => false,
-            'description' => 'Basic business discovery. Ideal for market research and niche validation.',
+            'description'  => 'Get started with limited map scraping. Ideal for exploring the platform.',
             'status'       => 'active',
         ]);
 
-        $this->addFeatures($starter->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '500'],
-            ['feature_key' => 'leads_per_month',        'feature_value' => '100'],
-            ['feature_key' => 'saved_lists',             'feature_value' => '3'],
-            ['feature_key' => 'export_leads',            'feature_value' => '25'],
-
-            // 🔍 Lead data depth
-            ['feature_key' => 'data_depth',              'feature_value' => 'starter'],
-            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
-            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'false'],
-            ['feature_key' => 'email_social_discovery',  'feature_value' => 'false'],
-            ['feature_key' => 'latest_review_insights',  'feature_value' => 'false'],
-            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'false'],
-            ['feature_key' => 'full_review_intelligence','feature_value' => 'false'],
+        $this->addFeatures($freeTrial->id, [
+            ['feature_key' => 'unlimited_map_scraping',   'feature_value' => 'false'],
+            ['feature_key' => 'daily_leads_limit',        'feature_value' => '50'],
+            ['feature_key' => 'basic_business_signals',   'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',      'feature_value' => 'true'],
+            ['feature_key' => 'email_scraping',           'feature_value' => 'false'],
+            ['feature_key' => 'social_media_scraping',    'feature_value' => 'true'],
+            ['feature_key' => 'website_extraction',       'feature_value' => 'true'],
+            ['feature_key' => 'latest_review_insights',   'feature_value' => 'true'],
+            ['feature_key' => 'advanced_review_filters',  'feature_value' => 'true'],
+            ['feature_key' => 'export_leads',             'feature_value' => 'unlimited'],
+            ['feature_key' => 'max_devices',              'feature_value' => '1'],
+            ['feature_key' => 'priority_support',         'feature_value' => 'false'],
         ]);
 
-        // 2️⃣ Growth (MOST POPULAR)
-        $growth = Package::create([
-            'name'         => 'Growth',
-            'slug'         => 'growth',
+        /**
+         * =========================
+         * STARTER — MONTHLY
+         * =========================
+         */
+        $starterMonthly = Package::create([
+            'name'         => 'Starter',
+            'slug'         => 'starter-monthly',
             'package_for'  => 'user',
             'billing_type' => 'monthly',
-            'price'        => 39.00,
+            'price'        => 7.99,
             'currency'     => 'USD',
-            'max_users'    => 1,
-            'is_popular'   => true,
-            'description' => 'Contact-ready leads with smart filters. Built for outreach & sales.',
-            'status'       => 'active',
-        ]);
-
-        $this->addFeatures($growth->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '2000'],
-            ['feature_key' => 'leads_per_month',        'feature_value' => '500'],
-            ['feature_key' => 'saved_lists',             'feature_value' => '10'],
-            ['feature_key' => 'export_leads',            'feature_value' => '250'],
-
-            // 🔥 Lead intelligence
-            ['feature_key' => 'data_depth',              'feature_value' => 'growth'],
-            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
-            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'true'],
-            ['feature_key' => 'email_social_discovery',  'feature_value' => 'true'],
-            ['feature_key' => 'latest_review_insights',  'feature_value' => 'true'],
-            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'true'],
-            ['feature_key' => 'full_review_intelligence','feature_value' => 'false'],
-        ]);
-
-        // 3️⃣ Pro
-        $pro = Package::create([
-            'name'         => 'Pro',
-            'slug'         => 'pro',
-            'package_for'  => 'user',
-            'billing_type' => 'monthly',
-            'price'        => 79.00,
-            'currency'     => 'USD',
-            'max_users'    => 1,
+            'max_users'    => 2,
             'is_popular'   => false,
-            'description' => 'Deep business intelligence with full review data.',
+            'description'  => 'Unlimited map scraping with contact-ready leads. Perfect for outreach.',
             'status'       => 'active',
         ]);
 
-        $this->addFeatures($pro->id, [
-            ['feature_key' => 'search_credits',           'feature_value' => '5000'],
-            ['feature_key' => 'leads_per_month',        'feature_value' => '1000'],
-            ['feature_key' => 'saved_lists',             'feature_value' => '25'],
-            ['feature_key' => 'export_leads',            'feature_value' => '1000'],
+        $this->addFeatures($starterMonthly->id, $this->starterFeatures());
 
-            // 🚀 Full power
-            ['feature_key' => 'data_depth',              'feature_value' => 'pro'],
-            ['feature_key' => 'basic_business_signals',  'feature_value' => 'true'],
-            ['feature_key' => 'contact_ready_leads',     'feature_value' => 'true'],
-            ['feature_key' => 'email_social_discovery',  'feature_value' => 'true'],
-            ['feature_key' => 'latest_review_insights',  'feature_value' => 'true'],
-            ['feature_key' => 'advanced_review_filters', 'feature_value' => 'true'],
-            ['feature_key' => 'full_review_intelligence','feature_value' => 'true'],
+        /**
+         * =========================
+         * STARTER — YEARLY
+         * =========================
+         */
+        $starterYearly = Package::create([
+            'name'         => 'Starter',
+            'slug'         => 'starter-yearly',
+            'package_for'  => 'user',
+            'billing_type' => 'yearly',
+            'price'        => 79.90,
+            'currency'     => 'USD',
+            'max_users'    => 2,
+            'is_popular'   => false,
+            'description'  => 'Unlimited map scraping with contact-ready leads. Perfect for outreach. Save 2 months with annual billing.',
+            'status'       => 'active',
         ]);
+
+        $this->addFeatures($starterYearly->id, $this->starterFeatures());
+
+        /**
+         * =========================
+         * GROWTH — MONTHLY  ⭐ POPULAR
+         * =========================
+         */
+        $growthMonthly = Package::create([
+            'name'         => 'Growth',
+            'slug'         => 'growth-monthly',
+            'package_for'  => 'user',
+            'billing_type' => 'monthly',
+            'price'        => 15.99,
+            'currency'     => 'USD',
+            'max_users'    => 5,
+            'is_popular'   => true,
+            'description'  => 'Full lead intelligence with email, social & website data. Built for scale.',
+            'status'       => 'active',
+        ]);
+
+        $this->addFeatures($growthMonthly->id, $this->growthFeatures());
+
+        /**
+         * =========================
+         * GROWTH — YEARLY  ⭐ POPULAR
+         * =========================
+         */
+        $growthYearly = Package::create([
+            'name'         => 'Growth',
+            'slug'         => 'growth-yearly',
+            'package_for'  => 'user',
+            'billing_type' => 'yearly',
+            'price'        => 159.90,
+            'currency'     => 'USD',
+            'max_users'    => 5,
+            'is_popular'   => true,
+            'description'  => 'Full lead intelligence with email, social & website data. Built for scale. Save 2 months with annual billing.',
+            'status'       => 'active',
+        ]);
+
+        $this->addFeatures($growthYearly->id, $this->growthFeatures());
+    }
+
+    private function starterFeatures(): array
+    {
+        return [
+            ['feature_key' => 'unlimited_map_scraping',   'feature_value' => 'true'],
+            ['feature_key' => 'daily_leads_limit',        'feature_value' => 'unlimited'],
+            ['feature_key' => 'basic_business_signals',   'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',      'feature_value' => 'true'],
+            ['feature_key' => 'email_scraping',           'feature_value' => 'false'],
+            ['feature_key' => 'social_media_scraping',    'feature_value' => 'true'],
+            ['feature_key' => 'website_extraction',       'feature_value' => 'true'],
+            ['feature_key' => 'latest_review_insights',   'feature_value' => 'true'],
+            ['feature_key' => 'advanced_review_filters',  'feature_value' => 'true'],
+            ['feature_key' => 'export_leads',             'feature_value' => 'unlimited'],
+            ['feature_key' => 'max_devices',              'feature_value' => '2'],
+            ['feature_key' => 'priority_support',         'feature_value' => 'true'],
+        ];
+    }
+
+    private function growthFeatures(): array
+    {
+        return [
+            ['feature_key' => 'unlimited_map_scraping',   'feature_value' => 'true'],
+            ['feature_key' => 'daily_leads_limit',        'feature_value' => 'unlimited'],
+            ['feature_key' => 'basic_business_signals',   'feature_value' => 'true'],
+            ['feature_key' => 'contact_ready_leads',      'feature_value' => 'true'],
+            ['feature_key' => 'email_scraping',           'feature_value' => 'true'],
+            ['feature_key' => 'social_media_scraping',    'feature_value' => 'true'],
+            ['feature_key' => 'website_extraction',       'feature_value' => 'true'],
+            ['feature_key' => 'latest_review_insights',   'feature_value' => 'true'],
+            ['feature_key' => 'advanced_review_filters',  'feature_value' => 'true'],
+            ['feature_key' => 'export_leads',             'feature_value' => 'unlimited'],
+            ['feature_key' => 'max_devices',              'feature_value' => '5'],
+            ['feature_key' => 'priority_support',         'feature_value' => 'true'],
+        ];
     }
 
     private function addFeatures(int $packageId, array $features): void

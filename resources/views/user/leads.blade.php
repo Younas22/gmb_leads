@@ -200,37 +200,37 @@
     <!-- Rest normal size -->
     <select name="status" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
         <option value="">Status</option>
-        <option value="not_contacted">New</option>
-        <option value="contacted">Contacted</option>
-        <option value="responded">Responded</option>
-        <option value="converted">Converted</option>
-        <option value="closed">Closed</option>
+        <option value="not_contacted" {{ $status == 'not_contacted' ? 'selected' : '' }}>New</option>
+        <option value="contacted"     {{ $status == 'contacted'     ? 'selected' : '' }}>Contacted</option>
+        <option value="responded"     {{ $status == 'responded'     ? 'selected' : '' }}>Responded</option>
+        <option value="converted"     {{ $status == 'converted'     ? 'selected' : '' }}>Converted</option>
+        <option value="closed"        {{ $status == 'closed'        ? 'selected' : '' }}>Closed</option>
     </select>
 
     @if(auth()->user()->hasFeature('advanced_review_filters'))
         <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
             <option value="">Rating</option>
-            <option value="4.5">4.5+</option>
-            <option value="4.0">4.0+</option>
-            <option value="3.5">3.5+</option>
-            <option value="3.0">3.0+</option>
+            <option value="4.5" {{ $rating == '4.5' ? 'selected' : '' }}>4.5+</option>
+            <option value="4.0" {{ $rating == '4.0' ? 'selected' : '' }}>4.0+</option>
+            <option value="3.5" {{ $rating == '3.5' ? 'selected' : '' }}>3.5+</option>
+            <option value="3.0" {{ $rating == '3.0' ? 'selected' : '' }}>3.0+</option>
         </select>
 
         <select name="last_review" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
             <option value="">Review</option>
-            <option value="1-day">1 day</option>
-            <option value="1-week">1 week</option>
-            <option value="1-month">1 month</option>
-            <option value="3-months">3 months</option>
-            <option value="6-months">6 months</option>
+            <option value="1-day"    {{ $lastReview == '1-day'    ? 'selected' : '' }}>1 day</option>
+            <option value="1-week"   {{ $lastReview == '1-week'   ? 'selected' : '' }}>1 week</option>
+            <option value="1-month"  {{ $lastReview == '1-month'  ? 'selected' : '' }}>1 month</option>
+            <option value="3-months" {{ $lastReview == '3-months' ? 'selected' : '' }}>3 months</option>
+            <option value="6-months" {{ $lastReview == '6-months' ? 'selected' : '' }}>6 months</option>
         </select>
 
         <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
             <option value="">Reviews #</option>
-            <option value="lt30">< 30</option>
-            <option value="lt50">< 50</option>
-            <option value="lt100">< 100</option>
-            <option value="gte100">100+</option>
+            <option value="lt30"   {{ $reviewsCount == 'lt30'   ? 'selected' : '' }}>< 30</option>
+            <option value="lt50"   {{ $reviewsCount == 'lt50'   ? 'selected' : '' }}>< 50</option>
+            <option value="lt100"  {{ $reviewsCount == 'lt100'  ? 'selected' : '' }}>< 100</option>
+            <option value="gte100" {{ $reviewsCount == 'gte100' ? 'selected' : '' }}>100+</option>
         </select>
     @else
         <!-- Rating Filter - Locked -->
@@ -897,25 +897,28 @@ function showLeadDetails(lead) {
     
     // Build social links
     let socialLinksHtml = '';
-    if (lead.social_links && Array.isArray(lead.social_links) && lead.social_links.length > 0) {
-        socialLinksHtml = lead.social_links.map(link => {
+    let socialLinksData = lead.social_links;
+    if (typeof socialLinksData === 'string') {
+        try { socialLinksData = JSON.parse(socialLinksData); } catch(e) { socialLinksData = null; }
+    }
+    // Normalize: object {platform: url} or array of urls
+    let socialUrls = [];
+    if (socialLinksData && Array.isArray(socialLinksData)) {
+        socialUrls = socialLinksData;
+    } else if (socialLinksData && typeof socialLinksData === 'object') {
+        socialUrls = Object.values(socialLinksData);
+    }
+    if (socialUrls.length > 0) {
+        socialLinksHtml = socialUrls.map(link => {
+            link = link.replace(/\/+$/, '');
             let icon = 'fas fa-link';
             let color = 'text-gray-600';
-            
-            if (link.includes('facebook.com')) {
-                icon = 'fab fa-facebook';
-                color = 'text-blue-600';
-            } else if (link.includes('instagram.com')) {
-                icon = 'fab fa-instagram';
-                color = 'text-pink-600';
-            } else if (link.includes('linkedin.com')) {
-                icon = 'fab fa-linkedin';
-                color = 'text-blue-700';
-            } else if (link.includes('youtube.com')) {
-                icon = 'fab fa-youtube';
-                color = 'text-red-600';
-            }
-            
+            if (link.includes('facebook.com')) { icon = 'fab fa-facebook'; color = 'text-blue-600'; }
+            else if (link.includes('instagram.com')) { icon = 'fab fa-instagram'; color = 'text-pink-600'; }
+            else if (link.includes('linkedin.com')) { icon = 'fab fa-linkedin'; color = 'text-blue-700'; }
+            else if (link.includes('youtube.com')) { icon = 'fab fa-youtube'; color = 'text-red-600'; }
+            else if (link.includes('tiktok.com')) { icon = 'fab fa-tiktok'; color = 'text-gray-800'; }
+            else if (link.includes('twitter.com') || link.includes('x.com')) { icon = 'fab fa-x-twitter'; color = 'text-gray-800'; }
             return `<a href="${link}" target="_blank" class="${color} hover:opacity-80 transition-opacity" title="${link}"><i class="${icon} text-lg"></i></a>`;
         }).join(' ');
     }
@@ -1181,12 +1184,8 @@ $(document).ready(function() {
     const selectedCityId = "{{ $cityId ?? '' }}";
     const baseUrl = "{{ url('/') }}";
 
-    // Debug info
-    console.log('Debug Info:', {
-        selectedCountryId,
-        selectedStateId,
-        selectedCityId
-    });
+    // Flag to prevent change handlers firing during initialization
+    let isInitializing = false;
 
     // Initialize Select2 on all three dropdowns
     countrySelect.select2({
@@ -1209,12 +1208,14 @@ $(document).ready(function() {
 
     // Set initial values
     if (selectedCountryId) {
+        isInitializing = true;
         countrySelect.val(selectedCountryId).trigger('change.select2');
         loadStates(selectedCountryId, selectedStateId);
     }
 
     // Event listeners using Select2 events
     countrySelect.on('change', function() {
+        if (isInitializing) return;
         resetSelect(stateSelect, 'State');
         resetSelect(citySelect, 'City');
         if (this.value) {
@@ -1223,6 +1224,7 @@ $(document).ready(function() {
     });
 
     stateSelect.on('change', function() {
+        if (isInitializing) return;
         resetSelect(citySelect, 'City');
         if (this.value) {
             loadCities(this.value);
@@ -1274,11 +1276,14 @@ $(document).ready(function() {
                 // Load cities if state is selected
                 if (selectedStateId) {
                     loadCities(selectedStateId, selectedCityId);
+                } else {
+                    isInitializing = false;
                 }
             })
             .catch(error => {
                 console.error('Error loading states:', error);
                 stateSelect[0].innerHTML = '<option value="">Error loading states</option>';
+                isInitializing = false;
             });
     }
 
@@ -1306,10 +1311,14 @@ $(document).ready(function() {
 
                 // Refresh Select2 after adding options
                 citySelect.trigger('change.select2');
+
+                // Initialization complete — user-triggered changes can now fire
+                isInitializing = false;
             })
             .catch(error => {
                 console.error('Error loading cities:', error);
                 citySelect[0].innerHTML = '<option value="">Error loading cities</option>';
+                isInitializing = false;
             });
     }
 });

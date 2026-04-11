@@ -102,11 +102,11 @@
 
                     @if(!auth()->user()->isTeamMember())
                     <!-- Search History & Feedback - Only for company owners and regular users -->
-                    <a href="{{ route('user.search-history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search-history') ? 'text-primary-700 bg-primary-50' : '' }}">
+                    <a href="{{ route('user.search-history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search-history') ? 'text-primary-700 bg-primary-50' : '' }}" style="display: none;">
                         <i class="fas fa-history w-5 text-center mr-3"></i>
                         Search History
                     </a>
-                    <a href="{{ route('user.feedback.history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.feedback.history') ? 'text-primary-700 bg-primary-50' : '' }}">
+                    <a href="{{ route('user.feedback.history') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.feedback.history') ? 'text-primary-700 bg-primary-50' : '' }}" style="display: none;">
                         <i class="fas fa-comments w-5 text-center mr-3"></i>
                         Feedback History
                     </a>
@@ -239,8 +239,8 @@
                             <p class="text-xs text-gray-500">Leads</p>
                         </div>
                         <div class="bg-green-50 rounded p-2">
-                            <p class="text-xs font-medium text-green-600">{{ auth()->user()->searchHistories()->count() ?? 0 }}</p>
-                            <p class="text-xs text-gray-500">Searches</p>
+                            <p class="text-xs font-medium text-green-600">{{ \App\Models\UserExtensionDevice::where('user_id', auth()->id())->where('is_active', true)->count() }}</p>
+                            <p class="text-xs text-gray-500">Devices</p>
                         </div>
                     </div>
                 </div>
