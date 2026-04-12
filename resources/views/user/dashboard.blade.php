@@ -223,10 +223,27 @@ function resendVerification() {
     @endphp
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-chart-bar text-orange-500"></i>
-                Current Plan — Leads Limit
-            </h3>
+            <div>
+                <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-chart-bar text-orange-500"></i>
+                    {{ $currentPlan['package']->name }}
+                </h3>
+                <div class="flex items-center gap-3 mt-1">
+                    @if($currentPlan['end_date'])
+                        <span class="text-xs text-gray-500">
+                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>
+                            Expires: <span class="{{ $currentPlan['end_date']->isPast() ? 'text-red-500 font-medium' : ($currentPlan['end_date']->diffInDays() <= 7 ? 'text-orange-500 font-medium' : 'text-gray-600') }}">
+                                {{ $currentPlan['end_date']->format('d M Y') }}
+                            </span>
+                        </span>
+                        @if(!$currentPlan['end_date']->isPast())
+                            <span class="text-xs text-gray-400">({{ $currentPlan['end_date']->diffForHumans() }})</span>
+                        @endif
+                    @else
+                        <span class="text-xs text-green-600"><i class="fas fa-infinity mr-1"></i>No expiry</span>
+                    @endif
+                </div>
+            </div>
             <a href="{{ route('user.subscription') }}" class="text-xs text-primary-600 hover:underline">View Plan</a>
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100">

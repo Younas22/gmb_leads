@@ -460,175 +460,181 @@
                 @endif
             </div>
 
-            <!-- Usage Analytics & Billing -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Usage Analytics -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Usage Analytics</h3>
-
-                    <div class="space-y-4">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-600">This Month's Searches</span>
-                                <span class="text-lg font-bold text-primary-600">{{ number_format($analyticsData['monthly_searches']) }}</span>
-                            </div>
-                            <p class="text-xs text-gray-500">
-                                @if($analyticsData['searches_change'] > 0)
-                                    ↑ {{ abs($analyticsData['searches_change']) }}% from last month
-                                @elseif($analyticsData['searches_change'] < 0)
-                                    ↓ {{ abs($analyticsData['searches_change']) }}% from last month
-                                @else
-                                    No change from last month
-                                @endif
-                            </p>
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-gray-600">Leads Generated</span>
-                                <span class="text-lg font-bold text-green-600">{{ number_format($analyticsData['monthly_leads']) }}</span>
-                            </div>
-                            <p class="text-xs text-gray-500">
-                                @if($analyticsData['leads_change'] > 0)
-                                    ↑ {{ abs($analyticsData['leads_change']) }}% from last month
-                                @elseif($analyticsData['leads_change'] < 0)
-                                    ↓ {{ abs($analyticsData['leads_change']) }}% from last month
-                                @else
-                                    No change from last month
-                                @endif
-                            </p>
-                        </div>
-
-                        <!-- Daily Leads Limit Usage -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-map-marker-alt text-orange-500 text-xs"></i>
-                                    <span class="text-sm font-medium text-gray-600">Daily Leads Limit</span>
+            <!-- Billing History -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">
+                    <i class="fas fa-receipt text-primary-600 mr-2"></i>Billing History
+                </h3>
+                @if($billingHistory && $billingHistory->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($billingHistory as $payment)
+                            @php
+                                $invoiceDate   = ($payment->paid_at ?? $payment->created_at)->format('M d, Y');
+                                $invoiceDateFull = ($payment->paid_at ?? $payment->created_at)->format('d F Y');
+                                $packageName   = $payment->subscription->package->name ?? 'Subscription';
+                                $payMethodName = $payment->paymentMethod->name ?? '';
+                                $currency      = $payment->currency ?? 'PKR';
+                                $amount        = number_format($payment->amount, 2);
+                                $invoiceNo     = 'INV-' . str_pad($payment->id, 6, '0', STR_PAD_LEFT);
+                                $screenshot    = $payment->screenshot ?? '';
+                                $status        = $payment->status ?? 'paid';
+                                $billingType   = optional(optional($payment->subscription)->package)->billing_type ?? '';
+                            @endphp
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-file-invoice-dollar text-primary-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">{{ $packageName }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $invoiceNo }} &bull; {{ $invoiceDate }}
+                                            @if($payMethodName) &bull; {{ $payMethodName }} @endif
+                                        </p>
+                                    </div>
                                 </div>
-                                @if($usageData['daily_leads']['unlimited'])
-                                    <span class="text-base font-bold text-green-600"><i class="fas fa-infinity mr-1"></i>Unlimited</span>
-                                @else
-                                    <span class="text-base font-bold {{ $usageData['daily_leads']['percentage'] >= 85 ? 'text-red-600' : 'text-orange-600' }}">
-                                        {{ number_format($usageData['daily_leads']['used']) }} / {{ number_format($usageData['daily_leads']['limit']) }}
-                                    </span>
-                                @endif
-                            </div>
-                            @if(!$usageData['daily_leads']['unlimited'])
-                                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                    <div class="h-2 rounded-full transition-all {{ $usageData['daily_leads']['percentage'] >= 85 ? 'bg-red-500' : 'bg-orange-500' }}"
-                                         style="width: {{ min($usageData['daily_leads']['percentage'], 100) }}%"></div>
+                                <div class="flex items-center gap-3 sm:flex-shrink-0">
+                                    <div class="text-right">
+                                        <p class="text-sm font-bold text-gray-800">{{ $currency }} {{ $amount }}</p>
+                                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold
+                                            {{ $status === 'approved' || $status === 'paid' ? 'bg-green-100 text-green-700' : ($status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600') }}">
+                                            {{ ucfirst($status) }}
+                                        </span>
+                                    </div>
+                                    <button type="button"
+                                        onclick="openInvoiceModal({
+                                            invoiceNo: '{{ $invoiceNo }}',
+                                            date: '{{ $invoiceDateFull }}',
+                                            package: '{{ addslashes($packageName) }}',
+                                            billingType: '{{ $billingType }}',
+                                            method: '{{ addslashes($payMethodName) }}',
+                                            currency: '{{ $currency }}',
+                                            amount: '{{ $amount }}',
+                                            status: '{{ $status }}',
+                                            screenshot: '{{ $screenshot ? asset('public/' . $screenshot) : '' }}',
+                                            customerName: '{{ addslashes(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}',
+                                            customerEmail: '{{ auth()->user()->email }}'
+                                        })"
+                                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                        <i class="fas fa-eye text-xs"></i>
+                                        View Invoice
+                                    </button>
                                 </div>
-                                <p class="text-xs text-gray-500">
-                                    {{ number_format($usageData['daily_leads']['remaining']) }} leads remaining today
-                                    @if($usageData['daily_leads']['percentage'] >= 85)
-                                        &nbsp;· <span class="text-red-500 font-medium">Near limit</span>
-                                    @endif
-                                </p>
-                            @else
-                                <p class="text-xs text-gray-500">No daily limit on your plan</p>
-                            @endif
-                        </div>
-
-                        @if($currentPlan && $currentPlan['package']->price > 0)
-                            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                                <div class="flex items-center mb-2">
-                                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                                    <span class="text-sm font-medium text-blue-800">Active Subscription</span>
-                                </div>
-                                <p class="text-sm text-blue-700">{{ $currentPlan['package']->name }}</p>
-                                @if($currentPlan['end_date'])
-                                    <p class="text-xs text-blue-600">Renews on {{ $currentPlan['end_date']->format('M d, Y') }}</p>
-                                @endif
                             </div>
-                        @else
-                            <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                                <div class="flex items-center mb-2">
-                                    <i class="fas fa-calculator text-green-600 mr-2"></i>
-                                    <span class="text-sm font-medium text-green-800">Upgrade & Save</span>
-                                </div>
-                                <p class="text-sm text-green-700">Get more features with a paid plan</p>
-                                <p class="text-xs text-green-600">Unlock unlimited potential</p>
-                            </div>
-                        @endif
+                        @endforeach
                     </div>
-                </div>
+                @else
+                    <div class="text-center py-10">
+                        <i class="fas fa-receipt text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-sm text-gray-500">No billing history yet</p>
+                        <p class="text-xs text-gray-400">Your payment history will appear here</p>
+                    </div>
+                @endif
+            </div>
 
-                <!-- Billing Information -->
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-base sm:text-lg font-bold text-gray-800">Billing Information</h3>
-                        @if($userPaymentMethod)
-                            <button class="text-primary-600 hover:text-primary-700 text-xs sm:text-sm font-medium">
-                                <i class="fas fa-edit mr-1 text-xs"></i>Edit
-                            </button>
-                        @endif
+            <!-- Invoice Modal -->
+            <div id="invoiceModal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(17,24,39,0.55);backdrop-filter:blur(3px);">
+                <div style="width:100%;max-width:600px;margin:0 16px;max-height:94vh;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+
+                    <!-- Modal chrome bar -->
+                    <div style="background:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #f3f4f6;flex-shrink:0;">
+                        <span style="font-size:14px;font-weight:700;color:#111827;display:flex;align-items:center;gap:8px;">
+                            <i class="fas fa-file-invoice" style="color:#ea580c;"></i> Payment Invoice
+                        </span>
+                        <button onclick="closeInvoiceModal()" style="background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;padding:0;" onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">&times;</button>
                     </div>
 
-                    <!-- Payment Method -->
-                    @if($userPaymentMethod)
-                        <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Payment Method</h4>
-                            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                <i class="fas fa-credit-card text-blue-600 text-xl"></i>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-800">{{ $userPaymentMethod->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $userPaymentMethod->description ?? 'Payment method on file' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Payment Method</h4>
-                            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                                <i class="fas fa-credit-card text-gray-400 text-xl"></i>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600">No payment method added</p>
-                                    <p class="text-xs text-gray-500">Add a payment method to upgrade</p>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    <!-- Scrollable invoice body -->
+                    <div style="overflow-y:auto;flex:1;background:#f9fafb;">
+                        <div id="invoicePrintArea" style="background:#f9fafb;padding:16px;">
+                            <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;">
 
-                    <!-- Billing History -->
-                    <div>
-                        <h4 class="text-sm font-medium text-gray-700 mb-3">Billing History</h4>
-                        @if($billingHistory && $billingHistory->count() > 0)
-                            <div class="space-y-2">
-                                @foreach($billingHistory as $payment)
-                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <!-- Header -->
+                                <div style="padding:18px 32px 14px;text-align:center;border-bottom:1px solid #f3f4f6;">
+                                    <img src="https://customernearme.com/public/images/logo/logo_1770443906.png"
+                                         alt="CustomerNearMe"
+                                         style="height:36px;object-fit:contain;display:inline-block;">
+                                    <p style="margin:5px 0 0;font-size:10px;color:#9ca3af;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;">Payment Invoice</p>
+                                </div>
+
+                                <!-- Body -->
+                                <div style="padding:18px 32px;">
+
+                                    <!-- Customer + Invoice meta side by side -->
+                                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;">
                                         <div>
-                                            <p class="text-sm font-medium text-gray-800">
-                                                {{ ($payment->paid_at ?? $payment->created_at)->format('M d, Y') }}
-                                            </p>
-                                            <p class="text-xs text-gray-500">
-                                                {{ $payment->subscription->package->name ?? 'Payment' }}
-                                                @if($payment->paymentMethod)
-                                                    - {{ $payment->paymentMethod->name }}
-                                                @endif
-                                            </p>
+                                            <p style="font-size:10px;color:#9ca3af;font-weight:500;letter-spacing:1px;text-transform:uppercase;margin:0 0 3px;">Bill To</p>
+                                            <p id="inv-customer-name" style="font-size:13px;font-weight:700;color:#111827;margin:0;"></p>
+                                            <p id="inv-customer-email" style="font-size:11px;color:#6b7280;margin:2px 0 0;word-break:break-all;"></p>
                                         </div>
-                                        <div class="text-right">
-                                            <p class="text-sm font-medium text-gray-800">
-                                                {{ $payment->currency ?? 'PKR' }} {{ number_format($payment->amount, 2) }}
-                                            </p>
-                                            @if($payment->screenshot)
-                                                <a href="{{ asset('public/' . $payment->screenshot) }}" target="_blank"
-                                                   class="text-xs text-primary-600 hover:text-primary-700">
-                                                    <i class="fas fa-image mr-1"></i>Receipt
-                                                </a>
-                                            @endif
+                                        <div style="text-align:right;flex-shrink:0;">
+                                            <p id="inv-number" style="font-size:12px;font-weight:700;color:#111827;margin:0;"></p>
+                                            <p id="inv-date" style="font-size:11px;color:#6b7280;margin:2px 0 0;"></p>
                                         </div>
                                     </div>
-                                @endforeach
+
+                                    <!-- Info Box -->
+                                    <div style="background:#fff7ed;border-left:3px solid #ea580c;padding:10px 14px;margin-bottom:14px;border-radius:0 6px 6px 0;">
+                                        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                                            <tr>
+                                                <td style="padding:3px 0;color:#6b7280;width:40%;">Plan</td>
+                                                <td id="inv-package" style="padding:3px 0;color:#111827;font-weight:600;text-align:right;"></td>
+                                            </tr>
+                                            <tr id="inv-billing-row">
+                                                <td style="padding:3px 0;color:#6b7280;">Billing Cycle</td>
+                                                <td id="inv-billing" style="padding:3px 0;color:#111827;font-weight:600;text-align:right;text-transform:capitalize;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:3px 0;color:#6b7280;">Payment Method</td>
+                                                <td id="inv-method" style="padding:3px 0;color:#111827;font-weight:600;text-align:right;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding:3px 0;color:#6b7280;">Status</td>
+                                                <td style="padding:3px 0;text-align:right;">
+                                                    <span id="inv-status" style="font-size:11px;font-weight:700;"></span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <!-- Total row -->
+                                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #f3f4f6;padding-top:12px;margin-bottom:12px;">
+                                        <span style="font-size:13px;font-weight:700;color:#111827;">Total Amount Paid</span>
+                                        <span id="inv-amount" style="font-size:20px;font-weight:800;color:#ea580c;"></span>
+                                    </div>
+
+                                    <!-- Screenshot link -->
+                                    <div id="inv-screenshot-wrap" style="display:none;margin-bottom:10px;">
+                                        <a id="inv-screenshot" href="#" target="_blank"
+                                           style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#ea580c;font-weight:600;text-decoration:none;">
+                                            <i class="fas fa-image"></i> View Payment Screenshot
+                                        </a>
+                                    </div>
+
+                                    <p style="font-size:11px;color:#9ca3af;margin:0;">
+                                        Questions? Contact our support team. This is a computer-generated invoice.
+                                    </p>
+                                </div>
+
+                                <!-- Footer -->
+                                <div style="background:#f9fafb;padding:12px 32px;text-align:center;border-top:1px solid #f3f4f6;">
+                                    <p style="font-size:13px;font-weight:700;color:#111827;margin:0 0 2px;">{{ config('app.name') }}</p>
+                                    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;">Professional GMB Lead Generation</p>
+                                    <p style="font-size:10px;color:#9ca3af;margin:0;">
+                                        &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+                                    </p>
+                                </div>
+
                             </div>
-                        @else
-                            <div class="text-center py-6">
-                                <i class="fas fa-receipt text-gray-300 text-3xl mb-2"></i>
-                                <p class="text-sm text-gray-500">No billing history yet</p>
-                                <p class="text-xs text-gray-400">Your payment history will appear here</p>
-                            </div>
-                        @endif
+                        </div>
+                    </div>
+
+                    <!-- Actions bar -->
+                    <div style="background:#fff;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 24px;border-top:1px solid #f3f4f6;flex-shrink:0;">
+                        <button onclick="closeInvoiceModal()" style="background:none;border:1px solid #e5e7eb;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">Close</button>
+                        <button onclick="printInvoice()" style="background:#ea580c;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:7px;" onmouseover="this.style.background='#c2410c'" onmouseout="this.style.background='#ea580c'">
+                            <i class="fas fa-file-pdf"></i> Download / Print PDF
+                        </button>
                     </div>
                 </div>
             </div>
@@ -637,18 +643,14 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-8">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Plan Management</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     <a href="#pricing-plans" class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm sm:text-base font-medium">
                         <i class="fas fa-arrow-up mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Upgrade Plan
                     </a>
 
-                    <button class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm sm:text-base font-medium">
-                        <i class="fas fa-credit-card mr-1 sm:mr-2 text-xs sm:text-sm"></i>
-                        Update Payment
-                    </button>
-
-                    <button class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                    <button onclick="document.getElementById('cancelPlanModal').classList.remove('hidden'); document.body.style.overflow='hidden';"
+                            class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm sm:text-base font-medium">
                         <i class="fas fa-times mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Cancel Plan
                     </button>
@@ -690,7 +692,104 @@
     {{-- Payment Modal --}}
     @include('partials.payment-modal')
 
+    {{-- Cancel Plan Confirmation Modal --}}
+    <div id="cancelPlanModal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(17,24,39,0.55);backdrop-filter:blur(3px);">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">Cancel Plan</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Are you sure you want to cancel your current plan? You will lose access to all premium features immediately.</p>
+                <div class="flex gap-3 justify-end">
+                    <button onclick="document.getElementById('cancelPlanModal').classList.add('hidden'); document.body.style.overflow='';"
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+                        Keep Plan
+                    </button>
+                    <form action="{{ route('user.subscription.cancel') }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium">
+                            Yes, Cancel Plan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openInvoiceModal(data) {
+            document.getElementById('inv-number').textContent  = data.invoiceNo;
+            document.getElementById('inv-date').textContent    = data.date;
+            document.getElementById('inv-package').textContent = data.package;
+            document.getElementById('inv-amount').textContent  = data.currency + ' ' + data.amount;
+            document.getElementById('inv-method').textContent  = data.method || '—';
+
+            // Customer info (from auth user passed via blade)
+            document.getElementById('inv-customer-name').textContent  = data.customerName  || '—';
+            document.getElementById('inv-customer-email').textContent = data.customerEmail || '';
+
+            var billingCell = document.getElementById('inv-billing');
+            billingCell.textContent = data.billingType || '—';
+            document.getElementById('inv-billing-row').style.display = data.billingType ? '' : 'none';
+
+            var statusEl = document.getElementById('inv-status');
+            var statusLabel = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            statusEl.textContent = statusLabel;
+            statusEl.removeAttribute('style');
+            if (data.status === 'approved' || data.status === 'paid') {
+                statusEl.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:#dcfce7;color:#15803d;';
+            } else if (data.status === 'pending') {
+                statusEl.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:#fef9c3;color:#a16207;';
+            } else {
+                statusEl.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;background:#f3f4f6;color:#6b7280;';
+            }
+
+            var ssWrap = document.getElementById('inv-screenshot-wrap');
+            if (data.screenshot) {
+                document.getElementById('inv-screenshot').href = data.screenshot;
+                ssWrap.style.display = 'block';
+            } else {
+                ssWrap.style.display = 'none';
+            }
+
+            document.getElementById('invoiceModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function printInvoice() {
+            var content = document.getElementById('invoicePrintArea').innerHTML;
+            var win = window.open('', '_blank', 'width=620,height=700');
+            win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice</title>');
+            win.document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">');
+            win.document.write('<style>');
+            win.document.write('@page{size:A4;margin:12mm;}');
+            win.document.write('*{box-sizing:border-box;margin:0;padding:0;}');
+            win.document.write('html,body{height:100%;}');
+            win.document.write('body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:12px;line-height:1.5;color:#374151;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}');
+            win.document.write('table{width:100%;border-collapse:collapse;}');
+            win.document.write('img{display:inline-block;max-width:100%;}');
+            win.document.write('a{color:#ea580c;text-decoration:none;}');
+            win.document.write('</style></head><body>');
+            win.document.write(content);
+            win.document.write('</body></html>');
+            win.document.close();
+            win.focus();
+            setTimeout(function(){ win.print(); }, 500);
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('invoiceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeInvoiceModal();
+        });
+
         function subSwitchBilling(type) {
             var monthlyGrid = document.getElementById('sub-billing-monthly-grid');
             var yearlyGrid  = document.getElementById('sub-billing-yearly-grid');

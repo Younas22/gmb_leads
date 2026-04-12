@@ -207,6 +207,31 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Cancel active subscription
+     */
+    public function cancelPlan(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->isTeamMember()) {
+            return redirect()->route('user.dashboard')->with('error', 'Team members cannot manage subscriptions.');
+        }
+
+        $subscription = $user->subscriptions()
+            ->whereIn('status', ['active', 'pending'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$subscription) {
+            return redirect()->route('user.subscription')->with('error', 'No active subscription found.');
+        }
+
+        $subscription->update(['status' => 'cancelled']);
+
+        return redirect()->route('user.subscription')->with('success', 'Your plan has been cancelled successfully.');
+    }
+
+    /**
      * User payment screenshot submit — pending subscription banao
      */
     public function submitPayment(Request $request)

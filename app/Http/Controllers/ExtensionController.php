@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\UserExtensionDevice;
@@ -38,24 +39,68 @@ class ExtensionController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
+        Log::channel('daily')->info('EXT_LOGIN_ATTEMPT', [
+            'email' => $request->email,
+            'ip'    => $request->ip(),
         ]);
 
-        $user = User::where('email', $request->email)
-                    ->where('status', 'active')
-                    ->first();
+        try {
+            $request->validate([
+                'email'    => 'required|email',
+                'password' => 'required|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::channel('daily')->warning('EXT_LOGIN_VALIDATION_FAILED', [
+                'email'  => $request->email,
+                'errors' => $e->errors(),
+            ]);
+            return response()->json(['error' => 'Validation failed.', 'details' => $e->errors()], 422);
+        }
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // Find user by email (ignore status first so we can log exact failure)
+        $userByEmail = User::where('email', $request->email)->first();
+
+        if (!$userByEmail) {
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_NO_USER', ['email' => $request->email]);
             return response()->json(['error' => 'Invalid email or password.'], 401);
         }
 
+        if ($userByEmail->status !== 'active') {
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_INACTIVE', [
+                'email'  => $request->email,
+                'status' => $userByEmail->status,
+            ]);
+            return response()->json(['error' => 'Your account is not active.'], 401);
+        }
+
+        if (!Hash::check($request->password, $userByEmail->password)) {
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_WRONG_PASSWORD', ['email' => $request->email]);
+            return response()->json(['error' => 'Invalid email or password.'], 401);
+        }
+
+        $user = $userByEmail;
+
         if ($user->isAdmin()) {
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_ADMIN', ['email' => $request->email]);
             return response()->json(['error' => 'Admin accounts cannot use the extension.'], 403);
         }
 
-        if ($user->hasRestrictedAccess()) {
+        if ($user->isTeamMember()) {
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_TEAM_MEMBER', ['email' => $request->email]);
+        }
+
+        $hasRestricted = $user->hasRestrictedAccess();
+        if ($hasRestricted) {
+            $subscription = $user->subscriptions()->orderBy('created_at', 'desc')->first();
+            Log::channel('daily')->warning('EXT_LOGIN_FAILED_NO_SUBSCRIPTION', [
+                'email'             => $request->email,
+                'user_id'           => $user->id,
+                'last_subscription' => $subscription ? [
+                    'id'     => $subscription->id,
+                    'status' => $subscription->status,
+                    'plan'   => $subscription->package?->name,
+                ] : null,
+            ]);
             return response()->json(['error' => 'No active subscription found. Please subscribe to use the extension.'], 403);
         }
 
@@ -65,11 +110,29 @@ class ExtensionController extends Controller
             $user->save();
         }
 
-        $deviceLimit   = $user->getFeatureLimit('max_devices');
-        $creditLimit   = $user->getCreditLimit();
-        $creditsUsed   = $user->getCreditsUsed();
-        $packageSlug   = $user->activeSubscription()?->package?->slug ?? 'starter';
-        $packageName   = $user->activeSubscription()?->package?->name ?? 'Starter';
+        try {
+            $deviceLimit   = $user->getFeatureLimit('max_devices');
+            $creditLimit   = $user->getCreditLimit();
+            $creditsUsed   = $user->getCreditsUsed();
+            $packageSlug   = $user->activeSubscription()?->package?->slug ?? 'starter';
+            $packageName   = $user->activeSubscription()?->package?->name ?? 'Starter';
+        } catch (\Exception $e) {
+            Log::channel('daily')->error('EXT_LOGIN_FEATURE_LOAD_ERROR', [
+                'email'   => $request->email,
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+            return response()->json(['error' => 'Server error loading plan details.'], 500);
+        }
+
+        Log::channel('daily')->info('EXT_LOGIN_SUCCESS', [
+            'email'        => $user->email,
+            'user_id'      => $user->id,
+            'package'      => $packageName,
+            'credit_limit' => $creditLimit,
+            'device_limit' => $deviceLimit,
+        ]);
 
         return response()->json([
             'token' => $user->extension_token,
@@ -80,8 +143,8 @@ class ExtensionController extends Controller
                 'package_slug'   => $packageSlug,
                 'package_name'   => $packageName,
                 'credits_used'   => $creditsUsed,
-                'credits_limit'  => $creditLimit,   // -1 = unlimited
-                'device_limit'   => $deviceLimit,   // -1 = unlimited
+                'credits_limit'  => $creditLimit,
+                'device_limit'   => $deviceLimit,
             ],
         ]);
     }
@@ -97,15 +160,34 @@ class ExtensionController extends Controller
     {
         $user = \Illuminate\Support\Facades\Auth::user();
 
+        Log::channel('daily')->info('EXT_WEB_AUTOLOGIN_ATTEMPT', [
+            'ip'           => $request->ip(),
+            'user_id'      => $user?->id,
+            'email'        => $user?->email,
+            'is_logged_in' => (bool) $user,
+        ]);
+
         if (!$user) {
+            Log::channel('daily')->warning('EXT_WEB_AUTOLOGIN_FAILED_NO_SESSION', ['ip' => $request->ip()]);
             return response()->json(['error' => 'Not authenticated.'], 401);
         }
 
         if ($user->isAdmin()) {
+            Log::channel('daily')->warning('EXT_WEB_AUTOLOGIN_FAILED_ADMIN', ['email' => $user->email]);
             return response()->json(['error' => 'Admin accounts cannot use the extension.'], 403);
         }
 
         if ($user->hasRestrictedAccess()) {
+            $subscription = $user->subscriptions()->orderBy('created_at', 'desc')->first();
+            Log::channel('daily')->warning('EXT_WEB_AUTOLOGIN_FAILED_NO_SUBSCRIPTION', [
+                'email'             => $user->email,
+                'user_id'           => $user->id,
+                'last_subscription' => $subscription ? [
+                    'id'     => $subscription->id,
+                    'status' => $subscription->status,
+                    'plan'   => $subscription->package?->name,
+                ] : null,
+            ]);
             return response()->json(['error' => 'No active subscription.'], 403);
         }
 
@@ -115,10 +197,28 @@ class ExtensionController extends Controller
             $user->save();
         }
 
-        $deviceLimit = $user->getFeatureLimit('max_devices');
-        $creditLimit = $user->getCreditLimit();
-        $creditsUsed = $user->getCreditsUsed();
-        $packageName = $user->activeSubscription()?->package?->name ?? 'Starter';
+        try {
+            $deviceLimit = $user->getFeatureLimit('max_devices');
+            $creditLimit = $user->getCreditLimit();
+            $creditsUsed = $user->getCreditsUsed();
+            $packageName = $user->activeSubscription()?->package?->name ?? 'Starter';
+        } catch (\Exception $e) {
+            Log::channel('daily')->error('EXT_WEB_AUTOLOGIN_FEATURE_LOAD_ERROR', [
+                'email'   => $user->email,
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+            return response()->json(['error' => 'Server error loading plan details.'], 500);
+        }
+
+        Log::channel('daily')->info('EXT_WEB_AUTOLOGIN_SUCCESS', [
+            'email'        => $user->email,
+            'user_id'      => $user->id,
+            'package'      => $packageName,
+            'credit_limit' => $creditLimit,
+            'device_limit' => $deviceLimit,
+        ]);
 
         return response()->json([
             'token' => $user->extension_token,

@@ -105,6 +105,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription');
             Route::post('/subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('subscription.upgrade');
             Route::post('/payment/submit', [SubscriptionController::class, 'submitPayment'])->name('payment.submit');
+            Route::post('/subscription/cancel', [SubscriptionController::class, 'cancelPlan'])->name('subscription.cancel');
 
             // Feedback - always accessible (so users can provide feedback regardless of subscription)
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
