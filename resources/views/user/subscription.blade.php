@@ -640,52 +640,66 @@
             </div>
 
             <!-- Plan Management Actions -->
+            @php
+                $currentPrice    = $currentPlan ? (float)$currentPlan['package']->price : 0;
+                $hasHigherPlan   = $availablePlans->filter(fn($p) => (float)$p->price > $currentPrice)->count() > 0;
+                $showUpgrade     = !$currentPlan || (!$currentPlan['is_pending'] && $hasHigherPlan);
+                $showCancel      = $currentPlan && $currentPlan['is_active'];
+                $showManagement  = $showUpgrade || $showCancel;
+            @endphp
+            @if($showManagement)
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-8">
                 <h3 class="text-lg font-bold text-gray-800 mb-4">Plan Management</h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 {{ $showUpgrade && $showCancel ? 'md:grid-cols-2' : 'md:grid-cols-1' }} gap-3 sm:gap-4">
+                    @if($showUpgrade)
                     <a href="#pricing-plans" class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm sm:text-base font-medium">
-                        <i class="fas fa-arrow-up mr-1 sm:mr-2 text-xs sm:text-sm"></i>
-                        Upgrade Plan
+                        <i class="fas fa-{{ $currentPlan ? 'arrow-up' : 'rocket' }} mr-1 sm:mr-2 text-xs sm:text-sm"></i>
+                        {{ $currentPlan ? 'Upgrade Plan' : 'Get Started' }}
                     </a>
+                    @endif
 
+                    @if($showCancel)
                     <button onclick="document.getElementById('cancelPlanModal').classList.remove('hidden'); document.body.style.overflow='hidden';"
                             class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm sm:text-base font-medium">
                         <i class="fas fa-times mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Cancel Plan
                     </button>
+                    @endif
                 </div>
+            </div>
+            @endif
                 
-                @php
-                    $showWarning = false;
-                    $warningMessage = '';
+            @php
+                $showWarning = false;
+                $warningMessage = '';
 
-                    if (!empty($usageData['daily_leads']) && $usageData['daily_leads']['percentage'] >= 85) {
-                        $showWarning = true;
-                        $warningMessage = "You've used " . $usageData['daily_leads']['percentage'] . "% of your daily leads limit. Consider upgrading to avoid interruptions.";
-                    } elseif ($currentPlan && $currentPlan['is_pending']) {
-                        $showWarning = true;
-                        $warningMessage = "Your subscription is pending approval. You'll have limited access until your payment is verified.";
-                    }
-                @endphp
+                if (!empty($usageData['daily_leads']) && $usageData['daily_leads']['percentage'] >= 85) {
+                    $showWarning = true;
+                    $warningMessage = "You've used " . $usageData['daily_leads']['percentage'] . "% of your daily leads limit. Consider upgrading to avoid interruptions.";
+                } elseif ($currentPlan && $currentPlan['is_pending']) {
+                    $showWarning = true;
+                    $warningMessage = "Your subscription is pending approval. You'll have limited access until your payment is verified.";
+                }
+            @endphp
 
-                @if($showWarning)
-                    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex items-start space-x-3">
-                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
-                            <div>
-                                <p class="text-sm font-medium text-yellow-800">
-                                    @if($currentPlan && $currentPlan['is_pending'])
-                                        Subscription Pending
-                                    @else
-                                        Approaching Usage Limit
-                                    @endif
-                                </p>
-                                <p class="text-xs text-yellow-700 mt-1">{{ $warningMessage }}</p>
-                            </div>
-                        </div>
+            @if($showWarning)
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                    <div>
+                        <p class="text-sm font-medium text-yellow-800">
+                            @if($currentPlan && $currentPlan['is_pending'])
+                                Subscription Pending
+                            @else
+                                Approaching Usage Limit
+                            @endif
+                        </p>
+                        <p class="text-xs text-yellow-700 mt-1">{{ $warningMessage }}</p>
                     </div>
-                @endif
+                </div>
+            </div>
+            @endif
             </div>
         </div>
 

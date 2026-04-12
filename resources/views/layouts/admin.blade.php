@@ -71,11 +71,13 @@
                     $siteName = \App\Models\Setting::get('site_name', config('app.name'));
                 @endphp
                 @if($siteLogo)
-                    <div class="bg-white rounded-lg px-3 py-2">
+                    <a href="{{ route('admin.dashboard') }}" class="bg-white rounded-lg px-3 py-2 block">
                         <img src="{{ asset('public/' . $siteLogo) }}" alt="{{ $siteName }} Logo" class="h-10 w-auto object-contain">
-                    </div>
+                    </a>
                 @else
-                    <img src="{{ asset('public/assets/images/white-logo.svg') }}" alt="{{ $siteName }} Logo" class="h-20 w-auto">
+                    <a href="{{ route('admin.dashboard') }}">
+                        <img src="{{ asset('public/assets/images/white-logo.svg') }}" alt="{{ $siteName }} Logo" class="h-20 w-auto">
+                    </a>
                 @endif
             </div>
         </div>

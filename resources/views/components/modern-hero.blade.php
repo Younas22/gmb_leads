@@ -89,12 +89,20 @@
                 </div> -->
 
                 <!-- CTA Buttons -->
-                <div class="flex flex-nowrap gap-2 sm:gap-4 justify-center items-center mb-3">
+                <div class="flex flex-wrap gap-2 sm:gap-4 justify-center items-center mb-3">
                     <a href="{{ route('auth.show') }}" class="inline-flex items-center justify-center w-40 sm:w-48 px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-bold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
                         Start Free Trial
                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                         </svg>
+                    </a>
+
+                    <a href="{{ asset('public/downloads/Customernearme_Extension.zip') }}" download
+                       class="inline-flex items-center justify-center gap-1.5 w-40 sm:w-48 px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download Extension
                     </a>
 
                     <a href="#how-it-works" class="inline-flex items-center justify-center w-40 sm:w-48 px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-600 transition-all duration-200">
