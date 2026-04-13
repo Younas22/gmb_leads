@@ -121,13 +121,12 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                @if($subscription->user && $subscription->user->avatar)
-                                    <img src="{{ asset('public/' . $subscription->user->avatar) }}" alt="User" class="w-10 h-10 rounded-full object-cover">
-                                @else
-                                    <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                                        {{ $subscription->user ? strtoupper(substr($subscription->user->first_name ?? $subscription->user->name, 0, 1)) . strtoupper(substr($subscription->user->last_name ?? '', 0, 1)) : 'NA' }}
-                                    </div>
-                                @endif
+                                @php
+                                    $subAvatar = ($subscription->user && $subscription->user->avatar)
+                                        ? (str_starts_with($subscription->user->avatar, 'http') ? $subscription->user->avatar : asset('public/' . $subscription->user->avatar))
+                                        : asset('assets/avatar/placeholder-image.jpeg');
+                                @endphp
+                                <img src="{{ $subAvatar }}" alt="User" class="w-10 h-10 rounded-full object-cover">
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
                                         {{ $subscription->user ? ($subscription->user->first_name ? $subscription->user->first_name . ' ' . $subscription->user->last_name : $subscription->user->name) : 'Deleted User' }}
