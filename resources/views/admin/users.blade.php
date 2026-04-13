@@ -91,13 +91,12 @@
                     <tr class="hover:bg-gray-50 transition-colors user-row" data-user-id="{{ $u->id }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center space-x-3">
-                                @if($u->avatar)
-                                    <img src="{{ asset('public/' . $u->avatar) }}" alt="Avatar" class="w-10 h-10 rounded-full object-cover">
-                                @else
-                                    <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                                        {{ strtoupper(substr($u->first_name ?? $u->name, 0, 1)) }}{{ strtoupper(substr($u->last_name ?? '', 0, 1)) }}
-                                    </div>
-                                @endif
+                                @php
+                                    $userAvatar = $u->avatar
+                                        ? (str_starts_with($u->avatar, 'http') ? $u->avatar : asset('public/' . $u->avatar))
+                                        : asset('assets/avatar/placeholder-image.jpeg');
+                                @endphp
+                                <img src="{{ $userAvatar }}" alt="Avatar" class="w-10 h-10 rounded-full object-cover">
                                 <div>
                                     <p class="text-sm font-medium text-gray-800 user-name">
                                         {{ $u->first_name ? $u->first_name . ' ' . $u->last_name : $u->name }}
@@ -399,9 +398,11 @@ function viewUser(userId) {
     })
     .then(response => response.json())
     .then(data => {
-        const avatar = data.avatar
-            ? `<img src="${data.avatar}" class="w-20 h-20 rounded-full object-cover mx-auto">`
-            : `<div class="w-20 h-20 rounded-full bg-primary-600 flex items-center justify-center text-white font-bold text-2xl mx-auto">${(data.first_name || data.name || '?')[0].toUpperCase()}</div>`;
+        const placeholderAvatar = '{{ asset('assets/avatar/placeholder-image.jpeg') }}';
+        const avatarSrc = data.avatar
+            ? (data.avatar.startsWith('http') ? data.avatar : `{{ asset('public/') }}/${data.avatar}`)
+            : placeholderAvatar;
+        const avatar = `<img src="${avatarSrc}" class="w-20 h-20 rounded-full object-cover mx-auto">`;
 
         document.getElementById('viewModalContent').innerHTML = `
             <div class="text-center mb-6">
