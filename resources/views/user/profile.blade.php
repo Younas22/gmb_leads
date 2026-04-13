@@ -13,8 +13,7 @@
                     @if($user->avatar)
                         <img id="profileImage" src="{{ asset('public/' . $user->avatar) }}" alt="Profile" class="w-16 h-16 rounded-full object-cover">
                     @else
-                        <img id="profileImage" src="" alt="Profile" class="w-16 h-16 rounded-full object-cover hidden">
-                        <span id="profileInitials">{{ strtoupper(substr($user->first_name ?? $user->name, 0, 1)) }}{{ strtoupper(substr($user->last_name ?? '', 0, 1)) }}</span>
+                        <img id="profileImage" src="{{ asset('assets/avatar/placeholder-image.jpeg') }}" alt="Profile" class="w-16 h-16 rounded-full object-cover">
                     @endif
                 </div>
                 <button onclick="openImageUpload()" class="absolute bottom-0 right-0 bg-orange-500 hover:bg-orange-600 text-white p-1 rounded-full shadow transition-colors">
@@ -391,9 +390,6 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('profileImage').src = e.target.result;
-            document.getElementById('profileImage').classList.remove('hidden');
-            const initials = document.getElementById('profileInitials');
-            if (initials) initials.classList.add('hidden');
         };
         reader.readAsDataURL(file);
 
