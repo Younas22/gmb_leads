@@ -10,11 +10,12 @@
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <div class="relative flex-shrink-0">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-primary-600 text-xl font-bold shadow">
-                    @if($user->avatar)
-                        <img id="profileImage" src="{{ asset('public/' . $user->avatar) }}" alt="Profile" class="w-16 h-16 rounded-full object-cover">
-                    @else
-                        <img id="profileImage" src="{{ asset('assets/avatar/placeholder-image.jpeg') }}" alt="Profile" class="w-16 h-16 rounded-full object-cover">
-                    @endif
+                    @php
+                        $avatarSrc = $user->avatar
+                            ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset('public/' . $user->avatar))
+                            : asset('assets/avatar/placeholder-image.jpeg');
+                    @endphp
+                    <img id="profileImage" src="{{ $avatarSrc }}" alt="Profile" class="w-16 h-16 rounded-full object-cover">
                 </div>
                 <button onclick="openImageUpload()" class="absolute bottom-0 right-0 bg-orange-500 hover:bg-orange-600 text-white p-1 rounded-full shadow transition-colors">
                     <i class="fas fa-camera text-xs"></i>
