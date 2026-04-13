@@ -91,17 +91,11 @@
                     @endif
                 </div>
 
-                <div class="flex items-center space-x-4" style="display: none;">
-                    <!-- Search Bar -->
-                    <div class="relative hidden md:block">
-                        <input type="text" placeholder="Quick search..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    </div>
-
-                    <!-- Notifications -->
-                    <button class="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
-                        <i class="fas fa-bell text-lg"></i>
-                        <span class="absolute top-0 right-0 w-2 h-2 bg-orange-500 rounded-full"></span>
+                <div class="flex items-center space-x-3">
+                    <!-- Add Extension Button -->
+                    <button onclick="openExtensionModal()" class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                        <i class="fas fa-puzzle-piece mr-2"></i>
+                        Add Extension
                     </button>
                 </div>
             </div>
@@ -563,6 +557,154 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Extension Install Modal -->
+<div id="extensionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+                <div class="flex items-center">
+                    <div class="bg-orange-100 rounded-full p-2 mr-3">
+                        <i class="fas fa-puzzle-piece text-orange-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Install Browser Extension</h3>
+                        <p class="text-xs text-gray-500">CustomerNearme Chrome Extension</p>
+                    </div>
+                </div>
+                <button onclick="closeExtensionModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Step 1 -->
+                <div class="flex items-start mb-5">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">1</div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800 mb-2">Download the Extension ZIP</p>
+                        <a href="{{ asset('public/downloads/Customernearme_Extension.zip') }}" download
+                           class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Extension (.zip)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start mb-5">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">2</div>
+                    <div>
+                        <p class="font-medium text-gray-800 mb-1">Extract the ZIP File</p>
+                        <p class="text-sm text-gray-600">Right-click the downloaded ZIP and select <strong>Extract All</strong> to unzip it into a folder.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start mb-5">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">3</div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800 mb-2">Open Chrome Extensions Page</p>
+                        <button onclick="openChromeExtensions()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            <i class="fab fa-chrome mr-2"></i>
+                            Open chrome://extensions
+                        </button>
+                        <p id="copyFallback" class="text-xs text-gray-500 mt-2 hidden">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            URL copied! Paste it in your Chrome address bar and press Enter.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="flex items-start mb-5">
+                    <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">4</div>
+                    <div>
+                        <p class="font-medium text-gray-800 mb-1">Enable Developer Mode</p>
+                        <p class="text-sm text-gray-600">On the Extensions page, toggle <strong>"Developer mode"</strong> ON (top-right corner).</p>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="flex items-start mb-5">
+                    <div class="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">5</div>
+                    <div>
+                        <p class="font-medium text-gray-800 mb-1">Load the Extension</p>
+                        <p class="text-sm text-gray-600">Click <strong>"Load unpacked"</strong> and select the extracted folder. The extension will be installed!</p>
+                    </div>
+                </div>
+
+                <!-- Guide Image -->
+                <div class="mt-4">
+                    <p class="text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-image text-orange-500 mr-2"></i>Visual Guide — Steps 4 & 5
+                    </p>
+                    <div class="rounded-lg overflow-hidden border border-gray-200 cursor-zoom-in" onclick="openImageLightbox(this.querySelector('img').src)">
+                        <img src="{{ asset('public/assets/images/extension.png') }}" alt="Extension install guide" class="w-full h-auto object-contain hover:opacity-90 transition-opacity">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1 text-center"><i class="fas fa-search-plus mr-1"></i>Click image to view full size</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 pb-6 flex-shrink-0">
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start">
+                    <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2 flex-shrink-0"></i>
+                    <p class="text-xs text-blue-700">Supported browsers: Chrome, Brave, and Edge. Firefox is not supported.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Lightbox -->
+<div id="imageLightbox" class="fixed inset-0 bg-black bg-opacity-90 z-[60] hidden flex items-center justify-center p-4" onclick="closeImageLightbox()">
+    <button onclick="closeImageLightbox()" class="absolute top-4 right-4 text-red-500 hover:text-red-400 transition-colors z-10">
+        <i class="fas fa-times text-3xl"></i>
+    </button>
+    <img id="lightboxImg" src="" alt="Extension Guide" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+</div>
+
+<script>
+function openExtensionModal() {
+    document.getElementById('extensionModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+function closeExtensionModal() {
+    document.getElementById('extensionModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+function openImageLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('imageLightbox').classList.remove('hidden');
+}
+function closeImageLightbox() {
+    document.getElementById('imageLightbox').classList.add('hidden');
+}
+function openChromeExtensions() {
+    // Browsers block direct chrome:// navigation from web pages,
+    // so we open a new tab and attempt navigation, then fallback to clipboard copy.
+    const newTab = window.open('chrome://extensions', '_blank');
+    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+        // Popup blocked or failed — copy to clipboard as fallback
+        navigator.clipboard.writeText('chrome://extensions').then(function() {
+            document.getElementById('copyFallback').classList.remove('hidden');
+        });
+    } else {
+        // Tab opened but chrome:// won't load from web — copy anyway
+        navigator.clipboard.writeText('chrome://extensions').then(function() {
+            document.getElementById('copyFallback').classList.remove('hidden');
+        });
+        newTab.close();
+    }
+}
+document.getElementById('extensionModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExtensionModal();
+});
+</script>
+
     @stack('scripts')
 </body>
 </html>

@@ -56,22 +56,6 @@
                     Dashboard
                 </a>
 
-                <!-- Subscription - only for company owners and regular users, not team members -->
-                @if(!auth()->user()->isTeamMember())
-                <a href="{{ route('user.subscription') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.subscription') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-crown w-5 text-center mr-3"></i>
-                    Subscription
-                </a>
-                @endif
-
-                <!-- Team Members - only for company owners -->
-                @if(auth()->user()->isCompany())
-                <a href="{{ route('user.team-members') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.team-members') ? 'text-primary-700 bg-primary-50' : '' }}">
-                    <i class="fas fa-users w-5 text-center mr-3"></i>
-                    Team Members
-                </a>
-                @endif
-
                 @if($isRestricted)
                     <!-- Pending Subscription Notice -->
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
@@ -87,12 +71,28 @@
                     <!-- Full navigation for active users -->
                     <a href="{{ route('user.search') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.search') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-search w-5 text-center mr-3"></i>
-                        Search Places
+                        Find Leads
                     </a>
                     <a href="{{ route('user.leads') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.leads') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-bookmark w-5 text-center mr-3"></i>
-                        Saved Leads
+                        My Leads
                     </a>
+
+                    <!-- Subscription - only for company owners and regular users, not team members -->
+                    @if(!auth()->user()->isTeamMember())
+                    <a href="{{ route('user.subscription') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.subscription') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-crown w-5 text-center mr-3"></i>
+                        Subscription
+                    </a>
+                    @endif
+
+                    <!-- Team Members - only for company owners -->
+                    @if(auth()->user()->isCompany())
+                    <a href="{{ route('user.team-members') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.team-members') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-users w-5 text-center mr-3"></i>
+                        Team Members
+                    </a>
+                    @endif
 
                     {{-- @if(!auth()->user()->isTeamMember())
                     <!-- API Keys - Only for company owners and regular users, NOT team members -->

@@ -1032,6 +1032,113 @@
         </div>
     </section>
 
+    <!-- Sample Sheet Data Section -->
+    <section class="py-20 bg-white" id="sample-data">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <p class="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Real Output Preview</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">See What Data You Get</h2>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto">This is actual sample data exported from our Chrome Extension — the exact format you receive as an Excel file.</p>
+            </div>
+
+            <!-- Sheet Table -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                <!-- Table Toolbar -->
+                <div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-600">
+                            <i class="fas fa-file-excel text-green-600 mr-1"></i> sheet.xlsx
+                        </span>
+                    </div>
+                    <a href="{{ asset('public/sheet/sheet.xlsx') }}" download
+                       class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors">
+                        <i class="fas fa-download mr-1.5"></i> Download Sample
+                    </a>
+                </div>
+
+                <!-- Loading State -->
+                <div id="sheetLoading" class="flex items-center justify-center py-16">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin text-3xl text-orange-400 mb-3"></i>
+                        <p class="text-gray-500 text-sm">Loading sheet data...</p>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div id="sheetTableWrap" class="hidden overflow-x-auto" style="max-height: 420px; overflow-y: auto;">
+                    <table id="sheetTable" class="w-full text-sm border-collapse"></table>
+                </div>
+
+                <!-- Error State -->
+                <div id="sheetError" class="hidden flex items-center justify-center py-16">
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-gray-500 text-sm">Could not load sheet. Please try downloading it.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        #sheetTable thead tr { background: #f97316; color: white; position: sticky; top: 0; z-index: 1; }
+        #sheetTable thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.2); }
+        #sheetTable tbody tr:nth-child(even) { background: #fafafa; }
+        #sheetTable tbody tr:hover { background: #fff7ed; }
+        #sheetTable tbody td { padding: 9px 14px; border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0; white-space: nowrap; color: #374151; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+    (function() {
+        fetch('{{ asset("public/sheet/sheet.xlsx") }}')
+            .then(r => r.arrayBuffer())
+            .then(buf => {
+                const wb = XLSX.read(buf, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                if (!data || data.length === 0) throw new Error('Empty');
+
+                const table = document.getElementById('sheetTable');
+                // Header row
+                const thead = document.createElement('thead');
+                const hRow = document.createElement('tr');
+                (data[0] || []).forEach(cell => {
+                    const th = document.createElement('th');
+                    th.textContent = cell;
+                    hRow.appendChild(th);
+                });
+                thead.appendChild(hRow);
+                table.appendChild(thead);
+
+                // Body rows
+                const tbody = document.createElement('tbody');
+                data.slice(1).forEach(row => {
+                    const tr = document.createElement('tr');
+                    (data[0] || []).forEach((_, i) => {
+                        const td = document.createElement('td');
+                        td.textContent = row[i] ?? '';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+
+                document.getElementById('sheetLoading').classList.add('hidden');
+                document.getElementById('sheetTableWrap').classList.remove('hidden');
+            })
+            .catch(() => {
+                document.getElementById('sheetLoading').classList.add('hidden');
+                document.getElementById('sheetError').classList.remove('hidden');
+            });
+    })();
+    </script>
+
     <!-- Data Trust Section -->
     <section class="py-20 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
