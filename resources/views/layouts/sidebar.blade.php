@@ -171,13 +171,12 @@
             <button onclick="toggleProfileDropdown()" class="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <!-- User Avatar -->
                 <div class="relative">
-                    @if(auth()->user()->avatar)
-                        <img src="{{ asset('public/' . auth()->user()->avatar) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
-                    @else
-                        <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                            {{ strtoupper(substr(auth()->user()->first_name ?? auth()->user()->name, 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
-                        </div>
-                    @endif
+                    @php
+                        $sidebarAvatar = auth()->user()->avatar
+                            ? (str_starts_with(auth()->user()->avatar, 'http') ? auth()->user()->avatar : asset('public/' . auth()->user()->avatar))
+                            : asset('assets/avatar/placeholder-image.jpeg');
+                    @endphp
+                    <img src="{{ $sidebarAvatar }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
                     <!-- Online Status Indicator -->
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
                 </div>
