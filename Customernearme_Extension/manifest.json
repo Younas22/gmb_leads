@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "CustomerNearMe - Google Maps Business Scraper",
+  "version": "2.0",
+  "description": "Google Maps se business details, reviews, opening hours, emails aur social links extract karta hai",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "clipboardWrite",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.google.com/maps/*",
+    "https://maps.google.com/*",
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.google.com/maps/*",
+        "https://maps.google.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

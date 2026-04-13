@@ -578,6 +578,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
 
+            <!-- Video Guide Button -->
+            <div class="px-6 py-3 border-b border-gray-100">
+                <a href="{{ route('user.tutorials') }}#add-extension" onclick="closeExtensionModal()"
+                   style="display:flex;align-items:center;justify-content:center;width:100%;padding:10px 16px;background-color:#4f46e5;color:#fff;font-size:14px;font-weight:500;border-radius:8px;text-decoration:none;">
+                    <i class="fas fa-play-circle" style="margin-right:8px;"></i>
+                    Video Guide — Watch Add Extension Tutorial
+                </a>
+            </div>
+
             <!-- Body -->
             <div class="p-6 overflow-y-auto flex-1">
                 <!-- Step 1 -->
@@ -607,14 +616,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">3</div>
                     <div class="flex-1">
                         <p class="font-medium text-gray-800 mb-2">Open Chrome Extensions Page</p>
-                        <button onclick="openChromeExtensions()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
+                            <p class="text-xs text-yellow-800 font-medium mb-1">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i>
+                                Chrome security ki wajah se yeh page directly open nahi ho sakta
+                            </p>
+                            <p class="text-xs text-yellow-700">
+                                Neeche button dabayen — URL copy ho jaye ga. Phir Chrome address bar mein paste karen.
+                            </p>
+                        </div>
+                        <button onclick="openChromeExtensions()" id="extOpenBtn" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
                             <i class="fab fa-chrome mr-2"></i>
-                            Open chrome://extensions
+                            <span id="extBtnText">Copy chrome://extensions</span>
                         </button>
-                        <p id="copyFallback" class="text-xs text-gray-500 mt-2 hidden">
-                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                            URL copied! Paste it in your Chrome address bar and press Enter.
-                        </p>
+                        <div id="copyFallback" class="hidden mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                            <p class="text-sm font-semibold text-green-800 mb-1">
+                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                URL copy ho gaya!
+                            </p>
+                            <ol class="text-xs text-green-700 space-y-1 list-decimal list-inside">
+                                <li>Chrome browser mein jayen</li>
+                                <li>Address bar par click karen (ya <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+L</kbd> dabayen)</li>
+                                <li>Paste karen <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+V</kbd> phir <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Enter</kbd></li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
 
@@ -646,10 +671,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <p class="text-xs text-gray-400 mt-1 text-center"><i class="fas fa-search-plus mr-1"></i>Click image to view full size</p>
                 </div>
+
             </div>
 
             <!-- Footer -->
-            <div class="px-6 pb-6 flex-shrink-0">
+            <div class="px-6 pb-6 pt-3 flex-shrink-0">
                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start">
                     <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2 flex-shrink-0"></i>
                     <p class="text-xs text-blue-700">Supported browsers: Chrome, Brave, and Edge. Firefox is not supported.</p>
@@ -684,21 +710,24 @@ function closeImageLightbox() {
     document.getElementById('imageLightbox').classList.add('hidden');
 }
 function openChromeExtensions() {
-    // Browsers block direct chrome:// navigation from web pages,
-    // so we open a new tab and attempt navigation, then fallback to clipboard copy.
-    const newTab = window.open('chrome://extensions', '_blank');
-    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
-        // Popup blocked or failed — copy to clipboard as fallback
-        navigator.clipboard.writeText('chrome://extensions').then(function() {
-            document.getElementById('copyFallback').classList.remove('hidden');
-        });
-    } else {
-        // Tab opened but chrome:// won't load from web — copy anyway
-        navigator.clipboard.writeText('chrome://extensions').then(function() {
-            document.getElementById('copyFallback').classList.remove('hidden');
-        });
-        newTab.close();
-    }
+    const url = 'chrome://extensions';
+    const btn = document.getElementById('extOpenBtn');
+    const btnText = document.getElementById('extBtnText');
+    const fallback = document.getElementById('copyFallback');
+
+    navigator.clipboard.writeText(url).then(function() {
+        btnText.textContent = 'Copied!';
+        btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        btn.classList.add('bg-green-600', 'hover:bg-green-700');
+        fallback.classList.remove('hidden');
+        setTimeout(function() {
+            btnText.textContent = 'Copy chrome://extensions';
+            btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        }, 3000);
+    }).catch(function() {
+        fallback.classList.remove('hidden');
+    });
 }
 document.getElementById('extensionModal').addEventListener('click', function(e) {
     if (e.target === this) closeExtensionModal();

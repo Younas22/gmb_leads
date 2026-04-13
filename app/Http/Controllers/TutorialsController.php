@@ -110,124 +110,124 @@ class TutorialsController extends Controller
     {
         return [
             [
-                'key' => 'dashboard',
-                'title' => 'Dashboard Overview',
-                'description' => 'Learn to navigate your dashboard and understand key metrics',
-                'duration' => '6 min',
+                'key' => 'add-extension',
+                'title' => 'Add Extension',
+                'description' => 'CustomerNearme Chrome Extension install aur setup karna',
+                'duration' => '5 min',
                 'category' => 'getting-started',
                 'order' => 1,
-                'icon' => 'home',
-                'color' => 'blue',
-                'youtube_id' => null, // Add YouTube video ID when available
+                'icon' => 'puzzle-piece',
+                'color' => 'indigo',
+                'youtube_id' => 'Hy4eBvxvVfk',
                 'objectives' => [
-                    'Navigate the main dashboard interface',
-                    'Understand key performance metrics',
-                    'Use quick search functionality',
-                    'Access recent activity and notifications'
+                    'Extension ZIP file download karna',
+                    'Chrome Extensions page kholna',
+                    'Developer mode enable karna',
+                    'Extension load aur activate karna'
                 ]
             ],
             [
-                'key' => 'search',
-                'title' => 'Search Places',
-                'description' => 'Master the search functionality and advanced filters',
-                'duration' => '8 min',
+                'key' => 'subscription',
+                'title' => 'Subscription',
+                'description' => 'Subscription plans dekhein, upgrade karein aur billing manage karein',
+                'duration' => '5 min',
                 'category' => 'getting-started',
                 'order' => 2,
-                'icon' => 'search',
-                'color' => 'green',
-                'youtube_id' => null,
+                'icon' => 'crown',
+                'color' => 'yellow',
+                'youtube_id' => 'Hy4eBvxvVfk',
                 'objectives' => [
-                    'Perform basic and advanced searches',
-                    'Use location-based filtering',
-                    'Apply category and rating filters',
-                    'Export search results'
+                    'Available subscription plans compare karna',
+                    'Plan upgrade ya downgrade karna',
+                    'Billing history dekhna',
+                    'Payment method manage karna'
                 ]
             ],
             [
-                'key' => 'leads',
-                'title' => 'Managing Saved Leads',
-                'description' => 'Organize, export, and manage your lead collection',
-                'duration' => '7 min',
+                'key' => 'find-leads',
+                'title' => 'Find Leads',
+                'description' => 'Google Maps se business leads dhundhne ka complete tarika',
+                'duration' => '8 min',
                 'category' => 'getting-started',
                 'order' => 3,
+                'icon' => 'search-location',
+                'color' => 'green',
+                'youtube_id' => 'Hy4eBvxvVfk',
+                'objectives' => [
+                    'Business keyword aur location se search karna',
+                    'Category aur rating filters lagana',
+                    'Search results mein se leads select karna',
+                    'Leads ko save karna apne collection mein'
+                ]
+            ],
+            [
+                'key' => 'my-leads',
+                'title' => 'My Leads',
+                'description' => 'Saved leads ko manage, filter aur export karna',
+                'duration' => '7 min',
+                'category' => 'getting-started',
+                'order' => 4,
                 'icon' => 'bookmark',
                 'color' => 'orange',
-                'youtube_id' => null,
+                'youtube_id' => 'Hy4eBvxvVfk',
                 'objectives' => [
-                    'Save and organize leads effectively',
-                    'Add notes and tags to leads',
-                    'Export leads to CSV format',
-                    'Track contact status and follow-ups'
+                    'Saved leads ki list dekhna aur filter karna',
+                    'Lead details aur contact information access karna',
+                    'Leads ko CSV format mein export karna',
+                    'Unwanted leads delete karna'
                 ]
             ],
             [
-                'key' => 'api-keys',
-                'title' => 'API Keys Setup',
-                'description' => 'Configure Google Places API and other integrations',
-                'duration' => '10 min',
-                'category' => 'advanced',
-                'order' => 4,
-                'icon' => 'key',
-                'color' => 'purple',
-                'youtube_id' => null,
-                'objectives' => [
-                    'Obtain Google Places API key',
-                    'Configure API settings in the system',
-                    'Test API connectivity',
-                    'Troubleshoot common API issues'
-                ]
-            ],
-            [
-                'key' => 'history',
-                'title' => 'Search History Analysis',
-                'description' => 'Track performance and optimize your search strategies',
+                'key' => 'dashboard',
+                'title' => 'Dashboard',
+                'description' => 'Dashboard ka overview samjhein — stats, activity aur quick actions',
                 'duration' => '6 min',
-                'category' => 'advanced',
+                'category' => 'getting-started',
                 'order' => 5,
-                'icon' => 'history',
-                'color' => 'indigo',
-                'youtube_id' => null,
+                'icon' => 'home',
+                'color' => 'blue',
+                'youtube_id' => 'Hy4eBvxvVfk',
                 'objectives' => [
-                    'View and filter search history',
-                    'Analyze search performance metrics',
-                    'Re-run previous searches',
-                    'Export historical data'
-                ]
-            ],
-            [
-                'key' => 'feedback',
-                'title' => 'Feedback & Support',
-                'description' => 'Share feedback and get help when you need it',
-                'duration' => '4 min',
-                'category' => 'advanced',
-                'order' => 6,
-                'icon' => 'comments',
-                'color' => 'pink',
-                'youtube_id' => null,
-                'objectives' => [
-                    'Submit feedback and suggestions',
-                    'Rate your experience',
-                    'View feedback history',
-                    'Contact support when needed'
+                    'Dashboard interface navigate karna',
+                    'Total leads, searches aur subscription stats dekhna',
+                    'Recent activity monitor karna',
+                    'Quick action buttons ka use karna'
                 ]
             ],
             [
                 'key' => 'profile',
-                'title' => 'Profile & Security Settings',
-                'description' => 'Customize your account and security preferences',
+                'title' => 'Profile Settings',
+                'description' => 'Account information, password aur preferences update karna',
                 'duration' => '5 min',
                 'category' => 'advanced',
-                'order' => 7,
+                'order' => 6,
                 'icon' => 'user-cog',
-                'color' => 'teal',
-                'youtube_id' => null,
+                'color' => 'purple',
+                'youtube_id' => 'Hy4eBvxvVfk',
                 'objectives' => [
-                    'Update personal information',
-                    'Change password and security settings',
-                    'Configure notification preferences',
-                    'Manage account privacy settings'
+                    'Name, email aur profile picture update karna',
+                    'Password change karna',
+                    'Notification preferences set karna',
+                    'Account security settings configure karna'
                 ]
-            ]
+            ],
+            [
+                'key' => 'feedback',
+                'title' => 'Add Your Feedback',
+                'description' => 'Apna feedback submit karein aur support se rabta karein',
+                'duration' => '4 min',
+                'category' => 'advanced',
+                'order' => 7,
+                'icon' => 'comments',
+                'color' => 'pink',
+                'youtube_id' => 'Hy4eBvxvVfk',
+                'objectives' => [
+                    'Feedback form fill karna',
+                    'Star rating dena',
+                    'Bug report ya suggestion submit karna',
+                    'Support team se contact karna'
+                ]
+            ],
         ];
     }
 

@@ -60,7 +60,7 @@
                             <i class="fas fa-rocket text-2xl"></i>
                             <div>
                                 <h3 class="text-xl font-bold">Getting Started</h3>
-                                <p class="text-blue-100">Foundation tutorials</p>
+                                <p class="text-blue-100">Dashboard, Find Leads, My Leads, Extension</p>
                             </div>
                         </div>
                     </div>
@@ -110,7 +110,7 @@
                             <i class="fas fa-cogs text-2xl"></i>
                             <div>
                                 <h3 class="text-xl font-bold">Advanced Features</h3>
-                                <p class="text-purple-100">Power user tutorials</p>
+                                <p class="text-purple-100">Subscription, Profile, Feedback</p>
                             </div>
                         </div>
                     </div>
@@ -164,9 +164,14 @@
                                 <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Tutorial Title</h3>
                                 <p id="modalDescription" class="text-gray-600 text-sm mt-1">Tutorial description</p>
                             </div>
-                            <button onclick="closeVideoModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                                <i class="fas fa-times text-2xl"></i>
-                            </button>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="markAsCompleted()" id="markCompletedBtn" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                    <i class="fas fa-check mr-2"></i>Mark as Completed
+                                </button>
+                                <button onclick="closeVideoModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <i class="fas fa-times text-2xl"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Video Player -->
@@ -176,20 +181,12 @@
                                     <i class="fas fa-video text-6xl mb-4 opacity-50"></i>
                                     <p class="text-xl font-medium mb-2">Video Coming Soon</p>
                                     <p class="text-gray-400">Tutorial video will be uploaded here</p>
-                                    <div class="mt-6 space-x-4">
-                                        <a id="youtubeLink" href="#" target="_blank" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg inline-block">
-                                            <i class="fab fa-youtube mr-2"></i>Watch on YouTube
-                                        </a>
-                                        <button onclick="markAsCompleted()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg">
-                                            <i class="fas fa-check mr-2"></i>Mark as Completed
-                                        </button>
-                                    </div>
                                 </div>
                                 <iframe id="youtubePlayer" class="hidden w-full h-full" frameborder="0" allowfullscreen></iframe>
                             </div>
                         </div>
 
-                        <!-- Tutorial Info -->
+<!-- Tutorial Info -->
                         <div class="p-6">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div class="md:col-span-2">
@@ -252,6 +249,12 @@
             </div>
         </div>
 
+        <!-- Back to Top Button -->
+        <button id="backToTopBtn" onclick="scrollToTop()"
+            class="fixed bottom-8 right-8 z-50 bg-primary-600 hover:bg-primary-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 pointer-events-none">
+            <i class="fas fa-arrow-up text-lg"></i>
+        </button>
+
         <script>
             // Tutorial data from backend
             const tutorials = @json($tutorialsData);
@@ -273,16 +276,14 @@
                 document.getElementById('modalDescription').textContent = tutorial.description;
                 document.getElementById('modalDuration').textContent = tutorial.duration;
                 
-                // Set YouTube link
+                // Set YouTube player
                 if (youtubeId) {
-                    document.getElementById('youtubeLink').href = `https://www.youtube.com/watch?v=${youtubeId}`;
                     document.getElementById('youtubePlayer').src = `https://www.youtube.com/embed/${youtubeId}`;
                     document.getElementById('youtubePlayer').classList.remove('hidden');
                     document.getElementById('videoPlaceholder').classList.add('hidden');
                 } else {
                     document.getElementById('youtubePlayer').classList.add('hidden');
                     document.getElementById('videoPlaceholder').classList.remove('hidden');
-                    document.getElementById('youtubeLink').href = '#';
                 }
                 
                 // Populate learning objectives
@@ -377,6 +378,17 @@
                 }
             }
 
+            // Auto-open tutorial from URL hash (e.g. #add-extension)
+            window.addEventListener('load', function() {
+                const hash = window.location.hash.replace('#', '');
+                if (hash && tutorials[hash]) {
+                    const item = document.querySelector(`[data-tutorial="${hash}"]`);
+                    const youtubeId = item ? item.dataset.youtubeId : null;
+                    openVideoModal(hash, youtubeId);
+                    history.replaceState(null, '', window.location.pathname);
+                }
+            });
+
             // Close modal when clicking outside
             document.getElementById('videoModal').addEventListener('click', function(e) {
                 if (e.target === this) {
@@ -390,5 +402,21 @@
                     closeVideoModal();
                 }
             });
+
+            // Back to Top button
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    backToTopBtn.classList.add('opacity-100');
+                } else {
+                    backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                    backToTopBtn.classList.remove('opacity-100');
+                }
+            });
+
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         </script>
 @endsection
