@@ -134,13 +134,12 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                @if($payment->user && $payment->user->avatar)
-                                    <img src="{{ asset('public/' . $payment->user->avatar) }}" alt="User" class="w-10 h-10 rounded-full object-cover">
-                                @else
-                                    <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                                        {{ strtoupper(substr($payment->user->first_name ?? $payment->user->name ?? 'U', 0, 1)) }}
-                                    </div>
-                                @endif
+                                @php
+                                    $payAvatar = ($payment->user && $payment->user->avatar)
+                                        ? (str_starts_with($payment->user->avatar, 'http') ? $payment->user->avatar : asset('public/' . $payment->user->avatar))
+                                        : asset('assets/avatar/placeholder-image.jpeg');
+                                @endphp
+                                <img src="{{ $payAvatar }}" alt="User" class="w-10 h-10 rounded-full object-cover">
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
                                         {{ $payment->user ? ($payment->user->first_name ? $payment->user->first_name . ' ' . $payment->user->last_name : $payment->user->name) : 'Deleted User' }}
