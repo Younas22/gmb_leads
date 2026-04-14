@@ -481,6 +481,7 @@ class DashboardController extends Controller
             'last_name' => $user->last_name,
             'name' => $user->name,
             'email' => $user->email,
+            'plain_password' => $user->plain_password,
             'user_type' => $user->user_type,
             'status' => $user->status,
             'login_type' => $user->login_type,

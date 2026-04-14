@@ -83,6 +83,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Joined</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Login</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Password</th>
                         <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -204,6 +205,18 @@
                                 <span class="text-sm text-gray-400">Never</span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($u->plain_password)
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-sm text-gray-600 font-mono pass-text-{{ $u->id }}" style="filter:blur(4px);user-select:none;">{{ $u->plain_password }}</span>
+                                    <button onclick="togglePass({{ $u->id }})" class="text-gray-400 hover:text-gray-700 transition-colors" title="Show/Hide Password">
+                                        <i id="passIcon-{{ $u->id }}" class="fas fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                            @else
+                                <span class="text-sm text-gray-400">—</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center space-x-2">
                                 <button onclick="viewUser({{ $u->id }})" class="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="View Details">
@@ -222,7 +235,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center">
+                        <td colspan="11" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-users text-gray-400 text-3xl"></i>
@@ -447,6 +460,16 @@ function viewUser(userId) {
                     <p class="text-gray-500 mb-1">Credits Used (This Month)</p>
                     <p class="font-medium text-gray-800">${data.monthly_search_credits_used}</p>
                 </div>
+                ${data.plain_password ? `
+                <div class="bg-yellow-50 p-3 rounded-lg col-span-2">
+                    <p class="text-gray-500 mb-1">Password</p>
+                    <div class="flex items-center space-x-2">
+                        <span id="modalPassText" class="font-mono text-sm text-gray-800" style="filter:blur(4px);user-select:none;">${data.plain_password}</span>
+                        <button onclick="toggleModalPass()" class="text-gray-400 hover:text-gray-700 transition-colors" title="Show/Hide">
+                            <i id="modalPassIcon" class="fas fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>` : ''}
             </div>
         `;
     })
@@ -599,6 +622,37 @@ function showToast(message, type = 'success') {
 
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// Toggle password blur in table row
+function togglePass(userId) {
+    const span = document.querySelector(`.pass-text-${userId}`);
+    const icon = document.getElementById(`passIcon-${userId}`);
+    if (span.style.filter === 'none') {
+        span.style.filter = 'blur(4px)';
+        span.style.userSelect = 'none';
+        icon.className = 'fas fa-eye text-xs';
+    } else {
+        span.style.filter = 'none';
+        span.style.userSelect = 'text';
+        icon.className = 'fas fa-eye-slash text-xs';
+    }
+}
+
+// Toggle password blur in view modal
+function toggleModalPass() {
+    const span = document.getElementById('modalPassText');
+    const icon = document.getElementById('modalPassIcon');
+    if (!span) return;
+    if (span.style.filter === 'none') {
+        span.style.filter = 'blur(4px)';
+        span.style.userSelect = 'none';
+        icon.className = 'fas fa-eye text-xs';
+    } else {
+        span.style.filter = 'none';
+        span.style.userSelect = 'text';
+        icon.className = 'fas fa-eye-slash text-xs';
+    }
 }
 
 // Toggle Company Signups
