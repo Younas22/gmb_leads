@@ -97,14 +97,6 @@
                         </svg>
                     </a>
 
-                    <a href="{{ asset('public/downloads/Customernearme_Extension.zip') }}" download
-                       class="inline-flex items-center justify-center gap-1.5 w-40 sm:w-48 px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                        Download Extension
-                    </a>
-
                     <a href="#how-it-works" class="inline-flex items-center justify-center w-40 sm:w-48 px-4 sm:px-6 py-2.5 sm:py-3.5 text-xs sm:text-base font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-600 transition-all duration-200">
                         How It Works
                     </a>
@@ -115,72 +107,99 @@
                 </p>
             </div>
 
-            <!-- Hero Image/Dashboard Mockup -->
-            <div class="max-w-4xl mx-auto mt-6">
+            <!-- Hero Video -->
+            <div class="max-w-4xl mx-auto mt-8">
                 <div class="relative">
 
-                    <!-- Glowing Background -->
-                    <div class="absolute -inset-2 bg-gradient-to-r from-blue-500/15 to-orange-500/15 rounded-xl blur-2xl opacity-40"></div>
+                    <!-- Outer glow ring -->
+                    <div class="absolute -inset-3 bg-gradient-to-r from-orange-500/25 via-blue-500/20 to-orange-500/25 rounded-2xl blur-2xl opacity-50"></div>
 
-                    <!-- Main Image Container -->
-                    <div class="relative bg-white rounded-xl shadow-xl p-2 sm:p-3 border border-gray-200">
+                    <!-- Gradient border wrapper -->
+                    <div class="relative p-[2px] rounded-2xl" style="background: linear-gradient(135deg, #f97316 0%, #3b82f6 50%, #f97316 100%);">
 
-                        <!-- Feature Badges on Image -->
-                        <!-- Top Right -->
-                        <div class="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 z-20">
-                            <span class="inline-flex items-center gap-1 bg-white text-orange-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-orange-200 badge-hover transition-all duration-300">
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        <!-- Browser-chrome top bar -->
+                        <div class="bg-gray-900 rounded-t-2xl px-4 py-2.5 flex items-center gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="flex-1 mx-4">
+                                <div class="bg-gray-800 rounded-md px-3 py-1 flex items-center gap-2 max-w-xs mx-auto">
+                                    <svg class="w-3 h-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3-1.343 3-3 3-3-1.343-3-3zm-7 0a7 7 0 1114 0A7 7 0 015 11z"/>
+                                    </svg>
+                                    <span class="text-gray-400 text-xs truncate">customernearme.com — How It Works</span>
+                                </div>
+                            </div>
+                            <!-- Watch label -->
+                            <span class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-orange-400">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
                                 </svg>
-                                <span class="hidden sm:inline">Export CSV/Excel</span>
-                                <span class="sm:hidden">Export</span>
+                                Watch Demo
                             </span>
                         </div>
 
-                        <!-- Top Left -->
-                        <div class="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 z-20">
-                            <span class="inline-flex items-center gap-1 bg-white text-blue-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-blue-200 badge-hover transition-all duration-300">
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="hidden sm:inline">Advanced Search</span>
-                                <span class="sm:hidden">Search</span>
-                            </span>
+                        <!-- Video iframe -->
+                        <div class="relative bg-black rounded-b-2xl overflow-hidden" style="padding-top: 56.25%;">
+                            <iframe
+                                class="absolute inset-0 w-full h-full"
+                                src="https://www.youtube.com/embed/Hy4eBvxvVfk?rel=0&modestbranding=1&autoplay=1&mute=0"
+                                title="CustomerNearme — How It Works Demo"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen>
+                            </iframe>
                         </div>
 
-                        <!-- Bottom Left -->
-                        <div class="absolute -bottom-2 -left-2 sm:-bottom-3 sm:-left-3 z-20">
-                            <span class="inline-flex items-center gap-1 bg-white text-orange-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-orange-200 badge-hover transition-all duration-300">
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="hidden sm:inline">Active Leads Data</span>
-                                <span class="sm:hidden">Active</span>
-                            </span>
-                        </div>
+                    </div>
 
-                        <!-- Bottom Right -->
-                        <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 z-20">
-                            <span class="inline-flex items-center gap-1 bg-white text-blue-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-blue-200 badge-hover transition-all duration-300">
-                                <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/>
-                                    <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/>
-                                </svg>
-                                <span class="hidden sm:inline">Save Forever</span>
-                                <span class="sm:hidden">Save</span>
-                            </span>
-                        </div>
+                    <!-- Feature Badges -->
+                    <!-- Top Right -->
+                    <div class="absolute -top-3 -right-3 z-20">
+                        <span class="inline-flex items-center gap-1 bg-white text-orange-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-orange-200 transition-all duration-300 hover:-translate-y-0.5">
+                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="hidden sm:inline">Export CSV/Excel</span>
+                            <span class="sm:hidden">Export</span>
+                        </span>
+                    </div>
 
-                        <!-- Dashboard Screenshot -->
-                        <div class="relative rounded-lg overflow-hidden shadow-md">
-                            <img src="{{ asset('public/images/hero/hero.png') }}"
-                                 alt="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} Dashboard — Real-Time Google Maps Business Leads"
-                                 class="w-full h-auto rounded-xl"
-                                 loading="eager">
+                    <!-- Top Left -->
+                    <div class="absolute -top-3 -left-3 z-20">
+                        <span class="inline-flex items-center gap-1 bg-white text-blue-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-blue-200 transition-all duration-300 hover:-translate-y-0.5">
+                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="hidden sm:inline">Advanced Search</span>
+                            <span class="sm:hidden">Search</span>
+                        </span>
+                    </div>
 
-                            <!-- Overlay gradient for premium look -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none rounded-lg"></div>
-                        </div>
+                    <!-- Bottom Left -->
+                    <div class="absolute -bottom-3 -left-3 z-20">
+                        <span class="inline-flex items-center gap-1 bg-white text-orange-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-orange-200 transition-all duration-300 hover:-translate-y-0.5">
+                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="hidden sm:inline">Active Leads Data</span>
+                            <span class="sm:hidden">Active</span>
+                        </span>
+                    </div>
+
+                    <!-- Bottom Right -->
+                    <div class="absolute -bottom-3 -right-3 z-20">
+                        <span class="inline-flex items-center gap-1 bg-white text-blue-600 px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg border border-blue-200 transition-all duration-300 hover:-translate-y-0.5">
+                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/>
+                                <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/>
+                            </svg>
+                            <span class="hidden sm:inline">Save Forever</span>
+                            <span class="sm:hidden">Save</span>
+                        </span>
                     </div>
 
                 </div>

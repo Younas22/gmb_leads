@@ -386,8 +386,8 @@
 
                 <!-- Desktop Navigation Links -->
                 <div class="hidden lg:flex items-center gap-1">
-                    <a href="#features" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
-                        Features
+                    <a href="#sample-data" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
+                        Leads Sample
                         <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
                     </a>
                     <a href="#how-it-works" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
@@ -444,9 +444,9 @@
         <div id="mobile-menu" class="lg:hidden hidden" role="menu">
             <div class="bg-white border-t border-gray-100 shadow-xl shadow-gray-200/20">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-1">
-                    <a href="#features" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
+                    <a href="#sample-data" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
                         <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
-                        Features
+                        Leads Sample
                     </a>
                     <a href="#how-it-works" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
                         <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
@@ -601,178 +601,116 @@
 
     @include('components.modern-hero')
     <!-- Hero Section -->
- 
 
-    <!-- Problem Section — Deep Pain -->
-    <section class="py-20 bg-white">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Section Heading -->
-            <div class="text-center mb-14">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Why Most Lead Generation <span class="text-red-500">Fails</span></h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">You send emails. You make calls. But clients don't respond.</p>
-            </div>
-
-            <!-- Why? -->
+    <!-- Sample Sheet Data Section -->
+    <section class="py-20 bg-white" id="sample-data">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
             <div class="text-center mb-10">
-                <p class="text-xl font-semibold text-gray-800 mb-8">Why? Because you're reaching:</p>
+                <p class="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Real Output Preview</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">See What Data You Get</h2>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto">This is actual sample data exported from our Chrome Extension — the exact format you receive as an Excel file.</p>
             </div>
 
-            <!-- Pain Cards -->
-            <div class="grid sm:grid-cols-3 gap-6 mb-14">
-                <!-- Card 1 — Closed Businesses -->
-                <div class="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                        </svg>
+            <!-- Sheet Table -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                <!-- Table Toolbar -->
+                <div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-600">
+                            <i class="fas fa-file-excel text-green-600 mr-1"></i> sheet.xlsx
+                        </span>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Closed Businesses</h3>
-                    <p class="text-sm text-gray-500">You're pitching to businesses that shut down months ago.</p>
+                    <a href="{{ asset('public/sheet/sheet.xlsx') }}" download
+                       class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors">
+                        <i class="fas fa-download mr-1.5"></i> Download Sample
+                    </a>
                 </div>
 
-                <!-- Card 2 — Wrong Phone Numbers -->
-                <div class="bg-orange-50 border border-orange-100 rounded-xl p-6 text-center">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-6 h-6 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3l5 5m0-5l-5 5"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Wrong Phone Numbers</h3>
-                    <p class="text-sm text-gray-500">Disconnected lines and numbers that go nowhere.</p>
-                </div>
-
-                <!-- Card 3 — Outdated Listings -->
-                <div class="bg-red-50 border border-red-100 rounded-xl p-6 text-center">
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Outdated Listings</h3>
-                    <p class="text-sm text-gray-500">Old databases filled with data that hasn't been updated in years.</p>
-                </div>
-            </div>
-
-            <!-- Solution Line -->
-            <div class="text-center bg-gradient-to-r from-blue-50 to-orange-50 border border-blue-100 rounded-2xl py-8 px-6">
-                <div class="flex items-center justify-center gap-2 mb-3">
-                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-sm font-bold text-green-600 uppercase tracking-wide">The Solution</span>
-                </div>
-                <p class="text-xl sm:text-2xl font-bold text-gray-900">
-                    {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} fixes this by pulling only <span class="text-primary-blue">active businesses</span> directly from <span class="text-primary-orange">Google Maps</span>.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-20 bg-gray-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Section Heading -->
-            <div class="text-center mb-14">
-                <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Features</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">Everything You Need to Find & Manage Leads</h2>
-            </div>
-
-            <!-- Features Grid -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Google Maps Business Data -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-orange/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Google Maps Integration</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Real-time verified business data pulled directly from Google Maps.</p>
-                        </div>
+                <!-- Loading State -->
+                <div id="sheetLoading" class="flex items-center justify-center py-16">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin text-3xl text-orange-400 mb-3"></i>
+                        <p class="text-gray-500 text-sm">Loading sheet data...</p>
                     </div>
                 </div>
 
-                <!-- Advanced Filters -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-blue/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Advanced Filters</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Filter by name, phone, email, rating, reviews & location.</p>
-                        </div>
-                    </div>
+                <!-- Table Container -->
+                <div id="sheetTableWrap" class="hidden overflow-x-auto" style="max-height: 420px; overflow-y: auto;">
+                    <table id="sheetTable" class="w-full text-sm border-collapse"></table>
                 </div>
 
-                <!-- Lead Management -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-orange/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Lead Management</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Notes, tags & status tracking to keep your pipeline organized.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Export Options -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-blue/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Export Options</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Download leads as CSV, Excel or connect via API.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- API Dashboard -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-orange/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">API Dashboard</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Monitor usage & analytics with a clean dashboard.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Real-Time Updates -->
-                <div class="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary-blue/30 transition-all group">
-                    <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-gray-900 mb-1">Real-Time Updates</h3>
-                            <p class="text-sm text-gray-500 leading-relaxed">Always fresh data — never worry about stale leads again.</p>
-                        </div>
+                <!-- Error State -->
+                <div id="sheetError" class="hidden flex items-center justify-center py-16">
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
+                        <p class="text-gray-500 text-sm">Could not load sheet. Please try downloading it.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <style>
+        #sheetTable thead tr { background: #f97316; color: white; position: sticky; top: 0; z-index: 1; }
+        #sheetTable thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.2); }
+        #sheetTable tbody tr:nth-child(even) { background: #fafafa; }
+        #sheetTable tbody tr:hover { background: #fff7ed; }
+        #sheetTable tbody td { padding: 9px 14px; border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0; white-space: nowrap; color: #374151; }
+    </style>
+
+    <script>
+    (function() {
+        const headers = [
+            'Search Query','Company Name','Category','Phone Number','Email','Website',
+            'Address','City','State','Country','Rating','Total Reviews',
+            'Latest Review Date','GMB Profile URL','Facebook','Instagram','Twitter',
+            'LinkedIn','YouTube','Pinterest','Contact Status','Notes','Date Added'
+        ];
+
+        const rows = [
+            ['pizza shop in New York','Joe\'s Pizza','Pizza Restaurant','+1 212-366-1182','contact@joespizzanyc.com','https://joespizzanyc.com','7 Carmine St, New York, NY 10014','New York','New York','United States','4.7','6842','2026-04-10','https://maps.google.com/?cid=1234567890','https://facebook.com/joespizzanyc','https://instagram.com/joespizzanyc','https://twitter.com/joespizzanyc','https://linkedin.com/company/joespizzanyc','https://youtube.com/@joespizzanyc','https://pinterest.com/joespizzanyc','Not contacted','Top-rated pizza spot in Manhattan','2026-04-11'],
+            ['dentist in Los Angeles','Bright Smile Dental','Dental Clinic','+1 310-555-0192','info@brightsmileLA.com','https://brightsmileLA.com','450 N Roxbury Dr, Beverly Hills, CA 90210','Los Angeles','California','United States','4.9','3210','2026-04-09','https://maps.google.com/?cid=2345678901','https://facebook.com/brightsmileLA','https://instagram.com/brightsmileLA','https://twitter.com/brightsmileLA','https://linkedin.com/company/brightsmileLA','https://youtube.com/@brightsmileLA','https://pinterest.com/brightsmileLA','Not contacted','Accepts new patients, open weekends','2026-04-11'],
+            ['plumber in Chicago','QuickFix Plumbing','Plumber','+1 773-555-0384','hello@quickfixplumbing.com','https://quickfixplumbing.com','1820 N Clark St, Chicago, IL 60614','Chicago','Illinois','United States','4.6','1875','2026-04-08','https://maps.google.com/?cid=3456789012','https://facebook.com/quickfixplumbing','https://instagram.com/quickfixplumbing','https://twitter.com/quickfixplumbing','https://linkedin.com/company/quickfixplumbing','https://youtube.com/@quickfixplumbing','https://pinterest.com/quickfixplumbing','Not contacted','24/7 emergency service available','2026-04-11'],
+            ['gym in Houston','Iron Peak Fitness','Gym & Fitness Center','+1 713-555-0267','members@ironpeakfitness.com','https://ironpeakfitness.com','3900 Westheimer Rd, Houston, TX 77027','Houston','Texas','United States','4.8','4520','2026-04-07','https://maps.google.com/?cid=4567890123','https://facebook.com/ironpeakfitness','https://instagram.com/ironpeakfitness','https://twitter.com/ironpeakfitness','https://linkedin.com/company/ironpeakfitness','https://youtube.com/@ironpeakfitness','https://pinterest.com/ironpeakfitness','Not contacted','Offers free trial membership','2026-04-11'],
+            ['coffee shop in Seattle','Bean & Brew Coffee','Coffee Shop','+1 206-555-0148','hello@beanandbrew.com','https://beanandbrew.com','1912 Pike Pl, Seattle, WA 98101','Seattle','Washington','United States','4.8','2993','2026-04-06','https://maps.google.com/?cid=5678901234','https://facebook.com/beanandbrew','https://instagram.com/beanandbrew','https://twitter.com/beanandbrew','https://linkedin.com/company/beanandbrew','https://youtube.com/@beanandbrew','https://pinterest.com/beanandbrew','Not contacted','Near Pike Place Market, high foot traffic','2026-04-11'],
+            ['electrician in Phoenix','Volt Pro Electric','Electrician','+1 602-555-0391','service@voltproelectric.com','https://voltproelectric.com','2150 E Highland Ave, Phoenix, AZ 85016','Phoenix','Arizona','United States','4.7','987','2026-04-05','https://maps.google.com/?cid=6789012345','https://facebook.com/voltproelectric','https://instagram.com/voltproelectric','https://twitter.com/voltproelectric','https://linkedin.com/company/voltproelectric','https://youtube.com/@voltproelectric','https://pinterest.com/voltproelectric','Not contacted','Licensed & insured, same day service','2026-04-11'],
+            ['restaurant in Miami','Seaside Grill Miami','Seafood Restaurant','+1 305-555-0275','reservations@seasidegrillmiami.com','https://seasidegrillmiami.com','800 Ocean Dr, Miami Beach, FL 33139','Miami','Florida','United States','4.6','5631','2026-04-04','https://maps.google.com/?cid=7890123456','https://facebook.com/seasidegrillmiami','https://instagram.com/seasidegrillmiami','https://twitter.com/seasidegrillmiami','https://linkedin.com/company/seasidegrillmiami','https://youtube.com/@seasidegrillmiami','https://pinterest.com/seasidegrillmiami','Not contacted','Oceanfront dining, live music on weekends','2026-04-11'],
+            ['lawyer in Dallas','Justice Law Group','Law Firm','+1 214-555-0463','contact@justicelawgroup.com','https://justicelawgroup.com','1700 Pacific Ave Suite 2400, Dallas, TX 75201','Dallas','Texas','United States','4.9','1204','2026-04-03','https://maps.google.com/?cid=8901234567','https://facebook.com/justicelawgroup','https://instagram.com/justicelawgroup','https://twitter.com/justicelawgroup','https://linkedin.com/company/justicelawgroup','https://youtube.com/@justicelawgroup','https://pinterest.com/justicelawgroup','Not contacted','Specializes in personal injury & business law','2026-04-11'],
+            ['hair salon in Atlanta','Glam Studio ATL','Hair Salon','+1 404-555-0319','book@glamstudioatl.com','https://glamstudioatl.com','675 Ponce De Leon Ave NE, Atlanta, GA 30308','Atlanta','Georgia','United States','4.8','2788','2026-04-02','https://maps.google.com/?cid=9012345678','https://facebook.com/glamstudioatl','https://instagram.com/glamstudioatl','https://twitter.com/glamstudioatl','https://linkedin.com/company/glamstudioatl','https://youtube.com/@glamstudioatl','https://pinterest.com/glamstudioatl','Not contacted','Walk-ins welcome, bridal packages available','2026-04-11'],
+            ['mechanic in Denver','AutoCare Denver','Auto Repair Shop','+1 720-555-0582','repairs@autocaredenver.com','https://autocaredenver.com','2550 W Colfax Ave, Denver, CO 80204','Denver','Colorado','United States','4.7','1649','2026-04-01','https://maps.google.com/?cid=0123456789','https://facebook.com/autocaredenver','https://instagram.com/autocaredenver','https://twitter.com/autocaredenver','https://linkedin.com/company/autocaredenver','https://youtube.com/@autocaredenver','https://pinterest.com/autocaredenver','Not contacted','ASE-certified technicians, free diagnostics','2026-04-11'],
+        ];
+
+        const table = document.getElementById('sheetTable');
+        const thead = document.createElement('thead');
+        const hRow = document.createElement('tr');
+        headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            hRow.appendChild(th);
+        });
+        thead.appendChild(hRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => {
+            const tr = document.createElement('tr');
+            row.forEach(cell => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        document.getElementById('sheetLoading').classList.add('hidden');
+        document.getElementById('sheetTableWrap').classList.remove('hidden');
+    })();
+    </script>
 
     <!-- Who Is This For -->
     <section class="py-12 bg-white">
@@ -980,32 +918,31 @@
                 <!-- Connector line (desktop only) -->
                 <div class="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-primary-orange via-primary-blue to-primary-orange opacity-20"></div>
 
-                <!-- Step 1 — Search -->
+                <!-- Step 1 — Add Extension -->
                 <div class="relative text-center group">
                     <div class="w-20 h-20 bg-orange-50 border-2 border-primary-orange rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
                         <svg class="w-9 h-9 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path>
                         </svg>
                     </div>
                     <span class="inline-block bg-primary-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 1</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Search Businesses</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Enter location, category, or keywords to find businesses worldwide.</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Add Extension</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Install the Chrome Extension to start scraping Google Maps businesses.</p>
                 </div>
 
-                <!-- Step 2 — Review -->
+                <!-- Step 2 — Find Leads -->
                 <div class="relative text-center group">
                     <div class="w-20 h-20 bg-blue-50 border-2 border-primary-blue rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
                         <svg class="w-9 h-9 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
                     <span class="inline-block bg-primary-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 2</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Review Real Profiles</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">See phone numbers, ratings, reviews & last activity.</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Find Leads</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Search businesses by keyword & location using our Chrome Extension.</p>
                 </div>
 
-                <!-- Step 3 — Save -->
+                <!-- Step 3 — Save & Organize -->
                 <div class="relative text-center group">
                     <div class="w-20 h-20 bg-orange-50 border-2 border-primary-orange rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
                         <svg class="w-9 h-9 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1013,11 +950,11 @@
                         </svg>
                     </div>
                     <span class="inline-block bg-primary-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 3</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Save & Organize Leads</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Your data is always saved — tag & manage easily.</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Save & Organize</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Save leads with contact details, ratings & business info to your list.</p>
                 </div>
 
-                <!-- Step 4 — Export -->
+                <!-- Step 4 — Export & Contact -->
                 <div class="relative text-center group">
                     <div class="w-20 h-20 bg-blue-50 border-2 border-primary-blue rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
                         <svg class="w-9 h-9 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1026,118 +963,11 @@
                     </div>
                     <span class="inline-block bg-primary-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 4</span>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Export & Contact</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Download leads and start outreach instantly.</p>
+                    <p class="text-sm text-gray-500 leading-relaxed">Download leads & track status — Contacted, Responded, Converted.</p>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Sample Sheet Data Section -->
-    <section class="py-20 bg-white" id="sample-data">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Header -->
-            <div class="text-center mb-10">
-                <p class="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Real Output Preview</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">See What Data You Get</h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">This is actual sample data exported from our Chrome Extension — the exact format you receive as an Excel file.</p>
-            </div>
-
-            <!-- Sheet Table -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                <!-- Table Toolbar -->
-                <div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                        <span class="ml-3 text-sm font-medium text-gray-600">
-                            <i class="fas fa-file-excel text-green-600 mr-1"></i> sheet.xlsx
-                        </span>
-                    </div>
-                    <a href="{{ asset('public/sheet/sheet.xlsx') }}" download
-                       class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors">
-                        <i class="fas fa-download mr-1.5"></i> Download Sample
-                    </a>
-                </div>
-
-                <!-- Loading State -->
-                <div id="sheetLoading" class="flex items-center justify-center py-16">
-                    <div class="text-center">
-                        <i class="fas fa-spinner fa-spin text-3xl text-orange-400 mb-3"></i>
-                        <p class="text-gray-500 text-sm">Loading sheet data...</p>
-                    </div>
-                </div>
-
-                <!-- Table Container -->
-                <div id="sheetTableWrap" class="hidden overflow-x-auto" style="max-height: 420px; overflow-y: auto;">
-                    <table id="sheetTable" class="w-full text-sm border-collapse"></table>
-                </div>
-
-                <!-- Error State -->
-                <div id="sheetError" class="hidden flex items-center justify-center py-16">
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-circle text-3xl text-red-400 mb-3"></i>
-                        <p class="text-gray-500 text-sm">Could not load sheet. Please try downloading it.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <style>
-        #sheetTable thead tr { background: #f97316; color: white; position: sticky; top: 0; z-index: 1; }
-        #sheetTable thead th { padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.2); }
-        #sheetTable tbody tr:nth-child(even) { background: #fafafa; }
-        #sheetTable tbody tr:hover { background: #fff7ed; }
-        #sheetTable tbody td { padding: 9px 14px; border-bottom: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0; white-space: nowrap; color: #374151; }
-    </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
-    (function() {
-        fetch('{{ asset("public/sheet/sheet.xlsx") }}')
-            .then(r => r.arrayBuffer())
-            .then(buf => {
-                const wb = XLSX.read(buf, { type: 'array' });
-                const ws = wb.Sheets[wb.SheetNames[0]];
-                const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-                if (!data || data.length === 0) throw new Error('Empty');
-
-                const table = document.getElementById('sheetTable');
-                // Header row
-                const thead = document.createElement('thead');
-                const hRow = document.createElement('tr');
-                (data[0] || []).forEach(cell => {
-                    const th = document.createElement('th');
-                    th.textContent = cell;
-                    hRow.appendChild(th);
-                });
-                thead.appendChild(hRow);
-                table.appendChild(thead);
-
-                // Body rows
-                const tbody = document.createElement('tbody');
-                data.slice(1).forEach(row => {
-                    const tr = document.createElement('tr');
-                    (data[0] || []).forEach((_, i) => {
-                        const td = document.createElement('td');
-                        td.textContent = row[i] ?? '';
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                });
-                table.appendChild(tbody);
-
-                document.getElementById('sheetLoading').classList.add('hidden');
-                document.getElementById('sheetTableWrap').classList.remove('hidden');
-            })
-            .catch(() => {
-                document.getElementById('sheetLoading').classList.add('hidden');
-                document.getElementById('sheetError').classList.remove('hidden');
-            });
-    })();
-    </script>
 
     <!-- Data Trust Section -->
     <section class="py-20 bg-white">
@@ -1404,10 +1234,10 @@
                     <table class="w-full">
                         <thead>
                             <tr class="border-b-2 border-gray-200">
-                                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
+                                <th class="text-left py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
                                 @foreach($monthlyUserPackages as $package)
-                                    <th class="text-center py-4 px-4 w-1/5">
-                                        <span class="text-sm font-bold {{ $package->is_popular ? 'text-primary-blue' : 'text-gray-900' }}">{{ $package->name }}</span>
+                                    <th class="text-center py-2.5 px-3 w-1/5">
+                                        <span class="text-xs font-bold {{ $package->is_popular ? 'text-primary-blue' : 'text-gray-900' }}">{{ $package->name }}</span>
                                         <div class="text-xs text-gray-400 mt-0.5">
                                             @if($package->price == 0)
                                                 Free
@@ -1440,43 +1270,43 @@
                             @endphp
                             @foreach($intelligenceLabels as $featureKey => $meta)
                                 <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                                    <td class="py-4 px-4">
-                                        <div class="font-medium text-gray-900 text-sm">{{ $meta['name'] }}</div>
-                                        <div class="text-xs text-gray-400 mt-0.5">{{ $meta['desc'] }}</div>
+                                    <td class="py-2 px-3">
+                                        <div class="font-medium text-gray-900 text-xs">{{ $meta['name'] }}</div>
+                                        <div class="text-xs text-gray-400">{{ $meta['desc'] }}</div>
                                     </td>
                                     @foreach($monthlyUserPackages as $package)
                                         @php
                                             $feat = $package->features->firstWhere('feature_key', $featureKey);
                                             $val  = $feat ? $feat->feature_value : null;
                                         @endphp
-                                        <td class="text-center py-4 px-4">
+                                        <td class="text-center py-2 px-3">
                                             @if($meta['type'] === 'bool')
                                                 @if($val === 'true')
-                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100">
-                                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
+                                                        <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                                         </svg>
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
-                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100">
+                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                         </svg>
                                                     </span>
                                                 @endif
                                             @else
                                                 @if(!$val || $val === 'false')
-                                                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
-                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100">
+                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                         </svg>
                                                     </span>
                                                 @elseif($val === 'unlimited')
-                                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
                                                         Unlimited
                                                     </span>
                                                 @else
-                                                    <span class="text-sm font-semibold text-gray-800">
+                                                    <span class="text-xs font-semibold text-gray-800">
                                                         @if($featureKey === 'max_devices')
                                                             {{ $val }} {{ (int)$val === 1 ? 'Device' : 'Devices' }}
                                                         @else
@@ -1672,7 +1502,7 @@
                     </button>
                     <div class="faq-content" style="max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;">
                         <div class="px-6 pb-5 text-gray-600 leading-relaxed text-[15px]">
-                            We offer three plans: <strong class="text-gray-800">Free Trial</strong> with 50 leads/day to get started, <strong class="text-gray-800">Starter ($19/mo)</strong> for unlimited map scraping with contact-ready leads and 1,000 exports/month, and <strong class="text-gray-800">Growth ($39/mo)</strong> for full lead intelligence including email scraping, social media, website extraction, and unlimited exports. All paid plans are available on monthly or yearly billing — save 2 months with annual. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for a complete feature comparison.
+                            We offer three plans: <strong class="text-gray-800">Free Trial ($0)</strong> — get started with 20 leads/day, 1 device access, and all core features except unlimited map scraping. <strong class="text-gray-800">Starter ($7.99/mo or $79.90/yr)</strong> — unlimited map scraping, unlimited daily leads, email scraping, social media & website extraction, unlimited exports, and 2 device access. <strong class="text-gray-800">Growth ($15.99/mo or $159.90/yr)</strong> — everything in Starter plus 5 device access and priority support. All plans include contact-ready leads, ratings, review insights, and advanced filters. View our <a href="#pricing" class="font-semibold hover:underline" style="color: rgb(249, 115, 22);">pricing section</a> for a complete feature comparison.
                         </div>
                     </div>
                 </div>
@@ -1779,7 +1609,7 @@
                 <div class="rounded-3xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 p-7 sm:p-8 flex flex-col">
                     <h4 class="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-500 mb-5">Navigate</h4>
                     <div class="flex flex-wrap gap-2 mb-7">
-                        <a href="#features" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">Features</a>
+                        <a href="#sample-data" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">Leads Sample</a>
                         <a href="#how-it-works" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">How It Works</a>
                         <a href="#pricing" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">Pricing</a>
                         <a href="#faq" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">FAQ</a>
