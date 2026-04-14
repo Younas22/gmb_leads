@@ -90,7 +90,7 @@
       "@@context": "https://schema.org",
       "@@type": "Organization",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
-      "url": "{{ url('/') }}",
+      "url": "https://www.customernearme.com",
       "logo": "{{ asset('public/' . \App\Models\Setting::get('site_logo', 'assets/images/logo.png')) }}",
       "description": "AI-powered lead generation platform that pulls real-time verified business data directly from Google Maps for direct client hunting, cold email campaigns, and sales outreach",
       "sameAs": [
@@ -125,7 +125,7 @@
       "@@type": "SaaSProduct",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}",
       "description": "Real-time Google Maps lead generation tool for direct client hunting. Find verified business data for cold email, sales, and lead generation campaigns.",
-      "url": "{{ url('/') }}",
+      "url": "https://www.customernearme.com",
       "logo": "{{ asset('public/' . \App\Models\Setting::get('site_logo', 'assets/images/logo.png')) }}",
       "applicationCategory": [
         "BusinessApplication",
@@ -138,7 +138,7 @@
         "lowPrice": "0",
         "highPrice": "99",
         "offerCount": 3,
-        "url": "{{ url('/') }}#pricing"
+        "url": "https://www.customernearme.com#pricing"
       },
       "featureList": [
         "Real-time Google Maps business data integration",
@@ -218,10 +218,10 @@
     {
       "@@context": "https://schema.org",
       "@@type": "WebPage",
-      "@@id": "{{ url('/') }}",
+      "@@id": "https://www.customernearme.com",
       "name": "{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Real Google Maps Business Leads for Direct Client Hunting",
       "description": "Find verified business leads directly from Google Maps for cold email, sales, and direct client hunting. Real-time data, no fake scraping.",
-      "url": "{{ url('/') }}",
+      "url": "https://www.customernearme.com",
       "image": "{{ asset('public/assets/images/og-image.png') }}",
       "datePublished": "2023-01-01",
       "dateModified": "{{ date('Y-m-d') }}",
@@ -247,31 +247,31 @@
           "@@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "{{ url('/') }}"
+          "item": "https://www.customernearme.com"
         },
         {
           "@@type": "ListItem",
           "position": 2,
           "name": "Features",
-          "item": "{{ url('/') }}#features"
+          "item": "https://www.customernearme.com#features"
         },
         {
           "@@type": "ListItem",
           "position": 3,
           "name": "How It Works",
-          "item": "{{ url('/') }}#how-it-works"
+          "item": "https://www.customernearme.com#how-it-works"
         },
         {
           "@@type": "ListItem",
           "position": 4,
           "name": "Pricing",
-          "item": "{{ url('/') }}#pricing"
+          "item": "https://www.customernearme.com#pricing"
         },
         {
           "@@type": "ListItem",
           "position": 5,
           "name": "FAQ",
-          "item": "{{ url('/') }}#faq"
+          "item": "https://www.customernearme.com#faq"
         }
       ]
     }
@@ -317,7 +317,7 @@
       },
       "telephone": "+92-346-0820722",
       "email": "info@customernearme.com",
-      "url": "{{ url('/') }}",
+      "url": "https://www.customernearme.com",
       "serviceArea": {
         "@@type": "Place",
         "name": "Worldwide"
@@ -364,7 +364,7 @@
             <div class="flex items-center justify-between h-[72px]">
 
                 <!-- Logo -->
-                <a href="{{ url('/') }}" class="flex items-center gap-2.5 flex-shrink-0 group" aria-label="CustomerNearme Home">
+                <a href="https://www.customernearme.com" class="flex items-center gap-2.5 flex-shrink-0 group" aria-label="CustomerNearme Home">
                     @php
                         $siteLogo = \App\Models\Setting::get('site_logo');
                         $siteName = \App\Models\Setting::get('site_name', config('app.name'));
@@ -1579,7 +1579,7 @@
                 <!-- logo badge -->
                 <div class="relative mx-6">
                     <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-orange-400/20 via-blue-400/10 to-transparent blur-xl"></div>
-                    <a href="{{ url('/') }}" class="relative flex items-center gap-3 bg-white rounded-2xl px-6 py-3.5 shadow-lg shadow-gray-200/60 ring-1 ring-gray-100 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                    <a href="https://www.customernearme.com" class="relative flex items-center gap-3 bg-white rounded-2xl px-6 py-3.5 shadow-lg shadow-gray-200/60 ring-1 ring-gray-100 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                         @php
                             $footerLogo = \App\Models\Setting::get('site_logo');
                             $footerSiteName = \App\Models\Setting::get('site_name', config('app.name'));
