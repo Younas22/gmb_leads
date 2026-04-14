@@ -15,7 +15,7 @@
     <meta property="og:title" content="Terms of Service - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
     <meta property="og:description" content="Terms of Service for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Read our terms and conditions for using the platform." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ url('/terms-and-conditions') }}" />
+    <meta property="og:url" content="https://www.customernearme.com/terms-and-conditions" />
     <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
 
     <!-- Twitter Card -->

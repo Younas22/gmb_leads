@@ -15,7 +15,7 @@
     <meta property="og:title" content="Privacy Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
     <meta property="og:description" content="Privacy Policy for {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}. Learn how we collect, use, and protect your personal data." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ url('/privacy-policy') }}" />
+    <meta property="og:url" content="https://www.customernearme.com/privacy-policy" />
     <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
 
     <!-- Twitter Card -->
