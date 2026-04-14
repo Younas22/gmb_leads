@@ -938,10 +938,7 @@ document.getElementById('btn-csv-single').addEventListener('click', () => {
   exportSingleCSV(singleData, 'business_data.csv');
 });
 
-document.getElementById('btn-csv-bulk').addEventListener('click', () => {
-  if (!bulkData.length) return;
-  exportBulkCSV(bulkData, 'bulk_businesses.csv');
-});
+// btn-csv-bulk hidden from UI — kept for programmatic use only
 
 function csvCell(v) {
   return `"${String(v || '').replace(/"/g, '""')}"`;

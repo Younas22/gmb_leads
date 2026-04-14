@@ -409,10 +409,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'scrape') {
     const url = location.href;
 
+    // Detect if this looks like a search results page (has visible business cards)
+    const hasSearchCards = !!(
+      document.querySelector('.Nv2PK') ||
+      document.querySelector('div[role="feed"]') ||
+      document.querySelector('[data-result-index]')
+    );
+
     if (url.includes('/maps/place/')) {
       const data = scrapeSingleBusiness();
       sendResponse({ success: true, mode: 'single', data });
-    } else if (url.includes('/maps/search/') || url.includes('/maps/@')) {
+    } else if (
+      url.includes('/maps/search/') ||
+      url.includes('/maps/@') ||
+      url.includes('maps.google.com') ||
+      url.includes('?q=') ||
+      url.includes('?query=') ||
+      hasSearchCards
+    ) {
       const businesses = scrapeSearchResults();
       sendResponse({ success: true, mode: 'bulk', businesses, count: businesses.length });
     } else {
