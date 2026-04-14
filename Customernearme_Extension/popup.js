@@ -605,79 +605,6 @@ async function fetchAndUpdateSingleWebsite(url) {
 }
 
 // =============================================
-// BULK DEEP SCRAPE — main loop (popup navigates tab)
-// =============================================
-async function scrapeBulkDeep(tab, placeUrls, searchUrl) {
-  // bulkData reset nahi karte — naya data append hoga (duplicate prevention)
-  showProgress();
-  showView('bulk');
-  const existingCount = bulkData.length;
-  document.getElementById('bulk-count').textContent = `${existingCount}/${existingCount + placeUrls.length} scraped`;
-
-  for (let i = 0; i < placeUrls.length; i++) {
-    updateProgress(i + 1, placeUrls.length, 'Navigating to business page...');
-
-    try {
-      await chrome.tabs.update(tab.id, { url: placeUrls[i] });
-      await waitForTabLoad(tab.id);
-
-      updateProgress(i + 1, placeUrls.length, 'Waiting for Maps to load...');
-      const rendered = await waitForMapsContent(tab.id);
-
-      if (!rendered) {
-        bulkData.push({ name: null, url: placeUrls[i] });
-        displayBulkDeep(bulkData);
-        continue;
-      }
-
-      updateProgress(i + 1, placeUrls.length, 'Loading reviews...');
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          const panel = document.querySelector('div[role="main"]');
-          if (panel) panel.scrollTop = 1500;
-        }
-      });
-      await sleep(900);
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          const panel = document.querySelector('div[role="main"]');
-          if (panel) panel.scrollTop = 3500;
-        }
-      });
-      await sleep(2000);
-
-      updateProgress(i + 1, placeUrls.length, 'Scraping business details...');
-      const resp = await chrome.tabs.sendMessage(tab.id, { action: 'scrape' });
-      const data = (resp?.success && resp?.data) ? resp.data : {};
-      data.url = placeUrls[i];
-
-      if (data.website) {
-        updateProgress(i + 1, placeUrls.length, 'Fetching website for emails...');
-        const webData = await fetchWebsiteRawData(data.website);
-        data.emails       = webData.emails;
-        data.social_links = [...new Set([...(data.social_links || []), ...webData.socialLinks])];
-      }
-
-      bulkData.push(data);
-
-    } catch(e) {
-      bulkData.push({ name: null, url: placeUrls[i], _error: e.message });
-    }
-
-    displayBulkDeep(bulkData);
-    document.getElementById('bulk-count').textContent =
-      `${bulkData.length}/${existingCount + placeUrls.length} scraped`;
-  }
-
-  try { await chrome.tabs.update(tab.id, { url: searchUrl }); } catch(e) {}
-
-  updateProgress(placeUrls.length, placeUrls.length, 'Done!');
-  setTimeout(hideProgress, 3000);
-}
-
-// =============================================
 // BULK DEEP — DISPLAY (rich cards)
 // =============================================
 function displayBulkDeep(businesses) {
@@ -866,75 +793,29 @@ btnScrape.addEventListener('click', async () => {
         setStatus('No details found. Please wait for the page to fully load.', 'error');
       }
 
-    // ===== BULK MODE — Deep scrape each business =====
+    // ===== BULK MODE — Background service worker ko delegate karo =====
     } else if (response.mode === 'bulk') {
       modeBadge.textContent = 'Bulk';
+      showView('bulk');
+      showProgress();
 
-      // Auto-scroll to collect at least 20 business URLs
-      const TARGET_URLS    = 20;
-      const MAX_SCROLLS    = 30;
-      const searchUrl      = tab.url;
-      let placeUrls        = [];
-      let prevCount        = -1;
-      let noNewCount       = 0;
-      let scrollAttempts   = 0;
-
-      setStatus('Looking for businesses...', '');
-
-      while (scrollAttempts < MAX_SCROLLS) {
-        const urlsResp = await chrome.tabs.sendMessage(tab.id, { action: 'get_bulk_urls' });
-        placeUrls = urlsResp?.urls || [];
-
-        if (placeUrls.length >= TARGET_URLS) break;          // enough found
-
-        if (placeUrls.length === prevCount) {
-          noNewCount++;
-          if (noNewCount >= 3) break;                        // 3 tries mein nayi cards nahi aayi — list khatam
-        } else {
-          noNewCount = 0;
+      // Background service worker ko start karo — popup close hone par bhi kaam karega
+      const result = await chrome.runtime.sendMessage({
+        action:    'start_bulk_scrape',
+        tabId:     tab.id,
+        searchUrl: tab.url,
+        auth: {
+          token:       currentAuth.token,
+          fingerprint: currentAuth.fingerprint
         }
+      });
 
-        prevCount = placeUrls.length;
-        setStatus(`${placeUrls.length} found — scrolling for more...`, '');
-
-        const scrollResp = await chrome.tabs.sendMessage(tab.id, { action: 'scroll_feed' });
-        // If scrolled to bottom (scrollTop + buffer >= scrollHeight) stop
-        if (scrollResp?.ok && scrollResp.scrollTop + 1500 >= scrollResp.scrollHeight) break;
-
-        await sleep(2500);   // wait for lazy-load
-        scrollAttempts++;
-      }
-
-      if (placeUrls.length === 0) {
-        setStatus('No business URLs found. Try scrolling the results list.', 'error');
-        btnScrape.disabled = false;
+      if (result?.ok) {
+        setStatus('Background scrape started — you can switch tabs!', 'success');
+        // Button will re-enable when background sends done/error
         return;
-      }
-
-      // Already-scraped URLs filter karo — duplicate scraping avoid karo
-      const alreadyScrapedUrls = new Set(bulkData.map(b => b.url).filter(Boolean));
-      const newUrls = placeUrls.filter(u => !alreadyScrapedUrls.has(u));
-
-      if (newUrls.length === 0) {
-        setStatus(`All ${placeUrls.length} businesses already scraped. Scroll down for new results.`, 'error');
-        btnScrape.disabled = false;
-        return;
-      }
-
-      const existingCount = alreadyScrapedUrls.size;
-      const msg = existingCount > 0
-        ? `${newUrls.length} new businesses found (${existingCount} already scraped) — starting deep scrape...`
-        : `${newUrls.length} businesses found — starting deep scrape...`;
-      setStatus(msg, 'success');
-
-      await scrapeBulkDeep(tab, newUrls, searchUrl);
-
-      const successLeads = bulkData.filter(b => b.name);
-      setStatus(`Done! ${successLeads.length}/${placeUrls.length} businesses scraped.`, 'success');
-
-      // Save to server
-      if (successLeads.length > 0) {
-        await saveLeadsToServer(successLeads, extractSearchData(searchUrl));
+      } else {
+        setStatus(result?.error || 'Failed to start background scrape.', 'error');
       }
     }
 
@@ -950,13 +831,63 @@ btnScrape.addEventListener('click', async () => {
 });
 
 // =============================================
+// BACKGROUND SERVICE WORKER — Messages
+// =============================================
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.action === 'bg_progress') {
+    updateProgress(msg.current, msg.total, msg.phase);
+    document.getElementById('bulk-count').textContent =
+      `${msg.bulkCount || 0}/${msg.totalExpected || msg.total} scraped`;
+  }
+
+  if (msg.action === 'bg_bulk_update') {
+    bulkData = msg.bulkData || [];
+    displayBulkDeep(bulkData);
+    document.getElementById('bulk-count').textContent =
+      `${bulkData.length}/${msg.totalExpected || bulkData.length} scraped`;
+  }
+
+  if (msg.action === 'bg_done') {
+    bulkData = msg.bulkData || [];
+    displayBulkDeep(bulkData);
+    setStatus(msg.status || 'Done!', 'success');
+    hideProgress();
+    btnScrape.disabled = false;
+  }
+
+  if (msg.action === 'bg_status') {
+    setStatus(msg.status, msg.statusType || '');
+  }
+
+  if (msg.action === 'bg_error') {
+    setStatus(msg.error, 'error');
+    hideProgress();
+    btnScrape.disabled = false;
+  }
+
+  if (msg.action === 'bg_credits_update' && currentAuth?.user) {
+    const json = msg.json || {};
+    if (json.credits_used !== undefined)
+      currentAuth.user.credits_used = json.credits_used;
+    else if (json.credits?.used !== undefined)
+      currentAuth.user.credits_used = json.credits.used;
+    else
+      currentAuth.user.credits_used = (currentAuth.user.credits_used || 0) + 1;
+    saveAuth(currentAuth);
+    updateUserBar(currentAuth.user);
+  }
+});
+
+// =============================================
 // BULK — Clear Data
 // =============================================
-document.getElementById('btn-clear-bulk').addEventListener('click', () => {
+document.getElementById('btn-clear-bulk').addEventListener('click', async () => {
   bulkData = [];
   document.getElementById('bulk-list').innerHTML = '';
   document.getElementById('bulk-count').textContent = '0 businesses found';
   setStatus('Data cleared. Ready for fresh scrape.', '');
+  // Also clear background state
+  chrome.runtime.sendMessage({ action: 'clear_bulk_data' }).catch(() => {});
 });
 
 // =============================================
@@ -1087,4 +1018,34 @@ function downloadCSV(content, filename) {
 // =============================================
 // START
 // =============================================
-initAuth();
+// START — Auth + Background State Restore
+// =============================================
+async function restoreBackgroundState() {
+  try {
+    const state = await chrome.runtime.sendMessage({ action: 'get_scrape_state' });
+    if (!state) return;
+
+    // Agar koi scraped data hai to restore karo
+    if (state.bulkData?.length > 0) {
+      bulkData = state.bulkData;
+      modeBadge.textContent = 'Bulk';
+      displayBulkDeep(bulkData);
+      showView('bulk');
+      document.getElementById('bulk-count').textContent = `${bulkData.length} scraped`;
+    }
+
+    // Agar scrape abhi bhi chal rahi hai
+    if (state.running) {
+      showProgress();
+      updateProgress(
+        state.progress.current,
+        state.progress.total,
+        state.progress.phase
+      );
+      setStatus('Background scrape running...', '');
+      btnScrape.disabled = true;
+    }
+  } catch(e) {}
+}
+
+initAuth().then(() => restoreBackgroundState());
