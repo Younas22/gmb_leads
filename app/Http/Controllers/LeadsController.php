@@ -220,7 +220,7 @@ public function index(Request $request)
         $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:not_contacted,contacted,responded,converted,not_interested'
+            'status' => 'required|in:not_contacted,contacted,responded,converted,not_interested,closed'
         ]);
 
         $lead->update([
@@ -283,7 +283,7 @@ public function index(Request $request)
             'action' => 'required|in:delete,update_status',
             'lead_ids' => 'required|array',
             'lead_ids.*' => 'integer|exists:saved_leads,id',
-            'status' => 'required_if:action,update_status|in:not_contacted,contacted,responded,converted,not_interested'
+            'status' => 'required_if:action,update_status|in:not_contacted,contacted,responded,converted,not_interested,closed'
         ]);
         
         $leadIds = $request->lead_ids;
