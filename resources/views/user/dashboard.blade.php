@@ -116,11 +116,13 @@ function resendVerification() {
 
 <!-- Welcome Section -->
 <div class="mb-8">
-    <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-4 sm:p-6 text-white">
-        <div class="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-            <div class="flex-1 lg:pr-6">
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">Welcome back, {{ $user->first_name }}!</h1>
-                <p class="text-primary-100 text-sm sm:text-base">
+    <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-5 sm:p-7 text-white">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+
+            <!-- Left: Welcome text + system overview -->
+            <div class="flex-1">
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-1">Welcome back, {{ $user->first_name }}!</h1>
+                <p class="text-primary-100 text-sm sm:text-base mb-5">
                     @if($usageData['daily_leads']['is_unlimited'])
                         You have unlimited leads today. Start building your business network!
                     @elseif($usageData['daily_leads']['has_plan'])
@@ -129,29 +131,81 @@ function resendVerification() {
                         Start searching for businesses to build your lead database.
                     @endif
                 </p>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:flex-shrink-0">
-                @if(!auth()->user()->hasRestrictedAccess())
-                    <a href="{{ route('user.tutorials') }}" class="inline-flex items-center justify-center bg-orange-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm sm:text-base">
-                        <i class="fas fa-play-circle mr-2"></i>
-                        <span class="hidden sm:inline">Watch </span>Tutorials
-                    </a>
-                    <a href="{{ route('user.search') }}" class="inline-flex items-center justify-center bg-white text-primary-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm sm:text-base">
-                        <i class="fas fa-search mr-2"></i>
-                        <span class="hidden sm:inline">Start </span>Searching
-                    </a>
 
-                    <a href="{{ route('user.leads') }}" class="inline-flex items-center justify-center bg-primary-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-primary-900 transition-colors text-sm sm:text-base">
-                        <i class="fas fa-bookmark mr-2"></i>
-                        <span class="hidden sm:inline">View </span>Leads
-                    </a>
-                @else
-                    <a href="{{ route('user.subscription') }}" class="inline-flex items-center justify-center bg-yellow-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm sm:text-base">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span class="hidden sm:inline">View </span>Subscription Status
-                    </a>
-                @endif
+                <!-- System overview steps -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
+                            <i class="fas fa-puzzle-piece text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm">1. Add Extension</p>
+                            <p class="text-primary-100 text-xs mt-0.5">Install the Chrome Extension to start scraping Google Maps businesses</p>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
+                            <i class="fas fa-search text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm">2. Find Leads</p>
+                            <p class="text-primary-100 text-xs mt-0.5">Search businesses by keyword &amp; location using our Chrome Extension</p>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
+                            <i class="fas fa-bookmark text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm">3. Save &amp; Organize</p>
+                            <p class="text-primary-100 text-xs mt-0.5">Save leads with contact details, ratings &amp; business info to your list</p>
+                        </div>
+                    </div>
+                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
+                            <i class="fas fa-download text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm">4. Export &amp; Contact</p>
+                            <p class="text-primary-100 text-xs mt-0.5">Download leads &amp; track status — Contacted, Responded, Converted</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Right: Watch Tutorials button + what's inside -->
+            @if(!auth()->user()->hasRestrictedAccess())
+            <div class="lg:flex-shrink-0 lg:w-64">
+                <a href="{{ route('user.tutorials') }}" class="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors text-sm mb-3">
+                    <i class="fas fa-play-circle text-lg"></i>
+                    Watch Tutorials
+                </a>
+                <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 space-y-2">
+                    <p class="text-primary-100 text-xs font-semibold uppercase tracking-wide mb-1">Videos included:</p>
+                    <div class="flex items-center gap-2 text-xs text-white">
+                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
+                        How to install the Chrome Extension
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-white">
+                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
+                        How to search &amp; scrape businesses
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-white">
+                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
+                        How to manage &amp; export your leads
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-white">
+                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
+                        How to track lead contact status
+                    </div>
+                </div>
+            </div>
+            @else
+                <a href="{{ route('user.subscription') }}" class="inline-flex items-center justify-center bg-yellow-500 text-white px-5 py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm">
+                    <i class="fas fa-clock mr-2"></i>View Subscription Status
+                </a>
+            @endif
+
         </div>
     </div>
 </div>
@@ -210,6 +264,32 @@ function resendVerification() {
             </div>
         </div>
     </div>
+
+    <!-- Quick Actions -->
+    @if(!auth()->user()->hasRestrictedAccess())
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <a href="{{ route('user.search') }}" class="flex items-center p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-primary-300 hover:shadow-md transition-all group">
+            <div class="bg-primary-100 group-hover:bg-primary-200 rounded-xl p-4 mr-4 transition-colors">
+                <i class="fas fa-search text-primary-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-base font-semibold text-gray-800">Find Leads</p>
+                <p class="text-sm text-gray-500">Search for new businesses</p>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300 group-hover:text-primary-400 ml-auto transition-colors"></i>
+        </a>
+        <a href="{{ route('user.leads') }}" class="flex items-center p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-green-300 hover:shadow-md transition-all group">
+            <div class="bg-green-100 group-hover:bg-green-200 rounded-xl p-4 mr-4 transition-colors">
+                <i class="fas fa-bookmark text-green-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-base font-semibold text-gray-800">My Leads</p>
+                <p class="text-sm text-gray-500">View your saved leads</p>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300 group-hover:text-green-400 ml-auto transition-colors"></i>
+        </a>
+    </div>
+    @endif
 
     <!-- Current Plan Stats -->
     @if($currentPlan)

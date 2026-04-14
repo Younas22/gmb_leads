@@ -51,106 +51,51 @@
                 </div>
             </div>
 
-            <!-- Tutorial Categories -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Getting Started -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-rocket text-2xl"></i>
-                            <div>
-                                <h3 class="text-xl font-bold">Getting Started</h3>
-                                <p class="text-blue-100">Dashboard, Find Leads, My Leads, Extension</p>
-                            </div>
+            <!-- All Tutorials -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-rocket text-2xl"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">All Tutorials</h3>
+                            <p class="text-blue-100">Dashboard, Find Leads, My Leads, Extension, Subscription, Profile & more</p>
                         </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        @foreach($tutorials as $tutorial)
-                            @if($tutorial['category'] === 'getting-started')
-                                <div class="tutorial-item group cursor-pointer border rounded-lg p-4 hover:border-primary-300 hover:bg-primary-50 transition-all" 
-                                     data-tutorial="{{ $tutorial['key'] }}" 
-                                     data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="relative">
-                                            <div class="w-12 h-12 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-{{ $tutorial['icon'] }} text-{{ $tutorial['color'] }}-600"></i>
-                                            </div>
-                                            <div class="absolute -top-1 -right-1 w-5 h-5 
-                                                {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-500' : 'bg-gray-300' }} 
-                                                rounded-full flex items-center justify-center">
-                                                <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-gray-800 group-hover:text-primary-700">
-                                                {{ $tutorial['order'] }}. {{ $tutorial['title'] }}
-                                            </h4>
-                                            <p class="text-sm text-gray-600">{{ $tutorial['description'] }}</p>
-                                            <div class="flex items-center space-x-4 mt-2">
-                                                <span class="text-xs text-gray-500">{{ $tutorial['duration'] }}</span>
-                                                <span class="text-xs 
-                                                    {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }} 
-                                                    px-2 py-1 rounded">
-                                                    {{ in_array($tutorial['key'], $completedTutorials) ? 'Completed' : 'Not Started' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <i class="fas fa-play-circle text-2xl text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
                     </div>
                 </div>
-
-                <!-- Advanced Features -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-white">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-cogs text-2xl"></i>
-                            <div>
-                                <h3 class="text-xl font-bold">Advanced Features</h3>
-                                <p class="text-purple-100">Subscription, Profile, Feedback</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        @foreach($tutorials as $tutorial)
-                            @if($tutorial['category'] === 'advanced')
-                                <div class="tutorial-item group cursor-pointer border rounded-lg p-4 hover:border-primary-300 hover:bg-primary-50 transition-all" 
-                                     data-tutorial="{{ $tutorial['key'] }}" 
-                                     data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="relative">
-                                            <div class="w-12 h-12 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-{{ $tutorial['icon'] }} text-{{ $tutorial['color'] }}-600"></i>
-                                            </div>
-                                            <div class="absolute -top-1 -right-1 w-5 h-5 
-                                                {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-500' : 'bg-gray-300' }} 
-                                                rounded-full flex items-center justify-center">
-                                                <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-gray-800 group-hover:text-primary-700">
-                                                {{ $tutorial['order'] }}. {{ $tutorial['title'] }}
-                                            </h4>
-                                            <p class="text-sm text-gray-600">{{ $tutorial['description'] }}</p>
-                                            <div class="flex items-center space-x-4 mt-2">
-                                                <span class="text-xs text-gray-500">{{ $tutorial['duration'] }}</span>
-                                                <span class="text-xs 
-                                                    {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }} 
-                                                    px-2 py-1 rounded">
-                                                    {{ in_array($tutorial['key'], $completedTutorials) ? 'Completed' : 'Not Started' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <i class="fas fa-play-circle text-2xl text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    @foreach($tutorials as $tutorial)
+                        <div class="tutorial-item group cursor-pointer border rounded-lg p-4 hover:border-primary-300 hover:bg-primary-50 transition-all"
+                             data-tutorial="{{ $tutorial['key'] }}"
+                             data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}">
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <div class="w-12 h-12 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-{{ $tutorial['icon'] }} text-{{ $tutorial['color'] }}-600"></i>
+                                    </div>
+                                    <div class="absolute -top-1 -right-1 w-5 h-5
+                                        {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-500' : 'bg-gray-300' }}
+                                        rounded-full flex items-center justify-center">
+                                        <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs"></i>
                                     </div>
                                 </div>
-                            @endif
-                        @endforeach
-                    </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800 group-hover:text-primary-700">
+                                        {{ $tutorial['order'] }}. {{ $tutorial['title'] }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600">{{ $tutorial['description'] }}</p>
+                                    <div class="flex items-center space-x-4 mt-2">
+                                        <span class="text-xs text-gray-500">{{ $tutorial['duration'] }}</span>
+                                        <span class="text-xs
+                                            {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}
+                                            px-2 py-1 rounded">
+                                            {{ in_array($tutorial['key'], $completedTutorials) ? 'Completed' : 'Not Started' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <i class="fas fa-play-circle text-2xl text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 

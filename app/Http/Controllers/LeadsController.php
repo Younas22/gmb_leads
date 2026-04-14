@@ -28,7 +28,11 @@ public function index(Request $request)
     $rating = $request->get('rating');
     $lastReview = $request->get('last_review');
     $reviewsCount = $request->get('reviews_count');
+    $hasEmail = $request->get('has_email');
+    $hasPhone = $request->get('has_phone');
+    $hasWebsite = $request->get('has_website');
     $perPage = $request->get('per_page', 30);
+    $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
     $selectedUserId = $request->get('user_id'); // User filter
 
     // Determine the account owner (company or user itself)
@@ -116,6 +120,21 @@ public function index(Request $request)
         }
     }
 
+    // Has Email filter
+    if ($hasEmail === '1') {
+        $query->whereNotNull('email')->where('email', '!=', '');
+    }
+
+    // Has Phone filter
+    if ($hasPhone === '1') {
+        $query->whereNotNull('phone')->where('phone', '!=', '');
+    }
+
+    // Has Website filter
+    if ($hasWebsite === '1') {
+        $query->whereNotNull('website')->where('website', '!=', '');
+    }
+
     // Get leads with pagination
     $leads = $query->orderBy('created_at', 'desc')
                   ->paginate($perPage)
@@ -130,7 +149,8 @@ public function index(Request $request)
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats',
         'search', 'countryId', 'stateId', 'cityId',
-        'status', 'rating', 'lastReview', 'reviewsCount', 'selectedUserId'
+        'status', 'rating', 'lastReview', 'reviewsCount',
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId'
     ));
     
 }
@@ -347,6 +367,9 @@ public function index(Request $request)
         $rating = $request->get('rating');
         $lastReview = $request->get('last_review');
         $reviewsCount = $request->get('reviews_count');
+        $hasEmail = $request->get('has_email');
+        $hasPhone = $request->get('has_phone');
+        $hasWebsite = $request->get('has_website');
 
         // Build query with same filters
         $query = SavedLead::where('user_id', $user->id);
@@ -407,6 +430,16 @@ public function index(Request $request)
             } elseif ($reviewsCount === 'gte100') {
                 $query->where('total_reviews', '>=', 100);
             }
+        }
+
+        if ($hasEmail === '1') {
+            $query->whereNotNull('email')->where('email', '!=', '');
+        }
+        if ($hasPhone === '1') {
+            $query->whereNotNull('phone')->where('phone', '!=', '');
+        }
+        if ($hasWebsite === '1') {
+            $query->whereNotNull('website')->where('website', '!=', '');
         }
 
         // Get all leads (not paginated for export) with relationships
@@ -559,6 +592,9 @@ public function index(Request $request)
         $rating = $request->get('rating');
         $lastReview = $request->get('last_review');
         $reviewsCount = $request->get('reviews_count');
+        $hasEmail = $request->get('has_email');
+        $hasPhone = $request->get('has_phone');
+        $hasWebsite = $request->get('has_website');
 
         // Build query with same filters
         $query = SavedLead::where('user_id', $user->id);
@@ -619,6 +655,16 @@ public function index(Request $request)
             } elseif ($reviewsCount === 'gte100') {
                 $query->where('total_reviews', '>=', 100);
             }
+        }
+
+        if ($hasEmail === '1') {
+            $query->whereNotNull('email')->where('email', '!=', '');
+        }
+        if ($hasPhone === '1') {
+            $query->whereNotNull('phone')->where('phone', '!=', '');
+        }
+        if ($hasWebsite === '1') {
+            $query->whereNotNull('website')->where('website', '!=', '');
         }
 
         // Get all leads (not paginated for export) with relationships

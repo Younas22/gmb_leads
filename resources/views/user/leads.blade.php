@@ -207,6 +207,7 @@
         <option value="closed"        {{ $status == 'closed'        ? 'selected' : '' }}>Closed</option>
     </select>
 
+
     @if(auth()->user()->hasFeature('advanced_review_filters'))
         <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
             <option value="">Rating</option>
@@ -272,6 +273,47 @@
 
 </div>
 
+<!-- Has Email / Phone / Website toggle row -->
+<div class="flex items-center gap-4 mt-2.5 pt-2.5 border-t border-gray-200">
+    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide flex-shrink-0">Has:</span>
+
+    <!-- Email -->
+    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+        <input type="hidden" name="has_email" value="{{ ($hasEmail ?? '') == '1' ? '1' : '' }}">
+        <button type="button"
+            onclick="toggleFilter(this, 'has_email')"
+            data-active="{{ ($hasEmail ?? '') == '1' ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasEmail ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasEmail ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+        </button>
+        <span class="text-xs text-gray-600">Email</span>
+    </label>
+
+    <!-- Phone -->
+    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+        <input type="hidden" name="has_phone" value="{{ ($hasPhone ?? '') == '1' ? '1' : '' }}">
+        <button type="button"
+            onclick="toggleFilter(this, 'has_phone')"
+            data-active="{{ ($hasPhone ?? '') == '1' ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasPhone ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasPhone ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+        </button>
+        <span class="text-xs text-gray-600">Phone</span>
+    </label>
+
+    <!-- Website -->
+    <label class="flex items-center gap-1.5 cursor-pointer select-none">
+        <input type="hidden" name="has_website" value="{{ ($hasWebsite ?? '') == '1' ? '1' : '' }}">
+        <button type="button"
+            onclick="toggleFilter(this, 'has_website')"
+            data-active="{{ ($hasWebsite ?? '') == '1' ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasWebsite ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasWebsite ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+        </button>
+        <span class="text-xs text-gray-600">Website</span>
+    </label>
+</div>
+
 </form>
 
 
@@ -281,8 +323,8 @@
             <div class="p-4 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 rounded border-gray-300">
-                        <label for="selectAll" class="text-sm text-gray-700">Select All</label>
+                        <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 rounded border-gray-300 cursor-pointer">
+                        <label for="selectAll" class="text-sm text-gray-700 cursor-pointer">Select All</label>
                         <span id="selectedCount" class="text-sm text-gray-500">(0 selected)</span>
                     </div>
                     
@@ -298,9 +340,9 @@
                         <button onclick="bulkUpdateStatus()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
                             Update Status
                         </button>
-                        <!-- <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
-                            Delete Selected
-                        </button> -->
+                        <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-trash mr-1"></i>Delete Selected
+                        </button>
                     </div>
 
                     <!-- Export Button -->
@@ -563,11 +605,25 @@
         <!-- Pagination -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mt-6">
             <div class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $leads->firstItem() }}</span> to 
-                        <span class="font-medium">{{ $leads->lastItem() }}</span> of 
-                        <span class="font-medium">{{ $leads->total() }}</span> results
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="text-sm text-gray-700">
+                            Showing <span class="font-medium">{{ $leads->firstItem() }}</span> to
+                            <span class="font-medium">{{ $leads->lastItem() }}</span> of
+                            <span class="font-medium">{{ $leads->total() }}</span> results
+                        </div>
+                        <!-- Per Page Selector -->
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs text-gray-500">Per page:</span>
+                            <select onchange="changePerPage(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-primary-400">
+                                <option value="10"  {{ request('per_page', 30) == 10  ? 'selected' : '' }}>10</option>
+                                <option value="20"  {{ request('per_page', 30) == 20  ? 'selected' : '' }}>20</option>
+                                <option value="30"  {{ request('per_page', 30) == 30  ? 'selected' : '' }}>30</option>
+                                <option value="50"  {{ request('per_page', 30) == 50  ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page', 30) == 100 ? 'selected' : '' }}>100</option>
+                                <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
+                            </select>
+                        </div>
                     </div>
                     {{ $leads->links('pagination::tailwind') }}
                 </div>
@@ -1322,6 +1378,35 @@ $(document).ready(function() {
             });
     }
 });
+
+// Toggle Email/Phone/Website filter buttons
+function toggleFilter(btn, fieldName) {
+    const isActive = btn.dataset.active === '1';
+    const newActive = !isActive;
+
+    btn.dataset.active = newActive ? '1' : '0';
+    btn.classList.toggle('bg-green-500', newActive);
+    btn.classList.toggle('bg-gray-300', !newActive);
+
+    const knob = btn.querySelector('span');
+    knob.classList.toggle('translate-x-4', newActive);
+    knob.classList.toggle('translate-x-0', !newActive);
+
+    // Update the hidden input value
+    const hiddenInput = btn.closest('label').querySelector('input[type="hidden"]');
+    hiddenInput.value = newActive ? '1' : '';
+
+    // Auto-submit form
+    btn.closest('form') && btn.closest('form').submit();
+}
+
+// Per page change
+function changePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
 
 // Mobile filters toggle
 function toggleFilters() {

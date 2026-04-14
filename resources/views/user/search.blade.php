@@ -8,6 +8,21 @@
 
 <div class="p-4 lg:p-8">
 
+<!-- Search Heading -->
+<div class="mb-5">
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl px-6 py-5 text-white">
+        <div class="flex items-center gap-4">
+            <div class="bg-white bg-opacity-20 rounded-xl p-3 flex-shrink-0">
+                <i class="fas fa-search text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold leading-tight">Find Your Next Business Leads</h1>
+                <p class="text-orange-100 text-sm mt-0.5">Search businesses by keyword &amp; location — grab contacts, ratings, and more in seconds</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Search Form -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
     <form action="{{ route('user.search.post') }}" method="POST" id="searchForm">
@@ -17,6 +32,14 @@
         <input type="hidden" name="original_lng" id="original_lng" value="{{ $searchData['original_lng'] ?? '' }}">
         <input type="hidden" name="original_state_id" id="original_state_id" value="{{ $searchData['state_id'] ?? '' }}">
         <input type="hidden" name="original_city_id" id="original_city_id" value="{{ $searchData['city_id'] ?? '' }}">
+
+        <!-- Location hint -->
+        <div class="px-4 pt-4">
+            <div class="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-2">
+                <i class="fas fa-info-circle text-blue-400 flex-shrink-0 text-sm"></i>
+                <p class="text-xs text-blue-700">Select <strong>Country</strong> first to unlock State &amp; City. Choose only <strong>State</strong> to search the entire state, or also select a <strong>City</strong> to narrow results to that city only.</p>
+            </div>
+        </div>
 
         <!-- Row 1: Search Query, Country, State, City -->
         <div class="p-4 pb-0">
@@ -85,6 +108,7 @@
                     @enderror
                 </div>
             </div>
+
         </div>
 
         <!-- Row 2: Radius, Max Reviews, Review Within Days, Search Button -->
