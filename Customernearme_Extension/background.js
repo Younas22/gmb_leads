@@ -103,14 +103,14 @@ async function safeFetch(url) {
         'Cache-Control': 'no-cache'
       },
       redirect: 'follow',
-      signal: AbortSignal.timeout(8000)
+      signal: AbortSignal.timeout(5000)  // 5s per request (was 8s)
     });
     if (!res.ok) return null;
     return await res.text();
   } catch(e) { return null; }
 }
 
-async function fetchWebsiteRawData(url) {
+async function _fetchWebsiteRawDataInner(url) {
   if (isSocialUrl(url)) return { emails: [], socialLinks: [url.replace(/\/$/, '')] };
 
   let emails = [], socialLinks = [];
@@ -136,6 +136,14 @@ async function fetchWebsiteRawData(url) {
   }
 
   return { emails: emails.slice(0, 10), socialLinks: socialLinks.slice(0, 10) };
+}
+
+// Hard 12-second total cap — if website doesn't respond, skip and move on
+async function fetchWebsiteRawData(url) {
+  const timeout = new Promise(resolve =>
+    setTimeout(() => resolve({ emails: [], socialLinks: [], timedOut: true }), 12000)
+  );
+  return Promise.race([_fetchWebsiteRawDataInner(url), timeout]);
 }
 
 // =============================================
@@ -417,7 +425,7 @@ async function runContinuousScrape(tabId, searchUrl, auth) {
 // =============================================
 // MESSAGE LISTENER
 // =============================================
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   if (request.action === 'start_bulk_scrape') {
     if (scrapeState.running) {
