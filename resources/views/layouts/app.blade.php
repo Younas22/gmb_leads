@@ -616,15 +616,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm mr-4">3</div>
                     <div class="flex-1">
                         <p class="font-medium text-gray-800 mb-2">Open Chrome Extensions Page</p>
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-                            <p class="text-xs text-yellow-800 font-medium mb-1">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i>
-                                Chrome security ki wajah se yeh page directly open nahi ho sakta
-                            </p>
-                            <p class="text-xs text-yellow-700">
-                                Neeche button dabayen — URL copy ho jaye ga. Phir Chrome address bar mein paste karen.
-                            </p>
-                        </div>
+                        
                         <button onclick="openChromeExtensions()" id="extOpenBtn" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
                             <i class="fab fa-chrome mr-2"></i>
                             <span id="extBtnText">Copy chrome://extensions</span>
@@ -632,12 +624,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div id="copyFallback" class="hidden mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
                             <p class="text-sm font-semibold text-green-800 mb-1">
                                 <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                                URL copy ho gaya!
+                                URL Copied!
                             </p>
                             <ol class="text-xs text-green-700 space-y-1 list-decimal list-inside">
-                                <li>Chrome browser mein jayen</li>
-                                <li>Address bar par click karen (ya <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+L</kbd> dabayen)</li>
-                                <li>Paste karen <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+V</kbd> phir <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Enter</kbd></li>
+                                <li>Open Chrome browser</li>
+                                <li>Click on the address bar (or press <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+L</kbd>)</li>
+                                <li>Paste <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Ctrl+V</kbd> then press <kbd class="bg-green-100 px-1 rounded border border-green-300 font-mono">Enter</kbd></li>
                             </ol>
                         </div>
                     </div>
