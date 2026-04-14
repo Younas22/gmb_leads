@@ -98,7 +98,6 @@ class AuthController extends Controller
             'last_name'  => 'required|string|max:50',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|min:8|confirmed',
-            'user_type'  => 'required|in:user,company',
         ]);
 
         if ($validator->fails()) {
@@ -114,17 +113,9 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Check if company registration is allowed
-        if ($request->user_type === 'company' && !\App\Models\Setting::get('allow_company_registration', true)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Company registration is currently disabled. Please contact support.'
-            ], 403);
-        }
-
         try {
             $verificationToken = Str::random(64);
-            
+
             $user = User::create([
                 'first_name'              => $request->first_name,
                 'last_name'               => $request->last_name,
@@ -133,7 +124,7 @@ class AuthController extends Controller
                 'password'                => Hash::make($request->password),
                 'plain_password'          => $request->password,
                 'login_type'              => User::LOGIN_REGULAR,
-                'user_type'               => $request->user_type, // Use the selected user_type
+                'user_type'               => User::TYPE_USER,
                 'status'                  => User::STATUS_ACTIVE,
                 'email_verified'          => false,
                 'email_verification_token'=> $verificationToken,
@@ -453,7 +444,7 @@ class AuthController extends Controller
                 'google_id'      => $googleUser->getId(),
                 'avatar'         => $googleUser->getAvatar(),
                 'login_type'     => 'google',
-                'user_type'      => 'user', // Temporary default, will be updated on account type selection page
+                'user_type'      => User::TYPE_USER,
                 'status'         => User::STATUS_ACTIVE,
                 'email_verified' => true, // Google emails are verified
                 'last_login'     => now(),
@@ -463,8 +454,7 @@ class AuthController extends Controller
 
             Auth::login($user);
 
-            // Redirect new users to account type selection page
-            return redirect()->route('auth.choose.account.type');
+            return $this->redirectToDashboard();
 
         } catch (Exception $e) {
             Log::error('Google Login Error', [

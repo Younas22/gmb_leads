@@ -288,8 +288,8 @@
                         <label class="account-type-card relative bg-white rounded-2xl border-2 border-gray-200 p-6 sm:p-8 cursor-pointer">
                             <input type="radio" name="user_type" value="user" checked class="peer sr-only">
 
-                            <!-- Selection Badge -->
-                            <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
+                            <!-- Selection Badge (hidden from design) -->
+                            <div class="absolute top-4 right-4 sm:top-6 sm:right-6 hidden">
                                 <div class="w-7 h-7 rounded-full border-2 border-gray-300 bg-white flex items-center justify-center peer-checked:bg-primary-orange peer-checked:border-primary-orange transition-all duration-300">
                                     <i class="fas fa-check text-white text-xs opacity-0 peer-checked:opacity-100 check-mark-animate"></i>
                                 </div>
@@ -310,34 +310,60 @@
                                     </p>
                                 </div>
 
-                                <!-- Features -->
+                                <!-- Plans available -->
                                 <div class="pt-5 border-t border-gray-100 w-full">
-                                    <ul class="space-y-3 text-left">
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
+                                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Plans Available</p>
+
+                                    <!-- Free Trial -->
+                                    <div class="mb-3 rounded-xl bg-gray-50 border border-gray-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-sm font-bold text-gray-900">Free Trial</span>
+                                            <span class="text-sm font-extrabold text-gray-700">$0<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Basic business signals
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> 20 leads / day &bull; 1 device
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Starter -->
+                                    <div class="mb-3 rounded-xl bg-orange-50 border border-orange-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-sm font-bold text-gray-900">Starter</span>
+                                            <span class="text-sm font-extrabold text-primary-orange">$8<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Unlimited map scraping + contact leads
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Unlimited leads / day &bull; 2 devices
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Growth -->
+                                    <div class="rounded-xl bg-blue-50 border border-blue-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-sm font-bold text-gray-900">Growth</span>
+                                                <span class="text-xs font-semibold text-primary-orange bg-orange-100 px-1.5 py-0.5 rounded-full">Popular</span>
                                             </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Personal dashboard</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Basic lead exports</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Standard support</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Flexible pricing</span>
-                                        </li>
-                                    </ul>
+                                            <span class="text-sm font-extrabold text-dark-blue">$16<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Email, social & website scraping
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Priority support &bull; 5 devices
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <!-- Badge -->
@@ -354,8 +380,8 @@
                         <label class="account-type-card relative bg-white rounded-2xl border-2 border-gray-200 p-6 sm:p-8 {{ $allowCompanyRegistration ? 'cursor-pointer' : 'cursor-not-allowed opacity-50' }}">
                             <input type="radio" name="user_type" value="company" class="peer sr-only" {{ $allowCompanyRegistration ? '' : 'disabled' }}>
 
-                            <!-- Selection Badge -->
-                            <div class="absolute top-4 right-4 sm:top-6 sm:right-6">
+                            <!-- Selection Badge (hidden from design) -->
+                            <div class="absolute top-4 right-4 sm:top-6 sm:right-6 hidden">
                                 <div class="w-7 h-7 rounded-full border-2 border-gray-300 bg-white flex items-center justify-center peer-checked:bg-primary-orange peer-checked:border-primary-orange transition-all duration-300">
                                     <i class="fas fa-check text-white text-xs opacity-0 peer-checked:opacity-100 check-mark-animate"></i>
                                 </div>
@@ -376,34 +402,60 @@
                                     </p>
                                 </div>
 
-                                <!-- Features -->
+                                <!-- Plans available -->
                                 <div class="pt-5 border-t border-gray-100 w-full">
-                                    <ul class="space-y-3 text-left">
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
+                                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Plans Available</p>
+
+                                    <!-- Free Trial -->
+                                    <div class="mb-3 rounded-xl bg-gray-50 border border-gray-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-sm font-bold text-gray-900">Free Trial</span>
+                                            <span class="text-sm font-extrabold text-gray-700">$0<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Basic business signals
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> 20 leads / day &bull; 1 device
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Starter -->
+                                    <div class="mb-3 rounded-xl bg-orange-50 border border-orange-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-sm font-bold text-gray-900">Starter</span>
+                                            <span class="text-sm font-extrabold text-primary-orange">$8<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Unlimited map scraping + contact leads
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Unlimited leads / day &bull; 2 devices
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Growth -->
+                                    <div class="rounded-xl bg-blue-50 border border-blue-100 p-3 text-left">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-sm font-bold text-gray-900">Growth</span>
+                                                <span class="text-xs font-semibold text-primary-orange bg-orange-100 px-1.5 py-0.5 rounded-full">Popular</span>
                                             </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Team collaboration</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Bulk lead exports</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Priority support</span>
-                                        </li>
-                                        <li class="flex items-center gap-3">
-                                            <div class="feature-icon w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-check text-green-600 text-xs"></i>
-                                            </div>
-                                            <span class="text-sm sm:text-base text-gray-700">Advanced analytics</span>
-                                        </li>
-                                    </ul>
+                                            <span class="text-sm font-extrabold text-dark-blue">$16<span class="text-xs font-normal text-gray-400">/mo</span></span>
+                                        </div>
+                                        <ul class="space-y-1">
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Email, social & website scraping
+                                            </li>
+                                            <li class="flex items-center gap-2 text-xs text-gray-500">
+                                                <i class="fas fa-check text-green-500 w-3"></i> Priority support &bull; 5 devices
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <!-- Badge -->

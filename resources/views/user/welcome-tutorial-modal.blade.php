@@ -1,27 +1,27 @@
 <!-- Welcome Tutorial Modal (One Time Only) -->
 <div id="welcomeTutorialModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 {{ $user->hasSeenWelcomeTutorial() ? 'hidden' : '' }}">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-primary-600 to-primary-700 p-6 text-white relative">
-                <button onclick="closeWelcomeTutorial(false)" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
-                    <i class="fas fa-times text-2xl"></i>
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 p-4 text-white relative flex-shrink-0">
+                <button onclick="closeWelcomeTutorial(false)" class="absolute top-3 right-3 text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 rounded-full p-3">
-                        <i class="fas fa-rocket text-3xl"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 rounded-full p-2">
+                        <i class="fas fa-rocket text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold mb-1">Welcome to CustomerNearMe!</h2>
-                        <p class="text-primary-100">Let's get you started with a quick 3-minute overview</p>
+                        <h2 class="text-lg font-bold leading-tight">Welcome to CustomerNearMe!</h2>
+                        <p class="text-primary-100 text-xs mt-0.5">Quick 3-minute overview to get you started</p>
                     </div>
                 </div>
             </div>
 
             <!-- Video Container -->
-            <div class="relative bg-black">
+            <div class="relative bg-black flex-1 min-h-0">
 
-            <div class="aspect-video bg-gray-900 flex items-center justify-center">
+            <div class="aspect-video bg-gray-900 flex items-center justify-center h-full">
                     @if(env('WELCOME_TUTORIAL_VIDEO_ID'))
                         <!-- YouTube Video Embed -->
                         <iframe 
@@ -60,24 +60,20 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="p-6 bg-gray-50">
-                <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="dontShowAgain" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                            <label for="dontShowAgain" class="ml-2 text-sm text-gray-600">Don't show this again</label>
-                        </div>
-                        <span class="text-gray-400">|</span>
-                        <button onclick="skipToFullTutorials()" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                            View All Tutorials
-                        </button>
+            <div class="p-3 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="dontShowAgain" class="w-3.5 h-3.5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                            <span class="text-xs text-gray-500">Don't show again</span>
+                        </label>
                     </div>
-                    <div class="flex space-x-3">
-                        <button onclick="closeWelcomeTutorial(false)" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-2">
+                        <button onclick="closeWelcomeTutorial(false)" class="px-3 py-1.5 border border-gray-300 rounded-lg text-xs text-gray-700 hover:bg-gray-100 transition-colors">
                             Maybe Later
                         </button>
-                        <button onclick="closeWelcomeTutorial(true)" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
-                            <i class="fas fa-check mr-2"></i>Got It!
+                        <button onclick="closeWelcomeTutorial(true)" class="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs transition-colors">
+                            <i class="fas fa-check mr-1"></i>Got It!
                         </button>
                     </div>
                 </div>

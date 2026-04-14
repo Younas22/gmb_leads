@@ -514,27 +514,7 @@
                                         <span class="text-red-500 text-xs mt-1 hidden" id="signupEmailError"></span>
                                     </div>
 
-                                    <!-- Account Type -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <label class="account-type-option relative flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-orange-200">
-                                                <input type="radio" name="user_type" value="user" checked class="w-4 h-4 text-primary-orange focus:ring-primary-orange/30 border-gray-300">
-                                                <div>
-                                                    <span class="block text-sm font-semibold text-gray-900">Individual</span>
-                                                    <span class="block text-xs text-gray-400">Personal use</span>
-                                                </div>
-                                            </label>
-                                            <label class="account-type-option relative flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl {{ $allowCompanyRegistration ? 'cursor-pointer hover:border-blue-200' : 'cursor-not-allowed opacity-50' }}">
-                                                <input type="radio" name="user_type" value="company" class="w-4 h-4 text-primary-orange focus:ring-primary-orange/30 border-gray-300" {{ $allowCompanyRegistration ? '' : 'disabled' }}>
-                                                <div>
-                                                    <span class="block text-sm font-semibold text-gray-900">Company</span>
-                                                    <span class="block text-xs {{ $allowCompanyRegistration ? 'text-gray-400' : 'text-red-400' }}">{{ $allowCompanyRegistration ? 'Team access' : 'Currently disabled' }}</span>
-                                                </div>
-                                            </label>
-                                        </div>
-                                        <span class="text-red-500 text-xs mt-1 hidden" id="userTypeError"></span>
-                                    </div>
+                                    <input type="hidden" name="user_type" value="user">
 
                                     <!-- Password -->
                                     <div>

@@ -46,7 +46,8 @@
     <div class="flex-1 overflow-y-auto">
         <nav class="p-4">
             @php
-                $isRestricted = auth()->user()->hasRestrictedAccess();
+                $isRestricted  = auth()->user()->hasRestrictedAccess();
+                $hasPending    = auth()->user()->subscriptions()->where('status', 'pending')->exists();
             @endphp
 
             <div class="space-y-2">
@@ -56,7 +57,7 @@
                     Dashboard
                 </a>
 
-                @if($isRestricted)
+                @if($isRestricted && $hasPending)
                     <!-- Pending Subscription Notice -->
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
                         <div class="flex items-start">
