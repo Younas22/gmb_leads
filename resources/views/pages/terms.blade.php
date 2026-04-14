@@ -9,7 +9,7 @@
     <meta name="keywords" content="terms of service, CustomerNearme terms, user agreement, terms and conditions, lead generation terms" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
-    <link rel="canonical" href="{{ url('/terms-and-conditions') }}" />
+    <link rel="canonical" href="https://www.customernearme.com/terms-and-conditions" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Terms of Service - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />

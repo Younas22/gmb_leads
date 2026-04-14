@@ -9,7 +9,7 @@
     <meta name="keywords" content="refund policy, CustomerNearme refund, subscription refund, money back policy, cancellation policy" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
-    <link rel="canonical" href="{{ url('/refund-policy') }}" />
+    <link rel="canonical" href="https://www.customernearme.com/refund-policy" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Refund Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />

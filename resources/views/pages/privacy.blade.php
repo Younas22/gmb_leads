@@ -9,7 +9,7 @@
     <meta name="keywords" content="privacy policy, CustomerNearme privacy, data protection, personal data, GDPR, user privacy" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
-    <link rel="canonical" href="{{ url('/privacy-policy') }}" />
+    <link rel="canonical" href="https://www.customernearme.com/privacy-policy" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Privacy Policy - {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />

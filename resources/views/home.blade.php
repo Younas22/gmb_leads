@@ -15,7 +15,7 @@
     <meta name="theme-color" content="#f97316" />
     
     <!-- ============ CANONICAL URL ============ -->
-    <link rel="canonical" href="{{ url()->current() }}" />
+    <link rel="canonical" href="https://www.customernearme.com/" />
     
     <!-- ============ OPEN GRAPH TAGS ============ -->
     <meta property="og:title" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} - Find Real Google Maps Business Leads for Direct Client Hunting" />
@@ -24,7 +24,7 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:url" content="https://www.customernearme.com/" />
     <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}" />
     <meta property="og:locale" content="en_US" />
     
