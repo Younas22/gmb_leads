@@ -275,6 +275,22 @@ async function initAuth() {
     await saveAuth(auth);
   }
 
+  // If device was never registered (initial registration failed), retry now
+  if (!auth.deviceId) {
+    const fp   = auth.fingerprint || generateFingerprint();
+    const name = getDeviceName();
+    if (!auth.fingerprint) auth.fingerprint = fp;
+    const devRes = await apiFetch('/register-device', 'POST',
+      { device_fingerprint: fp, device_name: name }, auth.token);
+    if (devRes.ok) {
+      auth.deviceId = devRes.data?.device?.id || devRes.data?.id || null;
+      console.log('[MapScrap] Device registered (retry):', auth.deviceId);
+      await saveAuth(auth);
+    } else {
+      console.warn('[MapScrap] Device registration retry failed:', devRes.status, devRes.data);
+    }
+  }
+
   currentAuth = auth;
   showAppView();
   updateUserBar(currentAuth.user);
@@ -804,10 +820,7 @@ btnScrape.addEventListener('click', async () => {
         action:    'start_bulk_scrape',
         tabId:     tab.id,
         searchUrl: tab.url,
-        auth: {
-          token:       currentAuth.token,
-          fingerprint: currentAuth.fingerprint
-        }
+        auth:      currentAuth
       });
 
       if (result?.ok) {
@@ -863,6 +876,12 @@ chrome.runtime.onMessage.addListener((msg) => {
     setStatus(msg.error, 'error');
     hideProgress();
     btnScrape.disabled = false;
+  }
+
+  if (msg.action === 'bg_save_failed') {
+    // Show briefly — don't stop scraping, just warn user
+    console.warn('[MapScrap] Save failed:', msg.message);
+    setStatus('⚠️ Save failed: ' + (msg.message || 'Unknown error'), 'error');
   }
 
   if (msg.action === 'bg_credits_update' && currentAuth?.user) {

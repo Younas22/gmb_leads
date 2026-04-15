@@ -10,6 +10,9 @@ let scrapeState = {
   progress: { current: 0, total: 0, phase: '' }
 };
 
+// Auth passed from popup — avoids storage timing issues
+let cachedAuth = null;
+
 chrome.storage.local.get('scrape_bg_state').then(stored => {
   if (stored.scrape_bg_state) {
     scrapeState         = stored.scrape_bg_state;
@@ -186,8 +189,25 @@ function extractSearchData(url) {
 }
 
 // Save a single lead immediately after scraping
-async function saveSingleLead(data, searchUrl, auth) {
-  if (!auth?.token || !data?.name) return;
+// Auth is read fresh from storage every time — so stale tokens / expired sessions are handled
+async function saveSingleLead(data, searchUrl) {
+  if (!data?.name) return;
+
+  // Use auth from popup message first, then fall back to storage
+  let auth = cachedAuth || null;
+  if (!auth?.token) {
+    try {
+      const stored = await chrome.storage.local.get('ms_auth');
+      auth = stored.ms_auth || null;
+    } catch(e) {}
+  }
+
+  if (!auth?.token) {
+    console.warn('[MapScrap] saveSingleLead: no auth found. cachedAuth:', cachedAuth, '| storage read attempted.');
+    notifyPopup({ action: 'bg_save_failed', message: 'Not logged in — lead not saved to server.' });
+    return;
+  }
+
   try {
     const res = await fetch('https://customernearme.com/api/extension/save-leads', {
       method: 'POST',
@@ -206,9 +226,16 @@ async function saveSingleLead(data, searchUrl, auth) {
     try { json = await res.json(); } catch(e) {}
     if (res.ok) {
       notifyPopup({ action: 'bg_credits_update', json });
+    } else {
+      // Server rejected — notify popup so user can see it
+      notifyPopup({
+        action:  'bg_save_failed',
+        message: json?.message || json?.error || `Server error (${res.status})`
+      });
     }
   } catch(e) {
-    // Silent fail — lead is still saved locally in bulkData
+    // Network error
+    notifyPopup({ action: 'bg_save_failed', message: 'Network error: ' + e.message });
   }
 }
 
@@ -293,7 +320,7 @@ async function collectNewUrls(tabId, alreadyScrapedUrls) {
 // =============================================
 // SCRAPE ONE BUSINESS
 // =============================================
-async function scrapeOneBusiness(tabId, url, index, total, searchUrl, auth) {
+async function scrapeOneBusiness(tabId, url, index, total, searchUrl) {
   scrapeState.progress = { current: index, total, phase: 'Navigating...' };
   notifyPopup({
     action: 'bg_progress',
@@ -352,12 +379,13 @@ async function scrapeOneBusiness(tabId, url, index, total, searchUrl, auth) {
 
     // Save to server immediately — don't wait for all leads
     notifyPopup({ action: 'bg_progress', phase: 'Saving to server...', current: index, total, bulkCount: scrapeState.bulkData.length, totalExpected: total });
-    await saveSingleLead(data, searchUrl, auth);
+    await saveSingleLead(data, searchUrl);
 
     notifyPopup({ action: 'bg_bulk_update', bulkData: scrapeState.bulkData, totalExpected: total });
 
   } catch(e) {
-    scrapeState.bulkData.push({ name: null, url, _error: e.message });
+    const entry = { name: null, url, _error: e.message };
+    scrapeState.bulkData.push(entry);
     await saveState();
     notifyPopup({ action: 'bg_bulk_update', bulkData: scrapeState.bulkData, totalExpected: total });
   }
@@ -367,7 +395,7 @@ async function scrapeOneBusiness(tabId, url, index, total, searchUrl, auth) {
 // CONTINUOUS SCRAPE LOOP
 // Keeps scrolling + scraping until no new results
 // =============================================
-async function runContinuousScrape(tabId, searchUrl, auth) {
+async function runContinuousScrape(tabId, searchUrl) {
   let round = 0;
 
   while (scrapeState.running) {
@@ -405,7 +433,7 @@ async function runContinuousScrape(tabId, searchUrl, auth) {
     // Scrape each URL in this round
     for (let i = 0; i < newUrls.length; i++) {
       if (!scrapeState.running) break;
-      await scrapeOneBusiness(tabId, newUrls[i], alreadyScrapedUrls.size + i + 1, total, searchUrl, auth);
+      await scrapeOneBusiness(tabId, newUrls[i], alreadyScrapedUrls.size + i + 1, total, searchUrl);
     }
   }
 
@@ -433,12 +461,18 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       return true;
     }
 
+    // Store auth from popup message
+    if (request.auth?.token) {
+      cachedAuth = request.auth;
+      console.log('[MapScrap] BG: auth received from popup, token:', request.auth.token.slice(0,10) + '...');
+    }
+
     scrapeState.running = true;
     saveState();
 
     (async () => {
       try {
-        await runContinuousScrape(request.tabId, request.searchUrl, request.auth);
+        await runContinuousScrape(request.tabId, request.searchUrl);
       } catch(e) {
         scrapeState.running = false;
         await saveState();

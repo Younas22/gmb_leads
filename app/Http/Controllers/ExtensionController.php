@@ -262,28 +262,10 @@ class ExtensionController extends Controller
 
     public function registerDevice(Request $request)
     {
-        Log::channel('daily')->info('[RegisterDevice] Request received', [
-            'ip'      => $request->ip(),
-            'headers' => [
-                'Authorization' => $request->header('Authorization') ? 'Bearer ***' : 'MISSING',
-                'Content-Type'  => $request->header('Content-Type'),
-            ],
-            'body' => $request->only(['device_fingerprint', 'device_name']),
-        ]);
-
         $user = $this->getUserFromToken($request);
         if (!$user) {
-            Log::channel('daily')->warning('[RegisterDevice] Unauthenticated — invalid or missing token', [
-                'bearer_token' => $request->bearerToken() ? substr($request->bearerToken(), 0, 10).'...' : 'MISSING',
-            ]);
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
-
-        Log::channel('daily')->info('[RegisterDevice] User authenticated', [
-            'user_id' => $user->id,
-            'email'   => $user->email,
-            'status'  => $user->status,
-        ]);
 
         $request->validate([
             'device_fingerprint' => 'required|string|max:255',
@@ -304,12 +286,6 @@ class ExtensionController extends Controller
                 'device_name'  => $request->device_name ?? $existing->device_name,
             ]);
 
-            Log::channel('daily')->info('[RegisterDevice] Device already registered — updated last_seen_at', [
-                'user_id'   => $user->id,
-                'device_id' => $existing->id,
-                'fingerprint' => $fingerprint,
-            ]);
-
             return response()->json([
                 'message'   => 'Device already registered.',
                 'device_id' => $existing->id,
@@ -317,24 +293,14 @@ class ExtensionController extends Controller
         }
 
         // Check device limit
-        $deviceLimit = $user->getFeatureLimit('max_devices');
-        $activeDevices = UserExtensionDevice::where('user_id', $user->id)
-                                            ->where('is_active', true)
-                                            ->count();
-
-        Log::channel('daily')->info('[RegisterDevice] Device limit check', [
-            'user_id'        => $user->id,
-            'device_limit'   => $deviceLimit,
-            'active_devices' => $activeDevices,
-        ]);
+        $deviceLimit  = $user->getFeatureLimit('max_devices');
 
         if ($deviceLimit !== -1) {
+            $activeDevices = UserExtensionDevice::where('user_id', $user->id)
+                                                ->where('is_active', true)
+                                                ->count();
+
             if ($activeDevices >= $deviceLimit) {
-                Log::channel('daily')->warning('[RegisterDevice] Device limit reached', [
-                    'user_id'      => $user->id,
-                    'device_limit' => $deviceLimit,
-                    'devices_used' => $activeDevices,
-                ]);
                 return response()->json([
                     'error'        => "Device limit reached. Your plan allows {$deviceLimit} device(s). Please remove an existing device from your account settings.",
                     'device_limit' => $deviceLimit,
@@ -349,43 +315,21 @@ class ExtensionController extends Controller
                                         ->exists();
 
         if ($otherUser) {
-            Log::channel('daily')->warning('[RegisterDevice] Fingerprint belongs to another user', [
-                'user_id'     => $user->id,
-                'fingerprint' => $fingerprint,
-            ]);
             return response()->json(['error' => 'This device is already registered to another account.'], 409);
         }
 
-        try {
-            $device = UserExtensionDevice::create([
-                'user_id'            => $user->id,
-                'device_fingerprint' => $fingerprint,
-                'device_name'        => $request->device_name ?? 'Unknown Device',
-                'last_seen_at'       => now(),
-                'is_active'          => true,
-            ]);
+        $device = UserExtensionDevice::create([
+            'user_id'            => $user->id,
+            'device_fingerprint' => $fingerprint,
+            'device_name'        => $request->device_name ?? 'Unknown Device',
+            'last_seen_at'       => now(),
+            'is_active'          => true,
+        ]);
 
-            Log::channel('daily')->info('[RegisterDevice] Device saved successfully', [
-                'user_id'   => $user->id,
-                'device_id' => $device->id,
-                'device_name' => $device->device_name,
-                'fingerprint' => $fingerprint,
-            ]);
-
-            return response()->json([
-                'message'   => 'Device registered successfully.',
-                'device_id' => $device->id,
-            ], 201);
-
-        } catch (\Exception $e) {
-            Log::channel('daily')->error('[RegisterDevice] DB save FAILED', [
-                'user_id'     => $user->id,
-                'fingerprint' => $fingerprint,
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
-            ]);
-            return response()->json(['error' => 'Failed to register device. Please try again.'], 500);
-        }
+        return response()->json([
+            'message'   => 'Device registered successfully.',
+            'device_id' => $device->id,
+        ], 201);
     }
 
     // ──────────────────────────────────────────────

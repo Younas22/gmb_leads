@@ -60,19 +60,19 @@ async function apiFetch(endpoint, method, body, token) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = 'Bearer ' + token;
   const url = API_BASE + endpoint;
-  console.log(`[MapScrap] ▶ ${method} ${url}`, body ? { body } : '');
+  console.log(`[CustomerNearMe] ▶ ${method} ${url}`, body ? { body } : '');
   try {
     const opts = { method, headers, signal: AbortSignal.timeout(12000) };
     if (body) opts.body = JSON.stringify(body);
     const res  = await fetch(url, opts);
     const json = await res.json().catch(e => {
-      console.warn('[MapScrap] Response JSON parse failed:', e.message);
+      console.warn('[CustomerNearMe] Response JSON parse failed:', e.message);
       return {};
     });
-    console.log(`[MapScrap] ◀ ${res.status} ${url}`, json);
+    console.log(`[CustomerNearMe] ◀ ${res.status} ${url}`, json);
     return { ok: res.ok, status: res.status, data: json };
   } catch (e) {
-    console.error(`[MapScrap] ✖ Network error on ${method} ${url}:`, e.name, e.message);
+    console.error(`[CustomerNearMe] ✖ Network error on ${method} ${url}:`, e.name, e.message);
     return { ok: false, status: 0, data: { message: 'Unable to connect to server.' } };
   }
 }
@@ -80,10 +80,10 @@ async function apiFetch(endpoint, method, body, token) {
 // ---- Auth API calls ----
 
 async function authLogin(email, password) {
-  console.log('[MapScrap] Login attempt:', email);
+  console.log('[CustomerNearMe] Login attempt:', email);
   const res = await apiFetch('/login', 'POST', { email, password }, null);
   if (!res.ok || !res.data.token) {
-    console.error('[MapScrap] Login failed — status:', res.status, '| full response JSON:', JSON.stringify(res.data));
+    console.error('[CustomerNearMe] Login failed — status:', res.status, '| full response JSON:', JSON.stringify(res.data));
     const msg = res.data?.message || res.data?.error || res.data?.msg
       || (res.status === 403 ? 'Access denied (403). Account may be inactive or blocked.' : 'Login failed. Invalid email or password.');
     return { ok: false, message: msg };
@@ -92,24 +92,62 @@ async function authLogin(email, password) {
   const token       = res.data.token;
   const fingerprint = generateFingerprint();
   const deviceName  = getDeviceName();
-  console.log('[MapScrap] Login OK. Registering device:', deviceName, '| fingerprint:', fingerprint);
+  console.log('[CustomerNearMe] Login OK. Registering device:', deviceName, '| fingerprint:', fingerprint);
 
   // Register this device
+  let deviceId = null;
+  let activeFingerprint = fingerprint;
+
   const devRes = await apiFetch('/register-device', 'POST',
     { device_fingerprint: fingerprint, device_name: deviceName }, token);
 
-  if (!devRes.ok) {
-    console.warn('[MapScrap] Device registration failed — status:', devRes.status, '| response:', devRes.data);
+  if (devRes.ok) {
+    // Fresh registration succeeded
+    deviceId = devRes.data?.device?.id || devRes.data?.id || devRes.data?.data?.id || null;
+    console.log('[CustomerNearMe] Device registered successfully. ID:', deviceId);
+
+  } else if (devRes.status === 409) {
+    // Device fingerprint already exists — fetch device list to get its ID
+    console.log('[CustomerNearMe] Device already registered (409). Fetching device list...');
+    const listRes = await apiFetch('/devices', 'GET', null, token);
+    if (listRes.ok) {
+      const devices = listRes.data?.devices || listRes.data?.data || listRes.data || [];
+      const found = Array.isArray(devices)
+        ? devices.find(d => d.device_fingerprint === fingerprint || d.fingerprint === fingerprint)
+        : null;
+      deviceId = found?.id || null;
+      console.log('[CustomerNearMe] Device found in list:', found ? 'YES' : 'NO', '| ID:', deviceId, '| total devices:', Array.isArray(devices) ? devices.length : '?');
+
+      if (!deviceId) {
+        // Fingerprint not found in list — force re-register with a new fingerprint
+        console.warn('[CustomerNearMe] Fingerprint not found in devices list. Force re-registering...');
+        activeFingerprint = fingerprint + '_r' + Date.now().toString(36);
+        const reRes = await apiFetch('/register-device', 'POST',
+          { device_fingerprint: activeFingerprint, device_name: deviceName }, token);
+        if (reRes.ok) {
+          deviceId = reRes.data?.device?.id || reRes.data?.id || reRes.data?.data?.id || null;
+          console.log('[CustomerNearMe] Re-registration success. ID:', deviceId);
+        } else {
+          console.warn('[CustomerNearMe] Re-registration failed:', reRes.status, JSON.stringify(reRes.data));
+          activeFingerprint = fingerprint; // revert
+        }
+      }
+    } else {
+      console.warn('[CustomerNearMe] Could not fetch devices list:', listRes.status, JSON.stringify(listRes.data));
+    }
+
+  } else {
+    console.warn('[CustomerNearMe] Device registration failed — status:', devRes.status, '| response:', JSON.stringify(devRes.data));
   }
 
   const auth = {
     token,
     user: res.data.user,
-    fingerprint,
+    fingerprint: activeFingerprint,
     deviceName,
-    deviceId: devRes.data?.device?.id || devRes.data?.id || null
+    deviceId
   };
-  console.log('[MapScrap] Auth saved:', { user: auth.user, deviceId: auth.deviceId });
+  console.log('[CustomerNearMe] Auth saved:', { user: auth.user, deviceId: auth.deviceId });
   await saveAuth(auth);
   return { ok: true, auth };
 }
@@ -143,7 +181,7 @@ async function authLogout() {
 // ---- Web auto-login (reads web session cookie) ----
 // Called when extension has no stored token but user may be logged into the web app.
 async function authWebAutoLogin() {
-  console.log('[MapScrap] Trying web auto-login...');
+  console.log('[CustomerNearMe] Trying web auto-login...');
   try {
     const res = await fetch('https://customernearme.com/extension/web-token', {
       method: 'GET',
@@ -153,13 +191,13 @@ async function authWebAutoLogin() {
     });
 
     if (!res.ok) {
-      console.warn('[MapScrap] Auto-login: web-token endpoint returned', res.status);
+      console.warn('[CustomerNearMe] Auto-login: web-token endpoint returned', res.status);
       return { ok: false };
     }
 
     const data = await res.json();
     if (!data.token || !data.user) {
-      console.warn('[MapScrap] Auto-login: missing token/user in response', data);
+      console.warn('[CustomerNearMe] Auto-login: missing token/user in response', data);
       return { ok: false };
     }
 
@@ -175,12 +213,12 @@ async function authWebAutoLogin() {
       user:  data.user,
       fingerprint,
       deviceName,
-      deviceId: devRes.data?.device?.id || devRes.data?.id || null
+      deviceId: devRes.data?.device?.id || devRes.data?.id || devRes.data?.data?.id || null
     };
     await saveAuth(auth);
     return { ok: true, auth };
   } catch (e) {
-    console.error('[MapScrap] Auto-login exception:', e.name, e.message);
+    console.error('[CustomerNearMe] Auto-login exception:', e.name, e.message);
     return { ok: false };
   }
 }
