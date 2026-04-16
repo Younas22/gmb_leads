@@ -30,10 +30,15 @@ class TutorialsController extends Controller
         $totalTutorials = count($tutorials);
         $progressPercentage = $totalTutorials > 0 ? round(($completedCount / $totalTutorials) * 100) : 0;
         
-        // Calculate total duration
-        $totalDuration = array_sum(array_map(function($tutorial) {
-            return (int) filter_var($tutorial['duration'], FILTER_SANITIZE_NUMBER_INT);
+        // Calculate total duration (format: "M:SS min")
+        $totalSeconds = array_sum(array_map(function($tutorial) {
+            $time = trim(str_replace('min', '', $tutorial['duration']));
+            $parts = explode(':', $time);
+            $minutes = isset($parts[0]) ? (int) $parts[0] : 0;
+            $seconds = isset($parts[1]) ? (int) $parts[1] : 0;
+            return ($minutes * 60) + $seconds;
         }, $tutorials));
+        $totalDuration = round($totalSeconds / 60);
 
         // Prepare tutorials data for JavaScript
         $tutorialsData = [];
@@ -111,14 +116,14 @@ class TutorialsController extends Controller
         return [
             [
                 'key' => 'add-extension',
-                'title' => 'Add Extension',
+                'title' => 'How to Add Extension',
                 'description' => 'CustomerNearme Chrome Extension install aur setup karna',
-                'duration' => '5 min',
+                'duration' => '2:17 min',
                 'category' => 'getting-started',
                 'order' => 1,
                 'icon' => 'puzzle-piece',
                 'color' => 'indigo',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'fIhGuN3bW78',
                 'objectives' => [
                     'Extension ZIP file download karna',
                     'Chrome Extensions page kholna',
@@ -128,14 +133,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'subscription',
-                'title' => 'Subscription',
+                'title' => 'CustomerNearMe Subscription Plans',
                 'description' => 'Subscription plans dekhein, upgrade karein aur billing manage karein',
-                'duration' => '5 min',
+                'duration' => '2:11 min',
                 'category' => 'getting-started',
                 'order' => 2,
                 'icon' => 'crown',
                 'color' => 'yellow',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'JLk_nhsCggE',
                 'objectives' => [
                     'Available subscription plans compare karna',
                     'Plan upgrade ya downgrade karna',
@@ -145,14 +150,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'find-leads',
-                'title' => 'Find Leads',
+                'title' => 'Find Leads from Google Maps',
                 'description' => 'Google Maps se business leads dhundhne ka complete tarika',
-                'duration' => '8 min',
+                'duration' => '4:00 min',
                 'category' => 'getting-started',
                 'order' => 3,
                 'icon' => 'search-location',
                 'color' => 'green',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'D9zkAuRRo8A',
                 'objectives' => [
                     'Business keyword aur location se search karna',
                     'Category aur rating filters lagana',
@@ -162,14 +167,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'my-leads',
-                'title' => 'My Leads',
+                'title' => 'Manage & Export Leads Easily',
                 'description' => 'Saved leads ko manage, filter aur export karna',
-                'duration' => '7 min',
+                'duration' => '7:17 min',
                 'category' => 'getting-started',
                 'order' => 4,
                 'icon' => 'bookmark',
                 'color' => 'orange',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'nlHkNf_BkxM',
                 'objectives' => [
                     'Saved leads ki list dekhna aur filter karna',
                     'Lead details aur contact information access karna',
@@ -179,14 +184,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'dashboard',
-                'title' => 'Dashboard',
+                'title' => 'CustomerNearMe Dashboard',
                 'description' => 'Dashboard ka overview samjhein — stats, activity aur quick actions',
-                'duration' => '6 min',
+                'duration' => '2:09 min',
                 'category' => 'getting-started',
                 'order' => 5,
                 'icon' => 'home',
                 'color' => 'blue',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'NkPv0nv6Kf0',
                 'objectives' => [
                     'Dashboard interface navigate karna',
                     'Total leads, searches aur subscription stats dekhna',
@@ -196,14 +201,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'profile',
-                'title' => 'Profile Settings',
+                'title' => 'Profile Settings Guide',
                 'description' => 'Account information, password aur preferences update karna',
-                'duration' => '5 min',
+                'duration' => '1:11 min',
                 'category' => 'advanced',
                 'order' => 6,
                 'icon' => 'user-cog',
                 'color' => 'purple',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => 'Q2TgEQh6XSU',
                 'objectives' => [
                     'Name, email aur profile picture update karna',
                     'Password change karna',
@@ -213,14 +218,14 @@ class TutorialsController extends Controller
             ],
             [
                 'key' => 'feedback',
-                'title' => 'Add Your Feedback',
+                'title' => 'Send Feedback & Contact Support',
                 'description' => 'Apna feedback submit karein aur support se rabta karein',
-                'duration' => '4 min',
+                'duration' => '2:02 min',
                 'category' => 'advanced',
                 'order' => 7,
                 'icon' => 'comments',
                 'color' => 'pink',
-                'youtube_id' => 'Hy4eBvxvVfk',
+                'youtube_id' => '8Cb_L-LmezA',
                 'objectives' => [
                     'Feedback form fill karna',
                     'Star rating dena',

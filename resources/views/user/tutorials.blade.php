@@ -6,48 +6,45 @@
 
 @section('content')
         <!-- Tutorial Content -->
-        <div class="p-4 lg:p-8">
-            <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-8 mb-8 text-white">
-                <div class="max-w-4xl">
-                    <div class="flex items-center space-x-4 mb-4">
-                        <div class="bg-white bg-opacity-20 rounded-full p-3">
-                            <i class="fas fa-play-circle text-3xl"></i>
+        <div class="p-4 lg:p-6">
+            <!-- Welcome Section (compact) -->
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl px-5 py-3 mb-4 text-white">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white bg-opacity-20 rounded-full p-2">
+                            <i class="fas fa-play-circle text-lg"></i>
                         </div>
                         <div>
-                            <h1 class="text-3xl font-bold mb-2">Master BusinessFinder</h1>
-                            <p class="text-primary-100 text-lg">Complete video tutorials to become a lead generation expert</p>
+                            <h1 class="text-base font-bold leading-tight">Master BusinessFinder</h1>
+                            <p class="text-primary-100 text-xs">Complete video tutorials to become a lead generation expert</p>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-4 mt-6">
-                        <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
-                            <span class="text-sm font-medium">{{ count($tutorials) }} Comprehensive Tutorials</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
+                            <span class="text-xs font-medium">{{ count($tutorials) }} Tutorials</span>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
-                            <span class="text-sm font-medium">{{ $totalDuration }}+ Minutes of Content</span>
+                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
+                            <span class="text-xs font-medium">{{ $totalDuration }}+ Min</span>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-lg px-4 py-2">
-                            <span class="text-sm font-medium">Beginner to Advanced</span>
+                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
+                            <span class="text-xs font-medium">Beginner to Advanced</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Progress Overview -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Your Learning Progress</h3>
-                    <button onclick="resetProgress()" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                        Reset Progress
+            <!-- Progress Overview (compact) -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-3 mb-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-xs font-semibold text-gray-700 whitespace-nowrap">Your Progress</span>
+                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
+                             style="width: {{ $progressPercentage }}%"></div>
+                    </div>
+                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ $completedCount }}/{{ count($tutorials) }} &nbsp; {{ $progressPercentage }}%</span>
+                    <button onclick="resetProgress()" class="text-primary-600 hover:text-primary-700 text-xs font-medium whitespace-nowrap">
+                        Reset
                     </button>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500" 
-                         style="width: {{ $progressPercentage }}%"></div>
-                </div>
-                <div class="flex justify-between text-sm text-gray-600">
-                    <span>{{ $completedCount }} of {{ count($tutorials) }} tutorials completed</span>
-                    <span>{{ $progressPercentage }}% Complete</span>
                 </div>
             </div>
 
@@ -62,38 +59,55 @@
                         </div>
                     </div>
                 </div>
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
                     @foreach($tutorials as $tutorial)
-                        <div class="tutorial-item group cursor-pointer border rounded-lg p-4 hover:border-primary-300 hover:bg-primary-50 transition-all"
+                        <div class="tutorial-item group cursor-pointer border rounded-lg overflow-hidden hover:border-primary-300 hover:bg-primary-50 transition-all"
                              data-tutorial="{{ $tutorial['key'] }}"
                              data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}">
-                            <div class="flex items-center space-x-4">
-                                <div class="relative">
-                                    <div class="w-12 h-12 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
+
+                            {{-- Thumbnail --}}
+                            @if(!empty($tutorial['youtube_id']))
+                                <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                                    <img
+                                        src="https://img.youtube.com/vi/{{ $tutorial['youtube_id'] }}/mqdefault.jpg"
+                                        alt="{{ $tutorial['title'] }}"
+                                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                        <div class="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                            <i class="fas fa-play text-primary-600 text-lg ml-1"></i>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-0.5 rounded">
+                                        {{ $tutorial['duration'] }}
+                                    </div>
+                                    @if(in_array($tutorial['key'], $completedTutorials))
+                                        <div class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                                            <i class="fas fa-check text-xs"></i> Completed
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            {{-- Info --}}
+                            <div class="flex items-center space-x-3 p-3">
+                                <div class="relative flex-shrink-0">
+                                    <div class="w-10 h-10 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
                                         <i class="fas fa-{{ $tutorial['icon'] }} text-{{ $tutorial['color'] }}-600"></i>
                                     </div>
-                                    <div class="absolute -top-1 -right-1 w-5 h-5
+                                    <div class="absolute -top-1 -right-1 w-4 h-4
                                         {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-500' : 'bg-gray-300' }}
                                         rounded-full flex items-center justify-center">
-                                        <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs"></i>
+                                        <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs" style="font-size:7px"></i>
                                     </div>
                                 </div>
-                                <div class="flex-1">
-                                    <h4 class="font-semibold text-gray-800 group-hover:text-primary-700">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-gray-800 group-hover:text-primary-700 text-sm leading-tight">
                                         {{ $tutorial['order'] }}. {{ $tutorial['title'] }}
                                     </h4>
-                                    <p class="text-sm text-gray-600">{{ $tutorial['description'] }}</p>
-                                    <div class="flex items-center space-x-4 mt-2">
-                                        <span class="text-xs text-gray-500">{{ $tutorial['duration'] }}</span>
-                                        <span class="text-xs
-                                            {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}
-                                            px-2 py-1 rounded">
-                                            {{ in_array($tutorial['key'], $completedTutorials) ? 'Completed' : 'Not Started' }}
-                                        </span>
-                                    </div>
+                                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ $tutorial['description'] }}</p>
                                 </div>
-                                <i class="fas fa-play-circle text-2xl text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                             </div>
+
                         </div>
                     @endforeach
                 </div>

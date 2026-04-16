@@ -97,6 +97,11 @@
                         <i class="fab fa-whatsapp mr-2"></i>
                         Community
                     </a>
+                    <!-- Playlist Button -->
+                    <a href="{{ route('user.tutorials') }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                        <i class="fab fa-youtube mr-2"></i>
+                        Playlist
+                    </a>
                     <!-- Add Extension Button -->
                     <button onclick="openExtensionModal()" class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
                         <i class="fas fa-puzzle-piece mr-2"></i>

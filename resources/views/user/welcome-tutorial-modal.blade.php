@@ -13,7 +13,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold leading-tight">Welcome to CustomerNearMe!</h2>
-                        <p class="text-primary-100 text-xs mt-0.5">Quick 3-minute overview to get you started</p>
+                        <p class="text-primary-100 text-xs mt-0.5">Quick 39-second overview to get you started</p>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                         <iframe 
                             id="welcomeVideo"
                             class="w-full h-full" 
-                            src="https://www.youtube.com/embed/{{ env('WELCOME_TUTORIAL_VIDEO_ID') }}?autoplay=1&mute=1&rel=0&showinfo=0&modestbranding=1&controls=1" 
+                            src="https://www.youtube.com/embed/{{ env('WELCOME_TUTORIAL_VIDEO_ID') }}?autoplay=1&mute=0&rel=0&showinfo=0&modestbranding=1&controls=1" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>
@@ -91,10 +91,10 @@ function closeWelcomeTutorial(markAsSeen = true) {
     
     const dontShowAgain = document.getElementById('dontShowAgain')?.checked || false;
     
-    // Stop video if playing
+    // Stop video
     const iframe = document.getElementById('welcomeVideo');
-    if (iframe && iframe.src) {
-        iframe.src = iframe.src; // This reloads and stops the video
+    if (iframe) {
+        iframe.src = '';
     }
     
     // Remove modal-open class from body
