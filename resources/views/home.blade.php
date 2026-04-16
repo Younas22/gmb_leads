@@ -402,6 +402,10 @@
                         FAQ
                         <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
                     </a>
+                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 text-[0.9rem] font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-all duration-200">
+                        <i class="fab fa-whatsapp text-base"></i>
+                        Community
+                    </a>
                 </div>
 
                 <!-- Desktop Right Side Actions -->

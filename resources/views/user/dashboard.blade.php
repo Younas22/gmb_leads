@@ -173,12 +173,16 @@ function resendVerification() {
                 </div>
             </div>
 
-            <!-- Right: Watch Tutorials button + what's inside -->
+            <!-- Right: Playlist + Community buttons + what's inside -->
             @if(!auth()->user()->hasRestrictedAccess())
             <div class="lg:flex-shrink-0 lg:w-64">
+                <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors text-sm mb-2">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    Community
+                </a>
                 <a href="{{ route('user.tutorials') }}" class="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors text-sm mb-3">
                     <i class="fas fa-play-circle text-lg"></i>
-                    Watch Tutorials
+                    Playlist
                 </a>
                 <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 space-y-2">
                     <p class="text-primary-100 text-xs font-semibold uppercase tracking-wide mb-1">Videos included:</p>
@@ -475,10 +479,14 @@ function resendVerification() {
                         <p class="text-sm text-gray-600">Reach out to leads and track your progress</p>
                     </div>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex flex-wrap gap-3">
                     <a href="{{ route('user.tutorials') }}" class="inline-flex items-center justify-center bg-orange-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm sm:text-base">
                         <i class="fas fa-play-circle mr-2"></i>
-                        <span class="hidden sm:inline">Watch </span>Tutorials
+                        Playlist
+                    </a>
+                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm sm:text-base">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Community
                     </a>
                     <a href="{{ route('user.search') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                         <i class="fas fa-search mr-2"></i>Start First Search
