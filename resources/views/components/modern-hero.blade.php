@@ -144,8 +144,9 @@
                         <!-- Video iframe -->
                         <div class="relative bg-black rounded-b-2xl overflow-hidden" style="padding-top: 56.25%;">
                             <iframe
+                                id="heroVideoFrame"
                                 class="absolute inset-0 w-full h-full"
-                                src="https://www.youtube.com/embed/YwUx_F4iE_M?si=GOTCVEvvRJoNsisw&rel=0&modestbranding=1"
+                                src="https://www.youtube.com/embed/YwUx_F4iE_M?autoplay=1&mute=1&rel=0&modestbranding=1&enablejsapi=1"
                                 title="CustomerNearme — How It Works Demo"
                                 frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -153,6 +154,22 @@
                                 allowfullscreen>
                             </iframe>
                         </div>
+                        <script>
+                            // Unmute hero video via postMessage after autoplay starts
+                            function heroVideoUnmute() {
+                                var iframe = document.getElementById('heroVideoFrame');
+                                if (!iframe) return;
+                                iframe.contentWindow.postMessage(
+                                    JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*'
+                                );
+                                iframe.contentWindow.postMessage(
+                                    JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*'
+                                );
+                            }
+                            // Try unmuting after 1s and 3s (buffer for slow connections)
+                            setTimeout(heroVideoUnmute, 1000);
+                            setTimeout(heroVideoUnmute, 3000);
+                        </script>
 
                     </div>
 
