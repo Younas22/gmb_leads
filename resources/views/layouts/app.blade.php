@@ -92,6 +92,11 @@
                 </div>
 
                 <div class="flex items-center space-x-3">
+                    <!-- Community Button -->
+                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                        <i class="fab fa-whatsapp mr-2"></i>
+                        Community
+                    </a>
                     <!-- Add Extension Button -->
                     <button onclick="openExtensionModal()" class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
                         <i class="fas fa-puzzle-piece mr-2"></i>
