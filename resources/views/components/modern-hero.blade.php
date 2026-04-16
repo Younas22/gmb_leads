@@ -141,6 +141,12 @@
                             </span>
                         </div>
 
+                        <!-- Notice Banner -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2 mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle text-yellow-500 text-sm flex-shrink-0"></i>
+                            <p class="text-yellow-800 text-xs font-medium">Sorry, some words were changed during voice editing.</p>
+                        </div>
+
                         <!-- Video iframe -->
                         <div class="relative bg-black rounded-b-2xl overflow-hidden" style="padding-top: 56.25%;">
                             <iframe
