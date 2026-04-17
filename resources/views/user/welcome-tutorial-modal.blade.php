@@ -92,6 +92,9 @@ function closeWelcomeTutorial(markAsSeen = true) {
     const dontShowAgain = document.getElementById('dontShowAgain')?.checked || false;
     
     // Stop video
+    if (typeof player !== 'undefined' && player && typeof player.stopVideo === 'function') {
+        player.stopVideo();
+    }
     const iframe = document.getElementById('welcomeVideo');
     if (iframe) {
         iframe.src = '';
