@@ -24,11 +24,12 @@
             <div class="aspect-video bg-gray-900 flex items-center justify-center h-full">
                     @if(env('WELCOME_TUTORIAL_VIDEO_ID'))
                         <!-- YouTube Video Embed -->
-                        <iframe 
+                        <iframe
                             id="welcomeVideo"
-                            class="w-full h-full" 
-                            src="https://www.youtube.com/embed/{{ env('WELCOME_TUTORIAL_VIDEO_ID') }}?autoplay=1&mute=0&rel=0&showinfo=0&modestbranding=1&controls=1" 
-                            frameborder="0" 
+                            class="w-full h-full"
+                            data-src="https://www.youtube.com/embed/{{ env('WELCOME_TUTORIAL_VIDEO_ID') }}?autoplay=1&mute=0&rel=0&showinfo=0&modestbranding=1&controls=1"
+                            src=""
+                            frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>
                         </iframe>
@@ -152,7 +153,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add modal-open class to body
         document.body.classList.add('modal-open');
         modal.style.opacity = '1';
-        
+
+        // Load video src only now (not on page load) to prevent background autoplay
+        const iframe = document.getElementById('welcomeVideo');
+        if (iframe && iframe.dataset.src) {
+            iframe.src = iframe.dataset.src;
+        }
+
         console.log('Showing welcome tutorial modal');
     } else {
         // Ensure modal is completely hidden
