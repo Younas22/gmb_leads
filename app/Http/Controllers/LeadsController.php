@@ -28,9 +28,9 @@ public function index(Request $request)
     $rating = $request->get('rating');
     $lastReview = $request->get('last_review');
     $reviewsCount = $request->get('reviews_count');
-    $hasEmail = $request->get('has_email');
-    $hasPhone = $request->get('has_phone');
-    $hasWebsite = $request->get('has_website');
+    $hasEmail = $request->get('has_email', '1');
+    $hasPhone = $request->get('has_phone', '1');
+    $hasWebsite = $request->get('has_website', '1');
     $perPage = $request->get('per_page', 30);
     $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
     $selectedUserId = $request->get('user_id'); // User filter
@@ -51,10 +51,9 @@ public function index(Request $request)
         }
     }
 
-    // Build query
+    // Build base query (all filters EXCEPT status — so stats always show all status counts)
     $query = SavedLead::whereIn('user_id', $userIds);
-    
-    // Search text filter
+
     if ($search) {
         $query->where(function($q) use ($search) {
             $q->where('name', 'LIKE', "%{$search}%")
@@ -66,82 +65,79 @@ public function index(Request $request)
         });
     }
 
-    // Country filter (by ID)
     if ($countryId) {
         $query->where('country', $countryId);
     }
 
-    // State filter (by ID)
     if ($stateId) {
         $query->where('state', $stateId);
     }
 
-    // City filter (by ID)
     if ($cityId) {
         $query->where('city', $cityId);
     }
-    
-    // Status filter
-    if ($status) {
-        $query->where('contact_status', $status);
-    }
-    
-    // Rating filter
+
     if ($rating) {
         $query->where('rating', '<=', $rating);
     }
-    
-    // Last Review filter
+
     if ($lastReview) {
         $cutoffDate = match($lastReview) {
-            '1-day' => Carbon::now()->subDay(),
-            '1-week' => Carbon::now()->subWeek(),
-            '1-month' => Carbon::now()->subMonth(),
+            '1-day'    => Carbon::now()->subDay(),
+            '1-week'   => Carbon::now()->subWeek(),
+            '1-month'  => Carbon::now()->subMonth(),
             '3-months' => Carbon::now()->subMonths(3),
             '6-months' => Carbon::now()->subMonths(6),
-            default => null
+            default    => null
         };
-
         if ($cutoffDate) {
             $query->where('last_review_date', '>=', $cutoffDate->toDateTimeString());
         }
     }
 
-    // Reviews count filter
     if ($reviewsCount) {
-        if ($reviewsCount === 'lt30') {
-            $query->where('total_reviews', '<', 30);
-        } elseif ($reviewsCount === 'lt50') {
-            $query->where('total_reviews', '<', 50);
-        } elseif ($reviewsCount === 'lt100') {
-            $query->where('total_reviews', '<', 100);
-        } elseif ($reviewsCount === 'gte100') {
-            $query->where('total_reviews', '>=', 100);
-        }
+        if ($reviewsCount === 'lt30')       $query->where('total_reviews', '<', 30);
+        elseif ($reviewsCount === 'lt50')   $query->where('total_reviews', '<', 50);
+        elseif ($reviewsCount === 'lt100')  $query->where('total_reviews', '<', 100);
+        elseif ($reviewsCount === 'gte100') $query->where('total_reviews', '>=', 100);
     }
 
-    // Has Email filter
     if ($hasEmail === '1') {
         $query->whereNotNull('email')->where('email', '!=', '');
+    } elseif ($hasEmail === '0') {
+        $query->where(fn($q) => $q->whereNull('email')->orWhere('email', ''));
     }
 
-    // Has Phone filter
     if ($hasPhone === '1') {
         $query->whereNotNull('phone')->where('phone', '!=', '');
+    } elseif ($hasPhone === '0') {
+        $query->where(fn($q) => $q->whereNull('phone')->orWhere('phone', ''));
     }
 
-    // Has Website filter
     if ($hasWebsite === '1') {
         $query->whereNotNull('website')->where('website', '!=', '');
+    } elseif ($hasWebsite === '0') {
+        $query->where(fn($q) => $q->whereNull('website')->orWhere('website', ''));
+    }
+
+    // Stats: clone before status filter so all status counts reflect active filters
+    $statsRows = (clone $query)->get(['contact_status']);
+    $stats = [
+        'total'     => $statsRows->count(),
+        'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
+        'pending'   => $statsRows->where('contact_status', 'not_contacted')->count(),
+        'converted' => $statsRows->where('contact_status', 'converted')->count(),
+    ];
+
+    // Apply status filter only for the leads list
+    if ($status) {
+        $query->where('contact_status', $status);
     }
 
     // Get leads with pagination
     $leads = $query->orderBy('created_at', 'desc')
                   ->paginate($perPage)
                   ->withQueryString();
-
-    // Stats (based on filtered user IDs)
-    $stats = $this->getLeadStats($userIds);
 
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
@@ -434,12 +430,18 @@ public function index(Request $request)
 
         if ($hasEmail === '1') {
             $query->whereNotNull('email')->where('email', '!=', '');
+        } elseif ($hasEmail === '0') {
+            $query->where(fn($q) => $q->whereNull('email')->orWhere('email', ''));
         }
         if ($hasPhone === '1') {
             $query->whereNotNull('phone')->where('phone', '!=', '');
+        } elseif ($hasPhone === '0') {
+            $query->where(fn($q) => $q->whereNull('phone')->orWhere('phone', ''));
         }
         if ($hasWebsite === '1') {
             $query->whereNotNull('website')->where('website', '!=', '');
+        } elseif ($hasWebsite === '0') {
+            $query->where(fn($q) => $q->whereNull('website')->orWhere('website', ''));
         }
 
         // Get all leads (not paginated for export) with relationships
@@ -659,12 +661,18 @@ public function index(Request $request)
 
         if ($hasEmail === '1') {
             $query->whereNotNull('email')->where('email', '!=', '');
+        } elseif ($hasEmail === '0') {
+            $query->where(fn($q) => $q->whereNull('email')->orWhere('email', ''));
         }
         if ($hasPhone === '1') {
             $query->whereNotNull('phone')->where('phone', '!=', '');
+        } elseif ($hasPhone === '0') {
+            $query->where(fn($q) => $q->whereNull('phone')->orWhere('phone', ''));
         }
         if ($hasWebsite === '1') {
             $query->whereNotNull('website')->where('website', '!=', '');
+        } elseif ($hasWebsite === '0') {
+            $query->where(fn($q) => $q->whereNull('website')->orWhere('website', ''));
         }
 
         // Get all leads (not paginated for export) with relationships

@@ -278,37 +278,40 @@
     <span class="text-xs text-gray-500 font-medium uppercase tracking-wide flex-shrink-0">Has:</span>
 
     <!-- Email -->
+    @php $emailOn = ($hasEmail ?? '1') !== '0'; @endphp
     <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_email" value="{{ ($hasEmail ?? '') == '1' ? '1' : '' }}">
+        <input type="hidden" name="has_email" value="{{ $emailOn ? '1' : '0' }}">
         <button type="button"
             onclick="toggleFilter(this, 'has_email')"
-            data-active="{{ ($hasEmail ?? '') == '1' ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasEmail ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasEmail ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            data-active="{{ $emailOn ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $emailOn ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $emailOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
         </button>
         <span class="text-xs text-gray-600">Email</span>
     </label>
 
     <!-- Phone -->
+    @php $phoneOn = ($hasPhone ?? '1') !== '0'; @endphp
     <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_phone" value="{{ ($hasPhone ?? '') == '1' ? '1' : '' }}">
+        <input type="hidden" name="has_phone" value="{{ $phoneOn ? '1' : '0' }}">
         <button type="button"
             onclick="toggleFilter(this, 'has_phone')"
-            data-active="{{ ($hasPhone ?? '') == '1' ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasPhone ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasPhone ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            data-active="{{ $phoneOn ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $phoneOn ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $phoneOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
         </button>
         <span class="text-xs text-gray-600">Phone</span>
     </label>
 
     <!-- Website -->
+    @php $websiteOn = ($hasWebsite ?? '1') !== '0'; @endphp
     <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_website" value="{{ ($hasWebsite ?? '') == '1' ? '1' : '' }}">
+        <input type="hidden" name="has_website" value="{{ $websiteOn ? '1' : '0' }}">
         <button type="button"
             onclick="toggleFilter(this, 'has_website')"
-            data-active="{{ ($hasWebsite ?? '') == '1' ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ ($hasWebsite ?? '') == '1' ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ ($hasWebsite ?? '') == '1' ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            data-active="{{ $websiteOn ? '1' : '0' }}"
+            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $websiteOn ? 'bg-green-500' : 'bg-gray-300' }}">
+            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $websiteOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
         </button>
         <span class="text-xs text-gray-600">Website</span>
     </label>
@@ -1394,7 +1397,7 @@ function toggleFilter(btn, fieldName) {
 
     // Update the hidden input value
     const hiddenInput = btn.closest('label').querySelector('input[type="hidden"]');
-    hiddenInput.value = newActive ? '1' : '';
+    hiddenInput.value = newActive ? '1' : '0';
 
     // Auto-submit form
     btn.closest('form') && btn.closest('form').submit();
