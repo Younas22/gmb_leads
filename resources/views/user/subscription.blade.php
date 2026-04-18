@@ -281,11 +281,14 @@
                             @if($isCurrentPlan)
                                 <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
                             @elseif($package->price == 0)
-                                <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
-                                        data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}" data-package-price="0" data-currency-symbol="{{ $currency['symbol'] }}"
-                                        class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
-                                    Select Free Plan
-                                </button>
+                                <form method="POST" action="{{ route('user.subscription.apply-free') }}">
+                                    @csrf
+                                    <input type="hidden" name="package_id" value="{{ $package->id }}">
+                                    <button type="submit"
+                                            class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                        Select Free Plan
+                                    </button>
+                                </form>
                             @else
                                 <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
                                         data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"
@@ -338,11 +341,14 @@
                             @if($isCurrentPlan)
                                 <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
                             @elseif($package->price == 0)
-                                <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
-                                        data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}" data-package-price="0" data-currency-symbol="{{ $currency['symbol'] }}"
-                                        class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
-                                    Select Free Plan
-                                </button>
+                                <form method="POST" action="{{ route('user.subscription.apply-free') }}">
+                                    @csrf
+                                    <input type="hidden" name="package_id" value="{{ $package->id }}">
+                                    <button type="submit"
+                                            class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                        Select Free Plan
+                                    </button>
+                                </form>
                             @else
                                 <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
                                         data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"

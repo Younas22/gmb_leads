@@ -232,6 +232,49 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Free plan auto-approve — no payment required
+     */
+    public function applyFreePlan(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->isTeamMember()) {
+            return redirect()->route('user.dashboard')->with('error', 'Team members cannot manage subscriptions. Please contact your company administrator.');
+        }
+
+        $request->validate([
+            'package_id' => 'required|exists:packages,id',
+        ]);
+
+        $package = Package::find($request->package_id);
+
+        if ((float)$package->price !== 0.0) {
+            return redirect()->route('user.subscription')->with('error', 'This plan requires payment.');
+        }
+
+        // Cancel any existing active/pending subscription
+        $user->subscriptions()
+            ->whereIn('status', ['active', 'pending'])
+            ->update(['status' => 'cancelled']);
+
+        // Create active subscription immediately
+        $endDate = $package->billing_type === 'yearly'
+            ? now()->addYear()
+            : now()->addMonth();
+
+        Subscription::create([
+            'package_id'  => $package->id,
+            'user_id'     => $user->id,
+            'amount_paid' => 0,
+            'start_date'  => now(),
+            'end_date'    => $endDate,
+            'status'      => 'active',
+        ]);
+
+        return redirect()->route('user.subscription')->with('success', 'Free plan activated successfully! Enjoy your access.');
+    }
+
+    /**
      * User payment screenshot submit — pending subscription banao
      */
     public function submitPayment(Request $request)
