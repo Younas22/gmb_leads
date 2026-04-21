@@ -28,9 +28,9 @@ public function index(Request $request)
     $rating = $request->get('rating');
     $lastReview = $request->get('last_review');
     $reviewsCount = $request->get('reviews_count');
-    $hasEmail = $request->get('has_email', '1');
-    $hasPhone = $request->get('has_phone', '1');
-    $hasWebsite = $request->get('has_website', '1');
+    $hasEmail = $request->get('has_email', '');
+    $hasPhone = $request->get('has_phone', '');
+    $hasWebsite = $request->get('has_website', '');
     $perPage = $request->get('per_page', 30);
     $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
     $selectedUserId = $request->get('user_id'); // User filter
