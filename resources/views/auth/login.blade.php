@@ -767,39 +767,65 @@
             }
         }
 
+        // ========== CSRF Token Refresh Helper ==========
+        function refreshCsrfToken(callback) {
+            $.get('{{ route("csrf.token") }}', function(data) {
+                const token = data.token;
+                $('meta[name="csrf-token"]').attr('content', token);
+                $('input[name="_token"]').val(token);
+                $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': token } });
+                if (callback) callback(token);
+            });
+        }
+
         // ========== Login Submission ==========
+        let loginRetrying = false;
         $('#loginFormElement').on('submit', function(e) {
             e.preventDefault();
             clearErrors();
             const button = document.getElementById('loginButton');
             const text = document.getElementById('loginButtonText');
             setButtonLoading(button, text, true);
+            const form = this;
 
             $.ajax({
                 url: '{{ route("auth.login") }}',
                 method: 'POST',
-                data: new FormData(this),
+                data: new FormData(form),
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    loginRetrying = false;
                     if (response.success) {
                         showAlert(response.message, 'success');
                         setTimeout(() => { window.location.href = response.redirect; }, 1000);
                     }
                 },
                 error: function(xhr) {
+                    if (xhr.status === 419 && !loginRetrying) {
+                        loginRetrying = true;
+                        refreshCsrfToken(function() {
+                            setButtonLoading(button, text, false);
+                            $(form).submit();
+                        });
+                        return;
+                    }
+                    loginRetrying = false;
                     const response = xhr.responseJSON;
                     if (response && response.errors) showErrors(response.errors);
                     showAlert(response?.message || 'Login failed', 'error');
                 },
-                complete: function() {
-                    text.innerHTML = '<i class="fas fa-arrow-right text-sm"></i> Sign In';
-                    setButtonLoading(button, text, false);
+                complete: function(xhr) {
+                    if (xhr.status !== 419 || loginRetrying === false) {
+                        text.innerHTML = '<i class="fas fa-arrow-right text-sm"></i> Sign In';
+                        setButtonLoading(button, text, false);
+                    }
                 }
             });
         });
 
         // ========== Signup Submission ==========
+        let signupRetrying = false;
         $('#signupFormElement').on('submit', function(e) {
             e.preventDefault();
 
@@ -819,27 +845,40 @@
             const button = document.getElementById('signupButton');
             const text = document.getElementById('signupButtonText');
             setButtonLoading(button, text, true);
+            const form = this;
 
             $.ajax({
                 url: '{{ route("auth.signup") }}',
                 method: 'POST',
-                data: new FormData(this),
+                data: new FormData(form),
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    signupRetrying = false;
                     if (response.success) {
                         showAlert(response.message, 'success');
                         setTimeout(() => { window.location.href = response.redirect; }, 1500);
                     }
                 },
                 error: function(xhr) {
+                    if (xhr.status === 419 && !signupRetrying) {
+                        signupRetrying = true;
+                        refreshCsrfToken(function() {
+                            setButtonLoading(button, text, false);
+                            $(form).submit();
+                        });
+                        return;
+                    }
+                    signupRetrying = false;
                     const response = xhr.responseJSON;
                     if (response && response.errors) showErrors(response.errors);
                     showAlert(response?.message || 'Signup failed', 'error');
                 },
-                complete: function() {
-                    text.innerHTML = '<i class="fas fa-rocket text-sm"></i> Create Account';
-                    setButtonLoading(button, text, false);
+                complete: function(xhr) {
+                    if (xhr.status !== 419 || signupRetrying === false) {
+                        text.innerHTML = '<i class="fas fa-rocket text-sm"></i> Create Account';
+                        setButtonLoading(button, text, false);
+                    }
                 }
             });
         });

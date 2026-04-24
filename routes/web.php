@@ -27,6 +27,11 @@ use App\Http\Controllers\Admin\ApiUsageController;
 // Home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// CSRF token refresh endpoint
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf.token');
+
 // Sitemap
 Route::get('/sitemap.xml', function () {
     $urls = [
