@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -79,6 +80,38 @@ class SavedLead extends Model
     public function cityRelation(): BelongsTo
     {
         return $this->belongsTo(City::class, 'city', 'id');
+    }
+
+    /**
+     * Categorize lead: inactive / hot / good / competitive
+     */
+    public function getLeadCategoryAttribute(): string
+    {
+        $now = Carbon::now();
+
+        $reviewDate = null;
+        if ($this->last_review_date && $this->last_review_date !== '0') {
+            try {
+                $reviewDate = Carbon::parse($this->last_review_date);
+            } catch (\Exception $e) {}
+        }
+
+        if (!$reviewDate || $reviewDate->lt($now->copy()->subDays(365))) {
+            return 'inactive';
+        }
+
+        $hasWebsite  = !empty($this->website);
+        $isRecent180 = $reviewDate->gte($now->copy()->subDays(180));
+
+        if (!$hasWebsite && $this->total_reviews < 50 && $isRecent180) {
+            return 'hot';
+        }
+
+        if ($this->total_reviews <= 200 && $isRecent180) {
+            return 'good';
+        }
+
+        return 'competitive';
     }
 
     // Check if lead already exists for user

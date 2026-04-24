@@ -34,6 +34,7 @@ public function index(Request $request)
     $perPage = $request->get('per_page', 30);
     $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
     $selectedUserId = $request->get('user_id'); // User filter
+    $leadCategory = $request->get('lead_category');
 
     // Determine the account owner (company or user itself)
     $accountOwner = $user->isTeamMember() ? $user->company : $user;
@@ -120,8 +121,8 @@ public function index(Request $request)
         $query->where(fn($q) => $q->whereNull('website')->orWhere('website', ''));
     }
 
-    // Stats: clone before status filter so all status counts reflect active filters
-    $statsRows = (clone $query)->get(['contact_status']);
+    // Stats: clone before status/category filters so counts are not skewed
+    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date']);
     $stats = [
         'total'     => $statsRows->count(),
         'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
@@ -129,24 +130,73 @@ public function index(Request $request)
         'converted' => $statsRows->where('contact_status', 'converted')->count(),
     ];
 
+    $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0];
+    foreach ($statsRows as $row) {
+        $cat = $row->lead_category;
+        $categoryStats[$cat] = ($categoryStats[$cat] ?? 0) + 1;
+    }
+
     // Apply status filter only for the leads list
     if ($status) {
         $query->where('contact_status', $status);
     }
 
-    // Get leads with pagination
-    $leads = $query->orderBy('created_at', 'desc')
-                  ->paginate($perPage)
-                  ->withQueryString();
+    // Apply lead category filter
+    if ($leadCategory) {
+        $days365ago = Carbon::now()->subDays(365)->toDateTimeString();
+        $days180ago = Carbon::now()->subDays(180)->toDateTimeString();
+
+        if ($leadCategory === 'inactive') {
+            $query->where(function ($q) use ($days365ago) {
+                $q->whereNull('last_review_date')
+                  ->orWhere('last_review_date', '<', $days365ago);
+            });
+        } elseif ($leadCategory === 'hot') {
+            $query->where('last_review_date', '>=', $days365ago)
+                  ->where('last_review_date', '>=', $days180ago)
+                  ->where(fn ($q) => $q->whereNull('website')->orWhere('website', ''))
+                  ->where('total_reviews', '<', 50);
+        } elseif ($leadCategory === 'good') {
+            $query->where('last_review_date', '>=', $days365ago)
+                  ->where('last_review_date', '>=', $days180ago)
+                  ->where('total_reviews', '<=', 200)
+                  ->where(function ($q) {
+                      $q->whereNotNull('website')->where('website', '!=', '')
+                        ->orWhere('total_reviews', '>=', 50);
+                  });
+        } elseif ($leadCategory === 'competitive') {
+            $query->where('last_review_date', '>=', $days365ago)
+                  ->where(function ($q) use ($days180ago) {
+                      $q->where('total_reviews', '>', 200)
+                        ->orWhere('last_review_date', '<', $days180ago);
+                  });
+        }
+    }
+
+    // Sort: hot leads first, then good, competitive, inactive; secondary by newest
+    $days365ago = Carbon::now()->subDays(365)->toDateTimeString();
+    $days180ago = Carbon::now()->subDays(180)->toDateTimeString();
+
+    $leads = $query->orderByRaw(
+        "CASE
+            WHEN (last_review_date IS NULL OR last_review_date < ?) THEN 4
+            WHEN ((website IS NULL OR website = '') AND total_reviews < 50 AND last_review_date >= ?) THEN 1
+            WHEN (total_reviews <= 200 AND last_review_date >= ?) THEN 2
+            ELSE 3
+         END",
+        [$days365ago, $days180ago, $days180ago]
+    )->orderBy('created_at', 'desc')
+     ->paginate($perPage)
+     ->withQueryString();
 
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
     return view('user.leads', compact(
-        'countries', 'user', 'leads', 'stats',
+        'countries', 'user', 'leads', 'stats', 'categoryStats',
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
-        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId'
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory'
     ));
     
 }

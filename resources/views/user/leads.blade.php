@@ -273,6 +273,9 @@
 
 </div>
 
+<!-- Preserve lead_category across search form submissions -->
+<input type="hidden" name="lead_category" value="{{ $leadCategory ?? '' }}">
+
 <!-- Has Email / Phone / Website toggle row -->
 <div class="flex items-center gap-4 mt-2.5 pt-2.5 border-t border-gray-200">
     <span class="text-xs text-gray-500 font-medium uppercase tracking-wide flex-shrink-0">Has:</span>
@@ -319,6 +322,32 @@
 
 </form>
 
+<!-- Lead Category Filter Pills -->
+@php
+    $baseParams = request()->except(['lead_category', 'page']);
+    $catPills = [
+        ''            => ['label' => 'All Leads',    'icon' => '',   'count' => $stats['total'],              'active_cls' => 'bg-gray-800 text-white border-gray-800',     'inactive_cls' => 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'],
+        'hot'         => ['label' => 'Hot',          'icon' => '🔥', 'count' => $categoryStats['hot'],        'active_cls' => 'bg-red-500 text-white border-red-500',        'inactive_cls' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
+        'good'        => ['label' => 'Good',         'icon' => '👍', 'count' => $categoryStats['good'],       'active_cls' => 'bg-yellow-500 text-white border-yellow-500',  'inactive_cls' => 'bg-white text-yellow-600 border-yellow-300 hover:border-yellow-400'],
+        'competitive' => ['label' => 'Competitive',  'icon' => '🧠', 'count' => $categoryStats['competitive'],'active_cls' => 'bg-blue-500 text-white border-blue-500',      'inactive_cls' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
+        'inactive'    => ['label' => 'Inactive',     'icon' => '❌', 'count' => $categoryStats['inactive'],   'active_cls' => 'bg-gray-400 text-white border-gray-400',      'inactive_cls' => 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'],
+    ];
+@endphp
+<div class="flex flex-wrap items-center gap-2 my-3">
+    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide mr-1">Filter by type:</span>
+    @foreach($catPills as $catKey => $pill)
+        @php
+            $isActive = ($leadCategory ?? '') === $catKey;
+            $url = route('user.leads', $catKey === '' ? $baseParams : array_merge($baseParams, ['lead_category' => $catKey]));
+        @endphp
+        <a href="{{ $url }}"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $pill['active_cls'] : $pill['inactive_cls'] }}">
+            @if($pill['icon']) <span>{{ $pill['icon'] }}</span> @endif
+            {{ $pill['label'] }}
+            <span class="ml-1 {{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $pill['count'] }})</span>
+        </a>
+    @endforeach
+</div>
 
     @if($leads->count() > 0)
         <!-- Bulk Actions Bar -->
@@ -414,6 +443,7 @@
                                 <span class="text-sm font-semibold text-gray-700">Select</span>
                             </th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Business</th>
+                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-32">Lead Type</th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Contact</th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-48">Location</th>
                             <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-36">Rating</th>
@@ -435,6 +465,31 @@
                                     <div>
                                         <div class="text-sm font-semibold text-gray-900 contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
                                         <div class="text-xs text-orange-600 font-medium">{{ $lead->category ?? 'Business' }}</div>
+                                    </div>
+                                </td>
+
+                                {{-- Lead Type Badge --}}
+                                @php
+                                    $cat = $lead->lead_category;
+                                    $catCfg = [
+                                        'hot'         => ['bg' => 'bg-red-50',    'border' => 'border-red-200',    'text' => 'text-red-600',    'icon' => '🔥', 'label' => 'Hot Lead',    'sub' => 'Contact now',       'tip' => 'No website · low reviews · recently active'],
+                                        'good'        => ['bg' => 'bg-yellow-50', 'border' => 'border-yellow-200', 'text' => 'text-yellow-700', 'icon' => '👍', 'label' => 'Good Lead',   'sub' => 'Worth trying',      'tip' => 'Moderate reviews · recently active'],
+                                        'competitive' => ['bg' => 'bg-blue-50',   'border' => 'border-blue-200',   'text' => 'text-blue-600',   'icon' => '🧠', 'label' => 'Competitive', 'sub' => 'Strong pitch',     'tip' => 'High reviews or older activity'],
+                                        'inactive'    => ['bg' => 'bg-gray-50',   'border' => 'border-gray-200',   'text' => 'text-gray-500',   'icon' => '❌', 'label' => 'Inactive',   'sub' => 'Skip this',         'tip' => 'No activity in 365+ days'],
+                                    ];
+                                    $cfg = $catCfg[$cat] ?? $catCfg['inactive'];
+                                @endphp
+                                <td class="px-6 py-4 w-32">
+                                    <div class="relative group inline-block">
+                                        <div class="{{ $cfg['bg'] }} {{ $cfg['border'] }} border rounded-lg px-2 py-1.5 flex flex-col items-start cursor-default min-w-[90px]">
+                                            <span class="{{ $cfg['text'] }} text-xs font-semibold leading-tight">{{ $cfg['icon'] }} {{ $cfg['label'] }}</span>
+                                            <span class="text-gray-400 text-[10px] leading-tight">{{ $cfg['sub'] }}</span>
+                                        </div>
+                                        {{-- Tooltip --}}
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                            {{ $cfg['tip'] }}
+                                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                        </div>
                                     </div>
                                 </td>
 
