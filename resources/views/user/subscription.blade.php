@@ -3,6 +3,82 @@
 @section('title', 'User Dashboard')
 
 @section('content')
+        <!-- Free Trial Banner -->
+        @if($currentPlan && $currentPlan['subscription']->is_trial)
+            @php $trialEndTs = $currentPlan['end_date'] ? $currentPlan['end_date']->copy()->endOfDay()->timestamp : 0; @endphp
+            <div class="mx-4 lg:mx-8 mt-4">
+                <div class="bg-orange-50 border border-orange-200 px-5 py-4 rounded-xl">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-hourglass-half text-orange-500 text-xl flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="font-bold text-orange-800 mb-2">Free Trial Active — Time Remaining</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
+                                        <div id="trial-cd-days" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                        <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">days</div>
+                                    </div>
+                                    <span class="text-orange-400 font-bold text-xl">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
+                                        <div id="trial-cd-hrs" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                        <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">hrs</div>
+                                    </div>
+                                    <span class="text-orange-400 font-bold text-xl">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
+                                        <div id="trial-cd-min" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                        <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">min</div>
+                                    </div>
+                                    <span class="text-orange-400 font-bold text-xl">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
+                                        <div id="trial-cd-sec" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                        <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">sec</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-orange-600 mt-2">Upgrade to a paid plan to keep full access after trial ends.</p>
+                            </div>
+                        </div>
+                        <a href="#pricing-plans" class="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap">
+                            Upgrade Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <script>
+            (function() {
+                var endTs = {{ $trialEndTs }} * 1000;
+                function pad(n) { return n < 10 ? '0' + n : '' + n; }
+                function tick() {
+                    var diff = Math.floor((endTs - Date.now()) / 1000);
+                    if (diff <= 0) {
+                        ['days','hrs','min','sec'].forEach(function(id) {
+                            var el = document.getElementById('trial-cd-' + id);
+                            if (el) el.textContent = '00';
+                        });
+                        var badge = document.getElementById('trial-badge-text');
+                        if (badge) badge.textContent = 'Expired';
+                        return;
+                    }
+                    var d = Math.floor(diff / 86400);
+                    var h = Math.floor((diff % 86400) / 3600);
+                    var m = Math.floor((diff % 3600) / 60);
+                    var s = diff % 60;
+                    var dEl = document.getElementById('trial-cd-days');
+                    var hEl = document.getElementById('trial-cd-hrs');
+                    var mEl = document.getElementById('trial-cd-min');
+                    var sEl = document.getElementById('trial-cd-sec');
+                    if (dEl) dEl.textContent = d;
+                    if (hEl) hEl.textContent = pad(h);
+                    if (mEl) mEl.textContent = pad(m);
+                    if (sEl) sEl.textContent = pad(s);
+                    var badge = document.getElementById('trial-badge-text');
+                    if (badge) badge.textContent = d + 'd ' + pad(h) + 'h ' + pad(m) + 'm left';
+                    setTimeout(tick, 1000);
+                }
+                tick();
+            })();
+            </script>
+        @endif
+
         <!-- Flash Messages -->
         @if(session('payment_success'))
         <div class="mx-4 lg:mx-8 mt-4">
@@ -34,11 +110,17 @@
                         @if($currentPlan)
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
                                 {{ $currentPlan['is_active'] ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                <i class="fas {{ $currentPlan['package']->price > 0 ? 'fa-crown' : 'fa-gift' }} mr-1.5 text-xs"></i>
+                                <i class="fas {{ $currentPlan['subscription']->is_trial ? 'fa-clock' : ($currentPlan['package']->price > 0 ? 'fa-crown' : 'fa-gift') }} mr-1.5 text-xs"></i>
                                 {{ $currentPlan['package']->name }}
+                                @if($currentPlan['subscription']->is_trial) &nbsp;· Free Trial @endif
                                 @if($currentPlan['is_pending']) &nbsp;· Pending @endif
                             </span>
-                            @if($currentPlan['package']->billing_type === 'yearly')
+                            @if($currentPlan['subscription']->is_trial)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                                    <i class="fas fa-hourglass-half mr-1 text-xs"></i>
+                                    <span id="trial-badge-text">...</span>
+                                </span>
+                            @elseif($currentPlan['package']->billing_type === 'yearly')
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Yearly</span>
                             @elseif($currentPlan['package']->billing_type === 'monthly' && $currentPlan['package']->price > 0)
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Monthly</span>
@@ -52,7 +134,11 @@
                     <div class="flex items-center gap-3">
                         @if($currentPlan && $currentPlan['end_date'])
                             <span class="text-xs text-gray-400">
-                                Renews <strong class="text-gray-600">{{ $currentPlan['end_date']->format('M d, Y') }}</strong>
+                                @if($currentPlan['subscription']->is_trial)
+                                    Trial ends <strong class="text-orange-600">{{ $currentPlan['end_date']->format('M d, Y') }}</strong>
+                                @else
+                                    Renews <strong class="text-gray-600">{{ $currentPlan['end_date']->format('M d, Y') }}</strong>
+                                @endif
                             </span>
                         @endif
                         @if(!$currentPlan || $currentPlan['package']->price == 0)

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Package;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -139,6 +141,9 @@ class AuthController extends Controller
             // Auto login after signup
             Auth::login($user);
             $request->session()->regenerate();
+
+            // Give new user a 3-day free trial
+            $this->assignFreeTrial($user);
 
             return response()->json([
                 'success' => true,
@@ -454,6 +459,9 @@ class AuthController extends Controller
 
             Auth::login($user);
 
+            // Give new Google user a 3-day free trial
+            $this->assignFreeTrial($user);
+
             return $this->redirectToDashboard();
 
         } catch (Exception $e) {
@@ -562,6 +570,35 @@ class AuthController extends Controller
         }
 
         return redirect()->route('auth.show')->with('success', 'You have been logged out successfully.');
+    }
+
+    // Assign a 3-day free trial to a newly registered user
+    private function assignFreeTrial(User $user): void
+    {
+        try {
+            $packageFor = $user->isCompany() ? 'company' : 'user';
+
+            $package = Package::active()
+                ->where('package_for', $packageFor)
+                ->orderBy('price', 'asc')
+                ->first();
+
+            if (!$package) {
+                return;
+            }
+
+            Subscription::create([
+                'package_id'  => $package->id,
+                'user_id'     => $user->id,
+                'amount_paid' => 0,
+                'start_date'  => now(),
+                'end_date'    => now()->addDays(3),
+                'status'      => 'active',
+                'is_trial'    => true,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Free trial assignment failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
     }
 
     // Helper methods

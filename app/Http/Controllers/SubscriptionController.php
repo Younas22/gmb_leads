@@ -257,18 +257,14 @@ class SubscriptionController extends Controller
             ->whereIn('status', ['active', 'pending'])
             ->update(['status' => 'cancelled']);
 
-        // Create active subscription immediately
-        $endDate = $package->billing_type === 'yearly'
-            ? now()->addYear()
-            : now()->addMonth();
-
         Subscription::create([
             'package_id'  => $package->id,
             'user_id'     => $user->id,
             'amount_paid' => 0,
             'start_date'  => now(),
-            'end_date'    => $endDate,
+            'end_date'    => now()->addDays(3),
             'status'      => 'active',
+            'is_trial'    => true,
         ]);
 
         return redirect()->route('user.subscription')->with('success', 'Free plan activated successfully! Enjoy your access.');
