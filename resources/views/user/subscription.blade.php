@@ -289,7 +289,7 @@
 
             <!-- Pricing Plans -->
             <div class="mb-8" id="pricing-plans">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">Choose Your Plan1</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Choose Your Plan</h3>
 
                 @php
                     $featureLabels = [
