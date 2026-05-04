@@ -147,6 +147,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
                 Route::get('/api/states/{country}', [SearchController::class, 'getStates'])->name('api.states');
                 Route::get('/api/cities/{state}', [SearchController::class, 'getCities'])->name('api.cities');
+                Route::get('/api/niches', [SearchController::class, 'getNiches'])->name('api.niches');
                 Route::get('/api/place-details/{placeId}', [SearchController::class, 'getPlaceDetails'])->name('api.place-details');
 
                 // Leads routes

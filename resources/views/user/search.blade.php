@@ -41,23 +41,9 @@
             </div>
         </div>
 
-        <!-- Row 1: Search Query, Country, State, City -->
+        <!-- Row 1: Country, State, City -->
         <div class="p-4 pb-0">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-search text-[10px] mr-1"></i>Search Query <span class="text-red-400">*</span></label>
-                    <input type="text"
-                           name="query"
-                           id="search_query"
-                           value="{{ old('query', $searchData['query'] ?? '') }}"
-                           placeholder="e.g. travel agency, restaurant"
-                           required
-                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                    @error('query')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-globe text-[10px] mr-1"></i>Country <span class="text-red-400">*</span></label>
                     <select name="country_id"
@@ -108,11 +94,34 @@
                     @enderror
                 </div>
             </div>
-
         </div>
 
-        <!-- Row 2: Radius, Max Reviews, Review Within Days, Search Button -->
-        <div class="p-4 pt-3">
+        <!-- Row 2: Search Query (full width) -->
+        <div class="px-4 pt-3">
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                    <i class="fas fa-search text-[10px] mr-1"></i>Search Query <span class="text-red-400">*</span>
+                    <span class="ml-2 inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-semibold px-2 py-0.5 rounded-full normal-case tracking-normal">
+                        <i class="fas fa-layer-group text-[9px]"></i>
+                        {{ number_format($nicheCount) }} niches available
+                    </span>
+                </label>
+                <select name="query"
+                        id="search_query"
+                        required
+                        class="w-full">
+                    @if(old('query', $searchData['query'] ?? ''))
+                        <option value="{{ old('query', $searchData['query'] ?? '') }}" selected>{{ old('query', $searchData['query'] ?? '') }}</option>
+                    @endif
+                </select>
+                @error('query')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
+
+        <!-- Row 3: Radius, Max Reviews, Review Within Days, Search Button -->
+        <div class="p-4 pt-3 pb-4">
             @if($extensionMode)
             {{-- Extension Mode: 2-col layout --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -662,6 +671,28 @@ function initializeFormHandlers() {
     const country = document.getElementById('country_select');
     const state = document.getElementById('state_select');
     const city = document.getElementById('city_select');
+
+    // Initialize Select2 on query field with AJAX niche suggestions + free-text
+    $('#search_query').select2({
+        placeholder: 'e.g. Plumbing Service, Restaurant',
+        allowClear: true,
+        width: '100%',
+        tags: true,
+        minimumInputLength: 0,
+        ajax: {
+            url: baseUrl + '/user/api/niches',
+            dataType: 'json',
+            delay: 200,
+            data: function(params) { return { q: params.term || '' }; },
+            processResults: function(data) { return { results: data.results }; },
+            cache: true
+        },
+        createTag: function(params) {
+            var term = $.trim(params.term);
+            if (!term) return null;
+            return { id: term, text: term, newTag: true };
+        }
+    });
 
     // Initialize Select2 on all three dropdowns
     $(country).select2({

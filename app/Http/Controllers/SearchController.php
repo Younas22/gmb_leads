@@ -13,6 +13,7 @@ use App\Models\ApiUsage;
 use App\Models\Setting;
 use App\Models\State;
 use App\Models\City;
+use App\Models\Niche;
 
 class SearchController extends Controller
 {
@@ -27,8 +28,9 @@ class SearchController extends Controller
 
         // Get search data from session if available
         $searchData = session('search_data', []);
+        $nicheCount = Niche::distinct('name')->count('name');
 
-        return view('user.search', compact('user', 'countries', 'packageSlug', 'searchData'));
+        return view('user.search', compact('user', 'countries', 'packageSlug', 'searchData', 'nicheCount'));
     }
 
     /**
@@ -48,6 +50,23 @@ class SearchController extends Controller
     {
         $cities = City::where('state_id', $stateId)->orderBy('name')->get();
         return response()->json($cities);
+    }
+
+    /**
+     * Search niches for Select2 AJAX
+     */
+    public function getNiches(Request $request)
+    {
+        $q = $request->input('q', '');
+        $niches = Niche::select('name')
+            ->when($q, fn($query) => $query->where('name', 'like', "%{$q}%"))
+            ->distinct()
+            ->orderBy('name')
+            ->limit(30)
+            ->pluck('name')
+            ->map(fn($name) => ['id' => $name, 'text' => $name]);
+
+        return response()->json(['results' => $niches]);
     }
 
     /**
