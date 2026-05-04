@@ -112,7 +112,6 @@
                                 {{ $currentPlan['is_active'] ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
                                 <i class="fas {{ $currentPlan['subscription']->is_trial ? 'fa-clock' : ($currentPlan['package']->price > 0 ? 'fa-crown' : 'fa-gift') }} mr-1.5 text-xs"></i>
                                 {{ $currentPlan['package']->name }}
-                                @if($currentPlan['subscription']->is_trial) &nbsp;· Free Trial @endif
                                 @if($currentPlan['is_pending']) &nbsp;· Pending @endif
                             </span>
                             @if($currentPlan['subscription']->is_trial)

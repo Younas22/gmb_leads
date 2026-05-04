@@ -73,7 +73,7 @@
                         $daysLeft = 0;
                         $endDate = null;
 
-                        if ($activeSubscription && $activeSubscription->end_date) {
+                        if ($activeSubscription && $activeSubscription->end_date && !$activeSubscription->is_trial) {
                             $endDate = $activeSubscription->end_date;
                             $daysLeft = now()->diffInDays($endDate, false);
                             $showCountdown = $daysLeft >= 0 && $daysLeft <= 10;
