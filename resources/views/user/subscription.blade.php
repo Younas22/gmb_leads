@@ -5,7 +5,7 @@
 @section('content')
         <!-- Free Trial Banner -->
         @if($currentPlan && $currentPlan['subscription']->is_trial)
-            @php $trialEndTs = $currentPlan['end_date'] ? $currentPlan['end_date']->copy()->endOfDay()->timestamp : 0; @endphp
+            @php $trialEndTs = $currentPlan['subscription']->created_at->addDays(3)->timestamp; @endphp
             <div class="mx-4 lg:mx-8 mt-4">
                 <div class="bg-orange-50 border border-orange-200 px-5 py-4 rounded-xl">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
