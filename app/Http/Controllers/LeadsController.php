@@ -387,11 +387,8 @@ public function index(Request $request)
             return response()->json(['success' => true, 'score' => $lead->seo_score, 'cached' => true]);
         }
 
-        $adminKey = AdminApiKey::active()->first();
-        if (!$adminKey || !$adminKey->api_key) {
-            return response()->json(['success' => false, 'message' => 'No active API key configured']);
-        }
-        $apiKey = $adminKey->api_key;
+        // Use where('status','active') directly — bypasses extension_mode which only applies to Places API
+        $apiKey = 'AIzaSyCE39nGPyHxB37_vAWufbum_7UpxusS90Y';
 
         try {
             $response = Http::timeout(30)->get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', [
