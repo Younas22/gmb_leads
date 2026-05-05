@@ -612,7 +612,7 @@
             <!-- Header -->
             <div class="text-center mb-10">
                 <p class="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Real Output Preview</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">1See What Data You Get</h2>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">12See What Data You Get</h2>
                 <p class="text-lg text-gray-500 max-w-2xl mx-auto">This is actual sample data exported from our Chrome Extension — the exact format you receive as an Excel file.</p>
             </div>
 
