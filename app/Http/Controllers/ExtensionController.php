@@ -13,6 +13,7 @@ use App\Models\SearchHistory;
 use App\Models\Country;
 use App\Models\State;
 use App\Models\City;
+use App\Jobs\CheckLeadSeoJob;
 
 class ExtensionController extends Controller
 {
@@ -637,7 +638,7 @@ class ExtensionController extends Controller
             // ]);
 
             try {
-                SavedLead::create([
+                $newLead = SavedLead::create([
                     'user_id'             => $user->id,
                     'place_id'            => $placeId,
                     'name'                => $leadData['name'] ?? 'Unknown',
@@ -666,6 +667,11 @@ class ExtensionController extends Controller
                     'contact_status'      => 'not_contacted',
                 ]);
                 $savedCount++;
+
+                // Queue SEO check if lead has a website
+                if (!empty($newLead->website)) {
+                    CheckLeadSeoJob::dispatch($newLead->id);
+                }
             } catch (\Exception $e) {
                 \Log::error('Extension save lead error: ' . $e->getMessage(), ['lead' => $leadData]);
             }

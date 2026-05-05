@@ -326,11 +326,12 @@
 @php
     $baseParams = request()->except(['lead_category', 'page']);
     $catPills = [
-        ''            => ['label' => 'All Leads',    'icon' => '',   'count' => $stats['total'],              'active_cls' => 'bg-gray-800 text-white border-gray-800',     'inactive_cls' => 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'],
-        'hot'         => ['label' => 'Hot',          'icon' => '🔥', 'count' => $categoryStats['hot'],        'active_cls' => 'bg-red-500 text-white border-red-500',        'inactive_cls' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
-        'good'        => ['label' => 'Good',         'icon' => '👍', 'count' => $categoryStats['good'],       'active_cls' => 'bg-yellow-500 text-white border-yellow-500',  'inactive_cls' => 'bg-white text-yellow-600 border-yellow-300 hover:border-yellow-400'],
-        'competitive' => ['label' => 'Competitive',  'icon' => '🧠', 'count' => $categoryStats['competitive'],'active_cls' => 'bg-blue-500 text-white border-blue-500',      'inactive_cls' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
-        'inactive'    => ['label' => 'Inactive',     'icon' => '❌', 'count' => $categoryStats['inactive'],   'active_cls' => 'bg-gray-400 text-white border-gray-400',      'inactive_cls' => 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'],
+        ''            => ['label' => 'All Leads',    'icon' => '',   'count' => $stats['total'],                    'active_cls' => 'bg-gray-800 text-white border-gray-800',     'inactive_cls' => 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'],
+        'seo_weak'    => ['label' => 'SEO Weak',     'icon' => '📉', 'count' => $categoryStats['seo_weak'],         'active_cls' => 'bg-orange-500 text-white border-orange-500',  'inactive_cls' => 'bg-white text-orange-600 border-orange-300 hover:border-orange-400'],
+        'hot'         => ['label' => 'Hot',          'icon' => '🔥', 'count' => $categoryStats['hot'],              'active_cls' => 'bg-red-500 text-white border-red-500',        'inactive_cls' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
+        'good'        => ['label' => 'Good',         'icon' => '👍', 'count' => $categoryStats['good'],             'active_cls' => 'bg-yellow-500 text-white border-yellow-500',  'inactive_cls' => 'bg-white text-yellow-600 border-yellow-300 hover:border-yellow-400'],
+        'competitive' => ['label' => 'Competitive',  'icon' => '🧠', 'count' => $categoryStats['competitive'],      'active_cls' => 'bg-blue-500 text-white border-blue-500',      'inactive_cls' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
+        'inactive'    => ['label' => 'Inactive',     'icon' => '❌', 'count' => $categoryStats['inactive'],         'active_cls' => 'bg-gray-400 text-white border-gray-400',      'inactive_cls' => 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'],
     ];
 @endphp
 <div class="flex flex-wrap items-center gap-2 my-3">
@@ -529,8 +530,48 @@
                                                 <i class="fas fa-copy text-xs"></i>
                                             </button>
                                         </div>
+                                        {{-- SEO Score Badge --}}
+                                        <div id="seo-score-{{ $lead->id }}" class="mt-1">
+                                            @if($lead->seo_score === null)
+                                                @if(in_array($lead->id, $uncheckedLeadIds))
+                                                    <span class="seo-pending inline-flex items-center gap-1 text-[10px] text-gray-400">
+                                                        <i class="fas fa-spinner fa-spin"></i> Checking SEO...
+                                                    </span>
+                                                @endif
+                                            @elseif($lead->seo_score < 0)
+                                                <span id="seo-score-{{ $lead->id }}" class="inline-flex items-center gap-1.5 text-[10px] text-gray-400">
+                                                    <i class="fas fa-exclamation-circle text-orange-400"></i>
+                                                    SEO N/A
+                                                    <button onclick="event.stopPropagation(); retrySeoCheck({{ $lead->id }}, this)"
+                                                            class="ml-0.5 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                                                            title="Retry SEO check">
+                                                        <i class="fas fa-redo text-[8px]"></i> Retry
+                                                    </button>
+                                                </span>
+                                            @else
+                                                @php
+                                                    $seoScore = $lead->seo_score;
+                                                    if ($seoScore <= 50) {
+                                                        $seoBg = 'bg-red-100'; $seoText = 'text-red-700'; $seoLabel = 'Weak';
+                                                    } elseif ($seoScore <= 70) {
+                                                        $seoBg = 'bg-yellow-100'; $seoText = 'text-yellow-700'; $seoLabel = 'OK';
+                                                    } else {
+                                                        $seoBg = 'bg-green-100'; $seoText = 'text-green-700'; $seoLabel = 'Strong';
+                                                    }
+                                                @endphp
+                                                <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded {{ $seoBg }} {{ $seoText }}">
+                                                    <i class="fas fa-tachometer-alt"></i> SEO {{ $seoScore }} · {{ $seoLabel }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-100 text-red-700">
+                                                <i class="fas fa-ban"></i> No Website · SEO Weak
+                                            </span>
+                                        </div>
                                     @endif
-                                    @if(!$lead->phone && !$lead->email && !$lead->website)
+                                    @if(!$lead->phone && !$lead->email && $lead->website)
                                         <span class="text-xs text-gray-400 italic">No contact info</span>
                                     @endif
                                 </div>
@@ -720,6 +761,35 @@
 
 <!-- Overlay -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40" onclick="closeLeadDetails()"></div>
+
+<!-- SEO Progress Bar (fixed bottom, non-dismissible) -->
+<div id="seoProgressBar" class="hidden fixed bottom-0 left-0 right-0 z-[60] bg-white border-t-4 border-blue-500 shadow-2xl px-6 py-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-tachometer-alt text-blue-600 text-sm animate-pulse"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">SEO Analysis Running...</p>
+                    <p class="text-xs text-gray-500" id="seoProgressText">Preparing checks...</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-2xl font-bold text-blue-600" id="seoProgressPct">0%</span>
+                <p class="text-[10px] text-gray-400 mt-0.5">Do not close this page</p>
+            </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div id="seoProgressFill"
+                 class="h-3 rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-500 to-indigo-500"
+                 style="width: 0%"></div>
+        </div>
+        <p class="text-[10px] text-center text-gray-400 mt-1.5">
+            <i class="fas fa-lock text-[9px] mr-1"></i>Analysis will complete automatically — please keep this page open
+        </p>
+    </div>
+</div>
 
 @endsection
 
@@ -1616,6 +1686,144 @@ function copyToClipboard(text, button) {
         alert('Failed to copy to clipboard');
     });
 }
+
+// ─── SEO Auto-Check with Progress Bar ────────────────────────────────────────
+const uncheckedLeadIds = @json($uncheckedLeadIds ?? []);
+const checkSeoUrl      = '{{ url("/user/leads") }}';
+const csrfToken        = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+const seoBar      = document.getElementById('seoProgressBar');
+const seoFill     = document.getElementById('seoProgressFill');
+const seoPct      = document.getElementById('seoProgressPct');
+const seoText     = document.getElementById('seoProgressText');
+
+let seoTotal     = uncheckedLeadIds.length;
+let seoDone      = 0;
+let seoRunning   = false;
+
+function showSeoProgress() {
+    seoBar.classList.remove('hidden');
+    // Pad bottom of page so content isn't hidden behind bar
+    document.body.style.paddingBottom = '110px';
+}
+
+function updateSeoProgress() {
+    const pct = seoTotal > 0 ? Math.round((seoDone / seoTotal) * 100) : 100;
+    seoFill.style.width  = pct + '%';
+    seoPct.textContent   = pct + '%';
+    seoText.textContent  = `Checked ${seoDone} of ${seoTotal} websites`;
+}
+
+function hideSeoProgress() {
+    seoPct.textContent  = '100%';
+    seoFill.style.width = '100%';
+    seoText.textContent = `All ${seoTotal} websites checked!`;
+    seoFill.classList.remove('from-blue-500', 'to-indigo-500');
+    seoFill.classList.add('from-green-500', 'to-emerald-500');
+    document.querySelector('#seoProgressBar p.text-\\[10px\\]').textContent = 'SEO analysis complete ✓';
+    setTimeout(() => {
+        seoBar.classList.add('hidden');
+        document.body.style.paddingBottom = '';
+    }, 3000);
+    seoRunning = false;
+    window.removeEventListener('beforeunload', seoBeforeUnload);
+}
+
+function seoBeforeUnload(e) {
+    e.preventDefault();
+    e.returnValue = 'SEO analysis is in progress. If you leave, checking will stop and some websites may not be analysed. Are you sure?';
+    return e.returnValue;
+}
+
+function getSeoScoreHtml(score) {
+    if (score === null || score === undefined || score < 0) {
+        return '<span class="inline-flex items-center gap-1 text-[10px] text-gray-400"><i class="fas fa-minus-circle"></i> SEO N/A</span>';
+    }
+    let bg, txt, label;
+    if (score <= 50)      { bg = 'bg-red-100';    txt = 'text-red-700';    label = 'Weak'; }
+    else if (score <= 70) { bg = 'bg-yellow-100'; txt = 'text-yellow-700'; label = 'OK'; }
+    else                  { bg = 'bg-green-100';  txt = 'text-green-700';  label = 'Strong'; }
+    return `<span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${bg} ${txt}"><i class="fas fa-tachometer-alt"></i> SEO ${score} · ${label}</span>`;
+}
+
+async function checkOneLead(id) {
+    try {
+        const res  = await fetch(`${checkSeoUrl}/${id}/check-seo`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        const el   = document.getElementById(`seo-score-${id}`);
+        if (el) el.innerHTML = getSeoScoreHtml(data.score ?? -1);
+    } catch (e) {
+        const el = document.getElementById(`seo-score-${id}`);
+        if (el) el.innerHTML = '';
+    } finally {
+        seoDone++;
+        updateSeoProgress();
+    }
+}
+
+async function runSeoChecks() {
+    if (seoTotal === 0) return;
+
+    seoRunning = true;
+    showSeoProgress();
+    updateSeoProgress();
+    window.addEventListener('beforeunload', seoBeforeUnload);
+
+    const batchSize = 3;
+    for (let i = 0; i < uncheckedLeadIds.length; i += batchSize) {
+        const batch = uncheckedLeadIds.slice(i, i + batchSize);
+        await Promise.all(batch.map(id => checkOneLead(id)));
+    }
+
+    hideSeoProgress();
+}
+
+if (uncheckedLeadIds.length > 0) {
+    runSeoChecks();
+}
+
+async function retrySeoCheck(id, btn) {
+    const container = document.getElementById(`seo-score-${id}`);
+    if (!container) return;
+
+    // Show spinner while retrying
+    container.innerHTML = '<span class="seo-pending inline-flex items-center gap-1 text-[10px] text-gray-400"><i class="fas fa-spinner fa-spin"></i> Retrying...</span>';
+
+    try {
+        const res  = await fetch(`${checkSeoUrl}/${id}/check-seo`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (data.success && data.score !== null && data.score >= 0) {
+            container.innerHTML = getSeoScoreHtml(data.score);
+        } else {
+            // Still N/A — show retry button again
+            container.innerHTML = `<span class="inline-flex items-center gap-1.5 text-[10px] text-gray-400">
+                <i class="fas fa-exclamation-circle text-orange-400"></i>
+                SEO N/A
+                <button onclick="event.stopPropagation(); retrySeoCheck(${id}, this)"
+                        class="ml-0.5 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors">
+                    <i class="fas fa-redo text-[8px]"></i> Retry
+                </button>
+            </span>`;
+        }
+    } catch (e) {
+        container.innerHTML = `<span class="inline-flex items-center gap-1.5 text-[10px] text-gray-400">
+            <i class="fas fa-exclamation-circle text-orange-400"></i>
+            SEO N/A
+            <button onclick="event.stopPropagation(); retrySeoCheck(${id}, this)"
+                    class="ml-0.5 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors">
+                <i class="fas fa-redo text-[8px]"></i> Retry
+            </button>
+        </span>`;
+    }
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Copy all lead data function
 function copyAllLeadData(leadData) {

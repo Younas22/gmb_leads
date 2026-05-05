@@ -15,6 +15,7 @@ class SavedLead extends Model
         'address',
         'phone',
         'website',
+        'seo_score',
         'email',
         'latitude',
         'longitude',
@@ -84,11 +85,35 @@ class SavedLead extends Model
 
     /**
      * Categorize lead: inactive / hot / good / competitive
+     * SEO score (when available) takes priority over review-based logic.
      */
     public function getLeadCategoryAttribute(): string
     {
-        $now = Carbon::now();
+        // SEO-based categorization (when website checked and score stored)
+        if (!empty($this->website) && $this->seo_score !== null && $this->seo_score >= 0) {
+            if ($this->seo_score <= 50) return 'hot';
+            if ($this->seo_score <= 70) return 'good';
+            return 'competitive';
+        }
 
+        // No website → always hot (SEO weak)
+        if (empty($this->website)) {
+            $now = Carbon::now();
+            $reviewDate = null;
+            if ($this->last_review_date && $this->last_review_date !== '0') {
+                try {
+                    $reviewDate = Carbon::parse($this->last_review_date);
+                } catch (\Exception $e) {}
+            }
+            if ($reviewDate && $reviewDate->gte($now->copy()->subDays(365))
+                && $this->total_reviews < 50
+                && $reviewDate->gte($now->copy()->subDays(180))) {
+                return 'hot';
+            }
+        }
+
+        // Fallback: review-based logic
+        $now = Carbon::now();
         $reviewDate = null;
         if ($this->last_review_date && $this->last_review_date !== '0') {
             try {
@@ -100,10 +125,9 @@ class SavedLead extends Model
             return 'inactive';
         }
 
-        $hasWebsite  = !empty($this->website);
         $isRecent180 = $reviewDate->gte($now->copy()->subDays(180));
 
-        if (!$hasWebsite && $this->total_reviews < 50 && $isRecent180) {
+        if (empty($this->website) && $this->total_reviews < 50 && $isRecent180) {
             return 'hot';
         }
 

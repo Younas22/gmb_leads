@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use App\Models\SavedLead;
+use App\Models\AdminApiKey;
 use App\Models\Country;
 use Carbon\Carbon;
 use App\Exports\LeadsExport;
@@ -122,7 +124,7 @@ public function index(Request $request)
     }
 
     // Stats: clone before status/category filters so counts are not skewed
-    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date']);
+    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date', 'seo_score']);
     $stats = [
         'total'     => $statsRows->count(),
         'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
@@ -130,10 +132,15 @@ public function index(Request $request)
         'converted' => $statsRows->where('contact_status', 'converted')->count(),
     ];
 
-    $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0];
+    $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0, 'seo_weak' => 0];
     foreach ($statsRows as $row) {
         $cat = $row->lead_category;
         $categoryStats[$cat] = ($categoryStats[$cat] ?? 0) + 1;
+
+        // SEO Weak: no website OR checked score ≤ 50
+        if (empty($row->website) || ($row->seo_score !== null && $row->seo_score >= 0 && $row->seo_score <= 50)) {
+            $categoryStats['seo_weak']++;
+        }
     }
 
     // Apply status filter only for the leads list
@@ -150,26 +157,78 @@ public function index(Request $request)
             $query->where(function ($q) use ($days365ago) {
                 $q->whereNull('last_review_date')
                   ->orWhere('last_review_date', '<', $days365ago);
+            })->where(function ($q) {
+                // Exclude SEO-checked leads (they have their own category)
+                $q->whereNull('seo_score')->orWhere('seo_score', '<', 0);
             });
         } elseif ($leadCategory === 'hot') {
-            $query->where('last_review_date', '>=', $days365ago)
-                  ->where('last_review_date', '>=', $days180ago)
-                  ->where(fn ($q) => $q->whereNull('website')->orWhere('website', ''))
-                  ->where('total_reviews', '<', 50);
+            $query->where(function ($q) use ($days365ago, $days180ago) {
+                // SEO-based: website exists, seo_score ≤ 50
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('website')->where('website', '!=', '')
+                       ->whereNotNull('seo_score')->where('seo_score', '>=', 0)
+                       ->where('seo_score', '<=', 50);
+                })
+                // Review-based: no website, recent, low reviews
+                ->orWhere(function ($q2) use ($days365ago, $days180ago) {
+                    $q2->where('last_review_date', '>=', $days365ago)
+                       ->where('last_review_date', '>=', $days180ago)
+                       ->where(fn ($q3) => $q3->whereNull('website')->orWhere('website', ''))
+                       ->where('total_reviews', '<', 50);
+                });
+            });
         } elseif ($leadCategory === 'good') {
-            $query->where('last_review_date', '>=', $days365ago)
-                  ->where('last_review_date', '>=', $days180ago)
-                  ->where('total_reviews', '<=', 200)
-                  ->where(function ($q) {
-                      $q->whereNotNull('website')->where('website', '!=', '')
-                        ->orWhere('total_reviews', '>=', 50);
-                  });
+            $query->where(function ($q) use ($days365ago, $days180ago) {
+                // SEO-based: website exists, seo_score 51–70
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('website')->where('website', '!=', '')
+                       ->whereNotNull('seo_score')->where('seo_score', '>', 50)
+                       ->where('seo_score', '<=', 70);
+                })
+                // Review-based: recent, ≤200 reviews, not already hot
+                ->orWhere(function ($q2) use ($days365ago, $days180ago) {
+                    $q2->where('last_review_date', '>=', $days365ago)
+                       ->where('last_review_date', '>=', $days180ago)
+                       ->where('total_reviews', '<=', 200)
+                       ->where(function ($q3) {
+                           $q3->whereNotNull('website')->where('website', '!=', '')
+                              ->orWhere('total_reviews', '>=', 50);
+                       })
+                       ->where(function ($q3) {
+                           $q3->whereNull('seo_score')->orWhere('seo_score', '<', 0);
+                       });
+                });
+            });
         } elseif ($leadCategory === 'competitive') {
-            $query->where('last_review_date', '>=', $days365ago)
-                  ->where(function ($q) use ($days180ago) {
-                      $q->where('total_reviews', '>', 200)
-                        ->orWhere('last_review_date', '<', $days180ago);
+            $query->where(function ($q) use ($days365ago, $days180ago) {
+                // SEO-based: website exists, seo_score > 70
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('website')->where('website', '!=', '')
+                       ->whereNotNull('seo_score')->where('seo_score', '>', 70);
+                })
+                // Review-based: original competitive logic, but only unchecked leads
+                ->orWhere(function ($q2) use ($days365ago, $days180ago) {
+                    $q2->where('last_review_date', '>=', $days365ago)
+                       ->where(function ($q3) use ($days180ago) {
+                           $q3->where('total_reviews', '>', 200)
+                              ->orWhere('last_review_date', '<', $days180ago);
+                       })
+                       ->where(function ($q3) {
+                           $q3->whereNull('seo_score')->orWhere('seo_score', '<', 0);
+                       });
+                });
+            });
+        } elseif ($leadCategory === 'seo_weak') {
+            // No website OR seo_score ≤ 50
+            $query->where(function ($q) {
+                $q->whereNull('website')
+                  ->orWhere('website', '')
+                  ->orWhere(function ($q2) {
+                      $q2->whereNotNull('website')->where('website', '!=', '')
+                         ->whereNotNull('seo_score')->where('seo_score', '>=', 0)
+                         ->where('seo_score', '<=', 50);
                   });
+            });
         }
     }
 
@@ -192,11 +251,20 @@ public function index(Request $request)
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
+    // Leads on current page that have a website but no SEO score checked yet
+    $currentPageIds = $leads->pluck('id')->toArray();
+    $uncheckedLeadIds = SavedLead::whereIn('id', $currentPageIds)
+        ->whereNotNull('website')->where('website', '!=', '')
+        ->whereNull('seo_score')
+        ->pluck('id')
+        ->toArray();
+
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats', 'categoryStats',
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
-        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory'
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory',
+        'uncheckedLeadIds'
     ));
     
 }
@@ -299,6 +367,55 @@ public function index(Request $request)
             'success' => true,
             'message' => 'Notes updated successfully'
         ]);
+    }
+
+    /**
+     * Check SEO score via Google PageSpeed API
+     */
+    public function checkSeo($id)
+    {
+        $user = Auth::user();
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
+        if (empty($lead->website)) {
+            return response()->json(['success' => false, 'message' => 'No website']);
+        }
+
+        // Skip only if already has a valid positive score
+        if ($lead->seo_score !== null && $lead->seo_score >= 0) {
+            return response()->json(['success' => true, 'score' => $lead->seo_score, 'cached' => true]);
+        }
+
+        $adminKey = AdminApiKey::active()->first();
+        if (!$adminKey || !$adminKey->api_key) {
+            return response()->json(['success' => false, 'message' => 'No active API key configured']);
+        }
+        $apiKey = $adminKey->api_key;
+
+        try {
+            $response = Http::timeout(30)->get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', [
+                'url'      => $lead->website,
+                'key'      => $apiKey,
+                'strategy' => 'mobile',
+                'category' => 'performance',
+            ]);
+
+            $data = $response->json();
+            $score = null;
+
+            if (isset($data['lighthouseResult']['categories']['performance']['score'])) {
+                $score = (int) round($data['lighthouseResult']['categories']['performance']['score'] * 100);
+            }
+
+            // Store score (-1 if API returned no usable score, to avoid rechecking)
+            $lead->update(['seo_score' => $score ?? -1]);
+
+            return response()->json(['success' => true, 'score' => $score]);
+        } catch (\Exception $e) {
+            $lead->update(['seo_score' => -1]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
