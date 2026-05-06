@@ -124,7 +124,7 @@ public function index(Request $request)
     }
 
     // Stats: clone before status/category filters so counts are not skewed
-    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date', 'seo_score']);
+    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date', 'seo_score', 'rating']);
     $stats = [
         'total'     => $statsRows->count(),
         'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
@@ -132,7 +132,7 @@ public function index(Request $request)
         'converted' => $statsRows->where('contact_status', 'converted')->count(),
     ];
 
-    $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0, 'seo_weak' => 0];
+    $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0, 'seo_weak' => 0, 'low_rating' => 0];
     foreach ($statsRows as $row) {
         $cat = $row->lead_category;
         $categoryStats[$cat] = ($categoryStats[$cat] ?? 0) + 1;
@@ -140,6 +140,11 @@ public function index(Request $request)
         // SEO Weak: no website OR checked score ≤ 50
         if (empty($row->website) || ($row->seo_score !== null && $row->seo_score >= 0 && $row->seo_score <= 50)) {
             $categoryStats['seo_weak']++;
+        }
+
+        // Low Rating: rating exists and is ≤ 3.5
+        if ($row->rating !== null && $row->rating <= 3.5) {
+            $categoryStats['low_rating']++;
         }
     }
 
@@ -229,6 +234,8 @@ public function index(Request $request)
                          ->where('seo_score', '<=', 50);
                   });
             });
+        } elseif ($leadCategory === 'low_rating') {
+            $query->whereNotNull('rating')->where('rating', '<=', 3.5);
         }
     }
 

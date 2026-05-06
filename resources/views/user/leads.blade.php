@@ -10,6 +10,8 @@
         $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
             ->whereDate('created_at', today())
             ->count();
+        $_sub = Auth::user()->activeSubscription();
+        $hasSeoAccess = $_sub && !$_sub->is_trial;
     @endphp
 
     @if($exportLimit !== -1)
@@ -328,6 +330,7 @@
     $catPills = [
         ''            => ['label' => 'All Leads',    'icon' => '',   'count' => $stats['total'],                    'active_cls' => 'bg-gray-800 text-white border-gray-800',     'inactive_cls' => 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'],
         'seo_weak'    => ['label' => 'SEO Weak',     'icon' => '📉', 'count' => $categoryStats['seo_weak'],         'active_cls' => 'bg-orange-500 text-white border-orange-500',  'inactive_cls' => 'bg-white text-orange-600 border-orange-300 hover:border-orange-400'],
+        'low_rating'  => ['label' => 'Low Rating',   'icon' => '⭐', 'count' => $categoryStats['low_rating'],        'active_cls' => 'bg-pink-500 text-white border-pink-500',      'inactive_cls' => 'bg-white text-pink-600 border-pink-300 hover:border-pink-400'],
         'hot'         => ['label' => 'Hot',          'icon' => '🔥', 'count' => $categoryStats['hot'],              'active_cls' => 'bg-red-500 text-white border-red-500',        'inactive_cls' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
         'good'        => ['label' => 'Good',         'icon' => '👍', 'count' => $categoryStats['good'],             'active_cls' => 'bg-yellow-500 text-white border-yellow-500',  'inactive_cls' => 'bg-white text-yellow-600 border-yellow-300 hover:border-yellow-400'],
         'competitive' => ['label' => 'Competitive',  'icon' => '🧠', 'count' => $categoryStats['competitive'],      'active_cls' => 'bg-blue-500 text-white border-blue-500',      'inactive_cls' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
@@ -340,13 +343,23 @@
         @php
             $isActive = ($leadCategory ?? '') === $catKey;
             $url = route('user.leads', $catKey === '' ? $baseParams : array_merge($baseParams, ['lead_category' => $catKey]));
+            $isSeoWeakPill = $catKey === 'seo_weak';
         @endphp
-        <a href="{{ $url }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $pill['active_cls'] : $pill['inactive_cls'] }}">
-            @if($pill['icon']) <span>{{ $pill['icon'] }}</span> @endif
-            {{ $pill['label'] }}
-            <span class="ml-1 {{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $pill['count'] }})</span>
-        </a>
+        @if($isSeoWeakPill && !$hasSeoAccess)
+            <button type="button" onclick="showSeoUpgradeModal()"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-white text-gray-400 border-gray-200 cursor-not-allowed">
+                <span>📉</span>
+                {{ $pill['label'] }}
+                <i class="fas fa-lock text-[10px] ml-0.5 text-purple-400"></i>
+            </button>
+        @else
+            <a href="{{ $url }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $pill['active_cls'] : $pill['inactive_cls'] }}">
+                @if($pill['icon']) <span>{{ $pill['icon'] }}</span> @endif
+                {{ $pill['label'] }}
+                <span class="ml-1 {{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $pill['count'] }})</span>
+            </a>
+        @endif
     @endforeach
 </div>
 
@@ -389,10 +402,6 @@
 
                     <div class="flex items-center gap-2">
                         <!-- SEO Analytics Button -->
-                        @php
-                            $subscription = Auth::user()->activeSubscription();
-                            $hasSeoAccess = $subscription && !$subscription->is_trial;
-                        @endphp
                         @if($hasSeoAccess)
                             <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn"
                                     class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
@@ -551,18 +560,13 @@
                                         </div>
                                         {{-- SEO Score Badge --}}
                                         <div id="seo-score-{{ $lead->id }}" class="mt-1">
-                                            @if($lead->seo_score === null)
+                                            @if(!$hasSeoAccess)
+                                                <button onclick="event.stopPropagation(); showSeoUpgradeModal()"
+                                                        class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 border border-purple-200 hover:bg-purple-100 transition-colors">
+                                                    <i class="fas fa-lock text-[9px]"></i> SEO Score
+                                                </button>
+                                            @elseif($lead->seo_score === null)
                                                 {{-- Not checked yet; will be filled by SEO Analytics button --}}
-                                            @elseif($lead->seo_score < 0)
-                                                <span id="seo-score-{{ $lead->id }}" class="inline-flex items-center gap-1.5 text-[10px] text-gray-400">
-                                                    <i class="fas fa-exclamation-circle text-orange-400"></i>
-                                                    SEO N/A
-                                                    <button onclick="event.stopPropagation(); retrySeoCheck({{ $lead->id }}, this)"
-                                                            class="ml-0.5 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
-                                                            title="Retry SEO check">
-                                                        <i class="fas fa-redo text-[8px]"></i> Retry
-                                                    </button>
-                                                </span>
                                             @else
                                                 @php
                                                     $seoScore = $lead->seo_score;
