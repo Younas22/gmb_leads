@@ -80,7 +80,15 @@ class AffiliateService
 
     public static function getReferralCodeFromRequest(Request $request): ?string
     {
-        return $request->query('ref') ?? $request->cookie('ref_code');
+        // Priority: URL param > session > cookie
+        return $request->query('ref')
+            ?? $request->session()->get('ref_code')
+            ?? $request->cookie('ref_code');
+    }
+
+    public static function clearReferralSession(Request $request): void
+    {
+        $request->session()->forget('ref_code');
     }
 
     // ── Signup tracking ─────────────────────────────

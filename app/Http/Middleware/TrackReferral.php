@@ -13,10 +13,22 @@ class TrackReferral
     {
         $refCode = $request->query('ref');
 
-        if ($refCode && !$request->cookie('ref_code')) {
-            AffiliateService::trackClick($refCode, $request);
+        // URL mein ref hai aur abhi tak track nahi hua
+        if ($refCode) {
+            $existing = $request->cookie('ref_code') ?? $request->session()->get('ref_code');
+
+            // Last-click attribution: naya ref code always override karo
+            if (!$existing || $existing !== $refCode) {
+                AffiliateService::trackClick($refCode, $request);
+            }
+
+            // Session mein store karo (most reliable)
+            $request->session()->put('ref_code', $refCode);
+            $request->session()->save();
 
             $response = $next($request);
+
+            // Cookie bhi set karo as backup
             return $response->withCookie(AffiliateService::setCookie($refCode));
         }
 

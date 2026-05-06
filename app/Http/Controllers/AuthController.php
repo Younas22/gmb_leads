@@ -137,7 +137,7 @@ class AuthController extends Controller
             // Assign a referral code to the new user
             AffiliateService::ensureReferralCode($user);
 
-            // Track referral if user came via a referral link/cookie
+            // Track referral — read BEFORE session regenerate (session is cleared after regenerate)
             $refCode = AffiliateService::getReferralCodeFromRequest($request);
             AffiliateService::handleSignup($user, $refCode);
 
@@ -149,6 +149,9 @@ class AuthController extends Controller
             // Auto login after signup
             Auth::login($user);
             $request->session()->regenerate();
+
+            // Clear ref session after successful signup (prevent reuse)
+            AffiliateService::clearReferralSession($request);
 
             // Give new user a 3-day free trial
             $this->assignFreeTrial($user);
