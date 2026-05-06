@@ -155,6 +155,125 @@
             @endif
         </header>
 
+        <!-- ══ Affiliate Motivational Banner ══ -->
+        @php
+            $affEarning  = auth()->user()->affiliateEarning;
+            $affAvailable = $affEarning ? $affEarning->available : 0;
+            $affTotal     = $affEarning ? $affEarning->total_earned : 0;
+            $affCode      = auth()->user()->referral_code;
+            $affLink      = auth()->user()->getReferralLink();
+        @endphp
+        <div id="affiliateBanner"
+             class="relative overflow-hidden mx-0"
+             style="display:none;">
+            <!-- Animated gradient background -->
+            <div class="bg-gradient-to-r from-emerald-600 via-green-500 to-teal-600 px-4 lg:px-8 py-3">
+                <!-- Decorative circles -->
+                <div class="absolute -top-4 -right-4 w-24 h-24 bg-white opacity-5 rounded-full pointer-events-none"></div>
+                <div class="absolute -bottom-6 right-32 w-16 h-16 bg-white opacity-5 rounded-full pointer-events-none"></div>
+                <div class="absolute top-0 right-64 w-10 h-10 bg-white opacity-5 rounded-full pointer-events-none"></div>
+
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <!-- Left: Icon + Message -->
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-full p-2">
+                            <i class="fas fa-hand-holding-dollar text-white text-lg"></i>
+                        </div>
+                        <div class="min-w-0">
+                            @if($affTotal > 0)
+                                <p class="text-white font-semibold text-sm leading-tight">
+                                    💰 You've earned
+                                    <span class="bg-white bg-opacity-20 px-1.5 py-0.5 rounded font-bold">${{ number_format($affTotal, 2) }}</span>
+                                    so far!
+                                    @if($affAvailable > 0)
+                                        <span class="ml-1 text-yellow-200">${{ number_format($affAvailable, 2) }} is ready to withdraw.</span>
+                                    @else
+                                        <span class="ml-1 text-yellow-200">Keep referring friends to earn more!</span>
+                                    @endif
+                                </p>
+                            @else
+                                <p class="text-white font-semibold text-sm leading-tight">
+                                    🚀 Refer friends &amp; earn <span class="bg-white bg-opacity-20 px-1.5 py-0.5 rounded font-bold">commission on every sale</span> — completely free!
+                                </p>
+                            @endif
+                            <p class="text-green-100 text-xs mt-0.5 hidden sm:block">
+                                Your code:
+                                <span class="font-mono font-bold text-white cursor-pointer hover:text-yellow-200 transition-colors"
+                                      onclick="copyAffCode('{{ $affCode }}', '{{ $affLink }}')"
+                                      title="Click to copy link">
+                                    {{ $affCode }}
+                                </span>
+                                <span class="ml-1 opacity-70">· Click to copy your referral link</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: CTA + Dismiss -->
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        @if($affAvailable > 0)
+                            <a href="{{ route('user.affiliate.withdrawals') }}"
+                               class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                <i class="fas fa-money-bill-transfer mr-2"></i>
+                                Withdraw ${{ number_format($affAvailable, 2) }}
+                            </a>
+                        @else
+                            <a href="{{ route('user.affiliate.index') }}"
+                               class="inline-flex items-center px-4 py-2 bg-white hover:bg-gray-50 text-green-700 text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                <i class="fas fa-link mr-2"></i>
+                                Apna Link Lo
+                            </a>
+                        @endif
+
+                        <button onclick="dismissAffiliateBanner()"
+                                class="flex-shrink-0 text-white hover:text-green-200 transition-colors p-1.5 rounded-lg hover:bg-white hover:bg-opacity-10"
+                                title="Dismiss">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const banner = document.getElementById('affiliateBanner');
+            if (banner) {
+                banner.style.display = 'block';
+                banner.style.opacity = '0';
+                banner.style.transform = 'translateY(-10px)';
+                banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                requestAnimationFrame(() => {
+                    banner.style.opacity = '1';
+                    banner.style.transform = 'translateY(0)';
+                });
+            }
+        });
+
+        function dismissAffiliateBanner() {
+            const banner = document.getElementById('affiliateBanner');
+            if (banner) {
+                banner.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                banner.style.opacity = '0';
+                banner.style.transform = 'translateY(-10px)';
+                setTimeout(() => banner.style.display = 'none', 300);
+            }
+        }
+
+        function copyAffCode(code, link) {
+            navigator.clipboard.writeText(link).then(() => {
+                const t = document.createElement('div');
+                t.className = 'fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm shadow-xl z-50';
+                t.innerHTML = '<i class="fas fa-check mr-2 text-green-400"></i>Referral link copy ho gaya!';
+                document.body.appendChild(t);
+                t.style.opacity = '0';
+                t.style.transition = 'opacity 0.3s';
+                requestAnimationFrame(() => t.style.opacity = '1');
+                setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2500);
+            });
+        }
+        </script>
+        <!-- ══ End Affiliate Banner ══ -->
+
         <!-- Flash Messages -->
         @if(session('success'))
         <div id="flashMessage" class="mx-4 lg:mx-8 mt-4">
