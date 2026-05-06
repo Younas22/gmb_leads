@@ -251,20 +251,11 @@ public function index(Request $request)
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
-    // Leads on current page that have a website but no SEO score checked yet
-    $currentPageIds = $leads->pluck('id')->toArray();
-    $uncheckedLeadIds = SavedLead::whereIn('id', $currentPageIds)
-        ->whereNotNull('website')->where('website', '!=', '')
-        ->whereNull('seo_score')
-        ->pluck('id')
-        ->toArray();
-
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats', 'categoryStats',
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
-        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory',
-        'uncheckedLeadIds'
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory'
     ));
     
 }

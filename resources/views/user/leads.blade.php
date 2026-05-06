@@ -388,6 +388,25 @@
                     @endphp
 
                     <div class="flex items-center gap-2">
+                        <!-- SEO Analytics Button -->
+                        @php
+                            $subscription = Auth::user()->activeSubscription();
+                            $hasSeoAccess = $subscription && !$subscription->is_trial;
+                        @endphp
+                        @if($hasSeoAccess)
+                            <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn"
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
+                                <i class="fas fa-tachometer-alt mr-1"></i>
+                                <span>SEO Analytics</span>
+                            </button>
+                        @else
+                            <button type="button" onclick="showSeoUpgradeModal()"
+                                    class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
+                                <i class="fas fa-lock mr-1"></i>
+                                <span>SEO Analytics</span>
+                            </button>
+                        @endif
+
                         <!-- Hide/Show Button -->
                         <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn"
                                 class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
@@ -533,11 +552,7 @@
                                         {{-- SEO Score Badge --}}
                                         <div id="seo-score-{{ $lead->id }}" class="mt-1">
                                             @if($lead->seo_score === null)
-                                                @if(in_array($lead->id, $uncheckedLeadIds))
-                                                    <span class="seo-pending inline-flex items-center gap-1 text-[10px] text-gray-400">
-                                                        <i class="fas fa-spinner fa-spin"></i> Checking SEO...
-                                                    </span>
-                                                @endif
+                                                {{-- Not checked yet; will be filled by SEO Analytics button --}}
                                             @elseif($lead->seo_score < 0)
                                                 <span id="seo-score-{{ $lead->id }}" class="inline-flex items-center gap-1.5 text-[10px] text-gray-400">
                                                     <i class="fas fa-exclamation-circle text-orange-400"></i>
@@ -788,6 +803,26 @@
         <p class="text-[10px] text-center text-gray-400 mt-1.5">
             <i class="fas fa-lock text-[9px] mr-1"></i>Analysis will complete automatically — please keep this page open
         </p>
+    </div>
+</div>
+
+<!-- SEO Upgrade Modal -->
+<div id="seoUpgradeModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeSeoUpgradeModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-tachometer-alt text-purple-600 text-2xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">SEO Analytics — Paid Feature</h2>
+        <p class="text-gray-600 text-sm mb-6">Upgrade to a paid plan to unlock SEO Analytics and see the performance score of every lead's website.</p>
+        <div class="flex gap-3 justify-center">
+            <a href="{{ route('user.subscription') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
+                <i class="fas fa-arrow-up mr-1"></i> Upgrade Now
+            </a>
+            <button onclick="closeSeoUpgradeModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
+                Cancel
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1687,19 +1722,18 @@ function copyToClipboard(text, button) {
     });
 }
 
-// ─── SEO Auto-Check with Progress Bar ────────────────────────────────────────
-const uncheckedLeadIds = @json($uncheckedLeadIds ?? []);
-const checkSeoUrl      = '{{ url("/user/leads") }}';
-const csrfToken        = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+// ─── SEO Analytics with Progress Bar ─────────────────────────────────────────
+const checkSeoUrl = '{{ url("/user/leads") }}';
+const csrfToken   = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-const seoBar      = document.getElementById('seoProgressBar');
-const seoFill     = document.getElementById('seoProgressFill');
-const seoPct      = document.getElementById('seoProgressPct');
-const seoText     = document.getElementById('seoProgressText');
+const seoBar  = document.getElementById('seoProgressBar');
+const seoFill = document.getElementById('seoProgressFill');
+const seoPct  = document.getElementById('seoProgressPct');
+const seoText = document.getElementById('seoProgressText');
 
-let seoTotal     = uncheckedLeadIds.length;
-let seoDone      = 0;
-let seoRunning   = false;
+let seoTotal   = 0;
+let seoDone    = 0;
+let seoRunning = false;
 
 function showSeoProgress() {
     seoBar.classList.remove('hidden');
@@ -1764,25 +1798,51 @@ async function checkOneLead(id) {
     }
 }
 
-async function runSeoChecks() {
-    if (seoTotal === 0) return;
+async function runSeoChecks(idsToCheck) {
+    if (!idsToCheck || idsToCheck.length === 0) return;
 
+    seoTotal   = idsToCheck.length;
+    seoDone    = 0;
     seoRunning = true;
     showSeoProgress();
     updateSeoProgress();
     window.addEventListener('beforeunload', seoBeforeUnload);
 
     const batchSize = 3;
-    for (let i = 0; i < uncheckedLeadIds.length; i += batchSize) {
-        const batch = uncheckedLeadIds.slice(i, i + batchSize);
+    for (let i = 0; i < idsToCheck.length; i += batchSize) {
+        const batch = idsToCheck.slice(i, i + batchSize);
         await Promise.all(batch.map(id => checkOneLead(id)));
     }
 
     hideSeoProgress();
 }
 
-if (uncheckedLeadIds.length > 0) {
-    runSeoChecks();
+function startSeoAnalytics() {
+    if (seoRunning) return;
+
+    const idsToCheck = Array.from(document.querySelectorAll('[id^="seo-score-"]'))
+        .map(el => parseInt(el.id.replace('seo-score-', '')));
+
+    if (idsToCheck.length === 0) {
+        alert('No leads with websites found on this page.');
+        return;
+    }
+
+    // Show spinner on each lead before starting
+    idsToCheck.forEach(id => {
+        const el = document.getElementById(`seo-score-${id}`);
+        if (el) el.innerHTML = '<span class="inline-flex items-center gap-1 text-[10px] text-gray-400"><i class="fas fa-spinner fa-spin"></i> Checking...</span>';
+    });
+
+    runSeoChecks(idsToCheck);
+}
+
+function showSeoUpgradeModal() {
+    document.getElementById('seoUpgradeModal').classList.remove('hidden');
+}
+
+function closeSeoUpgradeModal() {
+    document.getElementById('seoUpgradeModal').classList.add('hidden');
 }
 
 async function retrySeoCheck(id, btn) {
