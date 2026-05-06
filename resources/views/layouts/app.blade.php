@@ -263,7 +263,7 @@
             navigator.clipboard.writeText(link).then(() => {
                 const t = document.createElement('div');
                 t.className = 'fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm shadow-xl z-50';
-                t.innerHTML = '<i class="fas fa-check mr-2 text-green-400"></i>Referral link copy ho gaya!';
+                t.innerHTML = '<i class="fas fa-check mr-2 text-green-400"></i>Referral link copied!';
                 document.body.appendChild(t);
                 t.style.opacity = '0';
                 t.style.transition = 'opacity 0.3s';
