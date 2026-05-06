@@ -493,7 +493,6 @@
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-semibold text-gray-900 contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
-                                        <div class="text-xs text-orange-600 font-medium">{{ $lead->category ?? 'Business' }}</div>
                                     </div>
                                 </td>
 
