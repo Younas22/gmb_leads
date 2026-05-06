@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\User;
 use App\Models\PaymentMethod;
 use App\Models\Payment;
+use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -179,11 +180,11 @@ class SubscriptionController extends Controller
             // Get pending payments before updating
             $pendingPayments = $subscription->payments()->where('status', 'pending')->get();
 
-            // Pending payments ko completed karo
-            $subscription->payments()->where('status', 'pending')->update([
-                'status' => 'completed',
-                'paid_at' => now(),
-            ]);
+            // Pending payments ko completed karo + affiliate commission trigger karo
+            foreach ($pendingPayments as $pendingPayment) {
+                $pendingPayment->update(['status' => 'completed', 'paid_at' => now()]);
+                AffiliateService::processConversion($pendingPayment);
+            }
 
             // Send invoice email for each approved payment
             if ($pendingPayments->count() > 0) {
