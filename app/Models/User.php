@@ -39,6 +39,11 @@ class User extends Authenticatable
         'email_verification_token',
         'signups_enabled',
         'extension_token',
+        'referral_code',
+        'referred_by',
+        'affiliate_active',
+        'custom_commission_type',
+        'custom_commission_value',
     ];
 
     protected $hidden = [
@@ -56,6 +61,8 @@ class User extends Authenticatable
             'last_login' => 'datetime',
             'email_verified' => 'boolean',
             'signups_enabled' => 'boolean',
+            'affiliate_active' => 'boolean',
+            'custom_commission_value' => 'decimal:2',
         ];
     }
 
@@ -642,6 +649,53 @@ class User extends Authenticatable
         }
 
         return $this->teamMembers()->count();
+    }
+
+    // ──────────────────────────────────────────────
+    // Affiliate / Referral System
+    // ──────────────────────────────────────────────
+
+    public function affiliateClicks()
+    {
+        return $this->hasMany(\App\Models\AffiliateClick::class, 'referral_code', 'referral_code');
+    }
+
+    public function affiliateConversions()
+    {
+        return $this->hasMany(\App\Models\AffiliateConversion::class, 'referrer_id');
+    }
+
+    public function affiliateEarning()
+    {
+        return $this->hasOne(\App\Models\AffiliateEarning::class);
+    }
+
+    public function withdrawalRequests()
+    {
+        return $this->hasMany(\App\Models\WithdrawalRequest::class);
+    }
+
+    public function referredUsers()
+    {
+        return $this->hasMany(User::class, 'referred_by', 'referral_code');
+    }
+
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by', 'referral_code');
+    }
+
+    public function getReferralLink(): string
+    {
+        return url('/') . '?ref=' . $this->referral_code;
+    }
+
+    public function getOrCreateEarning(): \App\Models\AffiliateEarning
+    {
+        return $this->affiliateEarning()->firstOrCreate(
+            ['user_id' => $this->id],
+            ['total_earned' => 0, 'pending' => 0, 'approved' => 0, 'withdrawn' => 0]
+        );
     }
 
 }

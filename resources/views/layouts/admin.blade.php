@@ -135,6 +135,11 @@
                         API Usage
                     </a>
 
+                    <a href="{{ route('admin.affiliate.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.affiliate.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-hand-holding-dollar w-5 text-center mr-3"></i>
+                        Affiliates
+                    </a>
+
                     <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mt-6 mb-2">Reports</p>
 
                     <!-- Reports Dropdown -->

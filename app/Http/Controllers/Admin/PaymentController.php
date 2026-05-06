@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -75,6 +76,11 @@ class PaymentController extends Controller
         }
 
         $payment->update($updateData);
+
+        // Process affiliate commission when payment is marked as completed
+        if ($request->status === 'completed' && $payment->user) {
+            AffiliateService::processConversion($payment);
+        }
 
         // Send invoice email when payment is marked as completed
         if ($request->status === 'completed' && $payment->subscription && $payment->user) {

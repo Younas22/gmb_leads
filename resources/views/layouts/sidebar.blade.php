@@ -115,6 +115,16 @@
                     </a>
                     @endif
 
+                    <!-- Affiliate Dashboard - Available to all users -->
+                    <a href="{{ route('user.affiliate.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.affiliate.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-hand-holding-dollar w-5 text-center mr-3"></i>
+                        Affiliate
+                        @php $pendingEarning = auth()->user()->affiliateEarning; @endphp
+                        @if($pendingEarning && $pendingEarning->available > 0)
+                            <span class="ml-auto text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">${{ number_format($pendingEarning->available, 0) }}</span>
+                        @endif
+                    </a>
+
                     <!-- Profile Link - Available to all users -->
                     <a href="{{ route('user.profile') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.profile') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-user-cog w-5 text-center mr-3"></i>

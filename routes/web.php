@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\SubscriptionController as AdminSubscriptionContro
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ApiUsageController;
+use App\Http\Controllers\AffiliateController;
+use App\Http\Controllers\Admin\AffiliateController as AdminAffiliateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +118,16 @@ Route::middleware(['web', 'auth'])->group(function () {
             // Feedback - always accessible (so users can provide feedback regardless of subscription)
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
             Route::get('/feedback/history', [FeedbackController::class, 'userFeedback'])->name('feedback.history');
+
+            // Affiliate / Referral routes (accessible without subscription)
+            Route::prefix('affiliate')->name('affiliate.')->group(function () {
+                Route::get('/',              [AffiliateController::class, 'index'])->name('index');
+                Route::get('/referrals',     [AffiliateController::class, 'referrals'])->name('referrals');
+                Route::get('/earnings',      [AffiliateController::class, 'earnings'])->name('earnings');
+                Route::get('/withdrawals',   [AffiliateController::class, 'withdrawals'])->name('withdrawals');
+                Route::post('/withdraw',     [AffiliateController::class, 'requestWithdrawal'])->name('withdrawal.request');
+                Route::post('/generate-link',[AffiliateController::class, 'generateLink'])->name('generate-link');
+            });
 
             // Restricted routes - only accessible if user has active subscription
             Route::middleware('subscription.access')->group(function () {
@@ -258,6 +270,22 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::prefix('feedback')->name('feedback.')->group(function () {
             Route::get('/history', [FeedbackController::class, 'adminIndex'])->name('history');
             Route::post('/{feedback}/status', [FeedbackController::class, 'updateStatus'])->name('update-status');
+        });
+
+        // Affiliate Management
+        Route::prefix('affiliate')->name('affiliate.')->middleware(\App\Http\Middleware\AdminMiddleware::class)->group(function () {
+            Route::get('/',                                       [AdminAffiliateController::class, 'index'])->name('index');
+            Route::get('/affiliates',                             [AdminAffiliateController::class, 'affiliates'])->name('affiliates');
+            Route::get('/affiliates/{user}',                      [AdminAffiliateController::class, 'show'])->name('show');
+            Route::post('/affiliates/{user}/toggle',              [AdminAffiliateController::class, 'toggleStatus'])->name('toggle');
+            Route::put('/affiliates/{user}/commission',           [AdminAffiliateController::class, 'updateCommission'])->name('commission');
+            Route::get('/withdrawals',                            [AdminAffiliateController::class, 'withdrawals'])->name('withdrawals');
+            Route::post('/withdrawals/{withdrawal}/process',      [AdminAffiliateController::class, 'processWithdrawal'])->name('withdrawal.process');
+            Route::get('/conversions',                            [AdminAffiliateController::class, 'conversions'])->name('conversions');
+            Route::post('/conversions/{conversion}/approve',      [AdminAffiliateController::class, 'approveConversion'])->name('conversion.approve');
+            Route::post('/conversions/{conversion}/reject',       [AdminAffiliateController::class, 'rejectConversion'])->name('conversion.reject');
+            Route::get('/settings',                               [AdminAffiliateController::class, 'settings'])->name('settings');
+            Route::put('/settings',                               [AdminAffiliateController::class, 'updateSettings'])->name('settings.update');
         });
 
         // Settings

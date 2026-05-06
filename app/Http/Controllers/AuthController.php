@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Package;
 use App\Models\Subscription;
+use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -132,6 +133,13 @@ class AuthController extends Controller
                 'email_verification_token'=> $verificationToken,
                 'last_login'              => now(),
             ]);
+
+            // Assign a referral code to the new user
+            AffiliateService::ensureReferralCode($user);
+
+            // Track referral if user came via a referral link/cookie
+            $refCode = AffiliateService::getReferralCodeFromRequest($request);
+            AffiliateService::handleSignup($user, $refCode);
 
             // Send verification email only if email verification is enabled
             if (\App\Models\Setting::get('enable_verify_email', false)) {
@@ -461,6 +469,11 @@ class AuthController extends Controller
 
             // Give new Google user a 3-day free trial
             $this->assignFreeTrial($user);
+
+            // Assign referral code + handle referral attribution for Google signups
+            AffiliateService::ensureReferralCode($user);
+            $refCode = request()->cookie('ref_code');
+            AffiliateService::handleSignup($user, $refCode);
 
             return $this->redirectToDashboard();
 
