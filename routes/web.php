@@ -26,6 +26,68 @@ use App\Http\Controllers\Admin\AffiliateController as AdminAffiliateController;
 |--------------------------------------------------------------------------
 */
 
+// ── TEMPORARY FIX ROUTE — delete after use ──────────────
+Route::get('/temp-affiliate-fix', function(\Illuminate\Http\Request $request) {
+    // Security: sirf admin run kare
+    if (!auth()->check() || !auth()->user()->isAdmin()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $action = $request->query('action', 'status');
+
+    // action=fix&email=USER_EMAIL&ref=REFERRAL_CODE
+    if ($action === 'fix') {
+        $email   = $request->query('email');
+        $refCode = $request->query('ref');
+
+        if (!$email || !$refCode) {
+            return response()->json(['error' => 'email aur ref required hain']);
+        }
+
+        $referrer = \App\Models\User::where('referral_code', $refCode)->first();
+        if (!$referrer) {
+            return response()->json(['error' => "Referral code '$refCode' ka koi user nahi mila"]);
+        }
+
+        $newUser = \App\Models\User::where('email', $email)->first();
+        if (!$newUser) {
+            return response()->json(['error' => "Email '$email' ka koi user nahi mila"]);
+        }
+
+        // referred_by set karo
+        $newUser->update(['referred_by' => $refCode]);
+
+        // Click record karo
+        \App\Models\AffiliateClick::firstOrCreate(
+            ['referral_code' => $refCode, 'ip' => $newUser->id . '-manual'],
+            ['user_agent' => 'Manual fix', 'converted' => true, 'converted_at' => now()]
+        );
+
+        // Referrer ka earning record ensure karo
+        $referrer->getOrCreateEarning();
+
+        return response()->json([
+            'success' => true,
+            'referrer' => $referrer->name . ' (code: ' . $refCode . ')',
+            'new_user' => $newUser->name . ' (referred_by: ' . $newUser->fresh()->referred_by . ')',
+            'message'  => 'Fix ho gaya! Ab affiliate dashboard check karo.',
+        ]);
+    }
+
+    // action=status — sab users aur clicks dekho
+    if ($action === 'status') {
+        $clicks = \App\Models\AffiliateClick::latest()->take(10)->get(['referral_code','ip','converted','created_at']);
+        $recent = \App\Models\User::latest()->take(10)->get(['id','name','email','referral_code','referred_by','created_at']);
+        return response()->json([
+            'recent_users'  => $recent,
+            'recent_clicks' => $clicks,
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+
+    return response()->json(['actions' => 'status, fix']);
+});
+// ── END TEMPORARY ROUTE ──────────────────────────────────
+
 // Home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 

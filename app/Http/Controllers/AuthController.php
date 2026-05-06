@@ -137,8 +137,9 @@ class AuthController extends Controller
             // Assign a referral code to the new user
             AffiliateService::ensureReferralCode($user);
 
-            // Track referral — read BEFORE session regenerate (session is cleared after regenerate)
-            $refCode = AffiliateService::getReferralCodeFromRequest($request);
+            // Track referral — form field > session > cookie (order of reliability)
+            $refCode = $request->input('ref_code')
+                ?? AffiliateService::getReferralCodeFromRequest($request);
             AffiliateService::handleSignup($user, $refCode);
 
             // Send verification email only if email verification is enabled

@@ -80,8 +80,9 @@ class AffiliateService
 
     public static function getReferralCodeFromRequest(Request $request): ?string
     {
-        // Priority: URL param > session > cookie
-        return $request->query('ref')
+        // Priority: POST field > URL param > session > cookie
+        return $request->input('ref_code')
+            ?? $request->query('ref')
             ?? $request->session()->get('ref_code')
             ?? $request->cookie('ref_code');
     }

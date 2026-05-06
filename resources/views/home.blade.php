@@ -1830,5 +1830,16 @@
             yearlyBtn.classList.toggle('text-gray-600', isMonthly);
         }
     </script>
+
+    <script>
+        // Referral link tracking — URL se ?ref= pado aur localStorage mein save karo
+        (function() {
+            const ref = new URLSearchParams(window.location.search).get('ref');
+            if (ref) {
+                localStorage.setItem('ref_code', ref);
+                localStorage.setItem('ref_code_ts', Date.now().toString());
+            }
+        })();
+    </script>
 </body>
 </html>

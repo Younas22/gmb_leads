@@ -515,6 +515,7 @@
                                     </div>
 
                                     <input type="hidden" name="user_type" value="user">
+                                    <input type="hidden" name="ref_code" id="signupRefCode" value="">
 
                                     <!-- Password -->
                                     <div>
@@ -934,6 +935,28 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeForgotPasswordModal();
         });
+
+        // ========== Referral Code Tracking ==========
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refFromUrl = urlParams.get('ref');
+
+            // URL mein ?ref= hai toh localStorage mein save karo (30 din ke liye)
+            if (refFromUrl) {
+                localStorage.setItem('ref_code', refFromUrl);
+                localStorage.setItem('ref_code_ts', Date.now().toString());
+            }
+
+            // localStorage se ref code pado (30 din tak valid)
+            const storedCode = localStorage.getItem('ref_code');
+            const storedTs   = parseInt(localStorage.getItem('ref_code_ts') || '0');
+            const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+            if (storedCode && (Date.now() - storedTs) < thirtyDays) {
+                const field = document.getElementById('signupRefCode');
+                if (field) field.value = storedCode;
+            }
+        })();
     </script>
 </body>
 </html>
