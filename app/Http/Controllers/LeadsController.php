@@ -130,6 +130,8 @@ public function index(Request $request)
         'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
         'pending'   => $statsRows->where('contact_status', 'not_contacted')->count(),
         'converted' => $statsRows->where('contact_status', 'converted')->count(),
+        'responded' => $statsRows->where('contact_status', 'responded')->count(),
+        'closed'    => $statsRows->where('contact_status', 'closed')->count(),
     ];
 
     $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0, 'seo_weak' => 0, 'low_rating' => 0];

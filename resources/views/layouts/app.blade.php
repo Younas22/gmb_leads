@@ -220,7 +220,7 @@
                             <a href="{{ route('user.affiliate.index') }}"
                                class="inline-flex items-center px-4 py-2 bg-white hover:bg-gray-50 text-green-700 text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                                 <i class="fas fa-link mr-2"></i>
-                                Apna Link Lo
+                                Get Your Link
                             </a>
                         @endif
 

@@ -59,54 +59,84 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => ''])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-primary-400 hover:shadow-md transition-all cursor-pointer {{ !request('status') ? 'ring-2 ring-primary-400' : '' }}">
             <div class="flex items-center">
                 <div class="p-3 bg-primary-100 rounded-lg">
                     <i class="fas fa-bookmark text-primary-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Total Leads</p>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Total Leads</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-green-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'contacted' ? 'ring-2 ring-green-400' : '' }}">
             <div class="flex items-center">
                 <div class="p-3 bg-green-100 rounded-lg">
                     <i class="fas fa-phone text-green-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Contacted</p>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Contacted</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['contacted'] }}</p>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-orange-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'not_contacted' ? 'ring-2 ring-orange-400' : '' }}">
             <div class="flex items-center">
                 <div class="p-3 bg-orange-100 rounded-lg">
                     <i class="fas fa-clock text-orange-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Pending</p>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Pending</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['pending'] }}</p>
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'converted' ? 'ring-2 ring-emerald-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-green-100 rounded-lg">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                <div class="p-3 bg-emerald-100 rounded-lg">
+                    <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Converted</p>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Converted</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $stats['converted'] }}</p>
                 </div>
             </div>
-        </div>
+        </a>
+
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'responded' ? 'ring-2 ring-blue-400' : '' }}">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i class="fas fa-reply text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Responded</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['responded'] }}</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])) }}"
+           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-red-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'closed' ? 'ring-2 ring-red-400' : '' }}">
+            <div class="flex items-center">
+                <div class="p-3 bg-red-100 rounded-lg">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-xs font-medium text-gray-600">Closed</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['closed'] }}</p>
+                </div>
+            </div>
+        </a>
     </div>
 
 
