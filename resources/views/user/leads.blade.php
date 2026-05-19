@@ -63,113 +63,36 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="overflow-x-auto -mx-3 lg:mx-0 mb-6 pb-1">
-    <div class="grid grid-cols-8 gap-2 min-w-[680px] px-3 lg:px-0 lg:min-w-0">
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => ''])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-primary-400 hover:shadow-md transition-all cursor-pointer {{ !request('status') ? 'ring-2 ring-primary-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-primary-100 rounded-lg">
-                    <i class="fas fa-bookmark text-primary-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Total</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['total'] }}</p>
-                </div>
-            </div>
-        </a>
+    <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 mb-6">
+        @php
+        $statCards = [
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => ''])),          'active' => !request('status') && !request('has_follow_up'), 'color' => 'primary', 'icon' => 'fa-bookmark',       'label' => 'Total',      'value' => $stats['total']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])), 'active' => request('status') === 'contacted',  'color' => 'green',   'icon' => 'fa-phone',         'label' => 'Contacted',  'value' => $stats['contacted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])), 'active' => request('status') === 'not_contacted', 'color' => 'orange', 'icon' => 'fa-clock',      'label' => 'Pending',    'value' => $stats['pending']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])), 'active' => request('status') === 'converted',  'color' => 'emerald', 'icon' => 'fa-check-circle',  'label' => 'Converted',  'value' => $stats['converted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])), 'active' => request('status') === 'responded',  'color' => 'blue',    'icon' => 'fa-reply',         'label' => 'Responded',  'value' => $stats['responded']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])),    'active' => request('status') === 'closed',     'color' => 'red',     'icon' => 'fa-times-circle',  'label' => 'Closed',     'value' => $stats['closed']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])), 'active' => request('status') === 'follow_up',  'color' => 'purple',  'icon' => 'fa-calendar-check','label' => 'Follow Up',  'value' => $stats['follow_up']],
+            ['href' => route('user.leads', array_merge(request()->except(['status','has_follow_up']), ['has_follow_up' => '1'])), 'active' => request('has_follow_up') === '1', 'color' => 'indigo', 'icon' => 'fa-calendar-alt', 'label' => 'Scheduled', 'value' => $stats['scheduled']],
+        ];
+        $ringMap = ['primary'=>'ring-primary-400','green'=>'ring-green-400','orange'=>'ring-orange-400','emerald'=>'ring-emerald-400','blue'=>'ring-blue-400','red'=>'ring-red-400','purple'=>'ring-purple-400','indigo'=>'ring-indigo-400'];
+        $bgMap   = ['primary'=>'bg-primary-100','green'=>'bg-green-100','orange'=>'bg-orange-100','emerald'=>'bg-emerald-100','blue'=>'bg-blue-100','red'=>'bg-red-100','purple'=>'bg-purple-100','indigo'=>'bg-indigo-100'];
+        $txtMap  = ['primary'=>'text-primary-600','green'=>'text-green-600','orange'=>'text-orange-600','emerald'=>'text-emerald-600','blue'=>'text-blue-600','red'=>'text-red-600','purple'=>'text-purple-600','indigo'=>'text-indigo-600'];
+        $brdMap  = ['primary'=>'hover:border-primary-400','green'=>'hover:border-green-400','orange'=>'hover:border-orange-400','emerald'=>'hover:border-emerald-400','blue'=>'hover:border-blue-400','red'=>'hover:border-red-400','purple'=>'hover:border-purple-400','indigo'=>'hover:border-indigo-400'];
+        @endphp
 
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-green-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'contacted' ? 'ring-2 ring-green-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-green-100 rounded-lg">
-                    <i class="fas fa-phone text-green-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Contacted</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['contacted'] }}</p>
-                </div>
+        @foreach($statCards as $card)
+        @php $c = $card['color']; @endphp
+        <a href="{{ $card['href'] }}"
+           class="bg-white rounded-xl shadow-sm border border-gray-100 {{ $brdMap[$c] }} hover:shadow-md transition-all cursor-pointer {{ $card['active'] ? 'ring-2 '.$ringMap[$c] : '' }} p-3 flex flex-col items-center text-center gap-1.5">
+            <div class="p-2 {{ $bgMap[$c] }} rounded-lg">
+                <i class="fas {{ $card['icon'] }} {{ $txtMap[$c] }} text-base"></i>
             </div>
+            <p class="text-[11px] font-medium text-gray-500 leading-tight">{{ $card['label'] }}</p>
+            <p class="text-xl font-bold text-gray-900 leading-none">{{ $card['value'] }}</p>
         </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-orange-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'not_contacted' ? 'ring-2 ring-orange-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-orange-100 rounded-lg">
-                    <i class="fas fa-clock text-orange-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Pending</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['pending'] }}</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'converted' ? 'ring-2 ring-emerald-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-emerald-100 rounded-lg">
-                    <i class="fas fa-check-circle text-emerald-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Converted</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['converted'] }}</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'responded' ? 'ring-2 ring-blue-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-blue-100 rounded-lg">
-                    <i class="fas fa-reply text-blue-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Responded</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['responded'] }}</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-red-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'closed' ? 'ring-2 ring-red-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-red-100 rounded-lg">
-                    <i class="fas fa-times-circle text-red-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Closed</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['closed'] }}</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'follow_up' ? 'ring-2 ring-purple-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-purple-100 rounded-lg">
-                    <i class="fas fa-calendar-check text-purple-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Follow Up</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['follow_up'] }}</p>
-                </div>
-            </div>
-        </a>
-
-        <a href="{{ route('user.leads', array_merge(request()->except(['status', 'has_follow_up']), ['has_follow_up' => '1'])) }}"
-           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-indigo-400 hover:shadow-md transition-all cursor-pointer {{ request('has_follow_up') === '1' ? 'ring-2 ring-indigo-400' : '' }}">
-            <div class="flex items-center">
-                <div class="p-2.5 bg-indigo-100 rounded-lg">
-                    <i class="fas fa-calendar-alt text-indigo-600 text-lg"></i>
-                </div>
-                <div class="ml-2.5">
-                    <p class="text-xs font-medium text-gray-600">Scheduled</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $stats['scheduled'] }}</p>
-                </div>
-            </div>
-        </a>
+        @endforeach
     </div>
-    </div>{{-- /overflow-x-auto --}}
 
 
 
