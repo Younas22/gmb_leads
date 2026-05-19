@@ -39,6 +39,8 @@ class SavedLead extends Model
         'is_contacted',
         'contact_status',
         'notes',
+        'follow_up_source',
+        'follow_up_date',
         'tags'
     ];
 
@@ -50,6 +52,7 @@ class SavedLead extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'rating' => 'decimal:1',
+        'follow_up_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

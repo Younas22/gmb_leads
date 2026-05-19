@@ -36,7 +36,8 @@ public function index(Request $request)
     $perPage = $request->get('per_page', 30);
     $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
     $selectedUserId = $request->get('user_id'); // User filter
-    $leadCategory = $request->get('lead_category');
+    $leadCategory   = $request->get('lead_category');
+    $hasFollowUp    = $request->get('has_follow_up', '');
 
     // Determine the account owner (company or user itself)
     $accountOwner = $user->isTeamMember() ? $user->company : $user;
@@ -124,14 +125,16 @@ public function index(Request $request)
     }
 
     // Stats: clone before status/category filters so counts are not skewed
-    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date', 'seo_score', 'rating']);
+    $statsRows = (clone $query)->get(['contact_status', 'website', 'total_reviews', 'last_review_date', 'seo_score', 'rating', 'follow_up_date']);
     $stats = [
-        'total'     => $statsRows->count(),
-        'contacted' => $statsRows->where('contact_status', 'contacted')->count(),
-        'pending'   => $statsRows->where('contact_status', 'not_contacted')->count(),
-        'converted' => $statsRows->where('contact_status', 'converted')->count(),
-        'responded' => $statsRows->where('contact_status', 'responded')->count(),
-        'closed'    => $statsRows->where('contact_status', 'closed')->count(),
+        'total'          => $statsRows->count(),
+        'contacted'      => $statsRows->where('contact_status', 'contacted')->count(),
+        'pending'        => $statsRows->where('contact_status', 'not_contacted')->count(),
+        'converted'      => $statsRows->where('contact_status', 'converted')->count(),
+        'responded'      => $statsRows->where('contact_status', 'responded')->count(),
+        'closed'         => $statsRows->where('contact_status', 'closed')->count(),
+        'follow_up' => $statsRows->where('contact_status', 'follow_up')->count(),
+        'scheduled' => $statsRows->filter(fn($r) => $r->follow_up_date && $r->contact_status !== 'follow_up')->count(),
     ];
 
     $categoryStats = ['hot' => 0, 'good' => 0, 'competitive' => 0, 'inactive' => 0, 'seo_weak' => 0, 'low_rating' => 0];
@@ -153,6 +156,11 @@ public function index(Request $request)
     // Apply status filter only for the leads list
     if ($status) {
         $query->where('contact_status', $status);
+    }
+
+    // Show leads that have a follow_up_date set but are not yet marked as follow_up
+    if ($hasFollowUp === '1') {
+        $query->whereNotNull('follow_up_date')->where('contact_status', '!=', 'follow_up');
     }
 
     // Apply lead category filter
@@ -264,7 +272,7 @@ public function index(Request $request)
         'countries', 'user', 'leads', 'stats', 'categoryStats',
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
-        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory'
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory', 'hasFollowUp'
     ));
     
 }
@@ -334,7 +342,7 @@ public function index(Request $request)
         $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:not_contacted,contacted,responded,converted,not_interested,closed'
+            'status' => 'required|in:not_contacted,contacted,responded,converted,not_interested,closed,follow_up'
         ]);
 
         $lead->update([
@@ -358,7 +366,7 @@ public function index(Request $request)
         $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
 
         $request->validate([
-            'notes' => 'nullable|string|max:1000'
+            'notes' => 'nullable|string|max:2000'
         ]);
 
         $lead->update(['notes' => $request->notes]);
@@ -366,6 +374,34 @@ public function index(Request $request)
         return response()->json([
             'success' => true,
             'message' => 'Notes updated successfully'
+        ]);
+    }
+
+    /**
+     * Update lead follow-up details (source, date, note)
+     */
+    public function updateFollowUp(Request $request, $id)
+    {
+        $user = Auth::user();
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
+        $request->validate([
+            'follow_up_source' => 'nullable|in:email,facebook,linkedin,x,whatsapp,instagram',
+            'follow_up_date'   => 'nullable|date',
+            'notes'            => 'nullable|string|max:2000',
+        ]);
+
+        $data = [];
+        if ($request->has('follow_up_source')) $data['follow_up_source'] = $request->follow_up_source;
+        if ($request->has('follow_up_date'))   $data['follow_up_date']   = $request->follow_up_date;
+        if ($request->has('notes'))            $data['notes']            = $request->notes;
+
+        $lead->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Follow-up saved successfully'
         ]);
     }
 
@@ -444,7 +480,7 @@ public function index(Request $request)
             'action' => 'required|in:delete,update_status',
             'lead_ids' => 'required|array',
             'lead_ids.*' => 'integer|exists:saved_leads,id',
-            'status' => 'required_if:action,update_status|in:not_contacted,contacted,responded,converted,not_interested,closed'
+            'status' => 'required_if:action,update_status|in:not_contacted,contacted,responded,converted,not_interested,closed,follow_up'
         ]);
         
         $leadIds = $request->lead_ids;
@@ -897,6 +933,9 @@ public function index(Request $request)
             'latest_review_relative' => $latestReviewDate ? $latestReviewDate->diffForHumans() : null,
             'status' => $lead->contact_status,
             'notes' => $lead->notes,
+            'follow_up_source' => $lead->follow_up_source,
+            'follow_up_date' => $lead->follow_up_date ? $lead->follow_up_date->format('Y-m-d') : null,
+            'follow_up_date_formatted' => $lead->follow_up_date ? $lead->follow_up_date->format('M d, Y') : null,
             'added_date' => $lead->created_at->format('M d, Y'),
             'google_profile_url' => $lead->google_profile_url,
             'is_contacted' => $lead->is_contacted,

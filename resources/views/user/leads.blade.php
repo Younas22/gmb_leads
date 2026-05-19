@@ -59,81 +59,107 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3 mb-6">
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => ''])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-primary-400 hover:shadow-md transition-all cursor-pointer {{ !request('status') ? 'ring-2 ring-primary-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-primary-400 hover:shadow-md transition-all cursor-pointer {{ !request('status') ? 'ring-2 ring-primary-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-primary-100 rounded-lg">
-                    <i class="fas fa-bookmark text-primary-600 text-xl"></i>
+                <div class="p-2.5 bg-primary-100 rounded-lg">
+                    <i class="fas fa-bookmark text-primary-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-xs font-medium text-gray-600">Total Leads</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                <div class="ml-2.5">
+                    <p class="text-xs font-medium text-gray-600">Total</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                 </div>
             </div>
         </a>
 
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-green-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'contacted' ? 'ring-2 ring-green-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-green-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'contacted' ? 'ring-2 ring-green-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-green-100 rounded-lg">
-                    <i class="fas fa-phone text-green-600 text-xl"></i>
+                <div class="p-2.5 bg-green-100 rounded-lg">
+                    <i class="fas fa-phone text-green-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
+                <div class="ml-2.5">
                     <p class="text-xs font-medium text-gray-600">Contacted</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['contacted'] }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['contacted'] }}</p>
                 </div>
             </div>
         </a>
 
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-orange-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'not_contacted' ? 'ring-2 ring-orange-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-orange-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'not_contacted' ? 'ring-2 ring-orange-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-orange-100 rounded-lg">
-                    <i class="fas fa-clock text-orange-600 text-xl"></i>
+                <div class="p-2.5 bg-orange-100 rounded-lg">
+                    <i class="fas fa-clock text-orange-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
+                <div class="ml-2.5">
                     <p class="text-xs font-medium text-gray-600">Pending</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['pending'] }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['pending'] }}</p>
                 </div>
             </div>
         </a>
 
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'converted' ? 'ring-2 ring-emerald-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'converted' ? 'ring-2 ring-emerald-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-emerald-100 rounded-lg">
-                    <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
+                <div class="p-2.5 bg-emerald-100 rounded-lg">
+                    <i class="fas fa-check-circle text-emerald-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
+                <div class="ml-2.5">
                     <p class="text-xs font-medium text-gray-600">Converted</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['converted'] }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['converted'] }}</p>
                 </div>
             </div>
         </a>
 
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'responded' ? 'ring-2 ring-blue-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'responded' ? 'ring-2 ring-blue-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-blue-100 rounded-lg">
-                    <i class="fas fa-reply text-blue-600 text-xl"></i>
+                <div class="p-2.5 bg-blue-100 rounded-lg">
+                    <i class="fas fa-reply text-blue-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
+                <div class="ml-2.5">
                     <p class="text-xs font-medium text-gray-600">Responded</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['responded'] }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['responded'] }}</p>
                 </div>
             </div>
         </a>
 
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])) }}"
-           class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:border-red-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'closed' ? 'ring-2 ring-red-400' : '' }}">
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-red-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'closed' ? 'ring-2 ring-red-400' : '' }}">
             <div class="flex items-center">
-                <div class="p-3 bg-red-100 rounded-lg">
-                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                <div class="p-2.5 bg-red-100 rounded-lg">
+                    <i class="fas fa-times-circle text-red-600 text-lg"></i>
                 </div>
-                <div class="ml-3">
+                <div class="ml-2.5">
                     <p class="text-xs font-medium text-gray-600">Closed</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['closed'] }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['closed'] }}</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])) }}"
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer {{ request('status') === 'follow_up' ? 'ring-2 ring-purple-400' : '' }}">
+            <div class="flex items-center">
+                <div class="p-2.5 bg-purple-100 rounded-lg">
+                    <i class="fas fa-calendar-check text-purple-600 text-lg"></i>
+                </div>
+                <div class="ml-2.5">
+                    <p class="text-xs font-medium text-gray-600">Follow Up</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['follow_up'] }}</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('user.leads', array_merge(request()->except(['status', 'has_follow_up']), ['has_follow_up' => '1'])) }}"
+           class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-indigo-400 hover:shadow-md transition-all cursor-pointer {{ request('has_follow_up') === '1' ? 'ring-2 ring-indigo-400' : '' }}">
+            <div class="flex items-center">
+                <div class="p-2.5 bg-indigo-100 rounded-lg">
+                    <i class="fas fa-calendar-alt text-indigo-600 text-lg"></i>
+                </div>
+                <div class="ml-2.5">
+                    <p class="text-xs font-medium text-gray-600">Scheduled</p>
+                    <p class="text-xl font-bold text-gray-900">{{ $stats['scheduled'] }}</p>
                 </div>
             </div>
         </a>
@@ -232,11 +258,12 @@
     <!-- Rest normal size -->
     <select name="status" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
         <option value="">Status</option>
-        <option value="not_contacted" {{ $status == 'not_contacted' ? 'selected' : '' }}>New</option>
-        <option value="contacted"     {{ $status == 'contacted'     ? 'selected' : '' }}>Contacted</option>
-        <option value="responded"     {{ $status == 'responded'     ? 'selected' : '' }}>Responded</option>
-        <option value="converted"     {{ $status == 'converted'     ? 'selected' : '' }}>Converted</option>
-        <option value="closed"        {{ $status == 'closed'        ? 'selected' : '' }}>Closed</option>
+        <option value="not_contacted"  {{ $status == 'not_contacted'  ? 'selected' : '' }}>Pending</option>
+        <option value="contacted"      {{ $status == 'contacted'      ? 'selected' : '' }}>Contacted</option>
+        <option value="responded"      {{ $status == 'responded'      ? 'selected' : '' }}>Responded</option>
+        <option value="converted"      {{ $status == 'converted'      ? 'selected' : '' }}>Converted</option>
+        <option value="closed"         {{ $status == 'closed'         ? 'selected' : '' }}>Closed</option>
+        <option value="follow_up"      {{ $status == 'follow_up'      ? 'selected' : '' }}>Follow Up</option>
     </select>
 
 
@@ -700,22 +727,32 @@
                                     @php
                                         $statusColors = [
                                             'not_contacted' => 'bg-red-100 text-red-700',
-                                            'contacted' => 'bg-blue-100 text-blue-700',
-                                            'responded' => 'bg-yellow-100 text-yellow-700',
-                                            'converted' => 'bg-green-100 text-green-700',
-                                            'closed' => 'bg-gray-100 text-gray-700'
+                                            'contacted'     => 'bg-blue-100 text-blue-700',
+                                            'responded'     => 'bg-yellow-100 text-yellow-700',
+                                            'converted'     => 'bg-green-100 text-green-700',
+                                            'closed'        => 'bg-gray-100 text-gray-700',
+                                            'follow_up'     => 'bg-purple-100 text-purple-700',
                                         ];
                                         $statusLabels = [
-                                            'not_contacted' => 'Not Contacted',
-                                            'contacted' => 'Contacted',
-                                            'responded' => 'Responded',
-                                            'converted' => 'Converted',
-                                            'closed' => 'Closed'
+                                            'not_contacted' => 'Pending',
+                                            'contacted'     => 'Contacted',
+                                            'responded'     => 'Responded',
+                                            'converted'     => 'Converted',
+                                            'closed'        => 'Closed',
+                                            'follow_up'     => 'Follow Up',
                                         ];
                                     @endphp
-                                    <span class="px-2 py-1 {{ $statusColors[$lead->contact_status] ?? 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full">
-                                        {{ $statusLabels[$lead->contact_status] ?? 'Unknown' }}
-                                    </span>
+                                    <div class="space-y-1">
+                                        <span class="inline-block px-2 py-1 {{ $statusColors[$lead->contact_status] ?? 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full">
+                                            {{ $statusLabels[$lead->contact_status] ?? 'Unknown' }}
+                                        </span>
+                                        @if($lead->follow_up_date)
+                                            <div class="flex items-center gap-1 text-[10px] font-semibold text-purple-600 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full w-fit">
+                                                <i class="fas fa-calendar-alt text-[9px]"></i>
+                                                {{ \Carbon\Carbon::parse($lead->follow_up_date)->format('M d') }}
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 <td class="px-6 py-4 w-24">
@@ -1177,19 +1214,21 @@ function showLeadDetails(lead) {
     
     // Status color mapping
     const statusColors = {
-        'not_contacted': 'red',
-        'contacted': 'blue',
-        'responded': 'yellow',
-        'converted': 'green',
-        'closed': 'gray'
+        'not_contacted': 'orange',
+        'contacted':     'blue',
+        'responded':     'yellow',
+        'converted':     'green',
+        'closed':        'gray',
+        'follow_up':     'purple'
     };
-    
+
     const statusLabels = {
-        'not_contacted': 'Not Contacted',
-        'contacted': 'Contacted', 
-        'responded': 'Responded',
-        'converted': 'Converted',
-        'closed': 'Closed'
+        'not_contacted': 'Pending',
+        'contacted':     'Contacted',
+        'responded':     'Responded',
+        'converted':     'Converted',
+        'closed':        'Closed',
+        'follow_up':     'Follow Up'
     };
     
     const statusColor = statusColors[lead.status] || 'gray';
@@ -1271,18 +1310,48 @@ function showLeadDetails(lead) {
                 </div>
             ` : ''}
 
-            <!-- Notes -->
-            <div class="bg-blue-50 rounded-lg p-4">
-                <h5 class="font-semibold text-gray-800 mb-2">Notes</h5>
-                <textarea id="leadNotes" 
-                          class="w-full p-2 border border-gray-300 rounded text-sm" 
-                          rows="3" 
-                          placeholder="Add your notes here...">${lead.notes || ''}</textarea>
-                <button onclick="updateNotes(${lead.id})" 
-                        class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
-                    Save Notes
+            <!-- Follow Up Section -->
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3">
+                <h5 class="font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-calendar-check text-purple-600"></i> Follow Up
+                </h5>
+
+                <!-- Response Channel -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Response Channel</label>
+                    <select id="followUpSource" class="w-full p-2 border border-gray-300 rounded text-sm bg-white focus:border-purple-400 focus:ring-1 focus:ring-purple-200 outline-none">
+                        <option value="">-- Select Channel --</option>
+                        <option value="email"     ${lead.follow_up_source === 'email'     ? 'selected' : ''}>📧 Email</option>
+                        <option value="facebook"  ${lead.follow_up_source === 'facebook'  ? 'selected' : ''}>📘 Facebook</option>
+                        <option value="linkedin"  ${lead.follow_up_source === 'linkedin'  ? 'selected' : ''}>💼 LinkedIn</option>
+                        <option value="x"         ${lead.follow_up_source === 'x'         ? 'selected' : ''}>𝕏 X (Twitter)</option>
+                        <option value="whatsapp"  ${lead.follow_up_source === 'whatsapp'  ? 'selected' : ''}>💬 WhatsApp</option>
+                        <option value="instagram" ${lead.follow_up_source === 'instagram' ? 'selected' : ''}>📸 Instagram</option>
+                    </select>
+                </div>
+
+                <!-- Follow-up Date -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Follow Up Date</label>
+                    <input type="date" id="followUpDate"
+                           value="${lead.follow_up_date || defaultFollowUpDate()}"
+                           class="w-full p-2 border border-gray-300 rounded text-sm bg-white focus:border-purple-400 focus:ring-1 focus:ring-purple-200 outline-none">
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Note (Client Response)</label>
+                    <textarea id="leadNotes"
+                              class="w-full p-2 border border-gray-300 rounded text-sm bg-white focus:border-purple-400 focus:ring-1 focus:ring-purple-200 outline-none"
+                              rows="3"
+                              placeholder="e.g. Client said call back next week, interested in SEO...">${lead.notes || ''}</textarea>
+                </div>
+
+                <button onclick="saveFollowUp(${lead.id})"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                    <i class="fas fa-save"></i> Save Follow Up
                 </button>
-                <p class="text-xs text-gray-500 mt-2">Added: ${lead.added_date}</p>
+                <p class="text-xs text-gray-400">Added: ${lead.added_date}</p>
             </div>
 
             <!-- Reviews -->
@@ -1298,12 +1367,13 @@ function showLeadDetails(lead) {
 
             <!-- Action Buttons -->
             <div class="space-y-3 pt-4 border-t border-gray-200">
-                <select id="statusSelect" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="not_contacted" ${lead.status === 'not_contacted' ? 'selected' : ''}>Not Contacted</option>
-                    <option value="contacted" ${lead.status === 'contacted' ? 'selected' : ''}>Contacted</option>
-                    <option value="responded" ${lead.status === 'responded' ? 'selected' : ''}>Responded</option>
-                    <option value="converted" ${lead.status === 'converted' ? 'selected' : ''}>Converted</option>
-                    <option value="closed" ${lead.status === 'closed' ? 'selected' : ''}>Closed</option>
+                <select id="statusSelect" class="w-full p-2 border border-gray-300 rounded text-sm">
+                    <option value="not_contacted"  ${lead.status === 'not_contacted'  ? 'selected' : ''}>Pending</option>
+                    <option value="contacted"      ${lead.status === 'contacted'      ? 'selected' : ''}>Contacted</option>
+                    <option value="responded"      ${lead.status === 'responded'      ? 'selected' : ''}>Responded</option>
+                    <option value="converted"      ${lead.status === 'converted'      ? 'selected' : ''}>Converted</option>
+                    <option value="closed"         ${lead.status === 'closed'         ? 'selected' : ''}>Closed</option>
+                    <option value="follow_up"      ${lead.status === 'follow_up'      ? 'selected' : ''}>Follow Up</option>
                 </select>
                 
                 <button onclick="updateStatus(${lead.id})" 
@@ -1364,10 +1434,54 @@ function updateStatus(leadId) {
     });
 }
 
-// Update notes
+// Default follow-up date: today + 3 days
+function defaultFollowUpDate() {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split('T')[0];
+}
+
+// Save follow-up (source + date + notes together)
+function saveFollowUp(leadId) {
+    const source = document.getElementById('followUpSource').value;
+    const date   = document.getElementById('followUpDate').value;
+    const notes  = document.getElementById('leadNotes').value;
+
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    fetch(`{{ url('/user/leads') }}/${leadId}/follow-up`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ follow_up_source: source, follow_up_date: date, notes: notes })
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Follow Up';
+        if (data.success) {
+            showToast('Follow-up saved!', 'success');
+            // Refresh row badge without full reload
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showToast(data.message || 'Error saving follow-up', 'error');
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Follow Up';
+        showToast('Error saving follow-up', 'error');
+    });
+}
+
+// Update notes (kept for backward compat)
 function updateNotes(leadId) {
     const notes = document.getElementById('leadNotes').value;
-    
+
     fetch(`{{ url('/user/leads') }}/${leadId}/notes`, {
         method: 'POST',
         headers: {
@@ -1379,14 +1493,25 @@ function updateNotes(leadId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Notes updated successfully');
+            showToast('Notes saved!', 'success');
         } else {
-            alert(data.message || 'Error updating notes');
+            showToast(data.message || 'Error updating notes', 'error');
         }
     })
-    .catch(error => {
-        alert('Error updating notes');
-    });
+    .catch(() => showToast('Error updating notes', 'error'));
+}
+
+// Simple toast notification
+function showToast(message, type) {
+    const existing = document.getElementById('leadToast');
+    if (existing) existing.remove();
+    const colors = { success: 'bg-green-600', error: 'bg-red-600' };
+    const toast = document.createElement('div');
+    toast.id = 'leadToast';
+    toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 ${colors[type] || 'bg-gray-700'} text-white px-5 py-2.5 rounded-lg shadow-lg text-sm font-medium z-[9999] transition-all`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
 // Delete lead
