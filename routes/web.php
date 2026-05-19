@@ -232,6 +232,7 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::post('/leads/{id}/status', [LeadsController::class, 'updateStatus'])->name('leads.status');
                 Route::post('/leads/{id}/notes', [LeadsController::class, 'updateNotes'])->name('leads.notes');
                 Route::post('/leads/{id}/follow-up', [LeadsController::class, 'updateFollowUp'])->name('leads.follow-up');
+                Route::post('/leads/{id}/contact', [LeadsController::class, 'updateContact'])->name('leads.contact');
                 Route::post('/leads/{id}/check-seo', [LeadsController::class, 'checkSeo'])->name('leads.check-seo');
                 Route::delete('/leads/{id}', [LeadsController::class, 'destroy'])->name('leads.delete');
                 Route::post('/leads/bulk', [LeadsController::class, 'bulkAction'])->name('leads.bulk');

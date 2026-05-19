@@ -506,11 +506,11 @@
                                 </div>
                             </div>
                         @else
-                            <button disabled
-                                    class="bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded text-sm font-medium flex items-center space-x-2"
-                                    title="Daily export limit reached. Upgrade your package or try again tomorrow.">
+                            <button type="button" onclick="showExportLimitModal()"
+                                    class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
                                 <i class="fas fa-download"></i>
-                                <span>Export (Limit Reached)</span>
+                                <span>Export</span>
+                                <i class="fas fa-lock text-xs ml-1"></i>
                             </button>
                         @endif
                         </div>
@@ -896,6 +896,30 @@
     </div>
 </div>
 
+<!-- Export Limit Modal -->
+<div id="exportLimitModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeExportLimitModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
+        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-download text-orange-500 text-2xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Export Limit Reached</h2>
+        <p class="text-gray-600 text-sm mb-2">
+            You have used <span class="font-semibold text-orange-600">{{ $todayExportCount }}</span>
+            of <span class="font-semibold">{{ $exportLimit }}</span> exports this month.
+        </p>
+        <p class="text-gray-500 text-xs mb-6">Upgrade your package to get more exports or unlimited access.</p>
+        <div class="flex gap-3 justify-center">
+            <a href="{{ route('user.subscription') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
+                <i class="fas fa-arrow-up mr-1"></i> Upgrade Now
+            </a>
+            <button onclick="closeExportLimitModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -1148,12 +1172,15 @@ function openLeadDetails(leadId) {
         });
 }
 
+// Global: currently open lead (used by channel info functions)
+let _currentLead = null;
+
 function showLeadDetails(lead) {
+    _currentLead = lead;
+
     const panel = document.getElementById('leadDetailsPanel');
     const overlay = document.getElementById('overlay');
     const content = document.getElementById('leadDetailsContent');
-    
-    console.log('Lead data:', lead); // Debug log
     
     // Build opening hours display
     let openingHoursHtml = '';
@@ -1319,7 +1346,9 @@ function showLeadDetails(lead) {
                 <!-- Response Channel -->
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Response Channel</label>
-                    <select id="followUpSource" class="w-full p-2 border border-gray-300 rounded text-sm bg-white focus:border-purple-400 focus:ring-1 focus:ring-purple-200 outline-none">
+                    <select id="followUpSource"
+                            onchange="renderChannelInfo(this.value)"
+                            class="w-full p-2 border border-gray-300 rounded text-sm bg-white focus:border-purple-400 focus:ring-1 focus:ring-purple-200 outline-none">
                         <option value="">-- Select Channel --</option>
                         <option value="email"     ${lead.follow_up_source === 'email'     ? 'selected' : ''}>📧 Email</option>
                         <option value="facebook"  ${lead.follow_up_source === 'facebook'  ? 'selected' : ''}>📘 Facebook</option>
@@ -1328,6 +1357,8 @@ function showLeadDetails(lead) {
                         <option value="whatsapp"  ${lead.follow_up_source === 'whatsapp'  ? 'selected' : ''}>💬 WhatsApp</option>
                         <option value="instagram" ${lead.follow_up_source === 'instagram' ? 'selected' : ''}>📸 Instagram</option>
                     </select>
+                    <!-- Channel contact info (auto-populated on select) -->
+                    <div id="channelInfoBox" class="mt-2"></div>
                 </div>
 
                 <!-- Follow-up Date -->
@@ -1399,6 +1430,11 @@ function showLeadDetails(lead) {
     // Show panel
     overlay.classList.remove('hidden');
     panel.classList.remove('translate-x-full');
+
+    // Auto-render channel info if a source is already saved
+    setTimeout(() => {
+        if (lead.follow_up_source) renderChannelInfo(lead.follow_up_source);
+    }, 0);
 }
 
 function closeLeadDetails() {
@@ -1500,6 +1536,162 @@ function updateNotes(leadId) {
     })
     .catch(() => showToast('Error updating notes', 'error'));
 }
+
+// ─── Channel Info (Follow-Up Panel) ────────────────────────────────────────
+
+// Extract the contact value for a given channel from the current lead
+function getChannelContact(channel) {
+    const lead = _currentLead;
+    if (!lead) return null;
+
+    const social = (Array.isArray(lead.social_links) ? lead.social_links : []);
+
+    const platformKeys = {
+        facebook:  ['facebook.com'],
+        linkedin:  ['linkedin.com'],
+        x:         ['twitter.com', 'x.com'],
+        instagram: ['instagram.com'],
+    };
+
+    switch (channel) {
+        case 'email':
+            return { type: 'email', value: lead.email || '', href: lead.email ? `mailto:${lead.email}` : '' };
+        case 'whatsapp': {
+            const digits = (lead.phone || '').replace(/\D/g, '');
+            return { type: 'phone', value: lead.phone || '', href: digits ? `https://wa.me/${digits}` : '' };
+        }
+        default: {
+            const patterns = platformKeys[channel] || [];
+            const found = social.find(u => patterns.some(p => u.includes(p))) || '';
+            return { type: 'social', value: found, href: found };
+        }
+    }
+}
+
+// Render the channel info box below the source select
+function renderChannelInfo(channel) {
+    const box = document.getElementById('channelInfoBox');
+    if (!box) return;
+    if (!channel) { box.innerHTML = ''; return; }
+
+    const info = getChannelContact(channel);
+    const icons = { email: '📧', whatsapp: '💬', facebook: '📘', linkedin: '💼', x: '𝕏', instagram: '📸' };
+    const icon  = icons[channel] || '🔗';
+
+    if (info && info.value) {
+        const linkAttr = info.href ? `href="${info.href}" target="_blank"` : '';
+        box.innerHTML = `
+            <div class="flex items-center gap-2 bg-white border border-purple-200 rounded-lg px-3 py-2">
+                <span class="text-base">${icon}</span>
+                <a ${linkAttr} class="flex-1 text-sm text-blue-600 hover:underline truncate">${info.value}</a>
+                <button onclick="startEditChannel('${channel}')"
+                        class="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1 rounded transition-colors">
+                    <i class="fas fa-edit mr-1"></i>Change
+                </button>
+            </div>`;
+    } else {
+        box.innerHTML = `
+            <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                <p class="text-xs text-amber-700 mb-2">${icon} Not found — add it:</p>
+                ${buildEditInput(channel, '')}
+            </div>`;
+    }
+}
+
+// Show inline edit input
+function startEditChannel(channel) {
+    const info = getChannelContact(channel);
+    const box  = document.getElementById('channelInfoBox');
+    box.innerHTML = `
+        <div class="bg-white border border-purple-300 rounded-lg px-3 py-2">
+            ${buildEditInput(channel, info ? info.value : '')}
+        </div>`;
+    document.getElementById('channelEditInput').focus();
+}
+
+// Build the edit input + save button HTML
+function buildEditInput(channel, value) {
+    const placeholders = {
+        email:     'email@example.com',
+        whatsapp:  '+1234567890',
+        facebook:  'https://facebook.com/...',
+        linkedin:  'https://linkedin.com/in/...',
+        x:         'https://x.com/...',
+        instagram: 'https://instagram.com/...',
+    };
+    const ph   = placeholders[channel] || 'https://...';
+    const type = channel === 'email' ? 'email' : 'text';
+    return `
+        <div class="flex gap-2">
+            <input type="${type}" id="channelEditInput" value="${value}"
+                   placeholder="${ph}"
+                   class="flex-1 p-1.5 border border-gray-300 rounded text-sm focus:border-purple-400 outline-none">
+            <button onclick="saveChannelContact('${channel}')"
+                    class="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                Save
+            </button>
+            <button onclick="renderChannelInfo('${channel}')"
+                    class="flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-500 px-2 py-1 rounded text-sm transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>`;
+}
+
+// Save updated contact via API then refresh display
+function saveChannelContact(channel) {
+    const input = document.getElementById('channelEditInput');
+    if (!input || !_currentLead) return;
+
+    const value  = input.value.trim();
+    const leadId = _currentLead.id;
+    const saveBtn = input.nextElementSibling;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    fetch(`{{ url('/user/leads') }}/${leadId}/contact`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ channel, value })
+    })
+    .then(r => r.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save';
+        if (data.success) {
+            // Update local lead cache
+            if (channel === 'email') {
+                _currentLead.email = value;
+            } else if (channel === 'whatsapp') {
+                _currentLead.phone = value;
+            } else {
+                const patterns = { facebook: 'facebook.com', linkedin: 'linkedin.com', x: ['twitter.com','x.com'], instagram: 'instagram.com' };
+                const pats = [].concat(patterns[channel] || []);
+                let links = Array.isArray(_currentLead.social_links) ? [..._currentLead.social_links] : [];
+                const idx = links.findIndex(u => pats.some(p => u.includes(p)));
+                if (value) {
+                    if (idx >= 0) links[idx] = value; else links.push(value);
+                } else if (idx >= 0) {
+                    links.splice(idx, 1);
+                }
+                _currentLead.social_links = links;
+            }
+            showToast('Saved!', 'success');
+            renderChannelInfo(channel);
+        } else {
+            showToast(data.message || 'Error saving', 'error');
+        }
+    })
+    .catch(() => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save';
+        showToast('Error saving', 'error');
+    });
+}
+
+// ─── Simple toast notification ───────────────────────────────────────────────
 
 // Simple toast notification
 function showToast(message, type) {
@@ -2002,6 +2194,19 @@ function showSeoUpgradeModal() {
 function closeSeoUpgradeModal() {
     document.getElementById('seoUpgradeModal').classList.add('hidden');
 }
+
+function showExportLimitModal() {
+    document.getElementById('exportLimitModal').classList.remove('hidden');
+}
+
+function closeExportLimitModal() {
+    document.getElementById('exportLimitModal').classList.add('hidden');
+}
+
+// Close export modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeExportLimitModal();
+});
 
 async function retrySeoCheck(id, btn) {
     const container = document.getElementById(`seo-score-${id}`);

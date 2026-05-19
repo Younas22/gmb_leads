@@ -182,9 +182,13 @@ class User extends Authenticatable
 
         $hasActiveSubscription = $this->subscriptions()
             ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now());
+            })
             ->exists();
 
-        // Restrict access if user has no active subscription
+        // Restrict access if user has no active (non-expired) subscription
         return !$hasActiveSubscription;
     }
 

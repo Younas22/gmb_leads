@@ -406,6 +406,58 @@ public function index(Request $request)
     }
 
     /**
+     * Update a single contact field (email, phone, or one social link)
+     */
+    public function updateContact(Request $request, $id)
+    {
+        $user = Auth::user();
+        $allowedUserIds = $this->getAllowedUserIds($user);
+        $lead = SavedLead::whereIn('user_id', $allowedUserIds)->findOrFail($id);
+
+        $request->validate([
+            'channel' => 'required|in:email,whatsapp,facebook,linkedin,x,instagram',
+            'value'   => 'nullable|string|max:500',
+        ]);
+
+        $channel = $request->channel;
+        $value   = $request->value ?? '';
+
+        if ($channel === 'email') {
+            $lead->update(['email' => $value ?: null]);
+        } elseif ($channel === 'whatsapp') {
+            $lead->update(['phone' => $value ?: null]);
+        } else {
+            $platformPatterns = [
+                'facebook'  => ['facebook.com'],
+                'linkedin'  => ['linkedin.com'],
+                'x'         => ['twitter.com', 'x.com'],
+                'instagram' => ['instagram.com'],
+            ];
+            $patterns = $platformPatterns[$channel] ?? [];
+            $links = $lead->social_links ?? [];
+            if (!is_array($links)) $links = [];
+
+            $idx = -1;
+            foreach ($links as $i => $link) {
+                foreach ($patterns as $p) {
+                    if (str_contains($link, $p)) { $idx = $i; break 2; }
+                }
+            }
+
+            if ($value) {
+                if ($idx >= 0) $links[$idx] = $value;
+                else $links[] = $value;
+            } elseif ($idx >= 0) {
+                array_splice($links, $idx, 1);
+            }
+
+            $lead->update(['social_links' => $links]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Contact updated']);
+    }
+
+    /**
      * Check SEO score via Google PageSpeed API
      */
     public function checkSeo($id)
