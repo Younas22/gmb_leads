@@ -285,7 +285,7 @@
                             <select name="package_id" id="packageId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Select Package</option>
                                 @foreach($packages as $package)
-                                <option value="{{ $package->id }}" data-price="{{ $package->price }}">{{ $package->name }} ({{ $package->currency }} {{ number_format($package->price, 2) }} / {{ $package->billing_type }})</option>
+                                <option value="{{ $package->id }}" data-price="{{ $package->price }}" data-slug="{{ $package->slug }}" data-name="{{ $package->name }}">{{ $package->name }} ({{ $package->currency }} {{ number_format($package->price, 2) }} / {{ $package->billing_type }})</option>
                                 @endforeach
                             </select>
                         </div>
@@ -496,13 +496,19 @@ function toggleStatus(subscriptionId) {
     });
 }
 
-// Auto-fill amount when package is selected
+// Auto-fill amount + auto-detect trial when package is selected
 document.getElementById('packageId').addEventListener('change', function() {
     const selectedOption = this.options[this.selectedIndex];
-    const price = selectedOption.dataset.price;
-    if (price) {
-        document.getElementById('amountPaid').value = price;
-    }
+    const price  = parseFloat(selectedOption.dataset.price || 0);
+    const slug   = (selectedOption.dataset.slug  || '').toLowerCase();
+    const name   = (selectedOption.dataset.name  || '').toLowerCase();
+
+    // Auto-fill price
+    document.getElementById('amountPaid').value = price > 0 ? price : '';
+
+    // Auto-check is_trial if package is free/trial
+    const isTrial = price === 0 || slug.includes('trial') || name.includes('trial');
+    document.getElementById('isTrial').checked = isTrial;
 });
 
 // Close modals on outside click

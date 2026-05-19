@@ -11,7 +11,11 @@
             ->whereDate('created_at', today())
             ->count();
         $_sub = Auth::user()->activeSubscription();
-        $hasSeoAccess = $_sub && !$_sub->is_trial;
+        $hasSeoAccess = $_sub
+            && !$_sub->is_trial
+            && !str_contains(strtolower($_sub->package->slug ?? ''), 'trial')
+            && !str_contains(strtolower($_sub->package->name ?? ''), 'trial')
+            && (($_sub->package->price ?? 0) > 0);
     @endphp
 
     @if($exportLimit !== -1)
@@ -59,7 +63,8 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3 mb-6">
+    <div class="overflow-x-auto -mx-3 lg:mx-0 mb-6 pb-1">
+    <div class="grid grid-cols-8 gap-2 min-w-[680px] px-3 lg:px-0 lg:min-w-0">
         <a href="{{ route('user.leads', array_merge(request()->except('status'), ['status' => ''])) }}"
            class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:border-primary-400 hover:shadow-md transition-all cursor-pointer {{ !request('status') ? 'ring-2 ring-primary-400' : '' }}">
             <div class="flex items-center">
@@ -164,6 +169,7 @@
             </div>
         </a>
     </div>
+    </div>{{-- /overflow-x-auto --}}
 
 
 
@@ -522,32 +528,32 @@
         <!-- Leads Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full min-w-[760px]">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="text-left px-6 py-4 w-16">
-                                <span class="text-sm font-semibold text-gray-700">Select</span>
+                            <th class="text-left px-4 py-3 w-10">
+                                <span class="text-xs font-semibold text-gray-700">Sel</span>
                             </th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Business</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-32">Lead Type</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700">Contact</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-48">Location</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-36">Rating</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-28">Status</th>
-                            <th class="text-left px-6 py-4 text-sm font-semibold text-gray-700 w-24">Actions</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700">Business</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-28 hidden lg:table-cell">Lead Type</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700">Contact</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-36 hidden xl:table-cell">Location</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-28 hidden lg:table-cell">Rating</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-36">Status</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-20">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($leads as $lead)
                             <tr class="hover:bg-gray-50 cursor-pointer lead-row" data-lead-id="{{ $lead->id }}">
-                                <td class="px-6 py-4 w-16">
+                                <td class="px-4 py-3 w-10">
                                     <input type="checkbox"
                                            class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox"
                                            value="{{ $lead->id }}"
                                            onclick="event.stopPropagation()">
                                 </td>
 
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-3">
                                     <div>
                                         <div class="text-sm font-semibold text-gray-900 contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
                                     </div>
@@ -564,7 +570,7 @@
                                     ];
                                     $cfg = $catCfg[$cat] ?? $catCfg['inactive'];
                                 @endphp
-                                <td class="px-6 py-4 w-32">
+                                <td class="px-4 py-3 w-28 hidden lg:table-cell">
                                     <div class="relative group inline-block">
                                         <div class="{{ $cfg['bg'] }} {{ $cfg['border'] }} border rounded-lg px-2 py-1.5 flex flex-col items-start cursor-default min-w-[90px]">
                                             <span class="{{ $cfg['text'] }} text-xs font-semibold leading-tight">{{ $cfg['icon'] }} {{ $cfg['label'] }}</span>
@@ -578,7 +584,7 @@
                                     </div>
                                 </td>
 
-                               <td class="px-6 py-4 max-w-xs">
+                               <td class="px-4 py-3 max-w-xs">
                                 <div class="space-y-1 truncate">
                                     @if($lead->phone)
                                         <div class="flex items-center text-sm text-gray-600 gap-2">
@@ -653,7 +659,7 @@
                             </td>
 
 
-                                <td class="px-6 py-4 w-48">
+                                <td class="px-4 py-3 w-36 hidden xl:table-cell">
                                     <div class="text-sm text-gray-600 contact-detail" data-type="location" data-original="{{ $lead->search_location }}">
                                         {{ $lead->search_location }}
                                     </div>
@@ -666,7 +672,7 @@
                                     @endif -->
                                 </td>
 
-                              <td class="px-6 py-4 w-36">
+                              <td class="px-4 py-3 w-28 hidden lg:table-cell">
     @if($lead->rating && $lead->rating > 0)
         <div class="flex items-center space-x-1">
             <div class="flex text-yellow-400 text-sm">
@@ -723,7 +729,7 @@
                                
 
 
-                                <td class="px-6 py-4 w-28">
+                                <td class="px-4 py-3 w-36">
                                     @php
                                         $statusColors = [
                                             'not_contacted' => 'bg-red-100 text-red-700',
@@ -741,21 +747,76 @@
                                             'closed'        => 'Closed',
                                             'follow_up'     => 'Follow Up',
                                         ];
+
+                                        // Build channel link from follow_up_source
+                                        $fuSource   = $lead->follow_up_source;
+                                        $fuDate     = $lead->follow_up_date;
+                                        $chUrl      = '';
+                                        $chIcon     = '';
+                                        $chLabel    = '';
+                                        if ($fuSource && $fuDate) {
+                                            $socials = is_array($lead->social_links)
+                                                ? $lead->social_links
+                                                : (json_decode($lead->social_links ?? '[]', true) ?? []);
+                                            if ($fuSource === 'email') {
+                                                $chUrl   = $lead->email ? 'mailto:' . $lead->email : '';
+                                                $chIcon  = 'fas fa-envelope';
+                                                $chLabel = 'Email';
+                                            } elseif ($fuSource === 'whatsapp') {
+                                                $ph = preg_replace('/\D/', '', $lead->phone ?? '');
+                                                $chUrl   = $ph ? 'https://wa.me/' . $ph : '';
+                                                $chIcon  = 'fab fa-whatsapp';
+                                                $chLabel = 'WhatsApp';
+                                            } else {
+                                                $pMap = ['facebook'=>['facebook.com'],'linkedin'=>['linkedin.com'],'x'=>['twitter.com','x.com'],'instagram'=>['instagram.com']];
+                                                $iMap = ['facebook'=>'fab fa-facebook','linkedin'=>'fab fa-linkedin','x'=>'fab fa-x-twitter','instagram'=>'fab fa-instagram'];
+                                                $lMap = ['facebook'=>'Facebook','linkedin'=>'LinkedIn','x'=>'X','instagram'=>'Instagram'];
+                                                foreach ($socials as $sl) {
+                                                    foreach ($pMap[$fuSource] ?? [] as $p) {
+                                                        if (str_contains($sl, $p)) { $chUrl = $sl; break 2; }
+                                                    }
+                                                }
+                                                $chIcon  = $iMap[$fuSource] ?? 'fas fa-link';
+                                                $chLabel = $lMap[$fuSource] ?? $fuSource;
+                                            }
+                                        }
                                     @endphp
                                     <div class="space-y-1">
                                         <span class="inline-block px-2 py-1 {{ $statusColors[$lead->contact_status] ?? 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full">
                                             {{ $statusLabels[$lead->contact_status] ?? 'Unknown' }}
                                         </span>
-                                        @if($lead->follow_up_date)
-                                            <div class="flex items-center gap-1 text-[10px] font-semibold text-purple-600 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full w-fit">
-                                                <i class="fas fa-calendar-alt text-[9px]"></i>
-                                                {{ \Carbon\Carbon::parse($lead->follow_up_date)->format('M d') }}
-                                            </div>
+
+                                        @if($fuDate)
+                                            @if($lead->contact_status === 'follow_up')
+                                                {{-- Done --}}
+                                                <div class="flex items-center gap-1 text-[10px] font-medium text-green-600">
+                                                    <i class="fas fa-check-circle text-[9px]"></i>
+                                                    Follow up was done on {{ \Carbon\Carbon::parse($fuDate)->format('M d, Y') }}
+                                                </div>
+                                            @else
+                                                {{-- Pending follow-up --}}
+                                                <div class="flex items-center gap-1 flex-wrap">
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full">
+                                                        <i class="fas fa-calendar-alt text-[9px]"></i>
+                                                        {{ \Carbon\Carbon::parse($fuDate)->format('M d') }}
+                                                    </span>
+                                                    @if($chUrl)
+                                                        <a href="{{ $chUrl }}"
+                                                           target="{{ $fuSource === 'email' ? '_self' : '_blank' }}"
+                                                           onclick="event.stopPropagation()"
+                                                           title="Open {{ $chLabel }}"
+                                                           class="inline-flex items-center gap-0.5 text-[10px] font-semibold text-white bg-purple-500 hover:bg-purple-700 px-1.5 py-0.5 rounded-full transition-colors">
+                                                            <i class="{{ $chIcon }} text-[9px]"></i> {{ $chLabel }}
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                                <div class="text-[9px] text-gray-400 leading-tight">Do follow up on this date</div>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
 
-                                <td class="px-6 py-4 w-24">
+                                <td class="px-4 py-3 w-20">
                                     <div class="flex flex-col gap-1">
                                         <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn"
                                                 onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})">
@@ -903,12 +964,18 @@
         <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-download text-orange-500 text-2xl"></i>
         </div>
-        <h2 class="text-xl font-bold text-gray-900 mb-2">Export Limit Reached</h2>
-        <p class="text-gray-600 text-sm mb-2">
-            You have used <span class="font-semibold text-orange-600">{{ $todayExportCount }}</span>
-            of <span class="font-semibold">{{ $exportLimit }}</span> exports this month.
-        </p>
-        <p class="text-gray-500 text-xs mb-6">Upgrade your package to get more exports or unlimited access.</p>
+        @if($exportLimit === 0)
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Export Not Available</h2>
+            <p class="text-gray-600 text-sm mb-2">Export leads is not available on the <span class="font-semibold">Free Trial</span> plan.</p>
+            <p class="text-gray-500 text-xs mb-6">Upgrade to a paid plan to unlock CSV & Excel export.</p>
+        @else
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Export Limit Reached</h2>
+            <p class="text-gray-600 text-sm mb-2">
+                You have used <span class="font-semibold text-orange-600">{{ $todayExportCount }}</span>
+                of <span class="font-semibold">{{ $exportLimit }}</span> exports this month.
+            </p>
+            <p class="text-gray-500 text-xs mb-6">Upgrade your package to get more exports or unlimited access.</p>
+        @endif
         <div class="flex gap-3 justify-center">
             <a href="{{ route('user.subscription') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
                 <i class="fas fa-arrow-up mr-1"></i> Upgrade Now
