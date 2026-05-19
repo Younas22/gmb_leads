@@ -1214,6 +1214,8 @@ function showLeadDetails(lead) {
     } else if (socialLinksData && typeof socialLinksData === 'object') {
         socialUrls = Object.values(socialLinksData);
     }
+    // Keep _currentLead.social_links always as a normalized array so getChannelContact works
+    _currentLead.social_links = socialUrls;
     if (socialUrls.length > 0) {
         socialLinksHtml = socialUrls.map(link => {
             link = link.replace(/\/+$/, '');

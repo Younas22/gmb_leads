@@ -568,6 +568,19 @@ public function index(Request $request)
     }
     
     /**
+     * Safely convert a value to array whether it is already an array or a JSON string.
+     */
+    private function toArray($value): array
+    {
+        if (is_array($value)) return $value;
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        return [];
+    }
+
+    /**
      * Get latest review date from reviews sample
      */
     private function getLatestReviewDate($reviewsSample)
@@ -749,7 +762,7 @@ public function index(Request $request)
             // CSV Data
             foreach ($leads as $lead) {
                 // Decode social links
-                $socialLinks = $lead->social_links ? json_decode($lead->social_links, true) : [];
+                $socialLinks = $this->toArray($lead->social_links);
 
                 // Extract social media links
                 $facebook = '';
@@ -778,7 +791,7 @@ public function index(Request $request)
                 }
 
                 // Get latest review date
-                $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
+                $reviewsSample = $this->toArray($lead->reviews_sample);
                 $latestReview = '';
                 if (!empty($reviewsSample) && is_array($reviewsSample)) {
                     $latestTime = 0;
@@ -957,10 +970,10 @@ public function index(Request $request)
      */
     private function formatLeadForResponse($lead)
     {
-        // Decode JSON fields
-        $openingHours = $lead->opening_hours ? json_decode($lead->opening_hours, true) : [];
-        $socialLinks = $lead->social_links ? json_decode($lead->social_links, true) : [];
-        $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
+        // Decode JSON fields — handle both string (raw) and array (already cast by model)
+        $openingHours  = $this->toArray($lead->opening_hours);
+        $socialLinks   = $this->toArray($lead->social_links);
+        $reviewsSample = $this->toArray($lead->reviews_sample);
 
         // Get latest review date
         $latestReviewDate = $this->getLatestReviewDate($reviewsSample);
