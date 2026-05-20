@@ -66,13 +66,13 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 mb-6">
         @php
         $statCards = [
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => ''])),          'active' => !request('status') && !request('has_follow_up'), 'color' => 'primary', 'icon' => 'fa-bookmark',       'label' => 'Total',      'value' => $stats['total']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])), 'active' => request('status') === 'contacted',  'color' => 'green',   'icon' => 'fa-phone',         'label' => 'Contacted',  'value' => $stats['contacted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => ''])),              'active' => !request('status') && !request('has_follow_up'), 'color' => 'primary', 'icon' => 'fa-bookmark',       'label' => 'Total',      'value' => $stats['total']],
             ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])), 'active' => request('status') === 'not_contacted', 'color' => 'orange', 'icon' => 'fa-clock',      'label' => 'Pending',    'value' => $stats['pending']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])), 'active' => request('status') === 'converted',  'color' => 'emerald', 'icon' => 'fa-check-circle',  'label' => 'Converted',  'value' => $stats['converted']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])), 'active' => request('status') === 'responded',  'color' => 'blue',    'icon' => 'fa-reply',         'label' => 'Responded',  'value' => $stats['responded']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])),    'active' => request('status') === 'closed',     'color' => 'red',     'icon' => 'fa-times-circle',  'label' => 'Closed',     'value' => $stats['closed']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])), 'active' => request('status') === 'follow_up',  'color' => 'purple',  'icon' => 'fa-calendar-check','label' => 'Follow Up',  'value' => $stats['follow_up']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])),     'active' => request('status') === 'contacted',  'color' => 'green',   'icon' => 'fa-phone',         'label' => 'Contacted',  'value' => $stats['contacted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])),     'active' => request('status') === 'responded',  'color' => 'blue',    'icon' => 'fa-reply',         'label' => 'Responded',  'value' => $stats['responded']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])),     'active' => request('status') === 'converted',  'color' => 'emerald', 'icon' => 'fa-check-circle',  'label' => 'Converted',  'value' => $stats['converted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])),        'active' => request('status') === 'closed',     'color' => 'red',     'icon' => 'fa-times-circle',  'label' => 'Closed',     'value' => $stats['closed']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])),     'active' => request('status') === 'follow_up',  'color' => 'purple',  'icon' => 'fa-calendar-check','label' => 'Follow Up',  'value' => $stats['follow_up']],
             ['href' => route('user.leads', array_merge(request()->except(['status','has_follow_up']), ['has_follow_up' => '1'])), 'active' => request('has_follow_up') === '1', 'color' => 'indigo', 'icon' => 'fa-calendar-alt', 'label' => 'Scheduled', 'value' => $stats['scheduled']],
         ];
         $ringMap = ['primary'=>'ring-primary-400','green'=>'ring-green-400','orange'=>'ring-orange-400','emerald'=>'ring-emerald-400','blue'=>'ring-blue-400','red'=>'ring-red-400','purple'=>'ring-purple-400','indigo'=>'ring-indigo-400'];
@@ -349,6 +349,52 @@
     @endforeach
 </div>
 
+<!-- Folder Filter Pills -->
+@if($folders->count() > 0)
+<div class="flex flex-wrap items-center gap-2 mb-3">
+    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide mr-1 flex items-center gap-1">
+        <i class="fas fa-folder text-gray-400"></i> Folders:
+    </span>
+
+    @php
+        $folderBaseParams = request()->except(['folder_id', 'page']);
+    @endphp
+
+    <a href="{{ route('user.leads', $folderBaseParams) }}"
+       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all
+              {{ !$folderId ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400' }}">
+        All
+    </a>
+
+    @foreach($folders as $folder)
+        @php
+            $folderColors = [
+                'blue'   => ['active' => 'bg-blue-500 text-white border-blue-500',   'inactive' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
+                'green'  => ['active' => 'bg-green-500 text-white border-green-500', 'inactive' => 'bg-white text-green-600 border-green-300 hover:border-green-400'],
+                'purple' => ['active' => 'bg-purple-500 text-white border-purple-500','inactive' => 'bg-white text-purple-600 border-purple-300 hover:border-purple-400'],
+                'red'    => ['active' => 'bg-red-500 text-white border-red-500',     'inactive' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
+                'orange' => ['active' => 'bg-orange-500 text-white border-orange-500','inactive' => 'bg-white text-orange-600 border-orange-300 hover:border-orange-400'],
+                'pink'   => ['active' => 'bg-pink-500 text-white border-pink-500',   'inactive' => 'bg-white text-pink-600 border-pink-300 hover:border-pink-400'],
+                'teal'   => ['active' => 'bg-teal-500 text-white border-teal-500',   'inactive' => 'bg-white text-teal-600 border-teal-300 hover:border-teal-400'],
+            ];
+            $fc = $folderColors[$folder->color] ?? $folderColors['blue'];
+            $isActive = (string)$folderId === (string)$folder->id;
+        @endphp
+        <a href="{{ route('user.leads', array_merge($folderBaseParams, ['folder_id' => $folder->id])) }}"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $fc['active'] : $fc['inactive'] }}">
+            <i class="fas fa-folder text-[10px]"></i>
+            {{ $folder->name }}
+            <span class="{{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $folder->leads_count }})</span>
+        </a>
+    @endforeach
+
+    <button type="button" onclick="openFolderModal(null, 'create')"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs font-medium text-gray-500 border-dashed border-gray-400 hover:border-gray-500 hover:text-gray-700 transition-all">
+        <i class="fas fa-plus text-[10px]"></i> New Folder
+    </button>
+</div>
+@endif
+
     @if($leads->count() > 0)
         <!-- Bulk Actions Bar -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
@@ -374,6 +420,10 @@
                         </button>
                         <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
                             <i class="fas fa-trash mr-1"></i>Delete Selected
+                        </button>
+                        <button onclick="openFolderModal(getSelectedLeadIds(), 'move')"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1">
+                            <i class="fas fa-folder-open"></i> Move to Folder
                         </button>
                     </div>
 
@@ -906,6 +956,81 @@
             <button onclick="closeExportLimitModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors">
                 Cancel
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Move to Folder Modal ===== -->
+<div id="folderModal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeFolderModal()"></div>
+
+    <!-- Panel -->
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onclick.stop="">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                    <div class="bg-indigo-100 p-2 rounded-lg">
+                        <i class="fas fa-folder-open text-indigo-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 id="folderModalTitle" class="text-base font-semibold text-gray-900">Move to Folder</h3>
+                        <p id="folderModalSub" class="text-xs text-gray-400"></p>
+                    </div>
+                </div>
+                <button onclick="closeFolderModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-4">
+
+                <!-- Existing Folders -->
+                <div id="folderListSection">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Your Folders</p>
+                    <div id="folderList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        <p class="text-sm text-gray-400 italic">Loading folders…</p>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-3 my-4">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400 font-medium">or create new</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                </div>
+
+                <!-- Create New Folder -->
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">New Folder</p>
+                    <div class="flex gap-2 mb-3">
+                        <input id="newFolderName" type="text" placeholder="Folder name…"
+                               class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"
+                               maxlength="100" onkeydown="if(event.key==='Enter') createFolder()">
+                        <div class="flex gap-1.5 items-center">
+                            @foreach(['blue','green','purple','red','orange','pink','teal'] as $clr)
+                            @php
+                                $dotColors = [
+                                    'blue'=>'bg-blue-500','green'=>'bg-green-500','purple'=>'bg-purple-500',
+                                    'red'=>'bg-red-500','orange'=>'bg-orange-500','pink'=>'bg-pink-500','teal'=>'bg-teal-500'
+                                ];
+                            @endphp
+                            <button type="button" data-color="{{ $clr }}"
+                                    onclick="selectColor(this)"
+                                    class="color-dot w-5 h-5 rounded-full {{ $dotColors[$clr] }} ring-2 ring-transparent hover:ring-gray-300 transition-all {{ $clr==='blue' ? 'ring-gray-500' : '' }}"
+                                    title="{{ ucfirst($clr) }}"></button>
+                            @endforeach
+                        </div>
+                    </div>
+                    <button onclick="createFolder()"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i> Create Folder
+                        <span id="createFolderAndMove" class="hidden"> &amp; Move Here</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -2263,5 +2388,199 @@ function copyAllLeadData(leadData) {
         alert('Failed to copy to clipboard');
     });
 }
+
+// ===== FOLDER SYSTEM =====
+let _folderLeadIds = [];
+let _folderMode    = 'move'; // 'move' | 'create'
+let _selectedColor = 'blue';
+
+function getSelectedLeadIds() {
+    return Array.from(document.querySelectorAll('.lead-checkbox:checked')).map(cb => parseInt(cb.value));
+}
+
+function openFolderModal(leadIds, mode) {
+    _folderLeadIds = leadIds || [];
+    _folderMode    = mode || 'move';
+    _selectedColor = 'blue';
+
+    const modal    = document.getElementById('folderModal');
+    const title    = document.getElementById('folderModalTitle');
+    const sub      = document.getElementById('folderModalSub');
+    const createBtn= document.getElementById('createFolderAndMove');
+
+    if (mode === 'move') {
+        title.textContent = 'Move to Folder';
+        sub.textContent   = _folderLeadIds.length + ' lead(s) selected';
+        createBtn.classList.remove('hidden');
+    } else {
+        title.textContent = 'Create Folder';
+        sub.textContent   = '';
+        createBtn.classList.add('hidden');
+    }
+
+    // Reset color picker
+    document.querySelectorAll('.color-dot').forEach(d => {
+        d.classList.remove('ring-gray-500');
+        d.classList.add('ring-transparent');
+        if (d.dataset.color === 'blue') {
+            d.classList.remove('ring-transparent');
+            d.classList.add('ring-gray-500');
+        }
+    });
+    document.getElementById('newFolderName').value = '';
+
+    loadFolders();
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFolderModal() {
+    document.getElementById('folderModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function selectColor(btn) {
+    _selectedColor = btn.dataset.color;
+    document.querySelectorAll('.color-dot').forEach(d => {
+        d.classList.remove('ring-gray-500');
+        d.classList.add('ring-transparent');
+    });
+    btn.classList.remove('ring-transparent');
+    btn.classList.add('ring-gray-500');
+}
+
+function loadFolders() {
+    const list = document.getElementById('folderList');
+    list.innerHTML = '<p class="text-sm text-gray-400 italic">Loading…</p>';
+
+    fetch('{{ route("user.folders.index") }}', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(folders => {
+        if (!folders.length) {
+            list.innerHTML = '<p class="text-sm text-gray-400 italic">No folders yet. Create one below.</p>';
+            return;
+        }
+        const colorMap = {
+            blue:'bg-blue-100 text-blue-700', green:'bg-green-100 text-green-700',
+            purple:'bg-purple-100 text-purple-700', red:'bg-red-100 text-red-700',
+            orange:'bg-orange-100 text-orange-700', pink:'bg-pink-100 text-pink-700',
+            teal:'bg-teal-100 text-teal-700'
+        };
+        list.innerHTML = folders.map(f => {
+            const cc = colorMap[f.color] || colorMap.blue;
+            return `<div class="flex items-center justify-between p-2.5 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors group">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg ${cc} text-xs font-bold">
+                        <i class="fas fa-folder"></i>
+                    </span>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">${f.name}</p>
+                        <p class="text-xs text-gray-400">${f.leads_count} lead${f.leads_count !== 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    ${_folderMode === 'move' ? `<button onclick="moveLeadsToFolder(${f.id}, '${f.name}')"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
+                        Move Here
+                    </button>` : ''}
+                    <button onclick="deleteFolder(${f.id}, '${f.name}', this)"
+                        class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 w-6 h-6 flex items-center justify-center rounded transition-all"
+                        title="Delete folder">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    })
+    .catch(() => { list.innerHTML = '<p class="text-sm text-red-400">Failed to load folders.</p>'; });
+}
+
+function moveLeadsToFolder(folderId, folderName) {
+    if (!_folderLeadIds.length) {
+        alert('No leads selected.');
+        return;
+    }
+    fetch(`{{ url('user/folders') }}/${folderId}/add-leads`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ lead_ids: _folderLeadIds })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`Moved ${data.count} lead(s) to "${folderName}"`, 'success');
+            closeFolderModal();
+            setTimeout(() => location.reload(), 900);
+        }
+    })
+    .catch(() => { alert('Failed to move leads.'); });
+}
+
+function createFolder() {
+    const name = document.getElementById('newFolderName').value.trim();
+    if (!name) {
+        document.getElementById('newFolderName').focus();
+        return;
+    }
+    fetch('{{ route("user.folders.store") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ name, color: _selectedColor })
+    })
+    .then(r => r.json())
+    .then(folder => {
+        if (_folderMode === 'move' && _folderLeadIds.length) {
+            _folderLeadIds; // already set
+            moveLeadsToFolder(folder.id, folder.name);
+        } else {
+            showToast(`Folder "${folder.name}" created!`, 'success');
+            closeFolderModal();
+            setTimeout(() => location.reload(), 900);
+        }
+    })
+    .catch(() => { alert('Failed to create folder.'); });
+}
+
+function deleteFolder(id, name, btn) {
+    if (!confirm(`Delete folder "${name}"? Leads will not be deleted.`)) return;
+    fetch(`{{ url('user/folders') }}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`Folder "${name}" deleted.`, 'success');
+            loadFolders();
+            setTimeout(() => location.reload(), 900);
+        }
+    })
+    .catch(() => { alert('Failed to delete folder.'); });
+}
+
+function showToast(message, type) {
+    const t = document.createElement('div');
+    t.className = `fixed bottom-6 right-6 z-[999] px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all
+        ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
+    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+// Close modal on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFolderModal(); });
 </script>
 @endpush

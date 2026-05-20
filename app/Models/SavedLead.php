@@ -62,6 +62,11 @@ class SavedLead extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function folders()
+    {
+        return $this->belongsToMany(LeadFolder::class, 'lead_folder_items', 'lead_id', 'folder_id');
+    }
+
     /**
      * Get the country that owns the lead
      */

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SavedLead;
 use App\Models\AdminApiKey;
 use App\Models\Country;
+use App\Models\LeadFolder;
 use Carbon\Carbon;
 use App\Exports\LeadsExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -38,6 +39,7 @@ public function index(Request $request)
     $selectedUserId = $request->get('user_id'); // User filter
     $leadCategory   = $request->get('lead_category');
     $hasFollowUp    = $request->get('has_follow_up', '');
+    $folderId       = $request->get('folder_id', '');
 
     // Determine the account owner (company or user itself)
     $accountOwner = $user->isTeamMember() ? $user->company : $user;
@@ -249,6 +251,13 @@ public function index(Request $request)
         }
     }
 
+    // Apply folder filter
+    if ($folderId) {
+        $query->whereHas('folders', function ($q) use ($folderId) {
+            $q->where('lead_folders.id', $folderId);
+        });
+    }
+
     // Sort: hot leads first, then good, competitive, inactive; secondary by newest
     $days365ago = Carbon::now()->subDays(365)->toDateTimeString();
     $days180ago = Carbon::now()->subDays(180)->toDateTimeString();
@@ -268,11 +277,19 @@ public function index(Request $request)
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
+    // Folders for current account owner
+    $accountOwnerId = ($user->isTeamMember() ? $user->company : $user)->id;
+    $folders = LeadFolder::where('user_id', $accountOwnerId)
+        ->withCount('leads')
+        ->orderBy('name')
+        ->get();
+
     return view('user.leads', compact(
         'countries', 'user', 'leads', 'stats', 'categoryStats',
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
-        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory', 'hasFollowUp'
+        'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory', 'hasFollowUp',
+        'folders', 'folderId'
     ));
     
 }

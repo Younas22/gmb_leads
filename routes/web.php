@@ -237,6 +237,13 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::delete('/leads/{id}', [LeadsController::class, 'destroy'])->name('leads.delete');
                 Route::post('/leads/bulk', [LeadsController::class, 'bulkAction'])->name('leads.bulk');
 
+                // Folder routes
+                Route::get('/folders', [App\Http\Controllers\FolderController::class, 'index'])->name('folders.index');
+                Route::post('/folders', [App\Http\Controllers\FolderController::class, 'store'])->name('folders.store');
+                Route::post('/folders/{id}/add-leads', [App\Http\Controllers\FolderController::class, 'addLeads'])->name('folders.add-leads');
+                Route::post('/folders/{id}/remove-leads', [App\Http\Controllers\FolderController::class, 'removeLeads'])->name('folders.remove-leads');
+                Route::delete('/folders/{id}', [App\Http\Controllers\FolderController::class, 'destroy'])->name('folders.destroy');
+
                 Route::get('/debug-reviews', [LeadsController::class, 'debugReviews'])->name('debug.reviews');
 
                 // API Keys
