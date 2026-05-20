@@ -397,17 +397,27 @@
 
     @if($leads->count() > 0)
         <!-- Bulk Actions Bar -->
+        @php
+            $exportLimit = Auth::user()->getFeatureLimit('export_leads');
+            $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
+                ->whereDate('created_at', today())
+                ->count();
+            $canExport = $exportLimit === -1 || $todayExportCount < $exportLimit;
+        @endphp
+        @php $btn = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors'; @endphp
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
-            <div class="p-4 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 rounded border-gray-300 cursor-pointer">
-                        <label for="selectAll" class="text-sm text-gray-700 cursor-pointer">Select All</label>
-                        <span id="selectedCount" class="text-sm text-gray-500">(0 selected)</span>
-                    </div>
-                    
-                    <div id="bulkActions" class="flex items-center space-x-2 hidden">
-                        <select id="bulkStatus" class="px-3 py-1 border border-gray-300 rounded text-sm">
+            <div class="px-4 py-3 flex flex-wrap items-center gap-2 justify-between">
+
+                <!-- Left: select-all + bulk actions (shown when rows checked) -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 rounded border-gray-300 cursor-pointer">
+                    <label for="selectAll" class="text-xs text-gray-600 cursor-pointer font-medium">Select All</label>
+                    <span id="selectedCount" class="text-xs text-gray-400">(0 selected)</span>
+
+                    <div id="bulkActions" class="flex flex-wrap items-center gap-2 hidden">
+                        <div class="w-px h-4 bg-gray-300 mx-1"></div>
+                        <select id="bulkStatus" class="px-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-400">
                             <option value="">Change Status</option>
                             <option value="not_contacted">Not Contacted</option>
                             <option value="contacted">Contacted</option>
@@ -415,86 +425,73 @@
                             <option value="converted">Converted</option>
                             <option value="closed">Closed</option>
                         </select>
-                        <button onclick="bulkUpdateStatus()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
-                            Update Status
+                        <button onclick="bulkUpdateStatus()" class="{{ $btn }} bg-green-600 hover:bg-green-700 text-white">
+                            <i class="fas fa-check"></i> Update Status
                         </button>
-                        <button onclick="bulkDelete()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
-                            <i class="fas fa-trash mr-1"></i>Delete Selected
+                        <button onclick="bulkDelete()" class="{{ $btn }} bg-red-600 hover:bg-red-700 text-white">
+                            <i class="fas fa-trash"></i> Delete Selected
                         </button>
-                        <button onclick="openFolderModal(getSelectedLeadIds(), 'move')"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1">
+                        <button onclick="openFolderModal(getSelectedLeadIds(), 'move')" class="{{ $btn }} bg-indigo-600 hover:bg-indigo-700 text-white">
                             <i class="fas fa-folder-open"></i> Move to Folder
                         </button>
                     </div>
+                </div>
 
-                    <!-- Export Button -->
-                    @php
-                        $exportLimit = Auth::user()->getFeatureLimit('export_leads');
-                        $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
-                            ->whereDate('created_at', today())
-                            ->count();
-                        $canExport = $exportLimit === -1 || $todayExportCount < $exportLimit;
-                    @endphp
+                <!-- Right: always-visible action buttons -->
+                <div class="flex flex-wrap items-center gap-2">
 
-                    <div class="flex items-center gap-2">
-                        <!-- SEO Analytics Button -->
-                        @if($hasSeoAccess)
-                            <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn"
-                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
-                                <i class="fas fa-tachometer-alt mr-1"></i>
-                                <span>SEO Analytics</span>
-                            </button>
-                        @else
-                            <button type="button" onclick="showSeoUpgradeModal()"
-                                    class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
-                                <i class="fas fa-lock mr-1"></i>
-                                <span>SEO Analytics</span>
-                            </button>
-                        @endif
+                    <!-- Folders -->
+                    <button type="button" onclick="openFolderModal([], 'create')" class="{{ $btn }} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200">
+                        <i class="fas fa-folder-plus"></i> Folders
+                    </button>
 
-                        <!-- Hide/Show Button -->
-                        <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn"
-                                class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
-                            <i class="fas fa-eye-slash" id="visibilityIcon"></i>
-                            <span id="visibilityText">Hide Details</span>
+                    <!-- SEO Analytics -->
+                    @if($hasSeoAccess)
+                        <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn"
+                                class="{{ $btn }} bg-purple-600 hover:bg-purple-700 text-white">
+                            <i class="fas fa-tachometer-alt"></i> SEO Analytics
                         </button>
+                    @else
+                        <button type="button" onclick="showSeoUpgradeModal()"
+                                class="{{ $btn }} bg-gray-200 hover:bg-gray-300 text-gray-500">
+                            <i class="fas fa-lock"></i> SEO Analytics
+                        </button>
+                    @endif
 
-                        <!-- Export Dropdown Button -->
-                        <div class="relative inline-block text-left">
+                    <!-- Hide / Show Details -->
+                    <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn"
+                            class="{{ $btn }} bg-orange-500 hover:bg-orange-600 text-white">
+                        <i class="fas fa-eye-slash" id="visibilityIcon"></i>
+                        <span id="visibilityText">Hide Details</span>
+                    </button>
+
+                    <!-- Export -->
+                    <div class="relative inline-block">
                         @if($canExport)
                             <button type="button" onclick="toggleExportDropdown()"
-                                    class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
-                                <i class="fas fa-download"></i>
-                                <span>Export</span>
-                                <i class="fas fa-chevron-down text-xs"></i>
+                                    class="{{ $btn }} bg-primary-600 hover:bg-primary-700 text-white">
+                                <i class="fas fa-download"></i> Export
+                                <i class="fas fa-chevron-down text-[10px]"></i>
                             </button>
-
-                            <!-- Dropdown Menu -->
-                            <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                <div class="py-1" role="menu">
-                                    <a href="{{ route('user.leads.export', request()->all()) }}"
-                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                        <i class="fas fa-file-csv text-blue-600 mr-2"></i>
-                                        Export as CSV
-                                    </a>
-                                    <a href="{{ route('user.leads.export.excel', request()->all()) }}"
-                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                        <i class="fas fa-file-excel text-green-600 mr-2"></i>
-                                        Export as Excel
-                                    </a>
-                                </div>
+                            <div id="exportDropdown" class="hidden absolute right-0 mt-1.5 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black/5 z-10 overflow-hidden">
+                                <a href="{{ route('user.leads.export', request()->all()) }}"
+                                   class="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-file-csv text-blue-500"></i> Export as CSV
+                                </a>
+                                <a href="{{ route('user.leads.export.excel', request()->all()) }}"
+                                   class="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-file-excel text-green-500"></i> Export as Excel
+                                </a>
                             </div>
                         @else
                             <button type="button" onclick="showExportLimitModal()"
-                                    class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center space-x-2">
-                                <i class="fas fa-download"></i>
-                                <span>Export</span>
-                                <i class="fas fa-lock text-xs ml-1"></i>
+                                    class="{{ $btn }} bg-gray-200 hover:bg-gray-300 text-gray-500">
+                                <i class="fas fa-download"></i> Export <i class="fas fa-lock text-[10px]"></i>
                             </button>
                         @endif
-                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
