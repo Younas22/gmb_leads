@@ -58,16 +58,46 @@
     <!-- Users Table -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100">
         <div class="p-6 border-b border-gray-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-800">All Users</h3>
-                <div class="flex items-center gap-3">
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search users..."
-                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    </div>
-                </div>
             </div>
+            <form method="GET" action="{{ route('admin.users') }}" class="flex flex-col lg:flex-row lg:items-center gap-3">
+                <div class="relative flex-1 lg:max-w-xs">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or email..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+
+                <select name="user_type" class="px-3 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Types</option>
+                    <option value="user" {{ request('user_type') == 'user' ? 'selected' : '' }}>User</option>
+                    <option value="admin" {{ request('user_type') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="company" {{ request('user_type') == 'company' ? 'selected' : '' }}>Company</option>
+                </select>
+
+                <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Statuses</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+
+                <select name="login_type" class="px-3 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Login Types</option>
+                    <option value="custom" {{ request('login_type') == 'custom' ? 'selected' : '' }}>Email</option>
+                    <option value="google" {{ request('login_type') == 'google' ? 'selected' : '' }}>Google</option>
+                </select>
+
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                        <i class="fas fa-filter mr-1"></i> Filter
+                    </button>
+                    @if(request()->anyFilled(['search', 'user_type', 'status', 'login_type']))
+                    <a href="{{ route('admin.users') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                        Clear
+                    </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="overflow-x-auto">
@@ -251,11 +281,31 @@
         </div>
 
         <!-- Pagination -->
-        @if($users->hasPages())
         <div class="px-6 py-4 border-t border-gray-200">
-            {{ $users->links() }}
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="text-sm text-gray-600">
+                        Showing <span class="font-medium">{{ $users->firstItem() ?? 0 }}</span> to
+                        <span class="font-medium">{{ $users->lastItem() ?? 0 }}</span> of
+                        <span class="font-medium">{{ $users->total() }}</span> users
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-gray-500">Per page:</span>
+                        <select onchange="changePerPage(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-primary-400">
+                            <option value="10"  {{ request('per_page', 10) == 10  ? 'selected' : '' }}>10</option>
+                            <option value="20"  {{ request('per_page', 10) == 20  ? 'selected' : '' }}>20</option>
+                            <option value="30"  {{ request('per_page', 10) == 30  ? 'selected' : '' }}>30</option>
+                            <option value="50"  {{ request('per_page', 10) == 50  ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page', 10) == 100 ? 'selected' : '' }}>100</option>
+                            <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
+                        </select>
+                    </div>
+                </div>
+                @if($users->hasPages())
+                    {{ $users->links() }}
+                @endif
+            </div>
         </div>
-        @endif
     </div>
 </main>
 
@@ -380,22 +430,13 @@
 <script>
 const csrfToken = '{{ csrf_token() }}';
 
-// Simple search filter
-document.getElementById('searchInput').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const rows = document.querySelectorAll('.user-row');
-
-    rows.forEach(row => {
-        const name = row.querySelector('.user-name').textContent.toLowerCase();
-        const email = row.querySelector('.user-email').textContent.toLowerCase();
-
-        if (name.includes(searchTerm) || email.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-});
+// Change results per page
+function changePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
 
 // View User
 function viewUser(userId) {

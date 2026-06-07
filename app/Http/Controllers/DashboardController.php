@@ -432,17 +432,43 @@ class DashboardController extends Controller
     /**
      * Admin users page
      */
-    public function adminUsers()
+    public function adminUsers(Request $request)
     {
         $user = Auth::user();
-        
+
         if (!$user->isAdmin()) {
             return redirect()->route('user.dashboard');
         }
-        
+
+        $query = \App\Models\User::query();
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($userType = $request->get('user_type')) {
+            $query->where('user_type', $userType);
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($loginType = $request->get('login_type')) {
+            $query->where('login_type', $loginType);
+        }
+
+        $perPage = $request->get('per_page', 10);
+        $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
+
         // Get all users for admin
-        $users = \App\Models\User::latest()->paginate(15);
-        
+        $users = $query->latest()->paginate($perPage)->appends($request->query());
+
         return view('admin.users', compact('user', 'users'));
     }
 

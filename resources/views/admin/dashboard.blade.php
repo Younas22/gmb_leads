@@ -139,7 +139,7 @@
                                         <i class="fas {{ $pkg['icon'] }} text-{{ $pkg['color'] }}-600"></i>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-800">{{ucfirst($pkg['billing_type']).' '. $pkg['name'].' ('.ucfirst($pkg['package_for']).')' }}</p>
+                                        <p class="text-sm font-medium text-gray-800">{{ trim((!empty($pkg['billing_type']) ? ucfirst($pkg['billing_type']).' ' : '') . $pkg['name'] . (!empty($pkg['package_for']) ? ' ('.ucfirst($pkg['package_for']).')' : '')) }}</p>
                                         <p class="text-xs text-gray-500">{{ number_format($pkg['count']) }} {{ Str::plural('user', $pkg['count']) }}</p>
                                     </div>
                                 </div>
@@ -162,7 +162,7 @@
             </div>
 
             <!-- Quick Actions & System Stats -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <!-- Activity Stats -->
                 <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="p-6 border-b border-gray-200">
