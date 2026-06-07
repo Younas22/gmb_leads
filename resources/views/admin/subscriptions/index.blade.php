@@ -87,6 +87,34 @@
         </div>
     </div>
 
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <form method="GET" action="{{ route('admin.subscriptions.index') }}" class="flex flex-wrap gap-4 items-end">
+            <div class="w-56">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Package</label>
+                <select name="package_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Packages</option>
+                    @foreach($allPackages as $package)
+                    <option value="{{ $package->id }}" {{ (string) request('package_id') === (string) $package->id ? 'selected' : '' }}>{{ $package->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                <input type="month" name="month" value="{{ request('month') }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Filter
+                </button>
+                <a href="{{ route('admin.subscriptions.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
     <!-- Success/Error Messages -->
     @if(session('success'))
     <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
@@ -229,10 +257,17 @@
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-credit-card text-gray-400 text-3xl"></i>
                                 </div>
-                                <p class="text-gray-500 mb-2">No subscriptions found</p>
-                                <button onclick="openCreateModal()" class="text-primary-600 hover:text-primary-700 font-medium">
-                                    Create your first subscription
-                                </button>
+                                @if(request()->hasAny(['package_id', 'month']))
+                                    <p class="text-gray-500 mb-2">No subscriptions match your filters</p>
+                                    <a href="{{ route('admin.subscriptions.index') }}" class="text-primary-600 hover:text-primary-700 font-medium">
+                                        Clear filters
+                                    </a>
+                                @else
+                                    <p class="text-gray-500 mb-2">No subscriptions found</p>
+                                    <button onclick="openCreateModal()" class="text-primary-600 hover:text-primary-700 font-medium">
+                                        Create your first subscription
+                                    </button>
+                                @endif
                             </div>
                         </td>
                     </tr>

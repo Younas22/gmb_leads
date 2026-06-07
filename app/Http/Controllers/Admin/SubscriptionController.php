@@ -17,13 +17,27 @@ class SubscriptionController extends Controller
     /**
      * Display a listing of subscriptions.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subscriptions = Subscription::with(['user', 'package', 'paymentMethod', 'payments'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Subscription::with(['user', 'package', 'paymentMethod', 'payments'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by package
+        if ($request->filled('package_id')) {
+            $query->where('package_id', $request->package_id);
+        }
+
+        // Filter by month (based on subscription start date)
+        if ($request->filled('month')) {
+            $date = Carbon::parse($request->month);
+            $query->whereMonth('start_date', $date->month)
+                  ->whereYear('start_date', $date->year);
+        }
+
+        $subscriptions = $query->paginate(15)->withQueryString();
 
         $packages = Package::where('status', 'active')->get();
+        $allPackages = Package::orderBy('name')->get();
         $users = User::where('user_type', 'user')->orderBy('name')->get();
         $paymentMethods = PaymentMethod::active()->get();
 
@@ -37,7 +51,7 @@ class SubscriptionController extends Controller
             'total_revenue' => Payment::completed()->sum('amount'),
         ];
 
-        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'users', 'paymentMethods', 'stats'));
+        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats'));
     }
 
     /**
