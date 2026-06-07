@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 
@@ -57,7 +58,12 @@ class PaymentController extends Controller
                 ->sum('amount'),
         ];
 
-        return view('admin.payments.index', compact('payments', 'stats'));
+        // Default currency from settings
+        $currencyCode = Setting::get('default_currency', 'PKR');
+        $currencySymbol = ['PKR' => '₨', 'USD' => '$'][$currencyCode] ?? $currencyCode;
+        $currencyIcon = ['PKR' => 'fa-rupee-sign', 'USD' => 'fa-dollar-sign'][$currencyCode] ?? 'fa-money-bill';
+
+        return view('admin.payments.index', compact('payments', 'stats', 'currencyCode', 'currencySymbol', 'currencyIcon'));
     }
 
     /**

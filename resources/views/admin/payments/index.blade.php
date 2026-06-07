@@ -18,10 +18,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Total Revenue</p>
-                    <p class="text-2xl font-bold text-green-600">PKR {{ number_format($stats['total_revenue'] ?? 0, 0) }}</p>
+                    <p class="text-2xl font-bold text-green-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'] ?? 0, 0) }}</p>
                 </div>
                 <div class="bg-green-100 rounded-lg p-3">
-                    <i class="fas fa-rupee-sign text-green-600"></i>
+                    <i class="fas {{ $currencyIcon }} text-green-600"></i>
                 </div>
             </div>
         </div>
@@ -29,7 +29,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">This Month</p>
-                    <p class="text-2xl font-bold text-blue-600">PKR {{ number_format($stats['this_month'] ?? 0, 0) }}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $currencySymbol }} {{ number_format($stats['this_month'] ?? 0, 0) }}</p>
                 </div>
                 <div class="bg-blue-100 rounded-lg p-3">
                     <i class="fas fa-calendar-alt text-blue-600"></i>
@@ -40,7 +40,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Today</p>
-                    <p class="text-2xl font-bold text-primary-600">PKR {{ number_format($stats['today'] ?? 0, 0) }}</p>
+                    <p class="text-2xl font-bold text-primary-600">{{ $currencySymbol }} {{ number_format($stats['today'] ?? 0, 0) }}</p>
                 </div>
                 <div class="bg-primary-100 rounded-lg p-3">
                     <i class="fas fa-clock text-primary-600"></i>
@@ -62,7 +62,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Pending Amount</p>
-                    <p class="text-2xl font-bold text-orange-600">PKR {{ number_format($stats['pending_amount'] ?? 0, 0) }}</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ $currencySymbol }} {{ number_format($stats['pending_amount'] ?? 0, 0) }}</p>
                 </div>
                 <div class="bg-orange-100 rounded-lg p-3">
                     <i class="fas fa-exclamation-circle text-orange-600"></i>
@@ -170,7 +170,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-semibold text-gray-900">PKR {{ number_format($payment->amount, 0) }}</div>
+                            <div class="text-sm font-semibold text-gray-900">{{ $payment->currency }} {{ number_format($payment->amount, 0) }}</div>
                             @if($payment->transaction_id)
                             <div class="text-xs text-gray-500">TXN: {{ $payment->transaction_id }}</div>
                             @endif
