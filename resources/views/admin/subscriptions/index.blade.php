@@ -78,7 +78,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Revenue</p>
-                    <p class="text-2xl font-bold text-primary-600">PKR {{ number_format($stats['total_revenue'] ?? 0, 0) }}</p>
+                    <p class="text-2xl font-bold text-primary-600">{{ $currencySymbol }} {{ number_format($stats['total_revenue'] ?? 0, 0) }}</p>
                 </div>
                 <div class="bg-primary-100 rounded-lg p-3">
                     <i class="fas fa-rupee-sign text-primary-600"></i>
@@ -183,7 +183,7 @@
                                 <div class="ml-3">
                                     <div class="text-sm font-medium text-gray-900">{{ $subscription->paymentMethod->name }}</div>
                                     @if($subscription->amount_paid)
-                                    <div class="text-xs text-green-600">PKR {{ number_format($subscription->amount_paid, 0) }}</div>
+                                    <div class="text-xs text-green-600">{{ $currencySymbol }} {{ number_format($subscription->amount_paid, 0) }}</div>
                                     @endif
                                 </div>
                             </div>
@@ -359,7 +359,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid (PKR)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount Paid ({{ $currencyCode }} {{ $currencySymbol }})</label>
                             <input type="number" name="amount_paid" id="amountPaid" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="0.00">
                         </div>
                     </div>

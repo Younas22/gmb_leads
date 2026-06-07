@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\User;
 use App\Models\PaymentMethod;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -44,6 +45,10 @@ class SubscriptionController extends Controller
         $users = User::where('user_type', 'user')->orderBy('name')->get();
         $paymentMethods = PaymentMethod::active()->get();
 
+        // Default currency from settings
+        $currencyCode = Setting::get('default_currency', 'PKR');
+        $currencySymbol = ['PKR' => '₨', 'USD' => '$'][$currencyCode] ?? $currencyCode;
+
         // Stats
         $stats = [
             'total' => Subscription::count(),
@@ -54,7 +59,7 @@ class SubscriptionController extends Controller
             'total_revenue' => Payment::completed()->sum('amount'),
         ];
 
-        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats'));
+        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats', 'currencyCode', 'currencySymbol'));
     }
 
     /**
