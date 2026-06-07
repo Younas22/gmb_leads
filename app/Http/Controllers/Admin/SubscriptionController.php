@@ -34,7 +34,10 @@ class SubscriptionController extends Controller
                   ->whereYear('start_date', $date->year);
         }
 
-        $subscriptions = $query->paginate(15)->withQueryString();
+        $perPage = $request->get('per_page', 10);
+        $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
+
+        $subscriptions = $query->paginate($perPage)->withQueryString();
 
         $packages = Package::where('status', 'active')->get();
         $allPackages = Package::orderBy('name')->get();

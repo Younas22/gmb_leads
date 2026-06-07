@@ -95,7 +95,7 @@
                 <select name="package_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     <option value="">All Packages</option>
                     @foreach($allPackages as $package)
-                    <option value="{{ $package->id }}" {{ (string) request('package_id') === (string) $package->id ? 'selected' : '' }}>{{ $package->name }}</option>
+                    <option value="{{ $package->id }}" {{ (string) request('package_id') === (string) $package->id ? 'selected' : '' }}>{{ $package->name }} ({{ ucfirst($package->billing_type) }})</option>
                     @endforeach
                 </select>
             </div>
@@ -277,11 +277,29 @@
         </div>
 
         <!-- Pagination -->
-        @if($subscriptions->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200">
-            {{ $subscriptions->links() }}
+        <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="text-sm text-gray-600">
+                    Showing <span class="font-medium">{{ $subscriptions->firstItem() ?? 0 }}</span> to
+                    <span class="font-medium">{{ $subscriptions->lastItem() ?? 0 }}</span> of
+                    <span class="font-medium">{{ $subscriptions->total() }}</span> subscriptions
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-gray-500">Per page:</span>
+                    <select onchange="changePerPage(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-primary-400">
+                        <option value="10"  {{ request('per_page', 10) == 10  ? 'selected' : '' }}>10</option>
+                        <option value="20"  {{ request('per_page', 10) == 20  ? 'selected' : '' }}>20</option>
+                        <option value="30"  {{ request('per_page', 10) == 30  ? 'selected' : '' }}>30</option>
+                        <option value="50"  {{ request('per_page', 10) == 50  ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 10) == 100 ? 'selected' : '' }}>100</option>
+                        <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
+                    </select>
+                </div>
+            </div>
+            @if($subscriptions->hasPages())
+                {{ $subscriptions->links() }}
+            @endif
         </div>
-        @endif
     </div>
 </main>
 
@@ -442,6 +460,14 @@
 
 @push('scripts')
 <script>
+// Change results per page
+function changePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
+
 function openCreateModal() {
     document.getElementById('modalTitle').textContent = 'Add New Subscription';
     document.getElementById('submitBtnText').textContent = 'Create Subscription';
