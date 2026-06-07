@@ -28,13 +28,13 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Monthly Revenue</p>
-                            <p class="text-3xl font-bold text-gray-800">PKR {{ number_format($paymentStats['this_month'] ?? 0, 0) }}</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ $currencySymbol }} {{ number_format($paymentStats['this_month'] ?? 0, 0) }}</p>
                             <p class="text-xs text-blue-600 mt-1">
-                                <i class="fas fa-rupee-sign mr-1"></i>Total: PKR {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}
+                                <i class="fas {{ $currencyIcon }} mr-1"></i>Total: {{ $currencySymbol }} {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}
                             </p>
                         </div>
                         <div class="bg-green-100 rounded-lg p-3">
-                            <i class="fas fa-rupee-sign text-green-600 text-xl"></i>
+                            <i class="fas {{ $currencyIcon }} text-green-600 text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -271,7 +271,7 @@
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs text-gray-600">Total Revenue</span>
-                                    <span class="text-sm font-bold text-gray-800">PKR {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ $currencySymbol }} {{ number_format($paymentStats['total_revenue'] ?? 0, 0) }}</span>
                                 </div>
 
                                 <div class="flex justify-between items-center">
@@ -356,7 +356,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-semibold text-gray-900">PKR {{ number_format($payment->amount, 0) }}</div>
+                                        <div class="text-sm font-semibold text-gray-900">{{ $payment->currency }} {{ number_format($payment->amount, 0) }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($payment->status === 'completed')

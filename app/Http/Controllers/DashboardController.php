@@ -10,6 +10,7 @@ use App\Models\SearchHistory;
 use App\Models\WelcomeTutorialTracking;
 use App\Models\UserFeedback;
 use App\Models\Payment;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -285,7 +286,12 @@ class DashboardController extends Controller
         // Calculate search activity stats
         $searchStats = $this->calculateSearchStats();
 
-        return view('admin.dashboard', compact('user', 'recentFeedback', 'recentPayments', 'paymentStats', 'packageStats', 'searchStats'));
+        // Default currency from settings
+        $currencyCode = Setting::get('default_currency', 'PKR');
+        $currencySymbol = ['PKR' => '₨', 'USD' => '$'][$currencyCode] ?? $currencyCode;
+        $currencyIcon = ['PKR' => 'fa-rupee-sign', 'USD' => 'fa-dollar-sign'][$currencyCode] ?? 'fa-money-bill';
+
+        return view('admin.dashboard', compact('user', 'recentFeedback', 'recentPayments', 'paymentStats', 'packageStats', 'searchStats', 'currencyCode', 'currencySymbol', 'currencyIcon'));
     }
 
     /**
