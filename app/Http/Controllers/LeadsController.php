@@ -103,7 +103,9 @@ public function index(Request $request)
 
     if ($reviewsCount) {
         if ($reviewsCount === 'lt30')       $query->where('total_reviews', '<', 30);
+        elseif ($reviewsCount === 'gte30')  $query->where('total_reviews', '>=', 30);
         elseif ($reviewsCount === 'lt50')   $query->where('total_reviews', '<', 50);
+        elseif ($reviewsCount === 'gte50')  $query->where('total_reviews', '>=', 50);
         elseif ($reviewsCount === 'lt100')  $query->where('total_reviews', '<', 100);
         elseif ($reviewsCount === 'gte100') $query->where('total_reviews', '>=', 100);
     }
@@ -702,8 +704,12 @@ public function index(Request $request)
         if ($reviewsCount) {
             if ($reviewsCount === 'lt30') {
                 $query->where('total_reviews', '<', 30);
+            } elseif ($reviewsCount === 'gte30') {
+                $query->where('total_reviews', '>=', 30);
             } elseif ($reviewsCount === 'lt50') {
                 $query->where('total_reviews', '<', 50);
+            } elseif ($reviewsCount === 'gte50') {
+                $query->where('total_reviews', '>=', 50);
             } elseif ($reviewsCount === 'lt100') {
                 $query->where('total_reviews', '<', 100);
             } elseif ($reviewsCount === 'gte100') {
@@ -933,8 +939,12 @@ public function index(Request $request)
         if ($reviewsCount) {
             if ($reviewsCount === 'lt30') {
                 $query->where('total_reviews', '<', 30);
+            } elseif ($reviewsCount === 'gte30') {
+                $query->where('total_reviews', '>=', 30);
             } elseif ($reviewsCount === 'lt50') {
                 $query->where('total_reviews', '<', 50);
+            } elseif ($reviewsCount === 'gte50') {
+                $query->where('total_reviews', '>=', 50);
             } elseif ($reviewsCount === 'lt100') {
                 $query->where('total_reviews', '<', 100);
             } elseif ($reviewsCount === 'gte100') {

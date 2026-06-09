@@ -216,9 +216,11 @@
 
         <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
             <option value="">Reviews #</option>
-            <option value="lt30"   {{ $reviewsCount == 'lt30'   ? 'selected' : '' }}>< 30</option>
-            <option value="lt50"   {{ $reviewsCount == 'lt50'   ? 'selected' : '' }}>< 50</option>
-            <option value="lt100"  {{ $reviewsCount == 'lt100'  ? 'selected' : '' }}>< 100</option>
+            <option value="lt30"   {{ $reviewsCount == 'lt30'   ? 'selected' : '' }}>&lt; 30</option>
+            <option value="gte30"  {{ $reviewsCount == 'gte30'  ? 'selected' : '' }}>30+</option>
+            <option value="lt50"   {{ $reviewsCount == 'lt50'   ? 'selected' : '' }}>&lt; 50</option>
+            <option value="gte50"  {{ $reviewsCount == 'gte50'  ? 'selected' : '' }}>50+</option>
+            <option value="lt100"  {{ $reviewsCount == 'lt100'  ? 'selected' : '' }}>&lt; 100</option>
             <option value="gte100" {{ $reviewsCount == 'gte100' ? 'selected' : '' }}>100+</option>
         </select>
     @else
