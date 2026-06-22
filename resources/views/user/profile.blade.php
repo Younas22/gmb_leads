@@ -113,6 +113,15 @@
                     </div>
                 </div>
 
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">WhatsApp Number</label>
+                    <input type="text" name="whatsapp_number" value="{{ old('whatsapp_number', $user->whatsapp_number) }}"
+                        placeholder="+923460820722" pattern="^\+923[0-9]{9}$"
+                        class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500 @error('whatsapp_number') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-0.5">Format: +92 followed by 10 digits, e.g. +923460820722</p>
+                    @error('whatsapp_number')<p class="text-red-500 text-xs mt-0.5">{{ $message }}</p>@enderror
+                </div>
+
                 @if(!$user->isTeamMember())
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Email Address</label>

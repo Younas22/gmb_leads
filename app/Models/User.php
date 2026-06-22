@@ -17,6 +17,7 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'whatsapp_number',
         'name',
         'email',
         'password',
@@ -101,6 +102,12 @@ class User extends Authenticatable
     public function isTeamMember()
     {
         return !empty($this->company_id);
+    }
+
+    // Check if user has completed their profile (added a WhatsApp number)
+    public function hasCompletedProfile()
+    {
+        return !empty($this->whatsapp_number);
     }
 
     // Check if company allows new signups

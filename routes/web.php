@@ -169,7 +169,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // User Routes
-        Route::prefix('user')->name('user.')->group(function () {
+        Route::prefix('user')->name('user.')->middleware('profile.complete')->group(function () {
             // Subscription - always accessible (so users can select/upgrade packages)
             Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription');
             Route::post('/subscription/upgrade', [SubscriptionController::class, 'upgrade'])->name('subscription.upgrade');

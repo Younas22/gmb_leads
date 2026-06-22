@@ -106,6 +106,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">WhatsApp</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Login Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
@@ -145,6 +146,15 @@
                                     <i class="fas fa-exclamation-circle text-yellow-500 ml-2" title="Not Verified"></i>
                                 @endif
                             </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($u->whatsapp_number)
+                                <a href="https://wa.me/{{ ltrim($u->whatsapp_number, '+') }}" target="_blank" class="text-sm text-green-600 hover:text-green-800">
+                                    <i class="fab fa-whatsapp mr-1"></i>{{ $u->whatsapp_number }}
+                                </a>
+                            @else
+                                <span class="text-sm text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($u->user_type === 'admin')
@@ -265,7 +275,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="px-6 py-12 text-center">
+                        <td colspan="12" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-users text-gray-400 text-3xl"></i>
@@ -472,6 +482,10 @@ function viewUser(userId) {
                 <div class="bg-gray-50 p-3 rounded-lg">
                     <p class="text-gray-500 mb-1">Status</p>
                     <p class="font-medium ${data.status === 'active' ? 'text-green-600' : 'text-red-600'}">${data.status === 'active' ? '<i class="fas fa-check-circle mr-1"></i> Active' : '<i class="fas fa-times-circle mr-1"></i> Inactive'}</p>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-gray-500 mb-1">WhatsApp</p>
+                    <p class="font-medium text-gray-800">${data.whatsapp_number ? `<i class="fab fa-whatsapp text-green-600 mr-1"></i> ${data.whatsapp_number}` : '—'}</p>
                 </div>
                 <div class="bg-gray-50 p-3 rounded-lg">
                     <p class="text-gray-500 mb-1">Login Type</p>

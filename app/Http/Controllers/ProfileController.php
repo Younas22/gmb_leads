@@ -63,6 +63,7 @@ class ProfileController extends Controller
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
+            'whatsapp_number' => ['required', 'string', 'regex:/^\+923[0-9]{9}$/'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
 
@@ -71,11 +72,15 @@ class ProfileController extends Controller
             $rules['email'] = ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)];
         }
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'whatsapp_number.required' => 'Please enter your WhatsApp number.',
+            'whatsapp_number.regex' => 'Enter a valid WhatsApp number in the format +923460820722.',
+        ]);
 
         $data = [
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'whatsapp_number' => $request->whatsapp_number,
             'name' => $request->first_name . ' ' . $request->last_name,
         ];
 

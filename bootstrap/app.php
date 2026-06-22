@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'subscription.access' => \App\Http\Middleware\CheckSubscriptionAccess::class,
+            'profile.complete' => \App\Http\Middleware\EnsureProfileIsComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

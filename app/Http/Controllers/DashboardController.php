@@ -513,6 +513,7 @@ class DashboardController extends Controller
             'last_name' => $user->last_name,
             'name' => $user->name,
             'email' => $user->email,
+            'whatsapp_number' => $user->whatsapp_number,
             'plain_password' => $user->plain_password,
             'user_type' => $user->user_type,
             'status' => $user->status,
