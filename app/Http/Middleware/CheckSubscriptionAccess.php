@@ -32,6 +32,12 @@ class CheckSubscriptionAccess
                 'user.subscription',
                 'user.subscription.upgrade',
                 'user.payment.submit',
+                // Profile routes must stay reachable, otherwise a restricted
+                // user with an incomplete profile gets bounced forever
+                // between here and the profile-complete redirect.
+                'user.profile',
+                'user.profile.update',
+                'user.avatar.upload',
             ];
 
             // If already on an allowed route, continue
