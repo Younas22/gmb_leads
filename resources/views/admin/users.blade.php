@@ -87,11 +87,17 @@
                     <option value="google" {{ request('login_type') == 'google' ? 'selected' : '' }}>Google</option>
                 </select>
 
+                <select name="whatsapp" class="px-3 py-2 border border-gray-300 rounded-lg text-sm cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All WhatsApp</option>
+                    <option value="has" {{ request('whatsapp') == 'has' ? 'selected' : '' }}>Has WhatsApp</option>
+                    <option value="missing" {{ request('whatsapp') == 'missing' ? 'selected' : '' }}>Missing WhatsApp</option>
+                </select>
+
                 <div class="flex items-center gap-2">
                     <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
                         <i class="fas fa-filter mr-1"></i> Filter
                     </button>
-                    @if(request()->anyFilled(['search', 'user_type', 'status', 'login_type']))
+                    @if(request()->anyFilled(['search', 'user_type', 'status', 'login_type', 'whatsapp']))
                     <a href="{{ route('admin.users') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                         Clear
                     </a>

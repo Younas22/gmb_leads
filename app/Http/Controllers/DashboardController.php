@@ -453,7 +453,8 @@ class DashboardController extends Controller
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('whatsapp_number', 'like', "%{$search}%");
             });
         }
 
@@ -467,6 +468,16 @@ class DashboardController extends Controller
 
         if ($loginType = $request->get('login_type')) {
             $query->where('login_type', $loginType);
+        }
+
+        if ($whatsapp = $request->get('whatsapp')) {
+            if ($whatsapp === 'has') {
+                $query->whereNotNull('whatsapp_number')->where('whatsapp_number', '!=', '');
+            } elseif ($whatsapp === 'missing') {
+                $query->where(function ($q) {
+                    $q->whereNull('whatsapp_number')->orWhere('whatsapp_number', '');
+                });
+            }
         }
 
         $perPage = $request->get('per_page', 10);
