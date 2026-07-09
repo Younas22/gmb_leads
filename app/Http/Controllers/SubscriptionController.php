@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Subscription;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\UserExtensionDevice;
 use App\Services\CurrencyHelper;
 
 class SubscriptionController extends Controller
@@ -172,6 +173,12 @@ class SubscriptionController extends Controller
 
         $currency = CurrencyHelper::getVisitorCurrency();
 
+        // Devices this user has registered via the extension
+        $myDevices = UserExtensionDevice::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('last_seen_at', 'desc')
+            ->get();
+
         return view('user.subscription', compact(
             'user',
             'currentPlan',
@@ -181,7 +188,8 @@ class SubscriptionController extends Controller
             'analyticsData',
             'billingHistory',
             'userPaymentMethod',
-            'currency'
+            'currency',
+            'myDevices'
         ));
     }
 

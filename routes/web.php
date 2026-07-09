@@ -299,6 +299,8 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'update'])->name('subscriptions.update');
         Route::delete('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
         Route::post('/subscriptions/{subscription}/toggle-status', [AdminSubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle-status');
+        Route::get('/subscriptions/{subscription}/devices', [AdminSubscriptionController::class, 'devices'])->name('subscriptions.devices');
+        Route::delete('/devices/{device}', [AdminSubscriptionController::class, 'destroyDevice'])->name('devices.destroy');
 
         // Payments
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');

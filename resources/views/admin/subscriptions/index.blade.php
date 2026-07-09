@@ -141,6 +141,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Devices</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -241,6 +242,17 @@
                                 </span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            @php
+                                $devUsed = $deviceCounts[$subscription->user_id] ?? 0;
+                                $devFeature = $subscription->package ? $subscription->package->features->firstWhere('feature_key', 'max_devices') : null;
+                                $devLimit = $devFeature ? (($devFeature->is_unlimited || $devFeature->feature_value === 'unlimited') ? '∞' : $devFeature->feature_value) : '—';
+                            @endphp
+                            <button onclick="openDevicesModal({{ $subscription->id }}, '{{ $subscription->user ? addslashes($subscription->user->first_name ? $subscription->user->first_name . ' ' . $subscription->user->last_name : $subscription->user->name) : 'Deleted User' }}')"
+                                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                                <i class="fas fa-laptop mr-1.5"></i>{{ $devUsed }} / {{ $devLimit }}
+                            </button>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button onclick="openEditModal({{ $subscription->id }})" class="text-primary-600 hover:text-primary-900 mr-3" title="Edit">
                                 <i class="fas fa-edit"></i>
@@ -252,7 +264,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-credit-card text-gray-400 text-3xl"></i>
@@ -456,6 +468,26 @@
     </div>
 </div>
 
+<!-- Devices Modal -->
+<div id="devicesModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Registered Devices</h3>
+                    <p class="text-sm text-gray-500 mt-0.5" id="devicesModalUserName"></p>
+                </div>
+                <button onclick="closeDevicesModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6" id="devicesModalBody">
+                <p class="text-center text-gray-400 py-6">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -521,6 +553,55 @@ function closeDeleteModal() {
     document.body.style.overflow = 'auto';
 }
 
+function openDevicesModal(subscriptionId, userName) {
+    document.getElementById('devicesModalUserName').textContent = userName;
+    document.getElementById('devicesModalBody').innerHTML = '<p class="text-center text-gray-400 py-6">Loading...</p>';
+    document.getElementById('devicesModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    fetch(`{{ url('admin/subscriptions') }}/${subscriptionId}/devices`)
+        .then(response => response.json())
+        .then(data => {
+            const body = document.getElementById('devicesModalBody');
+
+            if (!data.devices.length) {
+                body.innerHTML = '<p class="text-center text-gray-400 py-6">No devices registered yet.</p>';
+                return;
+            }
+
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+            body.innerHTML = data.devices.map(d => `
+                <div class="flex items-center justify-between border border-gray-100 rounded-lg px-4 py-3 mb-2">
+                    <div>
+                        <div class="text-sm font-medium text-gray-800">
+                            <i class="fas fa-laptop text-blue-400 mr-1.5"></i>${d.device_name}
+                            ${d.is_active ? '' : '<span class="ml-2 text-xs text-gray-400">(removed)</span>'}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">Registered: ${d.registered_at}</div>
+                        <div class="text-xs text-gray-500">Last active: ${d.last_seen_at}</div>
+                    </div>
+                    ${d.is_active ? `
+                    <form method="POST" action="{{ url('admin/devices') }}/${d.id}" onsubmit="return confirm('Remove this device? The user will be able to register a new one.');">
+                        <input type="hidden" name="_token" value="${csrf}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="text-red-600 hover:text-red-800 text-sm px-2 py-1" title="Remove device">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>` : ''}
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            document.getElementById('devicesModalBody').innerHTML = '<p class="text-center text-red-500 py-6">Failed to load devices.</p>';
+        });
+}
+
+function closeDevicesModal() {
+    document.getElementById('devicesModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
 function toggleStatus(subscriptionId) {
     fetch(`{{ url('admin/subscriptions') }}/${subscriptionId}/toggle-status`, {
         method: 'POST',
@@ -581,11 +662,16 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
     if (e.target === this) closeDeleteModal();
 });
 
+document.getElementById('devicesModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDevicesModal();
+});
+
 // Close modals on ESC
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal();
         closeDeleteModal();
+        closeDevicesModal();
     }
 });
 </script>

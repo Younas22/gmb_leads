@@ -172,6 +172,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the extension devices registered by this user.
+     */
+    public function extensionDevices()
+    {
+        return $this->hasMany(\App\Models\UserExtensionDevice::class);
+    }
+
+    /**
      * Check if user has restricted access (no active subscription)
      * Users without any active subscription can only access subscription page
      */

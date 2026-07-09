@@ -395,8 +395,8 @@ function resendVerification() {
                 </div>
                 <div class="mt-2">
                     @if($maxDevices)
-                        <span class="text-xl font-bold text-gray-800">{{ $maxDevices->feature_value }}</span>
-                        <span class="text-sm text-gray-500">{{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
+                        <span class="text-xl font-bold text-gray-800">{{ $myDevices->count() }}</span>
+                        <span class="text-sm text-gray-500">/ {{ ($maxDevices->is_unlimited || $maxDevices->feature_value === 'unlimited') ? '∞' : $maxDevices->feature_value }} {{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
                     @else
                         <span class="text-xl font-bold text-gray-400">—</span>
                     @endif
@@ -429,6 +429,24 @@ function resendVerification() {
             </div>
 
         </div>
+
+        <!-- My Devices -->
+        @if($myDevices->count() > 0)
+        <div class="px-6 py-4 border-t border-gray-100">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">My Registered Devices</h4>
+            <div class="space-y-2">
+                @foreach($myDevices as $device)
+                <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-laptop text-blue-400 text-sm"></i>
+                        <span class="text-sm text-gray-700">{{ $device->device_name ?: 'Unknown Device' }}</span>
+                    </div>
+                    <span class="text-xs text-gray-400">Registered {{ $device->created_at->format('M d, Y') }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
     @endif
 

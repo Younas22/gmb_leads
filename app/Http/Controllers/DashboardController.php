@@ -11,6 +11,7 @@ use App\Models\WelcomeTutorialTracking;
 use App\Models\UserFeedback;
 use App\Models\Payment;
 use App\Models\Setting;
+use App\Models\UserExtensionDevice;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -81,7 +82,13 @@ class DashboardController extends Controller
             $currentPlan['package']->load('features');
         }
 
-        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData', 'currentPlan'));
+        // Devices this user has registered via the extension
+        $myDevices = UserExtensionDevice::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->orderBy('last_seen_at', 'desc')
+            ->get();
+
+        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData', 'currentPlan', 'myDevices'));
     }
 
     /**

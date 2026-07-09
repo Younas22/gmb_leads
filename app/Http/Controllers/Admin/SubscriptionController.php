@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\PaymentMethod;
 use App\Models\Payment;
 use App\Models\Setting;
+use App\Models\UserExtensionDevice;
 use App\Services\AffiliateService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -20,7 +21,7 @@ class SubscriptionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Subscription::with(['user', 'package', 'paymentMethod', 'payments'])
+        $query = Subscription::with(['user', 'package.features', 'paymentMethod', 'payments'])
             ->orderBy('created_at', 'desc');
 
         // Filter by package
@@ -39,6 +40,13 @@ class SubscriptionController extends Controller
         $perPage = $perPage === 'all' ? PHP_INT_MAX : (int) $perPage;
 
         $subscriptions = $query->paginate($perPage)->withQueryString();
+
+        // Active device counts, keyed by user_id, for the "Devices" column
+        $deviceCounts = UserExtensionDevice::whereIn('user_id', $subscriptions->pluck('user_id')->filter()->unique())
+            ->where('is_active', true)
+            ->selectRaw('user_id, count(*) as cnt')
+            ->groupBy('user_id')
+            ->pluck('cnt', 'user_id');
 
         $packages = Package::where('status', 'active')->get();
         $allPackages = Package::orderBy('name')->get();
@@ -59,7 +67,38 @@ class SubscriptionController extends Controller
             'total_revenue' => Payment::completed()->sum('amount'),
         ];
 
-        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats', 'currencyCode', 'currencySymbol'));
+        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats', 'currencyCode', 'currencySymbol', 'deviceCounts'));
+    }
+
+    /**
+     * List the devices registered by the subscription's user (for the devices modal).
+     */
+    public function devices(Subscription $subscription)
+    {
+        $devices = UserExtensionDevice::where('user_id', $subscription->user_id)
+            ->orderBy('is_active', 'desc')
+            ->orderBy('last_seen_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'devices' => $devices->map(fn($d) => [
+                'id' => $d->id,
+                'device_name' => $d->device_name ?: 'Unknown Device',
+                'is_active' => $d->is_active,
+                'registered_at' => $d->created_at->format('M d, Y h:i A'),
+                'last_seen_at' => $d->last_seen_at ? $d->last_seen_at->format('M d, Y h:i A') : 'Never',
+            ]),
+        ]);
+    }
+
+    /**
+     * Remove a registered device so the user can register a new one.
+     */
+    public function destroyDevice(UserExtensionDevice $device)
+    {
+        $device->delete();
+
+        return redirect()->back()->with('success', 'Device removed successfully. The user can now register a new device.');
     }
 
     /**
