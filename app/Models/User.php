@@ -156,6 +156,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the Lead Center leads owned by this account.
+     */
+    public function leadCenterLeads()
+    {
+        return $this->hasMany(LeadCenterLead::class);
+    }
+
+    /**
+     * Get the Lead Center folders owned by this account.
+     */
+    public function leadCenterFolders()
+    {
+        return $this->hasMany(LeadCenterFolder::class);
+    }
+
+    /**
      * Get the search histories for the user.
      */
     public function searchHistories()

@@ -548,15 +548,43 @@ public function index(Request $request)
         $user = Auth::user();
         
         $request->validate([
-            'action' => 'required|in:delete,update_status',
+            'action' => 'required|in:delete,update_status,add_to_lead_center',
             'lead_ids' => 'required|array',
             'lead_ids.*' => 'integer|exists:saved_leads,id',
             'status' => 'required_if:action,update_status|in:not_contacted,contacted,responded,converted,not_interested,closed,follow_up'
         ]);
-        
+
         $leadIds = $request->lead_ids;
         $action = $request->action;
-        
+
+        // Moving leads into Lead Center only reads the originals (never mutates them), so it's safe to
+        // allow it across the whole team's leads — same read scope as the index/show endpoints.
+        if ($action === 'add_to_lead_center') {
+            $allowedUserIds = $this->getAllowedUserIds($user);
+            $leads = SavedLead::whereIn('user_id', $allowedUserIds)->whereIn('id', $leadIds)->get();
+
+            if ($leads->isEmpty()) {
+                return response()->json(['success' => false, 'message' => 'No matching leads found'], 404);
+            }
+
+            $result = (new \App\Services\LeadCenterImportService())->importFromSavedLeads(
+                $user->isTeamMember() ? $user->company->id : $user->id,
+                $leads
+            );
+
+            $message = "{$result['imported']} lead(s) added to Lead Center.";
+            if ($result['skipped_duplicate'] > 0) {
+                $message .= " {$result['skipped_duplicate']} skipped because they already exist in Lead Center.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'imported' => $result['imported'],
+                'skipped_duplicate' => $result['skipped_duplicate'],
+            ]);
+        }
+
         // Verify all leads belong to the user
         $leads = SavedLead::where('user_id', $user->id)->whereIn('id', $leadIds)->get();
         

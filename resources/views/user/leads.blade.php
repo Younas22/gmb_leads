@@ -436,6 +436,9 @@
                         <button onclick="openFolderModal(getSelectedLeadIds(), 'move')" class="{{ $btn }} bg-indigo-600 hover:bg-indigo-700 text-white">
                             <i class="fas fa-folder-open"></i> Move to Folder
                         </button>
+                        <button onclick="addSelectedToLeadCenter()" class="{{ $btn }} bg-teal-600 hover:bg-teal-700 text-white">
+                            <i class="fas fa-bullseye"></i> Add to Lead Center
+                        </button>
                     </div>
                 </div>
 
@@ -1260,6 +1263,41 @@ function bulkDelete() {
     })
     .catch(error => {
         alert('Error deleting leads');
+    });
+}
+
+// Add selected leads to Lead Center
+function addSelectedToLeadCenter() {
+    const checkedBoxes = document.querySelectorAll('.lead-checkbox:checked');
+
+    if (checkedBoxes.length === 0) {
+        alert('Please select leads to add to Lead Center');
+        return;
+    }
+
+    const leadIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+    fetch('{{ route("user.leads.bulk") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            action: 'add_to_lead_center',
+            lead_ids: leadIds
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+        } else {
+            alert(data.message || 'Error adding leads to Lead Center');
+        }
+    })
+    .catch(error => {
+        alert('Error adding leads to Lead Center');
     });
 }
 

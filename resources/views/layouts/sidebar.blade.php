@@ -78,6 +78,10 @@
                         <i class="fas fa-bookmark w-5 text-center mr-3"></i>
                         My Leads
                     </a>
+                    <a href="{{ route('user.lead-center.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.lead-center.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-bullseye w-5 text-center mr-3"></i>
+                        Lead Center
+                    </a>
 
                     <!-- Subscription - only for company owners and regular users, not team members -->
                     @if(!auth()->user()->isTeamMember())

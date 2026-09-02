@@ -6,6 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\LeadCenterController;
+use App\Http\Controllers\LeadCenterImportController;
+use App\Http\Controllers\LeadCenterFolderController;
+use App\Http\Controllers\LeadCenterConversationController;
 use App\Http\Controllers\ApiKeysController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\FeedbackController;
@@ -245,6 +249,26 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::delete('/folders/{id}', [App\Http\Controllers\FolderController::class, 'destroy'])->name('folders.destroy');
 
                 Route::get('/debug-reviews', [LeadsController::class, 'debugReviews'])->name('debug.reviews');
+
+                // Lead Center — business-development workspace built on top of My Leads
+                Route::prefix('lead-center')->name('lead-center.')->group(function () {
+                    Route::get('/', [LeadCenterController::class, 'index'])->name('index');
+                    Route::post('/bulk', [LeadCenterController::class, 'bulkAction'])->name('bulk');
+                    Route::post('/{id}/status', [LeadCenterController::class, 'updateStatus'])->name('status');
+                    Route::delete('/{id}', [LeadCenterController::class, 'destroy'])->name('delete');
+
+                    Route::post('/import/preview', [LeadCenterImportController::class, 'preview'])->name('import.preview');
+                    Route::post('/import', [LeadCenterImportController::class, 'store'])->name('import.store');
+                    Route::post('/add-from-leads', [LeadCenterImportController::class, 'addFromLeads'])->name('add-from-leads');
+
+                    Route::get('/folders', [LeadCenterFolderController::class, 'index'])->name('folders.index');
+                    Route::post('/folders', [LeadCenterFolderController::class, 'store'])->name('folders.store');
+                    Route::delete('/folders/{id}', [LeadCenterFolderController::class, 'destroy'])->name('folders.destroy');
+
+                    Route::get('/{id}/conversation', [LeadCenterConversationController::class, 'show'])->name('conversation');
+                    Route::post('/{id}/conversation/messages', [LeadCenterConversationController::class, 'storeMessage'])->name('conversation.message.store');
+                    Route::delete('/{id}/conversation/messages/{messageId}', [LeadCenterConversationController::class, 'destroyMessage'])->name('conversation.message.destroy');
+                });
 
                 // API Keys
                 Route::get('/api-keys', [ApiKeysController::class, 'index'])->name('api-keys');
