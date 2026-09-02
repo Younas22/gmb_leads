@@ -235,19 +235,8 @@
         </div>
 
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const banner = document.getElementById('affiliateBanner');
-            if (banner) {
-                banner.style.display = 'block';
-                banner.style.opacity = '0';
-                banner.style.transform = 'translateY(-10px)';
-                banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                requestAnimationFrame(() => {
-                    banner.style.opacity = '1';
-                    banner.style.transform = 'translateY(0)';
-                });
-            }
-        });
+        // Affiliate banner disabled site-wide — kept in the DOM (display:none) rather than
+        // removed, so it's easy to re-enable later; just not auto-shown on DOMContentLoaded.
 
         function dismissAffiliateBanner() {
             const banner = document.getElementById('affiliateBanner');

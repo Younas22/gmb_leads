@@ -17,6 +17,9 @@
             <a href="{{ route('user.leads') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
                 <i class="fas fa-bookmark"></i> My Leads
             </a>
+            <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                <i class="fas fa-book"></i> Resources
+            </a>
             <button type="button" onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm">
                 <i class="fas fa-plus"></i> Import Leads
             </button>
@@ -75,6 +78,12 @@
         <a href="{{ route('user.lead-center.index', request()->except(['folder_id','page'])) }}"
            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ !$folderId ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400' }}">
             <i class="fas fa-inbox text-[10px]"></i> All Leads
+        </a>
+        <a href="{{ route('user.lead-center.index', array_merge(request()->except(['folder_id','page']), ['folder_id' => 'unfiled'])) }}"
+           title="Leads not yet moved into any folder"
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $folderId === 'unfiled' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-700 border-orange-200 hover:border-orange-400' }}">
+            <i class="fas fa-box-open text-[10px]"></i> Unfiled
+            <span class="{{ $folderId === 'unfiled' ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $unfiledCount }})</span>
         </a>
         @foreach($folders as $folder)
             @php $isActive = (string)$folderId === (string)$folder->id; @endphp
@@ -151,6 +160,13 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="copyPageLeads()" title="Copy company name + website for every lead shown on this page"
+                            class="{{ $btn }} bg-gray-700 hover:bg-gray-800 text-white">
+                        <i class="fas fa-copy"></i> Copy Leads
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -174,7 +190,7 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach($leads as $lead)
                             @php $statusColors = \App\Models\LeadCenterLead::statusColors(); @endphp
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-50" data-company="{{ $lead->company_name }}" data-website="{{ $lead->website }}">
                                 <td class="px-4 py-3 w-10">
                                     <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox" value="{{ $lead->id }}">
                                 </td>
@@ -259,10 +275,23 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mt-4">
             <div class="px-6 py-4">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ $leads->firstItem() }}</span> to
-                        <span class="font-medium">{{ $leads->lastItem() }}</span> of
-                        <span class="font-medium">{{ $leads->total() }}</span> results
+                    <div class="flex items-center gap-3">
+                        <div class="text-sm text-gray-700">
+                            Showing <span class="font-medium">{{ $leads->firstItem() }}</span> to
+                            <span class="font-medium">{{ $leads->lastItem() }}</span> of
+                            <span class="font-medium">{{ $leads->total() }}</span> results
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs text-gray-500">Per page:</span>
+                            <select onchange="changePerPage(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-primary-400">
+                                <option value="10"  {{ request('per_page', 20) == 10  ? 'selected' : '' }}>10</option>
+                                <option value="20"  {{ request('per_page', 20) == 20  ? 'selected' : '' }}>20</option>
+                                <option value="30"  {{ request('per_page', 20) == 30  ? 'selected' : '' }}>30</option>
+                                <option value="50"  {{ request('per_page', 20) == 50  ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page', 20) == 100 ? 'selected' : '' }}>100</option>
+                                <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
+                            </select>
+                        </div>
                     </div>
                     {{ $leads->links('pagination::tailwind') }}
                 </div>
@@ -274,6 +303,16 @@
             <i class="fas fa-folder-open text-gray-400 text-4xl mb-4"></i>
             <h3 class="text-lg font-semibold text-gray-800 mb-2">This folder doesn't contain any leads yet</h3>
             <p class="text-gray-600 mb-4">Move leads into "{{ $activeFolder->name }}" from the Lead Center table, or import new leads directly.</p>
+            <a href="{{ route('user.lead-center.index') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
+                View All Leads
+            </a>
+        </div>
+    @elseif($folderId === 'unfiled')
+        <!-- Empty Unfiled State -->
+        <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-100 text-center">
+            <i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Every lead is filed into a folder</h3>
+            <p class="text-gray-600 mb-4">No unfiled leads right now — nice and organized.</p>
             <a href="{{ route('user.lead-center.index') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
                 View All Leads
             </a>
@@ -311,9 +350,7 @@
 @include('user.lead-center._location-modal')
 
 @push('scripts')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+@include('partials.select2-assets')
 
 <script>
 const LC_ROUTES = {
@@ -432,12 +469,35 @@ function updateLeadStatus(id, status, selectEl) {
     .catch(() => showToast('Failed to update status', 'error'));
 }
 
+function copyPageLeads() {
+    const rows = document.querySelectorAll('tbody tr[data-company]');
+    if (!rows.length) { showToast('No leads on this page to copy', 'error'); return; }
+
+    const lines = Array.from(rows).map(row => {
+        const company = row.dataset.company || '';
+        const website = row.dataset.website || '';
+        return website ? `${company}\t${website}` : company;
+    });
+
+    navigator.clipboard.writeText(lines.join('\n'))
+        .then(() => showToast(`Copied ${lines.length} lead(s) — company name + website`, 'success'))
+        .catch(() => showToast('Failed to copy — your browser blocked clipboard access', 'error'));
+}
+
+function changePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
+
 // ===== Location filter cascading (search bar) =====
 $(document).ready(function() {
     $('#filter_country_select').select2({ placeholder: 'Country', allowClear: true, width: '100%' });
 });
 </script>
 
+@include('user.lead-center._location-select2-helper')
 @include('user.lead-center._import-modal-scripts')
 @include('user.lead-center._folder-modal-scripts')
 @include('user.lead-center._location-modal-scripts')

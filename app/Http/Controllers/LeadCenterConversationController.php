@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LeadCenterFolder;
 use App\Models\LeadCenterLead;
 use App\Models\LeadCenterMessage;
+use App\Models\LeadCenterMessageTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,8 +29,35 @@ class LeadCenterConversationController extends Controller
         $lead = $this->findLeadOrFail($id);
         $messages = $lead->messages()->get();
         $folders = LeadCenterFolder::where('user_id', $this->ownerUser()->id)->orderBy('name')->get();
+        $templates = LeadCenterMessageTemplate::where('user_id', $this->ownerUser()->id)->orderBy('title')->get();
 
-        return view('user.lead-center.conversation', compact('lead', 'messages', 'folders'));
+        return view('user.lead-center.conversation', compact('lead', 'messages', 'folders', 'templates'));
+    }
+
+    /**
+     * Save/update the outreach link(s) for one contact channel (email, facebook, whatsapp, ...).
+     */
+    public function updateContactLinks(Request $request, $id)
+    {
+        $lead = LeadCenterLead::where('user_id', $this->ownerUser()->id)->findOrFail($id);
+
+        $request->validate([
+            'channel' => 'required|in:' . implode(',', LeadCenterLead::CONTACT_CHANNELS),
+            'links' => 'nullable|string|max:2000',
+        ]);
+
+        $links = $lead->contact_links ?? [];
+        $value = trim((string) $request->links);
+
+        if ($value === '') {
+            unset($links[$request->channel]);
+        } else {
+            $links[$request->channel] = $value;
+        }
+
+        $lead->update(['contact_links' => $links]);
+
+        return response()->json(['success' => true, 'message' => 'Contact links saved', 'contact_links' => $links]);
     }
 
     public function storeMessage(Request $request, $id)

@@ -10,6 +10,7 @@ use App\Http\Controllers\LeadCenterController;
 use App\Http\Controllers\LeadCenterImportController;
 use App\Http\Controllers\LeadCenterFolderController;
 use App\Http\Controllers\LeadCenterConversationController;
+use App\Http\Controllers\LeadCenterResourceController;
 use App\Http\Controllers\ApiKeysController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\FeedbackController;
@@ -269,6 +270,18 @@ Route::middleware(['web', 'auth'])->group(function () {
                     Route::get('/{id}/conversation', [LeadCenterConversationController::class, 'show'])->name('conversation');
                     Route::post('/{id}/conversation/messages', [LeadCenterConversationController::class, 'storeMessage'])->name('conversation.message.store');
                     Route::delete('/{id}/conversation/messages/{messageId}', [LeadCenterConversationController::class, 'destroyMessage'])->name('conversation.message.destroy');
+                    Route::post('/{id}/contact-links', [LeadCenterConversationController::class, 'updateContactLinks'])->name('contact-links');
+
+                    // Outreach playbook: targeted locations, prompts, message templates
+                    Route::prefix('resources')->name('resources.')->group(function () {
+                        Route::get('/', [LeadCenterResourceController::class, 'index'])->name('index');
+                        Route::post('/locations', [LeadCenterResourceController::class, 'storeLocation'])->name('locations.store');
+                        Route::delete('/locations/{id}', [LeadCenterResourceController::class, 'destroyLocation'])->name('locations.destroy');
+                        Route::post('/prompts', [LeadCenterResourceController::class, 'storePrompt'])->name('prompts.store');
+                        Route::delete('/prompts/{id}', [LeadCenterResourceController::class, 'destroyPrompt'])->name('prompts.destroy');
+                        Route::post('/templates', [LeadCenterResourceController::class, 'storeTemplate'])->name('templates.store');
+                        Route::delete('/templates/{id}', [LeadCenterResourceController::class, 'destroyTemplate'])->name('templates.destroy');
+                    });
                 });
 
                 // API Keys

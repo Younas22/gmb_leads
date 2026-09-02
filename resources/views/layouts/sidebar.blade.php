@@ -120,7 +120,7 @@
                     @endif
 
                     <!-- Affiliate Dashboard - Available to all users -->
-                    <a href="{{ route('user.affiliate.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.affiliate.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                    <a href="{{ route('user.affiliate.index') }}" style="display: none;" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('user.affiliate.*') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-hand-holding-dollar w-5 text-center mr-3"></i>
                         Affiliate
                         @php $pendingEarning = auth()->user()->affiliateEarning; @endphp

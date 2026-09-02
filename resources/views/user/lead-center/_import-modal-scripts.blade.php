@@ -2,8 +2,12 @@
 // ===== Lead Center: Import Leads =====
 let _importValidRows = [];   // rows returned by the preview step, ready to persist
 let _importTab = 'csv';
+let _importLocation = null;  // lcCascadingLocation instance, created lazily (needs jQuery/select2 loaded first)
 
 function openImportModal() {
+    if (!_importLocation) {
+        _importLocation = lcCascadingLocation('import_country_select', 'import_state_select', 'import_city_select');
+    }
     document.getElementById('importModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     resetImportModal();
@@ -24,6 +28,7 @@ function resetImportModal() {
     document.getElementById('importSourceSection').classList.remove('hidden');
     document.getElementById('confirmImportBtn').classList.add('hidden');
     document.getElementById('previewBtn').classList.remove('hidden');
+    if (_importLocation) _importLocation.reset();
     switchImportTab('csv');
 }
 
@@ -143,9 +148,7 @@ function confirmImport() {
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
         body: JSON.stringify({
             rows: _importValidRows,
-            country_id: document.getElementById('import_country_select').value || null,
-            state_id: document.getElementById('import_state_select').value || null,
-            city_id: document.getElementById('import_city_select').value || null,
+            ..._importLocation.values(),
         })
     })
     .then(r => r.json())
@@ -175,45 +178,6 @@ function escapeHtml(str) {
     div.textContent = str ?? '';
     return div.innerHTML;
 }
-
-// ===== Location cascading selects (plain JS — kept independent from the page's select2 filters) =====
-(function() {
-    const countrySelect = document.getElementById('import_country_select');
-    const stateSelect = document.getElementById('import_state_select');
-    const citySelect = document.getElementById('import_city_select');
-
-    countrySelect.addEventListener('change', function() {
-        resetLocSelect(stateSelect, 'State');
-        resetLocSelect(citySelect, 'City');
-        if (this.value) loadLocOptions(`${LC_ROUTES.apiStatesBase}/${this.value}`, stateSelect, 'State');
-    });
-
-    stateSelect.addEventListener('change', function() {
-        resetLocSelect(citySelect, 'City');
-        if (this.value) loadLocOptions(`${LC_ROUTES.apiCitiesBase}/${this.value}`, citySelect, 'City');
-    });
-
-    function resetLocSelect(select, label) {
-        select.innerHTML = `<option value="">${label}</option>`;
-        select.disabled = true;
-    }
-
-    function loadLocOptions(url, select, label) {
-        fetch(url)
-            .then(r => r.json())
-            .then(items => {
-                resetLocSelect(select, label);
-                items.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.textContent = item.name;
-                    select.appendChild(opt);
-                });
-                select.disabled = false;
-            })
-            .catch(() => { select.innerHTML = `<option value="">Error loading</option>`; });
-    }
-})();
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImportModal(); });
 </script>

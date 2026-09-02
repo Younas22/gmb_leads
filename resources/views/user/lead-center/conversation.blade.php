@@ -62,6 +62,26 @@
                     </select>
                 </div>
             </div>
+
+            <!-- Contact Channels -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mt-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">
+                    <i class="fas fa-share-nodes mr-1"></i> Contact Channels
+                </h3>
+                <select id="contactChannelSelect" onchange="onContactChannelChange()"
+                        class="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 cursor-pointer mb-2">
+                    <option value="all">All Channels</option>
+                    @foreach(\App\Models\LeadCenterLead::contactChannelLabels() as $key => $label)
+                        <option value="{{ $key }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+                <textarea id="contactChannelLinks" rows="4" placeholder="Add link(s) for this channel, one per line…"
+                          class="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary-400 resize-none font-mono"></textarea>
+                <button type="button" id="saveContactChannelBtn" onclick="saveContactChannel()"
+                        class="w-full mt-2 bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-save mr-1"></i> Save
+                </button>
+            </div>
         </div>
 
         <!-- Conversation -->
@@ -88,7 +108,7 @@
 
                 <!-- Add Message -->
                 <div class="px-5 py-4 border-t border-gray-100 flex-shrink-0">
-                    <div class="flex items-center gap-2 mb-2">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
                         <label class="text-xs font-medium text-gray-500">Sender:</label>
                         <div class="flex gap-1 bg-gray-100 p-1 rounded-lg">
                             <button type="button" id="senderBtnOur" onclick="setSender('our')" class="px-3 py-1 rounded-md text-xs font-medium transition-colors bg-primary-600 text-white">
@@ -98,6 +118,16 @@
                                 Client Message
                             </button>
                         </div>
+
+                        @if($templates->count())
+                            <select id="templateSelect" onchange="insertTemplate(this.value)"
+                                    class="ml-auto text-xs border border-gray-300 rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-400">
+                                <option value="">Insert Template…</option>
+                                @foreach($templates as $template)
+                                    <option value="{{ $template->id }}">{{ $template->title }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
                     <div class="flex items-end gap-2">
                         <textarea id="newMessageText" rows="2" placeholder="Type a message…"
@@ -121,6 +151,9 @@ const LEAD_ID = {{ $lead->id }};
 const STATUS_URL = '{{ url("/user/lead-center") }}/' + LEAD_ID + '/status';
 const MESSAGE_STORE_URL = '{{ route("user.lead-center.conversation.message.store", $lead->id) }}';
 const MESSAGE_DELETE_BASE = '{{ url("/user/lead-center/" . $lead->id . "/conversation/messages") }}';
+const CONTACT_LINKS_URL = '{{ route("user.lead-center.contact-links", $lead->id) }}';
+const LC_TEMPLATES = {{ Illuminate\Support\Js::from($templates->pluck('content', 'id')) }};
+let LC_CONTACT_LINKS = {{ Illuminate\Support\Js::from($lead->contact_links ?? []) }};
 
 let _sender = 'our';
 
@@ -143,6 +176,68 @@ function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
+}
+
+function insertTemplate(templateId) {
+    if (!templateId) return;
+    const textEl = document.getElementById('newMessageText');
+    const content = LC_TEMPLATES[templateId] || '';
+    textEl.value = textEl.value ? (textEl.value + '\n' + content) : content;
+    textEl.focus();
+    document.getElementById('templateSelect').value = '';
+}
+
+// ===== Contact Channels =====
+const CONTACT_CHANNEL_LABELS = {
+    email: 'Email', facebook: 'Facebook', whatsapp: 'WhatsApp',
+    instagram: 'Instagram', linkedin: 'LinkedIn', contact_form: 'Contact Form'
+};
+
+function onContactChannelChange() {
+    const channel = document.getElementById('contactChannelSelect').value;
+    const textarea = document.getElementById('contactChannelLinks');
+    const saveBtn = document.getElementById('saveContactChannelBtn');
+
+    if (channel === 'all') {
+        const lines = Object.keys(CONTACT_CHANNEL_LABELS)
+            .filter(key => LC_CONTACT_LINKS[key])
+            .map(key => `${CONTACT_CHANNEL_LABELS[key]}:\n${LC_CONTACT_LINKS[key]}`);
+        textarea.value = lines.length ? lines.join('\n\n') : '';
+        textarea.readOnly = true;
+        textarea.placeholder = 'No contact links saved yet. Pick a channel above to add some.';
+        saveBtn.classList.add('hidden');
+    } else {
+        textarea.value = LC_CONTACT_LINKS[channel] || '';
+        textarea.readOnly = false;
+        textarea.placeholder = 'Add link(s) for this channel, one per line…';
+        saveBtn.classList.remove('hidden');
+    }
+}
+
+function saveContactChannel() {
+    const channel = document.getElementById('contactChannelSelect').value;
+    if (channel === 'all') return;
+
+    const links = document.getElementById('contactChannelLinks').value.trim();
+    const btn = document.getElementById('saveContactChannelBtn');
+    btn.disabled = true;
+
+    fetch(CONTACT_LINKS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        body: JSON.stringify({ channel, links })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            LC_CONTACT_LINKS = data.contact_links || {};
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message || 'Failed to save', 'error');
+        }
+    })
+    .catch(() => showToast('Failed to save', 'error'))
+    .finally(() => { btn.disabled = false; });
 }
 
 function bubbleHtml(msg) {
@@ -233,10 +328,11 @@ function updateConvStatus(status) {
     .catch(() => showToast('Failed to update status', 'error'));
 }
 
-// Scroll to latest message on load
+// Scroll to latest message on load + show saved contact links
 document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('messageList');
     list.scrollTop = list.scrollHeight;
+    onContactChannelChange();
 });
 </script>
 @endpush

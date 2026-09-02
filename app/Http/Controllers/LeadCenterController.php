@@ -64,7 +64,9 @@ class LeadCenterController extends Controller
         if ($status) {
             $query->where('status', $status);
         }
-        if ($folderId) {
+        if ($folderId === 'unfiled') {
+            $query->whereNull('folder_id');
+        } elseif ($folderId) {
             $query->where('folder_id', $folderId);
         }
 
@@ -79,12 +81,13 @@ class LeadCenterController extends Controller
             ->orderBy('name')
             ->get();
 
-        $activeFolder = $folderId ? $folders->firstWhere('id', (int) $folderId) : null;
+        $activeFolder = $folderId && $folderId !== 'unfiled' ? $folders->firstWhere('id', (int) $folderId) : null;
+        $unfiledCount = LeadCenterLead::where('user_id', $ownerId)->whereNull('folder_id')->count();
 
         $countries = Country::orderBy('name')->get();
 
         return view('user.lead-center.index', compact(
-            'leads', 'folders', 'activeFolder', 'stats', 'countries',
+            'leads', 'folders', 'activeFolder', 'stats', 'countries', 'unfiledCount',
             'search', 'status', 'folderId', 'countryId', 'stateId', 'cityId'
         ));
     }

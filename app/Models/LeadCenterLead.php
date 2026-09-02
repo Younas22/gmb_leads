@@ -18,7 +18,28 @@ class LeadCenterLead extends Model
         'city_id',
         'status',
         'dedupe_key',
+        'contact_links',
     ];
+
+    protected $casts = [
+        'contact_links' => 'array',
+    ];
+
+    // Channels tracked for outreach — used both for the "contact links" store and the
+    // per-message "how was this sent" tag.
+    const CONTACT_CHANNELS = ['email', 'facebook', 'whatsapp', 'instagram', 'linkedin', 'contact_form'];
+
+    public static function contactChannelLabels(): array
+    {
+        return [
+            'email' => 'Email',
+            'facebook' => 'Facebook',
+            'whatsapp' => 'WhatsApp',
+            'instagram' => 'Instagram',
+            'linkedin' => 'LinkedIn',
+            'contact_form' => 'Contact Form',
+        ];
+    }
 
     // Internal status values, in pipeline order
     const STATUS_PENDING    = 'pending';
