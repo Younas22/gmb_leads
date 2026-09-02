@@ -103,6 +103,30 @@ class LeadCenterController extends Controller
         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
 
+    /**
+     * Set/fix a lead's Country/State/City — mainly for leads that came from "My Leads" records
+     * saved via the browser extension, which don't capture structured location data.
+     */
+    public function updateLocation(Request $request, $id)
+    {
+        $ownerId = $this->ownerUser()->id;
+        $lead = LeadCenterLead::where('user_id', $ownerId)->findOrFail($id);
+
+        $request->validate([
+            'country_id' => 'nullable|integer|exists:countries,id',
+            'state_id' => 'nullable|integer|exists:states,id',
+            'city_id' => 'nullable|integer|exists:cities,id',
+        ]);
+
+        $lead->update([
+            'country_id' => $request->country_id ?: null,
+            'state_id' => $request->state_id ?: null,
+            'city_id' => $request->city_id ?: null,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Location updated successfully']);
+    }
+
     public function destroy($id)
     {
         $ownerId = $this->ownerUser()->id;

@@ -199,8 +199,13 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 hidden xl:table-cell">
-                                    <div class="text-sm text-gray-600">
-                                        {{ collect([$lead->cityRelation->name ?? null, $lead->stateRelation->name ?? null, $lead->countryRelation->name ?? null])->filter()->implode(', ') ?: '—' }}
+                                    <div class="flex items-center gap-1.5 text-sm text-gray-600">
+                                        <span>{{ collect([$lead->cityRelation->name ?? null, $lead->stateRelation->name ?? null, $lead->countryRelation->name ?? null])->filter()->implode(', ') ?: 'Not set' }}</span>
+                                        <button type="button" title="Edit location"
+                                                onclick="openLocationModal({{ $lead->id }}, {{ $lead->country_id ?? 'null' }}, {{ $lead->state_id ?? 'null' }}, {{ $lead->city_id ?? 'null' }})"
+                                                class="text-gray-300 hover:text-primary-600 transition-colors flex-shrink-0">
+                                            <i class="fas fa-pen text-[10px]"></i>
+                                        </button>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 hidden lg:table-cell">
@@ -303,6 +308,7 @@
 
 @include('user.lead-center._import-modal')
 @include('user.lead-center._folder-modal')
+@include('user.lead-center._location-modal')
 
 @push('scripts')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -321,6 +327,7 @@ const LC_ROUTES = {
     importStore: '{{ route("user.lead-center.import.store") }}',
     apiStatesBase: '{{ url("/user/api/states") }}',
     apiCitiesBase: '{{ url("/user/api/cities") }}',
+    locationBase: '{{ url("/user/lead-center") }}',
 };
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -433,5 +440,6 @@ $(document).ready(function() {
 
 @include('user.lead-center._import-modal-scripts')
 @include('user.lead-center._folder-modal-scripts')
+@include('user.lead-center._location-modal-scripts')
 @endpush
 @endsection

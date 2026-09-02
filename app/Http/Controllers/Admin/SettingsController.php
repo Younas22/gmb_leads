@@ -255,6 +255,52 @@ class SettingsController extends Controller
     }
 
     /**
+     * Run one specific migration file by name (whitelisted against the actual
+     * files in database/migrations — never trusts the input as a raw path).
+     */
+    public function runSpecificMigration(Request $request)
+    {
+        $request->validate([
+            'migration' => 'required|string|max:255',
+        ]);
+
+        // Accept with or without ".php" and strip any path characters before matching.
+        $name = trim($request->migration);
+        $name = basename($name);
+        $name = preg_replace('/\.php$/', '', $name);
+
+        $migrationsPath = database_path('migrations');
+        $filename = $name . '.php';
+
+        if (!is_file($migrationsPath . DIRECTORY_SEPARATOR . $filename)) {
+            return response()->json([
+                'success' => false,
+                'message' => "Migration file \"{$filename}\" was not found in database/migrations."
+            ], 404);
+        }
+
+        try {
+            Artisan::call('migrate', [
+                '--path' => 'database/migrations/' . $filename,
+                '--realpath' => false,
+                '--force' => true,
+            ]);
+            $output = Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Migration \"{$filename}\" ran successfully!",
+                'output' => nl2br(htmlspecialchars($output))
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to run migration: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Run Composer Command
      */
     public function runComposerCommand(Request $request)

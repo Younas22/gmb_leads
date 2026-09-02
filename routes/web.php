@@ -255,6 +255,7 @@ Route::middleware(['web', 'auth'])->group(function () {
                     Route::get('/', [LeadCenterController::class, 'index'])->name('index');
                     Route::post('/bulk', [LeadCenterController::class, 'bulkAction'])->name('bulk');
                     Route::post('/{id}/status', [LeadCenterController::class, 'updateStatus'])->name('status');
+                    Route::post('/{id}/location', [LeadCenterController::class, 'updateLocation'])->name('location');
                     Route::delete('/{id}', [LeadCenterController::class, 'destroy'])->name('delete');
 
                     Route::post('/import/preview', [LeadCenterImportController::class, 'preview'])->name('import.preview');
@@ -418,6 +419,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::post('/database/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeDatabase'])->name('database.optimize');
             Route::post('/performance/seed-settings', [App\Http\Controllers\Admin\SettingsController::class, 'seedPerformanceSettings'])->name('performance.seed-settings');
             Route::post('/migrations/run', [App\Http\Controllers\Admin\SettingsController::class, 'runMigrations'])->name('migrations.run');
+            Route::post('/migrations/run-specific', [App\Http\Controllers\Admin\SettingsController::class, 'runSpecificMigration'])->name('migrations.run-specific');
 
             // Composer Commands
             Route::post('/composer/run', [App\Http\Controllers\Admin\SettingsController::class, 'runComposerCommand'])->name('composer.run');

@@ -985,6 +985,21 @@ use App\Models\EmailTemplate;
                                 <i class="fas fa-sync-alt mr-1.5"></i>Run Migrations
                             </button>
                             <div id="migrations-result" class="mt-2"></div>
+
+                            <div class="border-t border-gray-100 pt-3 mt-1">
+                                <p class="text-xs text-gray-600 mb-2">Run one specific migration file (e.g. after uploading a single new migration):</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="specific-migration-name" placeholder="2026_09_02_000001_create_lead_center_folders_table"
+                                           class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                                           onkeydown="if(event.key==='Enter'){ event.preventDefault(); runSpecificMigration(); }">
+                                    <button type="button" onclick="runSpecificMigration()"
+                                            class="flex-shrink-0 px-3 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-medium">
+                                        <i class="fas fa-play mr-1"></i>Run
+                                    </button>
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1">Filename only, with or without ".php" — must already exist in database/migrations.</p>
+                                <div id="specific-migration-result" class="mt-2"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -1397,6 +1412,45 @@ use App\Models\EmailTemplate;
         })
         .catch(error => {
             resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error running migrations</div>`;
+        });
+    }
+
+    // Run one specific migration file
+    function runSpecificMigration() {
+        const input = document.getElementById('specific-migration-name');
+        const resultDiv = document.getElementById('specific-migration-result');
+        const migration = input.value.trim();
+
+        if (!migration) {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Please enter a migration file name.</div>`;
+            return;
+        }
+
+        resultDiv.innerHTML = `<div class="bg-blue-50 border border-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-spinner fa-spin mr-1"></i>Running migration...</div>`;
+
+        fetch('{{ route('admin.settings.migrations.run-specific') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ migration })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let message = data.message;
+                if (data.output) {
+                    message += '<br><small class="text-xs">' + data.output + '</small>';
+                }
+                resultDiv.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-check-circle mr-1"></i>${message}</div>`;
+                input.value = '';
+            } else {
+                resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg text-xs"><i class="fas fa-exclamation-circle mr-1"></i>Error running migration</div>`;
         });
     }
 
