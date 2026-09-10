@@ -14,20 +14,20 @@
             <p class="text-sm text-gray-500 mt-0.5">Your business-development workspace — organize, contact and convert your prospects.</p>
         </div>
         <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <div class="flex flex-wrap items-center gap-2">
-                <a href="{{ route('user.leads') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
-                    <i class="fas fa-bookmark"></i> My Leads
+            <div class="flex flex-wrap items-center gap-1.5">
+                <a href="{{ route('user.leads') }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
+                    <i class="fas fa-bookmark text-[10px]"></i> My Leads
                 </a>
-                <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
-                    <i class="fas fa-book"></i> Resources
+                <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
+                    <i class="fas fa-book text-[10px]"></i> Resources
                 </a>
-                <button type="button" onclick="openMapModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
-                    <i class="fas fa-earth-americas"></i> Map
+                <button type="button" onclick="openMapModal()" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
+                    <i class="fas fa-earth-americas text-[10px]"></i> Map
                 </button>
                 @include('user.lead-center._access-controls')
             </div>
-            <button type="button" onclick="openImportModal()" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm flex-shrink-0 whitespace-nowrap w-full sm:w-auto">
-                <i class="fas fa-plus"></i> Import Leads
+            <button type="button" onclick="openImportModal()" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm flex-shrink-0 whitespace-nowrap w-full sm:w-auto">
+                <i class="fas fa-plus text-[10px]"></i> Import Leads
             </button>
         </div>
     </div>
@@ -416,6 +416,7 @@
 @include('partials.select2-assets')
 @include('user.lead-center._share-access-scripts')
 @include('user.lead-center._coverage-map-scripts')
+@include('user.lead-center._access-controls-scripts')
 
 <script>
 const LC_ROUTES = {

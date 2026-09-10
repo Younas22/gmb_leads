@@ -131,6 +131,7 @@
 @include('partials.select2-assets')
 @include('user.lead-center._share-access-scripts')
 @include('user.lead-center._coverage-map-scripts')
+@include('user.lead-center._access-controls-scripts')
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 const LC_ROUTES = {

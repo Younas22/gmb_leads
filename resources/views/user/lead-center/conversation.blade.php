@@ -168,7 +168,9 @@
 @include('user.lead-center._share-access-modal')
 
 @push('scripts')
+@include('partials.select2-assets')
 @include('user.lead-center._share-access-scripts')
+@include('user.lead-center._access-controls-scripts')
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 const LEAD_ID = {{ $lead->id }};
