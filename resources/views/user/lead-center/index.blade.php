@@ -13,18 +13,18 @@
             </h1>
             <p class="text-sm text-gray-500 mt-0.5">Your business-development workspace — organize, contact and convert your prospects.</p>
         </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('user.leads') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('user.leads') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
                 <i class="fas fa-bookmark"></i> My Leads
             </a>
-            <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+            <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
                 <i class="fas fa-book"></i> Resources
             </a>
-            <button type="button" onclick="openMapModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+            <button type="button" onclick="openMapModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors flex-shrink-0 whitespace-nowrap">
                 <i class="fas fa-earth-americas"></i> Map
             </button>
             @include('user.lead-center._access-controls')
-            <button type="button" onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm">
+            <button type="button" onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm flex-shrink-0 whitespace-nowrap">
                 <i class="fas fa-plus"></i> Import Leads
             </button>
         </div>

@@ -10,7 +10,7 @@
         <a href="{{ route('user.lead-center.index') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors">
             <i class="fas fa-arrow-left"></i> Back to Lead Center
         </a>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             @include('user.lead-center._access-controls')
         </div>
     </div>
