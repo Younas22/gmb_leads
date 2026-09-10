@@ -4,22 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\SavedLead;
 use App\Services\LeadCenterImportService;
+use App\Http\Controllers\Concerns\ResolvesLeadCenterOwner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LeadCenterImportController extends Controller
 {
+    use ResolvesLeadCenterOwner;
+
     private LeadCenterImportService $service;
 
     public function __construct(LeadCenterImportService $service)
     {
         $this->service = $service;
-    }
-
-    private function ownerUser()
-    {
-        $user = Auth::user();
-        return $user->isTeamMember() ? $user->company : $user;
     }
 
     /**
@@ -65,7 +62,7 @@ class LeadCenterImportController extends Controller
             return response()->json(['success' => false, 'message' => 'No leads were found. Make sure each line has "Company Name,Website".'], 422);
         }
 
-        $result = $this->service->analyze($this->ownerUser()->id, $rows);
+        $result = $this->service->analyze($this->leadCenterOwner()->id, $rows);
 
         return response()->json([
             'success' => true,
@@ -88,6 +85,7 @@ class LeadCenterImportController extends Controller
             'rows' => 'required|array|min:1',
             'rows.*.company_name' => 'required|string|max:255',
             'rows.*.website' => 'nullable|string|max:500',
+            'rows.*.email' => 'nullable|string|max:255',
             'country_id' => 'nullable|integer|exists:countries,id',
             'state_id' => 'nullable|integer|exists:states,id',
             'city_id' => 'nullable|integer|exists:cities,id',
@@ -98,7 +96,7 @@ class LeadCenterImportController extends Controller
         }
 
         $result = $this->service->import(
-            $this->ownerUser()->id,
+            $this->leadCenterOwner()->id,
             $request->rows,
             $request->country_id ?: null,
             $request->state_id ?: null,
@@ -136,7 +134,7 @@ class LeadCenterImportController extends Controller
             return response()->json(['success' => false, 'message' => 'No matching leads found'], 404);
         }
 
-        $result = $this->service->importFromSavedLeads($this->ownerUser()->id, $savedLeads);
+        $result = $this->service->importFromSavedLeads($this->leadCenterOwner()->id, $savedLeads);
 
         $message = "{$result['imported']} lead(s) added to Lead Center.";
         if ($result['skipped_duplicate'] > 0) {

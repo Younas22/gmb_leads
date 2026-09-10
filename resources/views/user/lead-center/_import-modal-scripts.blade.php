@@ -4,13 +4,33 @@ let _importValidRows = [];   // rows returned by the preview step, ready to pers
 let _importTab = 'csv';
 let _importLocation = null;  // lcCascadingLocation instance, created lazily (needs jQuery/select2 loaded first)
 
+const IMPORT_LOCATION_STORAGE_KEY = 'lc_import_location';
+
 function openImportModal() {
     if (!_importLocation) {
         _importLocation = lcCascadingLocation('import_country_select', 'import_state_select', 'import_city_select');
+
+        // Restore whatever location was last used — even across a page reload — so the
+        // user doesn't have to re-pick Country/State/City for every import batch.
+        try {
+            const saved = JSON.parse(localStorage.getItem(IMPORT_LOCATION_STORAGE_KEY) || 'null');
+            if (saved && (saved.country_id || saved.state_id || saved.city_id)) {
+                _importLocation.setValues(saved.country_id, saved.state_id, saved.city_id);
+            }
+        } catch (e) { /* ignore — just start blank */ }
+
+        // Remember it as soon as the user changes it too, not only at import time.
+        $('#import_country_select, #import_state_select, #import_city_select').on('change', saveImportLocationToStorage);
     }
     document.getElementById('importModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     resetImportModal();
+}
+
+function saveImportLocationToStorage() {
+    try {
+        localStorage.setItem(IMPORT_LOCATION_STORAGE_KEY, JSON.stringify(_importLocation.values()));
+    } catch (e) { /* localStorage unavailable — location just won't persist across reloads */ }
 }
 
 function closeImportModal() {
@@ -19,6 +39,9 @@ function closeImportModal() {
 }
 
 function resetImportModal() {
+    // Note: the Country/State/City selection is intentionally NOT reset here — it stays
+    // as the user left it (across re-opens and across successful imports) until they
+    // change it themselves. Only the CSV/paste input and preview state are cleared.
     _importValidRows = [];
     document.getElementById('csvFileInput').value = '';
     document.getElementById('csvFileLabel').textContent = 'Click to choose a CSV file, or drag it here';
@@ -28,7 +51,6 @@ function resetImportModal() {
     document.getElementById('importSourceSection').classList.remove('hidden');
     document.getElementById('confirmImportBtn').classList.add('hidden');
     document.getElementById('previewBtn').classList.remove('hidden');
-    if (_importLocation) _importLocation.reset();
     switchImportTab('csv');
 }
 
@@ -109,8 +131,9 @@ function renderImportPreview(data) {
         <tr>
             <td class="px-3 py-1.5 text-gray-800">${escapeHtml(row.company_name)}</td>
             <td class="px-3 py-1.5 text-gray-500">${escapeHtml(row.website || '—')}</td>
+            <td class="px-3 py-1.5 text-gray-500">${escapeHtml(row.email || '—')}</td>
         </tr>
-    `).join('') || `<tr><td colspan="2" class="px-3 py-4 text-center text-gray-400">No valid leads found.</td></tr>`;
+    `).join('') || `<tr><td colspan="3" class="px-3 py-4 text-center text-gray-400">No valid leads found.</td></tr>`;
 
     const moreNote = document.getElementById('previewMoreNote');
     moreNote.textContent = data.valid.length > 200 ? `Showing first 200 of ${data.valid.length} valid leads.` : '';
@@ -137,6 +160,8 @@ function renderImportPreview(data) {
 
 function confirmImport() {
     if (!_importValidRows.length) return;
+
+    saveImportLocationToStorage();
 
     const btn = document.getElementById('confirmImportBtn');
     const originalHtml = btn.innerHTML;

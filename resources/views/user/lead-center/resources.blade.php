@@ -5,11 +5,16 @@
 @section('content')
 <div class="p-3 lg:p-4 max-w-5xl mx-auto">
 
-    <div class="mb-4">
+    <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
         <a href="{{ route('user.lead-center.index') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors">
             <i class="fas fa-arrow-left"></i> Back to Lead Center
         </a>
+        <div class="flex items-center gap-2">
+            @include('user.lead-center._access-controls')
+        </div>
     </div>
+
+    @include('user.lead-center._access-bar')
 
     <div class="mb-5">
         <h1 class="text-xl lg:text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -22,11 +27,17 @@
 
         <!-- Targeted Locations -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
-            <div class="px-4 py-3 border-b border-gray-100">
-                <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-                    <i class="fas fa-map-marker-alt text-primary-600"></i> Targeted Locations
-                </h2>
-                <p class="text-[11px] text-gray-400 mt-0.5">Markets you're planning to prospect next.</p>
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                        <i class="fas fa-map-marker-alt text-primary-600"></i> Targeted Locations
+                    </h2>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Markets you're planning to prospect next.</p>
+                </div>
+                <button type="button" onclick="openMapModal()" title="View coverage map"
+                        class="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-primary-50 hover:bg-primary-100 text-primary-700 border border-primary-200 transition-colors">
+                    <i class="fas fa-earth-americas"></i> Map
+                </button>
             </div>
             <div class="p-4 space-y-2 border-b border-gray-100">
                 <select id="target_country_select" class="w-full px-2 py-2 rounded-lg text-sm border border-gray-300 cursor-pointer">
@@ -113,8 +124,13 @@
     </div>
 </div>
 
+@include('user.lead-center._share-access-modal')
+@include('user.lead-center._coverage-map-modal')
+
 @push('scripts')
 @include('partials.select2-assets')
+@include('user.lead-center._share-access-scripts')
+@include('user.lead-center._coverage-map-scripts')
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 const LC_ROUTES = {

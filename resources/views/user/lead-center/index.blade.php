@@ -20,11 +20,17 @@
             <a href="{{ route('user.lead-center.resources.index') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
                 <i class="fas fa-book"></i> Resources
             </a>
+            <button type="button" onclick="openMapModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+                <i class="fas fa-earth-americas"></i> Map
+            </button>
+            @include('user.lead-center._access-controls')
             <button type="button" onclick="openImportModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors shadow-sm">
                 <i class="fas fa-plus"></i> Import Leads
             </button>
         </div>
     </div>
+
+    @include('user.lead-center._access-bar')
 
     <!-- Success/Error Messages -->
     @if(session('success'))
@@ -47,15 +53,16 @@
     <!-- Summary Cards -->
     @php
         $cardCfg = [
-            'total'      => ['label' => 'Total Leads', 'icon' => 'fa-layer-group', 'text' => 'text-gray-800', 'bg' => 'bg-gray-100'],
-            'pending'    => ['label' => 'Pending',     'icon' => 'fa-hourglass-half', 'text' => 'text-red-700', 'bg' => 'bg-red-50'],
-            'connected'  => ['label' => 'Connected',   'icon' => 'fa-plug', 'text' => 'text-blue-700', 'bg' => 'bg-blue-50'],
-            'responded'  => ['label' => 'Responded',   'icon' => 'fa-comment-dots', 'text' => 'text-yellow-700', 'bg' => 'bg-yellow-50'],
-            'follow_up'  => ['label' => 'Follow Up',   'icon' => 'fa-calendar-check', 'text' => 'text-purple-700', 'bg' => 'bg-purple-50'],
-            'closed'     => ['label' => 'Closed',      'icon' => 'fa-flag-checkered', 'text' => 'text-green-700', 'bg' => 'bg-green-50'],
+            'total'       => ['label' => 'Total Leads',  'icon' => 'fa-layer-group', 'text' => 'text-gray-800', 'bg' => 'bg-gray-100'],
+            'pending'     => ['label' => 'Pending',      'icon' => 'fa-hourglass-half', 'text' => 'text-red-700', 'bg' => 'bg-red-50'],
+            'connected'   => ['label' => 'Connected',    'icon' => 'fa-plug', 'text' => 'text-blue-700', 'bg' => 'bg-blue-50'],
+            'responded'   => ['label' => 'Responded',    'icon' => 'fa-comment-dots', 'text' => 'text-yellow-700', 'bg' => 'bg-yellow-50'],
+            'follow_up_1' => ['label' => 'Follow Up 1',  'icon' => 'fa-calendar-check', 'text' => 'text-purple-700', 'bg' => 'bg-purple-50'],
+            'follow_up_2' => ['label' => 'Follow Up 2',  'icon' => 'fa-calendar-check', 'text' => 'text-purple-800', 'bg' => 'bg-purple-100'],
+            'follow_up_3' => ['label' => 'Follow Up 3',  'icon' => 'fa-calendar-check', 'text' => 'text-purple-900', 'bg' => 'bg-purple-200'],
         ];
     @endphp
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3 mb-4">
         @foreach($cardCfg as $key => $cfg)
             @php $cardIsActive = $key === 'total' ? empty($status) : $status === $key; @endphp
             <a href="{{ route('user.lead-center.index', array_merge(request()->except(['status','page']), $key === 'total' ? [] : ['status' => $key])) }}"
@@ -71,31 +78,57 @@
                 </div>
             </a>
         @endforeach
+
+        {{-- Outcome card: Converted + Closed share one card, stacked top/bottom, each its own filter/color --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <a href="{{ route('user.lead-center.index', array_merge(request()->except(['status','page']), ['status' => 'converted'])) }}"
+               class="flex-1 px-3 py-2 hover:bg-green-50/50 transition-colors {{ $status === 'converted' ? 'bg-green-50 ring-2 ring-inset ring-green-300' : '' }}">
+                <div class="flex items-center gap-2">
+                    <div class="bg-green-100 text-green-700 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-trophy text-[10px]"></i>
+                    </div>
+                    <div class="min-w-0 flex items-baseline gap-1.5">
+                        <p class="text-sm font-bold text-gray-800 leading-tight">{{ number_format($stats['converted'] ?? 0) }}</p>
+                        <p class="text-[10px] text-gray-500 leading-tight truncate">Converted</p>
+                    </div>
+                </div>
+            </a>
+            <div class="h-px bg-gray-100"></div>
+            <a href="{{ route('user.lead-center.index', array_merge(request()->except(['status','page']), ['status' => 'closed'])) }}"
+               class="flex-1 px-3 py-2 hover:bg-gray-50 transition-colors {{ $status === 'closed' ? 'bg-gray-100 ring-2 ring-inset ring-gray-300' : '' }}">
+                <div class="flex items-center gap-2">
+                    <div class="bg-gray-200 text-gray-600 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-skull text-[10px]"></i>
+                    </div>
+                    <div class="min-w-0 flex items-baseline gap-1.5">
+                        <p class="text-sm font-bold text-gray-800 leading-tight">{{ number_format($stats['closed'] ?? 0) }}</p>
+                        <p class="text-[10px] text-gray-500 leading-tight truncate">Closed / Dead</p>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 
     <!-- Folders -->
-    <div class="flex flex-wrap items-center gap-2 mb-4">
-        <a href="{{ route('user.lead-center.index', request()->except(['folder_id','page'])) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ !$folderId ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400' }}">
-            <i class="fas fa-inbox text-[10px]"></i> All Leads
-        </a>
-        <a href="{{ route('user.lead-center.index', array_merge(request()->except(['folder_id','page']), ['folder_id' => 'unfiled'])) }}"
-           title="Leads not yet moved into any folder"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $folderId === 'unfiled' ? 'bg-orange-600 text-white border-orange-600' : 'bg-white text-orange-700 border-orange-200 hover:border-orange-400' }}">
-            <i class="fas fa-box-open text-[10px]"></i> Unfiled
-            <span class="{{ $folderId === 'unfiled' ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $unfiledCount }})</span>
-        </a>
-        @foreach($folders as $folder)
-            @php $isActive = (string)$folderId === (string)$folder->id; @endphp
-            <a href="{{ route('user.lead-center.index', array_merge(request()->except(['folder_id','page']), ['folder_id' => $folder->id])) }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-indigo-700 border-indigo-200 hover:border-indigo-400' }}">
-                <i class="fas fa-folder text-[10px]"></i>
-                {{ $folder->name }}
-                <span class="{{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $folder->leads_count }})</span>
-            </a>
-        @endforeach
+    <div class="flex items-center gap-2 mb-4">
+        <div class="flex-1 min-w-0 max-w-sm">
+            <select id="folderNavSelect" onchange="if(this.value) window.location.href = this.value;"
+                    class="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 cursor-pointer bg-white">
+                <option value="{{ route('user.lead-center.index', request()->except(['folder_id','page'])) }}" {{ !$folderId ? 'selected' : '' }}>
+                    📋 All Leads ({{ number_format($stats['total'] ?? 0) }})
+                </option>
+                <option value="{{ route('user.lead-center.index', array_merge(request()->except(['folder_id','page']), ['folder_id' => 'unfiled'])) }}" {{ $folderId === 'unfiled' ? 'selected' : '' }}>
+                    📦 Unfiled ({{ number_format($unfiledCount) }})
+                </option>
+                @foreach($folders as $folder)
+                    <option value="{{ route('user.lead-center.index', array_merge(request()->except(['folder_id','page']), ['folder_id' => $folder->id])) }}" {{ (string)$folderId === (string)$folder->id ? 'selected' : '' }}>
+                        📁 {{ $folder->name }} ({{ number_format($folder->leads_count) }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <button type="button" onclick="openFolderModal([], 'create')"
-                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs font-medium text-gray-500 border-dashed border-gray-400 hover:border-gray-500 hover:text-gray-700 transition-all">
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium text-gray-500 border-dashed border-gray-400 hover:border-gray-500 hover:text-gray-700 transition-all flex-shrink-0">
             <i class="fas fa-plus text-[10px]"></i> New Folder
         </button>
     </div>
@@ -105,13 +138,19 @@
         @if($folderId)<input type="hidden" name="folder_id" value="{{ $folderId }}">@endif
         <div class="flex flex-col lg:flex-row gap-1.5">
             <div class="lg:flex-[3]">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Search by company name or website…"
+                <input type="text" name="search" value="{{ $search }}" placeholder="Search by company name, website, email or any saved contact link…"
                        class="w-full px-3 py-2 rounded-lg text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary-400">
             </div>
             <select name="status" class="px-2 py-2 rounded-lg text-sm border border-gray-300 cursor-pointer lg:flex-1">
                 <option value="">All Statuses</option>
                 @foreach(\App\Models\LeadCenterLead::statusLabels() as $key => $label)
                     <option value="{{ $key }}" {{ $status === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+            <select name="channel" class="px-2 py-2 rounded-lg text-sm border border-gray-300 cursor-pointer lg:flex-1">
+                <option value="">Any Channel</option>
+                @foreach(\App\Models\LeadCenterLead::contactChannelLabels() as $key => $label)
+                    <option value="{{ $key }}" {{ $channel === $key ? 'selected' : '' }}>Has {{ $label }}</option>
                 @endforeach
             </select>
             <div class="lg:flex-1">
@@ -195,7 +234,12 @@
                                     <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox" value="{{ $lead->id }}">
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="text-sm font-semibold text-gray-900">{{ $lead->company_name }}</div>
+                                    <div class="text-sm font-semibold text-gray-900 cursor-pointer hover:text-primary-600 transition-colors inline-flex items-center gap-1.5 group"
+                                         title="Click to copy this lead"
+                                         onclick="copySingleLead(this, '{{ addslashes($lead->company_name) }}', '{{ addslashes($lead->website) }}')">
+                                        {{ $lead->company_name }}
+                                        <i class="fas fa-copy text-[10px] text-gray-300 group-hover:text-primary-500"></i>
+                                    </div>
                                     @if($lead->saved_lead_id)
                                         <span class="text-[10px] text-gray-400"><i class="fas fa-bookmark"></i> from My Leads</span>
                                     @endif
@@ -206,6 +250,21 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 hidden md:table-cell">
+                                    @php $savedChannels = $lead->savedContactChannels(); @endphp
+                                    @if(count($savedChannels))
+                                        <div class="space-y-0.5 mb-1.5">
+                                            @foreach($savedChannels as $ch => $val)
+                                                @php $icon = \App\Models\LeadCenterLead::contactChannelIcons()[$ch] ?? ['fas','fa-link']; @endphp
+                                                <a href="{{ route('user.lead-center.index', array_merge(request()->except(['channel','page']), ['channel' => $ch])) }}"
+                                                   onclick="event.stopPropagation()"
+                                                   title="{{ \App\Models\LeadCenterLead::contactChannelLabels()[$ch] ?? ucfirst($ch) }}: {{ $val }} — click to filter by this channel"
+                                                   class="flex items-center gap-1.5 text-xs transition-colors {{ $channel === $ch ? 'text-primary-700 font-semibold' : 'text-gray-500 hover:text-primary-600' }}">
+                                                    <i class="{{ $icon[0] }} {{ $icon[1] }} w-3 text-center flex-shrink-0"></i>
+                                                    <span class="truncate max-w-[170px]">{{ $val }}</span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                     @if($lead->website)
                                         <a href="{{ $lead->website }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all">
                                             {{ str_replace(['http://','https://'], '', $lead->website) }}
@@ -317,7 +376,7 @@
                 View All Leads
             </a>
         </div>
-    @elseif($search || $status || $countryId || $stateId || $cityId)
+    @elseif($search || $status || $channel || $countryId || $stateId || $cityId)
         <!-- Empty Filtered State -->
         <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-100 text-center">
             <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
@@ -345,12 +404,16 @@
     @endif
 </div>
 
+@include('user.lead-center._coverage-map-modal')
 @include('user.lead-center._import-modal')
 @include('user.lead-center._folder-modal')
 @include('user.lead-center._location-modal')
+@include('user.lead-center._share-access-modal')
 
 @push('scripts')
 @include('partials.select2-assets')
+@include('user.lead-center._share-access-scripts')
+@include('user.lead-center._coverage-map-scripts')
 
 <script>
 const LC_ROUTES = {
@@ -484,6 +547,22 @@ function copyPageLeads() {
         .catch(() => showToast('Failed to copy — your browser blocked clipboard access', 'error'));
 }
 
+function copySingleLead(el, company, website) {
+    const text = website ? `${company}\t${website}` : company;
+
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            showToast(`Copied "${company}"`, 'success');
+            const icon = el.querySelector('i');
+            if (icon) {
+                const original = icon.className;
+                icon.className = 'fas fa-check text-[10px] text-green-500';
+                setTimeout(() => { icon.className = original; }, 1200);
+            }
+        })
+        .catch(() => showToast('Failed to copy — your browser blocked clipboard access', 'error'));
+}
+
 function changePerPage(value) {
     const url = new URL(window.location.href);
     url.searchParams.set('per_page', value);
@@ -494,6 +573,7 @@ function changePerPage(value) {
 // ===== Location filter cascading (search bar) =====
 $(document).ready(function() {
     $('#filter_country_select').select2({ placeholder: 'Country', allowClear: true, width: '100%' });
+    $('#folderNavSelect').select2({ placeholder: 'Choose a folder…', width: '100%', minimumResultsForSearch: 5 });
 });
 </script>
 

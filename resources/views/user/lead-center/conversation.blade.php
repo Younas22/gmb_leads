@@ -6,11 +6,16 @@
 <div class="p-3 lg:p-4 max-w-5xl mx-auto">
 
     <!-- Breadcrumb -->
-    <div class="mb-4">
+    <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
         <a href="{{ route('user.lead-center.index') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors">
             <i class="fas fa-arrow-left"></i> Back to Lead Center
         </a>
+        <div class="flex items-center gap-2">
+            @include('user.lead-center._access-controls')
+        </div>
     </div>
+
+    @include('user.lead-center._access-bar')
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
@@ -24,10 +29,26 @@
                 </div>
                 <h2 class="text-lg font-bold text-gray-900 leading-tight">{{ $lead->company_name }}</h2>
 
+                @if($lead->email)
+                    <div class="flex items-center gap-2 mt-1">
+                        <a href="mailto:{{ $lead->email }}" class="text-sm text-gray-600 hover:text-primary-600 break-all">
+                            <i class="fas fa-envelope mr-1"></i>{{ $lead->email }}
+                        </a>
+                        <button type="button" onclick="copyField('{{ $lead->email }}', this)" title="Copy email" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
+                            <i class="fas fa-copy text-xs"></i>
+                        </button>
+                    </div>
+                @endif
+
                 @if($lead->website)
-                    <a href="{{ $lead->website }}" target="_blank" class="text-sm text-blue-600 hover:underline break-all mt-1 inline-block">
-                        <i class="fas fa-globe mr-1"></i>{{ str_replace(['http://','https://'], '', $lead->website) }}
-                    </a>
+                    <div class="flex items-center gap-2 mt-1">
+                        <a href="{{ $lead->website }}" target="_blank" class="text-sm text-blue-600 hover:underline break-all">
+                            <i class="fas fa-globe mr-1"></i>{{ str_replace(['http://','https://'], '', $lead->website) }}
+                        </a>
+                        <button type="button" onclick="copyField('{{ $lead->website }}', this)" title="Copy website" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
+                            <i class="fas fa-copy text-xs"></i>
+                        </button>
+                    </div>
                 @else
                     <p class="text-sm text-gray-400 italic mt-1">No website</p>
                 @endif
@@ -144,7 +165,10 @@
     </div>
 </div>
 
+@include('user.lead-center._share-access-modal')
+
 @push('scripts')
+@include('user.lead-center._share-access-scripts')
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 const LEAD_ID = {{ $lead->id }};
@@ -178,6 +202,15 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function copyField(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const icon = btn.querySelector('i');
+        const original = icon.className;
+        icon.className = 'fas fa-check text-xs text-green-500';
+        setTimeout(() => { icon.className = original; }, 1200);
+    }).catch(() => showToast('Failed to copy', 'error'));
+}
+
 function insertTemplate(templateId) {
     if (!templateId) return;
     const textEl = document.getElementById('newMessageText');
@@ -201,8 +234,8 @@ function onContactChannelChange() {
     if (channel === 'all') {
         const lines = Object.keys(CONTACT_CHANNEL_LABELS)
             .filter(key => LC_CONTACT_LINKS[key])
-            .map(key => `${CONTACT_CHANNEL_LABELS[key]}:\n${LC_CONTACT_LINKS[key]}`);
-        textarea.value = lines.length ? lines.join('\n\n') : '';
+            .map(key => `${CONTACT_CHANNEL_LABELS[key]}: ${LC_CONTACT_LINKS[key]}`);
+        textarea.value = lines.length ? lines.join('\n') : '';
         textarea.readOnly = true;
         textarea.placeholder = 'No contact links saved yet. Pick a channel above to add some.';
         saveBtn.classList.add('hidden');
@@ -212,6 +245,17 @@ function onContactChannelChange() {
         textarea.placeholder = 'Add link(s) for this channel, one per line…';
         saveBtn.classList.remove('hidden');
     }
+}
+
+/** Defaults the dropdown to whichever channel actually has something saved (instead of
+ *  always opening on "All Channels"), so the box shows just that raw value immediately. */
+function selectFirstSavedContactChannel() {
+    const select = document.getElementById('contactChannelSelect');
+    const firstSaved = Object.keys(CONTACT_CHANNEL_LABELS).find(key => LC_CONTACT_LINKS[key]);
+    if (firstSaved) {
+        select.value = firstSaved;
+    }
+    onContactChannelChange();
 }
 
 function saveContactChannel() {
@@ -332,7 +376,7 @@ function updateConvStatus(status) {
 document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('messageList');
     list.scrollTop = list.scrollHeight;
-    onContactChannelChange();
+    selectFirstSavedContactChannel();
 });
 </script>
 @endpush

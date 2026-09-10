@@ -67,15 +67,15 @@
                             <input type="file" id="csvFileInput" accept=".csv,text/csv" class="hidden" onchange="onCsvFileChosen(this)">
                         </label>
                         <p class="text-[11px] text-gray-400 mt-2">
-                            Expected columns: <code class="bg-gray-100 px-1 rounded">Company Name,Website</code> — a header row is optional. Max 10MB.
+                            Expected columns: <code class="bg-gray-100 px-1 rounded">Company Name,Website,Email</code> (Email is optional) — a header row is optional. Max 10MB.
                         </p>
                     </div>
 
                     <!-- Paste Tab -->
                     <div id="importTabPaste" class="hidden">
-                        <textarea id="pasteTextarea" rows="6" placeholder="ABC Company,https://abc.com&#10;XYZ Business,https://xyz.com&#10;Demo Company,https://demo.com"
+                        <textarea id="pasteTextarea" rows="6" placeholder="ABC Company,https://abc.com,info@abc.com&#10;XYZ Business,https://xyz.com&#10;Demo Company,https://demo.com"
                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary-400"></textarea>
-                        <p class="text-[11px] text-gray-400 mt-2">One lead per line: <code class="bg-gray-100 px-1 rounded">Company Name,Website</code></p>
+                        <p class="text-[11px] text-gray-400 mt-2">One lead per line: <code class="bg-gray-100 px-1 rounded">Company Name,Website,Email</code> (Email is optional)</p>
                     </div>
 
                     <button type="button" id="previewBtn" onclick="runImportPreview()"
@@ -113,6 +113,7 @@
                                     <tr>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Company Name</th>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-600">Website</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-600">Email</th>
                                     </tr>
                                 </thead>
                                 <tbody id="previewTableBody" class="divide-y divide-gray-100"></tbody>

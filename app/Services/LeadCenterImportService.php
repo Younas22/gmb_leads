@@ -17,8 +17,9 @@ class LeadCenterImportService
     const MAX_ROWS = 20000;
 
     /**
-     * Parse raw CSV/pasted text ("Company Name,Website" per line, header optional)
-     * into a flat list of ['company_name' => ..., 'website' => ...] rows.
+     * Parse raw CSV/pasted text ("Company Name,Website" or "Company Name,Website,Email"
+     * per line, header optional) into a flat list of
+     * ['company_name' => ..., 'website' => ..., 'email' => ...] rows.
      * Blank lines are skipped. Does not validate or persist.
      */
     public function parseRawText(string $raw): array
@@ -36,13 +37,14 @@ class LeadCenterImportService
             $cols = str_getcsv($line);
             $company = trim($cols[0] ?? '');
             $website = trim($cols[1] ?? '');
+            $email = trim($cols[2] ?? '');
 
-            // Skip an obvious header row ("Company Name,Website" / "Business Name,URL" ...)
+            // Skip an obvious header row ("Company Name,Website[,Email]" / "Business Name,URL" ...)
             if ($i === 0 && $this->looksLikeHeader($company, $website)) {
                 continue;
             }
 
-            $rows[] = ['company_name' => $company, 'website' => $website];
+            $rows[] = ['company_name' => $company, 'website' => $website, 'email' => $email];
 
             if (count($rows) >= self::MAX_ROWS) {
                 break;
@@ -61,6 +63,12 @@ class LeadCenterImportService
             && (str_contains($w, 'website') || str_contains($w, 'url') || $w === '');
     }
 
+    private function normalizeEmail(string $email): ?string
+    {
+        $email = trim($email);
+        return ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+    }
+
     /**
      * Validate + classify a list of raw rows against what's already in the user's
      * Lead Center. Does NOT persist anything — used to build the import preview.
@@ -77,6 +85,7 @@ class LeadCenterImportService
         foreach ($rows as $index => $row) {
             $company = trim((string) ($row['company_name'] ?? ''));
             $website = trim((string) ($row['website'] ?? ''));
+            $email = $this->normalizeEmail((string) ($row['email'] ?? ''));
 
             if ($company === '') {
                 $invalid[] = ['row' => $index + 1, 'company_name' => $company, 'website' => $website, 'reason' => 'Missing company name'];
@@ -102,7 +111,7 @@ class LeadCenterImportService
             }
 
             $seenKeys[$key] = true;
-            $valid[] = ['company_name' => $company, 'website' => $website, 'dedupe_key' => $key];
+            $valid[] = ['company_name' => $company, 'website' => $website, 'email' => $email, 'dedupe_key' => $key];
         }
 
         return [
@@ -132,6 +141,7 @@ class LeadCenterImportService
         foreach ($rows as $row) {
             $company = trim((string) ($row['company_name'] ?? ''));
             $website = trim((string) ($row['website'] ?? ''));
+            $email = $this->normalizeEmail((string) ($row['email'] ?? ''));
 
             if ($company === '') {
                 $failed++;
@@ -158,6 +168,7 @@ class LeadCenterImportService
                 'folder_id' => null,
                 'company_name' => $company,
                 'website' => $website,
+                'email' => $email,
                 'country_id' => $countryId,
                 'state_id' => $stateId,
                 'city_id' => $cityId,
@@ -210,6 +221,7 @@ class LeadCenterImportService
                 'folder_id' => null,
                 'company_name' => $company,
                 'website' => $website,
+                'email' => $this->normalizeEmail((string) ($lead->email ?? '')),
                 'country_id' => is_numeric($lead->country) ? (int) $lead->country : null,
                 'state_id' => is_numeric($lead->state) ? (int) $lead->state : null,
                 'city_id' => is_numeric($lead->city) ? (int) $lead->city : null,

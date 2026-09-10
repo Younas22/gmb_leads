@@ -11,6 +11,7 @@ use App\Http\Controllers\LeadCenterImportController;
 use App\Http\Controllers\LeadCenterFolderController;
 use App\Http\Controllers\LeadCenterConversationController;
 use App\Http\Controllers\LeadCenterResourceController;
+use App\Http\Controllers\LeadCenterAccessController;
 use App\Http\Controllers\ApiKeysController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\FeedbackController;
@@ -272,9 +273,19 @@ Route::middleware(['web', 'auth'])->group(function () {
                     Route::delete('/{id}/conversation/messages/{messageId}', [LeadCenterConversationController::class, 'destroyMessage'])->name('conversation.message.destroy');
                     Route::post('/{id}/contact-links', [LeadCenterConversationController::class, 'updateContactLinks'])->name('contact-links');
 
+                    // Sharing: grant another registered user access to work on my Lead Center
+                    Route::prefix('access')->name('access.')->group(function () {
+                        Route::post('/share', [LeadCenterAccessController::class, 'share'])->name('share');
+                        Route::post('/{id}/respond', [LeadCenterAccessController::class, 'respond'])->name('respond');
+                        Route::post('/{id}/revoke', [LeadCenterAccessController::class, 'revoke'])->name('revoke');
+                        Route::post('/switch', [LeadCenterAccessController::class, 'switchTo'])->name('switch');
+                    });
+
                     // Outreach playbook: targeted locations, prompts, message templates
                     Route::prefix('resources')->name('resources.')->group(function () {
                         Route::get('/', [LeadCenterResourceController::class, 'index'])->name('index');
+                        Route::get('/map-data', [LeadCenterResourceController::class, 'mapData'])->name('map-data');
+                        Route::get('/boundary', [LeadCenterResourceController::class, 'boundary'])->name('boundary');
                         Route::post('/locations', [LeadCenterResourceController::class, 'storeLocation'])->name('locations.store');
                         Route::delete('/locations/{id}', [LeadCenterResourceController::class, 'destroyLocation'])->name('locations.destroy');
                         Route::post('/prompts', [LeadCenterResourceController::class, 'storePrompt'])->name('prompts.store');

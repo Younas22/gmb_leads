@@ -13,6 +13,7 @@ class LeadCenterLead extends Model
         'folder_id',
         'company_name',
         'website',
+        'email',
         'country_id',
         'state_id',
         'city_id',
@@ -41,32 +42,79 @@ class LeadCenterLead extends Model
         ];
     }
 
+    public static function contactChannelIcons(): array
+    {
+        return [
+            'email' => ['fas', 'fa-envelope'],
+            'facebook' => ['fab', 'fa-facebook'],
+            'whatsapp' => ['fab', 'fa-whatsapp'],
+            'instagram' => ['fab', 'fa-instagram'],
+            'linkedin' => ['fab', 'fa-linkedin'],
+            'contact_form' => ['fas', 'fa-file-lines'],
+        ];
+    }
+
+    /**
+     * Which contact channels actually have something saved for this lead. "email" can come
+     * from either the dedicated `email` column (set on import) or contact_links->email (set
+     * via the conversation page's Contact Channels widget) — whichever is filled in wins.
+     * Returns [channel_key => value].
+     */
+    public function savedContactChannels(): array
+    {
+        $saved = [];
+
+        foreach ($this->contact_links ?? [] as $channel => $value) {
+            if ($value !== null && $value !== '') {
+                $saved[$channel] = $value;
+            }
+        }
+
+        if (!empty($this->email)) {
+            $saved['email'] = $this->email;
+        }
+
+        return $saved;
+    }
+
     // Internal status values, in pipeline order
-    const STATUS_PENDING    = 'pending';
-    const STATUS_CONNECTED  = 'connected';
-    const STATUS_RESPONDED  = 'responded';
-    const STATUS_FOLLOW_UP  = 'follow_up';
-    const STATUS_CLOSED     = 'closed';
+    const STATUS_PENDING     = 'pending';
+    const STATUS_CONNECTED   = 'connected';
+    const STATUS_RESPONDED   = 'responded';
+    const STATUS_FOLLOW_UP_1 = 'follow_up_1';
+    const STATUS_FOLLOW_UP_2 = 'follow_up_2';
+    const STATUS_FOLLOW_UP_3 = 'follow_up_3';
+    const STATUS_CONVERTED   = 'converted'; // Won — the client actually converted
+    const STATUS_CLOSED      = 'closed';    // Lost — dead business / not interested
+
+    /** The two terminal/outcome statuses, grouped together in the summary cards. */
+    const OUTCOME_STATUSES = [self::STATUS_CONVERTED, self::STATUS_CLOSED];
 
     public static function statusLabels(): array
     {
         return [
-            self::STATUS_PENDING   => 'Pending',
-            self::STATUS_CONNECTED => 'Connected',
-            self::STATUS_RESPONDED => 'Responded',
-            self::STATUS_FOLLOW_UP => 'Follow Up',
-            self::STATUS_CLOSED    => 'Closed',
+            self::STATUS_PENDING     => 'Pending',
+            self::STATUS_CONNECTED   => 'Connected',
+            self::STATUS_RESPONDED   => 'Responded',
+            self::STATUS_FOLLOW_UP_1 => 'Follow Up 1',
+            self::STATUS_FOLLOW_UP_2 => 'Follow Up 2',
+            self::STATUS_FOLLOW_UP_3 => 'Follow Up 3',
+            self::STATUS_CONVERTED   => 'Converted',
+            self::STATUS_CLOSED      => 'Closed (Not Interested)',
         ];
     }
 
     public static function statusColors(): array
     {
         return [
-            self::STATUS_PENDING   => 'bg-red-100 text-red-700',
-            self::STATUS_CONNECTED => 'bg-blue-100 text-blue-700',
-            self::STATUS_RESPONDED => 'bg-yellow-100 text-yellow-700',
-            self::STATUS_FOLLOW_UP => 'bg-purple-100 text-purple-700',
-            self::STATUS_CLOSED    => 'bg-green-100 text-green-700',
+            self::STATUS_PENDING     => 'bg-red-100 text-red-700',
+            self::STATUS_CONNECTED   => 'bg-blue-100 text-blue-700',
+            self::STATUS_RESPONDED   => 'bg-yellow-100 text-yellow-700',
+            self::STATUS_FOLLOW_UP_1 => 'bg-purple-100 text-purple-700',
+            self::STATUS_FOLLOW_UP_2 => 'bg-purple-200 text-purple-800',
+            self::STATUS_FOLLOW_UP_3 => 'bg-purple-300 text-purple-900',
+            self::STATUS_CONVERTED   => 'bg-green-100 text-green-700',
+            self::STATUS_CLOSED      => 'bg-gray-200 text-gray-600',
         ];
     }
 

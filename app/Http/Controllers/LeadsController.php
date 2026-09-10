@@ -9,12 +9,15 @@ use App\Models\SavedLead;
 use App\Models\AdminApiKey;
 use App\Models\Country;
 use App\Models\LeadFolder;
+use App\Http\Controllers\Concerns\ResolvesLeadCenterOwner;
 use Carbon\Carbon;
 use App\Exports\LeadsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class LeadsController extends Controller
 {
+    use ResolvesLeadCenterOwner;
+
     /**
      * Show saved leads
      */
@@ -568,7 +571,7 @@ public function index(Request $request)
             }
 
             $result = (new \App\Services\LeadCenterImportService())->importFromSavedLeads(
-                $user->isTeamMember() ? $user->company->id : $user->id,
+                $this->leadCenterOwner()->id,
                 $leads
             );
 

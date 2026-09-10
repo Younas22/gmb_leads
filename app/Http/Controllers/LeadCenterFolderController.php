@@ -3,20 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\LeadCenterFolder;
+use App\Http\Controllers\Concerns\ResolvesLeadCenterOwner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LeadCenterFolderController extends Controller
 {
-    private function ownerUser()
-    {
-        $user = Auth::user();
-        return $user->isTeamMember() ? $user->company : $user;
-    }
+    use ResolvesLeadCenterOwner;
 
     public function index()
     {
-        $folders = LeadCenterFolder::where('user_id', $this->ownerUser()->id)
+        $folders = LeadCenterFolder::where('user_id', $this->leadCenterOwner()->id)
             ->withCount('leads')
             ->orderBy('name')
             ->get();
@@ -31,7 +28,7 @@ class LeadCenterFolderController extends Controller
             'color' => 'sometimes|string|max:30',
         ]);
 
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
         $name = trim($request->name);
 
         $existing = LeadCenterFolder::where('user_id', $ownerId)->whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
@@ -54,7 +51,7 @@ class LeadCenterFolderController extends Controller
     public function destroy($id)
     {
         $folder = LeadCenterFolder::where('id', $id)
-            ->where('user_id', $this->ownerUser()->id)
+            ->where('user_id', $this->leadCenterOwner()->id)
             ->firstOrFail();
 
         // Leads in the folder are NOT deleted — they simply become unfiled.

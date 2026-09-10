@@ -6,20 +6,17 @@ use App\Models\LeadCenterFolder;
 use App\Models\LeadCenterLead;
 use App\Models\LeadCenterMessage;
 use App\Models\LeadCenterMessageTemplate;
+use App\Http\Controllers\Concerns\ResolvesLeadCenterOwner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LeadCenterConversationController extends Controller
 {
-    private function ownerUser()
-    {
-        $user = Auth::user();
-        return $user->isTeamMember() ? $user->company : $user;
-    }
+    use ResolvesLeadCenterOwner;
 
     private function findLeadOrFail($id)
     {
-        return LeadCenterLead::where('user_id', $this->ownerUser()->id)
+        return LeadCenterLead::where('user_id', $this->leadCenterOwner()->id)
             ->with(['folder', 'countryRelation', 'stateRelation', 'cityRelation'])
             ->findOrFail($id);
     }
@@ -28,10 +25,13 @@ class LeadCenterConversationController extends Controller
     {
         $lead = $this->findLeadOrFail($id);
         $messages = $lead->messages()->get();
-        $folders = LeadCenterFolder::where('user_id', $this->ownerUser()->id)->orderBy('name')->get();
-        $templates = LeadCenterMessageTemplate::where('user_id', $this->ownerUser()->id)->orderBy('title')->get();
+        $folders = LeadCenterFolder::where('user_id', $this->leadCenterOwner()->id)->orderBy('name')->get();
+        $templates = LeadCenterMessageTemplate::where('user_id', $this->leadCenterOwner()->id)->orderBy('title')->get();
 
-        return view('user.lead-center.conversation', compact('lead', 'messages', 'folders', 'templates'));
+        return view('user.lead-center.conversation', array_merge(
+            compact('lead', 'messages', 'folders', 'templates'),
+            $this->leadCenterAccessContext()
+        ));
     }
 
     /**
@@ -39,7 +39,7 @@ class LeadCenterConversationController extends Controller
      */
     public function updateContactLinks(Request $request, $id)
     {
-        $lead = LeadCenterLead::where('user_id', $this->ownerUser()->id)->findOrFail($id);
+        $lead = LeadCenterLead::where('user_id', $this->leadCenterOwner()->id)->findOrFail($id);
 
         $request->validate([
             'channel' => 'required|in:' . implode(',', LeadCenterLead::CONTACT_CHANNELS),
@@ -62,7 +62,7 @@ class LeadCenterConversationController extends Controller
 
     public function storeMessage(Request $request, $id)
     {
-        $lead = LeadCenterLead::where('user_id', $this->ownerUser()->id)->findOrFail($id);
+        $lead = LeadCenterLead::where('user_id', $this->leadCenterOwner()->id)->findOrFail($id);
 
         $request->validate([
             'sender_type' => 'required|in:our,client',
@@ -93,7 +93,7 @@ class LeadCenterConversationController extends Controller
 
     public function destroyMessage($id, $messageId)
     {
-        $lead = LeadCenterLead::where('user_id', $this->ownerUser()->id)->findOrFail($id);
+        $lead = LeadCenterLead::where('user_id', $this->leadCenterOwner()->id)->findOrFail($id);
         $message = LeadCenterMessage::where('lead_center_lead_id', $lead->id)->findOrFail($messageId);
         $message->delete();
         $lead->touch();

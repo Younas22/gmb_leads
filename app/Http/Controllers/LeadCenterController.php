@@ -2,31 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesLeadCenterOwner;
 use App\Models\Country;
 use App\Models\LeadCenterFolder;
 use App\Models\LeadCenterLead;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LeadCenterController extends Controller
 {
-    /**
-     * The account that owns Lead Center data — company owner for team accounts,
-     * otherwise the user itself. Mirrors FolderController's ownership model so
-     * a whole team shares one pipeline, same as the existing "My Leads" folders.
-     */
-    private function ownerUser()
-    {
-        $user = Auth::user();
-        return $user->isTeamMember() ? $user->company : $user;
-    }
+    use ResolvesLeadCenterOwner;
 
     public function index(Request $request)
     {
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
 
         $search = trim((string) $request->get('search', ''));
         $status = $request->get('status');
+        $channel = $request->get('channel');
         $folderId = $request->get('folder_id');
         $countryId = $request->get('country_id');
         $stateId = $request->get('state_id');
@@ -37,9 +29,25 @@ class LeadCenterController extends Controller
         $query = LeadCenterLead::where('user_id', $ownerId);
 
         if ($search !== '') {
+            // Also matches inside the saved Contact Channel links (Facebook, WhatsApp, Instagram,
+            // LinkedIn, Contact Form — not just the dedicated Email column), so a search for a
+            // handle or link finds the lead regardless of which channel it was saved under.
             $query->where(function ($q) use ($search) {
                 $q->where('company_name', 'LIKE', "%{$search}%")
-                  ->orWhere('website', 'LIKE', "%{$search}%");
+                  ->orWhere('website', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhereRaw('contact_links LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        if ($channel && in_array($channel, LeadCenterLead::CONTACT_CHANNELS, true)) {
+            $query->where(function ($q) use ($channel) {
+                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(contact_links, ?)) IS NOT NULL AND JSON_UNQUOTE(JSON_EXTRACT(contact_links, ?)) != ''", ['$.' . $channel, '$.' . $channel]);
+                if ($channel === 'email') {
+                    $q->orWhere(function ($q2) {
+                        $q2->whereNotNull('email')->where('email', '!=', '');
+                    });
+                }
             });
         }
 
@@ -86,15 +94,15 @@ class LeadCenterController extends Controller
 
         $countries = Country::orderBy('name')->get();
 
-        return view('user.lead-center.index', compact(
+        return view('user.lead-center.index', array_merge(compact(
             'leads', 'folders', 'activeFolder', 'stats', 'countries', 'unfiledCount',
-            'search', 'status', 'folderId', 'countryId', 'stateId', 'cityId'
-        ));
+            'search', 'status', 'channel', 'folderId', 'countryId', 'stateId', 'cityId'
+        ), $this->leadCenterAccessContext()));
     }
 
     public function updateStatus(Request $request, $id)
     {
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
         $lead = LeadCenterLead::where('user_id', $ownerId)->findOrFail($id);
 
         $request->validate([
@@ -112,7 +120,7 @@ class LeadCenterController extends Controller
      */
     public function updateLocation(Request $request, $id)
     {
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
         $lead = LeadCenterLead::where('user_id', $ownerId)->findOrFail($id);
 
         $request->validate([
@@ -132,7 +140,7 @@ class LeadCenterController extends Controller
 
     public function destroy($id)
     {
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
         $lead = LeadCenterLead::where('user_id', $ownerId)->findOrFail($id);
         $lead->delete();
 
@@ -141,7 +149,7 @@ class LeadCenterController extends Controller
 
     public function bulkAction(Request $request)
     {
-        $ownerId = $this->ownerUser()->id;
+        $ownerId = $this->leadCenterOwner()->id;
 
         $request->validate([
             'action' => 'required|in:delete,update_status,move_to_folder',
