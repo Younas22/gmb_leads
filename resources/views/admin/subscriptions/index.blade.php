@@ -493,10 +493,10 @@
 
 <!-- View Subscriber Modal -->
 <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden overflow-y-auto">
-    <div class="flex items-start sm:items-center justify-center min-h-screen p-4">
-        <div class="max-w-md w-full">
+    <div class="flex items-start sm:items-center justify-center min-h-screen p-2">
+        <div class="max-w-3xl w-full">
             <!-- Controls (outside the card so they don't show in screenshots) -->
-            <div class="flex flex-wrap justify-center gap-2 mb-3">
+            <div class="flex flex-wrap justify-center gap-2 mb-2">
                 <button type="button" onclick="toggleViewPrivacy()" id="privacyBtn" class="inline-flex items-center px-3 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-100 transition-colors text-sm font-medium">
                     <i class="fas fa-eye-slash mr-2"></i><span>Hide Personal Details</span>
                 </button>
@@ -536,49 +536,87 @@
 
             <!-- Screenshot card -->
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-primary-600 to-indigo-600 px-6 pt-6 pb-14 text-center text-white">
-                    <div class="text-3xl mb-1">🎉</div>
-                    <h3 class="text-xl font-bold">New Subscriber Joined!</h3>
-                    <p class="text-sm text-white/80 mt-1">Welcome to the family</p>
+                <div class="bg-gradient-to-r from-primary-600 to-indigo-600 px-6 py-5 text-center text-white">
+                    <h3 class="text-2xl font-extrabold tracking-tight">🎉 New Subscriber Joined!</h3>
+                    <p class="text-sm text-white/85 mt-1">Another business owner just started hunting clients with us</p>
                 </div>
 
-                <div class="relative z-10 px-6 pb-6 -mt-10">
-                    <div class="flex flex-col items-center">
-                        <img id="viewAvatar" src="" alt="User" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md bg-white">
-                        <h4 id="viewName" class="mt-3 text-lg font-semibold text-gray-900"></h4>
-                        <span id="viewStatus" class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
-                    </div>
-
-                    <div class="mt-5 space-y-3">
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-envelope w-6 text-gray-400"></i>
-                            <span id="viewEmail" class="text-gray-700 break-all"></span>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fab fa-whatsapp w-6 text-gray-400"></i>
-                            <span id="viewPhone" class="text-gray-700"></span>
-                        </div>
-                        <div class="flex items-center text-sm">
-                            <i class="fas fa-calendar-alt w-6 text-gray-400"></i>
-                            <span id="viewJoined" class="text-gray-700"></span>
-                        </div>
-                    </div>
-
-                    <div class="mt-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="h-9 w-9 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-box text-orange-600"></i>
-                                </div>
-                                <div class="ml-3">
-                                    <div id="viewPackage" class="text-sm font-semibold text-gray-900"></div>
-                                    <div id="viewBilling" class="text-xs text-gray-500"></div>
-                                </div>
+                <div class="px-5 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Left: subscriber + package -->
+                    <div>
+                        <div class="flex items-center">
+                            <img id="viewAvatar" src="" alt="User" class="w-14 h-14 rounded-full object-cover border-2 border-primary-100 shadow-sm bg-white">
+                            <div class="ml-3">
+                                <h4 id="viewName" class="text-base font-semibold text-gray-900 leading-tight"></h4>
+                                <span id="viewStatus" class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
                             </div>
-                            <div id="viewPrice" class="text-base font-bold text-orange-600"></div>
                         </div>
-                        <div id="viewDuration" class="mt-3 text-xs text-gray-600"></div>
-                        <ul id="viewFeatures" class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700"></ul>
+
+                        <div class="mt-3 space-y-1.5">
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-envelope w-6 text-gray-400"></i>
+                                <span id="viewEmail" class="text-gray-700 break-all"></span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fab fa-whatsapp w-6 text-gray-400"></i>
+                                <span id="viewPhone" class="text-gray-700"></span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-calendar-alt w-6 text-gray-400"></i>
+                                <span id="viewJoined" class="text-gray-700"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 rounded-xl border border-orange-100 bg-orange-50 p-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="h-9 w-9 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-box text-orange-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div id="viewPackage" class="text-sm font-semibold text-gray-900"></div>
+                                        <div id="viewBilling" class="text-xs text-gray-500"></div>
+                                    </div>
+                                </div>
+                                <div id="viewPrice" class="text-base font-bold text-orange-600"></div>
+                            </div>
+                            <div id="viewDuration" class="mt-2 text-xs text-gray-600"></div>
+                            <ul id="viewFeatures" class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Right: why join (pain points) -->
+                    <div class="rounded-xl bg-gradient-to-br from-indigo-50 to-primary-50 border border-indigo-100 p-4">
+                        <h4 class="text-base font-bold text-gray-900">Still hunting clients manually? 😓</h4>
+                        <p class="text-xs text-gray-600 mt-1">Stop wasting hours on Google Maps copy-paste. Our tool finds complete business details for you.</p>
+
+                        <div class="mt-2 space-y-1">
+                            <div class="flex items-start text-sm font-semibold text-gray-900">
+                                <i class="fas fa-bullseye text-red-500 mt-0.5 w-6"></i>
+                                <span>Join for direct client hunting</span>
+                            </div>
+                            <div class="flex items-start text-sm font-semibold text-gray-900">
+                                <i class="fas fa-infinity text-primary-600 mt-0.5 w-6"></i>
+                                <span>Join for unlimited leads</span>
+                            </div>
+                        </div>
+
+                        <p class="mt-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Every lead comes with</p>
+                        <ul class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700">
+                            <li><i class="fas fa-store text-indigo-500 w-5"></i>Business Name</li>
+                            <li><i class="fas fa-envelope text-indigo-500 w-5"></i>Email</li>
+                            <li><i class="fas fa-phone text-indigo-500 w-5"></i>Phone Number</li>
+                            <li><i class="fas fa-share-alt text-indigo-500 w-5"></i>Social Media</li>
+                            <li><i class="fas fa-map-marker-alt text-indigo-500 w-5"></i>Address</li>
+                            <li><i class="fas fa-clock text-indigo-500 w-5"></i>Office Timings</li>
+                            <li><i class="fas fa-star text-yellow-500 w-5"></i>Rating</li>
+                            <li><i class="fas fa-comments text-indigo-500 w-5"></i>Total Reviews</li>
+                            <li class="col-span-2"><i class="fas fa-comment-dots text-indigo-500 w-5"></i>Latest Reviews</li>
+                        </ul>
+
+                        <div class="mt-3 rounded-lg bg-primary-600 text-white text-center text-sm font-semibold py-2">
+                            <i class="fas fa-rocket mr-1"></i> Join now &amp; start closing clients today!
+                        </div>
                     </div>
                 </div>
             </div>
