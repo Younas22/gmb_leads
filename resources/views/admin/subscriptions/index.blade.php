@@ -254,6 +254,9 @@
                             </button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="openViewModal({{ $subscription->id }})" class="text-blue-600 hover:text-blue-900 mr-3" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             <button onclick="openEditModal({{ $subscription->id }})" class="text-primary-600 hover:text-primary-900 mr-3" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -488,10 +491,249 @@
     </div>
 </div>
 
+<!-- View Subscriber Modal -->
+<div id="viewModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden overflow-y-auto">
+    <div class="flex items-start sm:items-center justify-center min-h-screen p-4">
+        <div class="max-w-md w-full">
+            <!-- Controls (outside the card so they don't show in screenshots) -->
+            <div class="flex flex-wrap justify-center gap-2 mb-3">
+                <button type="button" onclick="toggleViewPrivacy()" id="privacyBtn" class="inline-flex items-center px-3 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-100 transition-colors text-sm font-medium">
+                    <i class="fas fa-eye-slash mr-2"></i><span>Hide Personal Details</span>
+                </button>
+                <button type="button" onclick="toggleViewEditor()" id="editorBtn" class="inline-flex items-center px-3 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-100 transition-colors text-sm font-medium">
+                    <i class="fas fa-pen mr-2"></i><span>Edit Price / Dates</span>
+                </button>
+                <button type="button" onclick="closeViewModal()" class="inline-flex items-center px-3 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-100 transition-colors text-sm font-medium">
+                    <i class="fas fa-times mr-2"></i>Close
+                </button>
+            </div>
+
+            <!-- Display-only editor: changes are NOT saved to the database -->
+            <div id="viewEditor" class="hidden bg-white rounded-xl shadow p-4 mb-3">
+                <p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1"></i>Only changes this preview for the screenshot. Nothing is saved.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Price</label>
+                        <input type="text" id="editPrice" oninput="applyViewEdits()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Joined Date</label>
+                        <input type="date" id="editJoined" oninput="applyViewEdits()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
+                        <input type="date" id="editStart" oninput="applyViewEdits()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">End Date <span class="text-gray-400">(empty = Lifetime)</span></label>
+                        <input type="date" id="editEnd" oninput="applyViewEdits()" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+                <button type="button" onclick="resetViewEdits()" class="mt-3 text-xs text-primary-600 hover:underline">
+                    <i class="fas fa-undo mr-1"></i>Reset to original
+                </button>
+            </div>
+
+            <!-- Screenshot card -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="bg-gradient-to-r from-primary-600 to-indigo-600 px-6 pt-6 pb-14 text-center text-white">
+                    <div class="text-3xl mb-1">🎉</div>
+                    <h3 class="text-xl font-bold">New Subscriber Joined!</h3>
+                    <p class="text-sm text-white/80 mt-1">Welcome to the family</p>
+                </div>
+
+                <div class="relative z-10 px-6 pb-6 -mt-10">
+                    <div class="flex flex-col items-center">
+                        <img id="viewAvatar" src="" alt="User" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md bg-white">
+                        <h4 id="viewName" class="mt-3 text-lg font-semibold text-gray-900"></h4>
+                        <span id="viewStatus" class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                    </div>
+
+                    <div class="mt-5 space-y-3">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-envelope w-6 text-gray-400"></i>
+                            <span id="viewEmail" class="text-gray-700 break-all"></span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fab fa-whatsapp w-6 text-gray-400"></i>
+                            <span id="viewPhone" class="text-gray-700"></span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-calendar-alt w-6 text-gray-400"></i>
+                            <span id="viewJoined" class="text-gray-700"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-9 w-9 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-box text-orange-600"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <div id="viewPackage" class="text-sm font-semibold text-gray-900"></div>
+                                    <div id="viewBilling" class="text-xs text-gray-500"></div>
+                                </div>
+                            </div>
+                            <div id="viewPrice" class="text-base font-bold text-orange-600"></div>
+                        </div>
+                        <div id="viewDuration" class="mt-3 text-xs text-gray-600"></div>
+                        <ul id="viewFeatures" class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
+@php
+    $subscriptionDetails = $subscriptions->getCollection()->mapWithKeys(function ($s) {
+        $u = $s->user;
+        $p = $s->package;
+        return [$s->id => [
+            'name'     => $u ? ($u->first_name ? trim($u->first_name . ' ' . $u->last_name) : $u->name) : 'Deleted User',
+            'email'    => $u->email ?? '',
+            'phone'    => $u->whatsapp_number ?? '',
+            'avatar'   => ($u && $u->avatar)
+                ? (str_starts_with($u->avatar, 'http') ? $u->avatar : asset('public/' . $u->avatar))
+                : asset('assets/avatar/placeholder-image.jpeg'),
+            'status'   => $s->status,
+            'joined'   => $s->created_at ? $s->created_at->format('Y-m-d') : '',
+            'start'    => $s->start_date ? $s->start_date->format('Y-m-d') : '',
+            'end'      => $s->end_date ? $s->end_date->format('Y-m-d') : '',
+            'is_trial' => (bool) $s->is_trial,
+            'package'  => $p->name ?? 'Deleted Package',
+            'billing'  => $p ? ucfirst($p->billing_type) : '',
+            'price'    => $p ? $p->currency . ' ' . number_format($p->price, 0) : '',
+            'features' => $p ? $p->features->map(fn ($f) => [
+                'key'   => ucwords(str_replace('_', ' ', $f->feature_key)),
+                'value' => ($f->is_unlimited || $f->feature_value === 'unlimited') ? 'Unlimited' : $f->feature_value,
+            ])->values() : [],
+        ]];
+    });
+@endphp
 <script>
+const subscriptionDetails = @json($subscriptionDetails);
+let currentViewId = null;
+let viewPrivacyOn = false;
+
+function maskEmail(email) {
+    if (!email) return 'N/A';
+    const [local, domain] = email.split('@');
+    if (!domain) return '***';
+    return local.slice(0, 2) + '***@' + domain;
+}
+
+function maskPhone(phone) {
+    if (!phone) return 'N/A';
+    const clean = String(phone).trim();
+    if (clean.length <= 5) return '***';
+    return clean.slice(0, 3) + '*****' + clean.slice(-2);
+}
+
+// "2026-09-25" -> "Sep 25, 2026"
+function formatViewDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+}
+
+function renderViewContact() {
+    const d = subscriptionDetails[currentViewId];
+    if (!d) return;
+    document.getElementById('viewEmail').textContent = viewPrivacyOn ? maskEmail(d.email) : (d.email || 'N/A');
+    document.getElementById('viewPhone').textContent = viewPrivacyOn ? maskPhone(d.phone) : (d.phone || 'N/A');
+
+    const btn = document.getElementById('privacyBtn');
+    btn.querySelector('i').className = viewPrivacyOn ? 'fas fa-eye mr-2' : 'fas fa-eye-slash mr-2';
+    btn.querySelector('span').textContent = viewPrivacyOn ? 'Show Personal Details' : 'Hide Personal Details';
+}
+
+function toggleViewPrivacy() {
+    viewPrivacyOn = !viewPrivacyOn;
+    renderViewContact();
+}
+
+// Preview-only edits: read the editor inputs and repaint the card. Nothing is sent to the server.
+function applyViewEdits() {
+    const joined = document.getElementById('editJoined').value;
+    const start = document.getElementById('editStart').value;
+    const end = document.getElementById('editEnd').value;
+
+    document.getElementById('viewPrice').textContent = document.getElementById('editPrice').value;
+    document.getElementById('viewJoined').textContent = 'Joined ' + formatViewDate(joined);
+    document.getElementById('viewDuration').innerHTML =
+        '<i class="fas fa-clock mr-1"></i>' + formatViewDate(start) + ' → ' +
+        (end ? formatViewDate(end) : '<span class="text-green-600 font-medium">Lifetime</span>');
+}
+
+function resetViewEdits() {
+    const d = subscriptionDetails[currentViewId];
+    if (!d) return;
+    document.getElementById('editPrice').value = d.price;
+    document.getElementById('editJoined').value = d.joined;
+    document.getElementById('editStart').value = d.start;
+    document.getElementById('editEnd').value = d.end;
+    applyViewEdits();
+}
+
+function toggleViewEditor() {
+    const editor = document.getElementById('viewEditor');
+    editor.classList.toggle('hidden');
+    const open = !editor.classList.contains('hidden');
+    document.getElementById('editorBtn').querySelector('span').textContent = open ? 'Close Editor' : 'Edit Price / Dates';
+}
+
+function openViewModal(subscriptionId) {
+    const d = subscriptionDetails[subscriptionId];
+    if (!d) return;
+    currentViewId = subscriptionId;
+    viewPrivacyOn = false;
+
+    document.getElementById('viewAvatar').src = d.avatar;
+    document.getElementById('viewName').textContent = d.name;
+    document.getElementById('viewPackage').textContent = d.package + (d.is_trial ? ' (Trial)' : '');
+    document.getElementById('viewBilling').textContent = d.billing;
+
+    const statusColors = {
+        active: 'bg-green-100 text-green-800',
+        pending: 'bg-blue-100 text-blue-800',
+        expired: 'bg-yellow-100 text-yellow-800',
+        cancelled: 'bg-red-100 text-red-800',
+    };
+    const status = document.getElementById('viewStatus');
+    status.className = 'mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + (statusColors[d.status] || 'bg-gray-100 text-gray-800');
+    status.textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
+
+    const features = document.getElementById('viewFeatures');
+    features.innerHTML = '';
+    d.features.forEach(f => {
+        const li = document.createElement('li');
+        li.innerHTML = '<i class="fas fa-check text-green-500 mr-1"></i>';
+        li.appendChild(document.createTextNode(f.key + ': ' + f.value));
+        features.appendChild(li);
+    });
+
+    document.getElementById('viewEditor').classList.add('hidden');
+    document.getElementById('editorBtn').querySelector('span').textContent = 'Edit Price / Dates';
+    resetViewEdits();
+    renderViewContact();
+    document.getElementById('viewModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeViewModal() {
+    document.getElementById('viewModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+document.getElementById('viewModal').addEventListener('click', function(e) {
+    if (e.target === this || e.target === this.firstElementChild) closeViewModal();
+});
+
 // Change results per page
 function changePerPage(value) {
     const url = new URL(window.location.href);
@@ -672,6 +914,7 @@ document.addEventListener('keydown', function(e) {
         closeModal();
         closeDeleteModal();
         closeDevicesModal();
+        closeViewModal();
     }
 });
 </script>
