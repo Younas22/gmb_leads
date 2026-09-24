@@ -153,7 +153,7 @@
                                 @php
                                     $subAvatar = ($subscription->user && $subscription->user->avatar)
                                         ? (str_starts_with($subscription->user->avatar, 'http') ? $subscription->user->avatar : asset('public/' . $subscription->user->avatar))
-                                        : asset('assets/avatar/placeholder-image.jpeg');
+                                        : asset('public/assets/avatar/placeholder.jpg');
                                 @endphp
                                 <img src="{{ $subAvatar }}" alt="User" class="w-10 h-10 rounded-full object-cover">
                                 <div class="ml-4">
@@ -637,7 +637,7 @@
             'phone'    => $u->whatsapp_number ?? '',
             'avatar'   => ($u && $u->avatar)
                 ? (str_starts_with($u->avatar, 'http') ? $u->avatar : asset('public/' . $u->avatar))
-                : asset('assets/avatar/placeholder-image.jpeg'),
+                : asset('public/assets/avatar/placeholder.jpg'),
             'status'   => $s->status,
             'joined'   => $s->created_at ? $s->created_at->format('Y-m-d') : '',
             'start'    => $s->start_date ? $s->start_date->format('Y-m-d') : '',
