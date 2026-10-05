@@ -215,6 +215,22 @@ class SubscriptionController extends Controller
 
         $updateData = ['status' => $newStatus];
 
+        // Renewal continuity: if the user already has a still-valid ACTIVE subscription to this
+        // same package (they paid ahead of their renewal, instead of cancelling first), the new
+        // period should pick up exactly where the old one ends — not from today, which would
+        // either cut their remaining paid days short or double-count them.
+        $renewingFrom = null;
+        if ($newStatus === 'active') {
+            $renewingFrom = Subscription::where('user_id', $subscription->user_id)
+                ->where('id', '!=', $subscription->id)
+                ->where('package_id', $subscription->package_id)
+                ->where('status', 'active')
+                ->whereNotNull('end_date')
+                ->where('end_date', '>', now())
+                ->orderByDesc('end_date')
+                ->first();
+        }
+
         // Jab subscription active ho to baaki active/pending expire karo
         if ($newStatus === 'active') {
             $this->expireOtherSubscriptions($subscription->user_id, $subscription->id);
@@ -223,7 +239,7 @@ class SubscriptionController extends Controller
         // Jab subscription active ho to end_date auto set karo package ke billing_type ke hisab se
         if ($newStatus === 'active') {
             $package = $subscription->package;
-            $startDate = $subscription->start_date ?? now();
+            $startDate = $renewingFrom ? $renewingFrom->end_date : ($subscription->start_date ?? now());
 
             if ($package) {
                 switch ($package->billing_type) {
@@ -242,9 +258,10 @@ class SubscriptionController extends Controller
                 }
             }
 
-            // Set start_date to today if not set
-            if (!$subscription->start_date) {
-                $updateData['start_date'] = now();
+            // Set start_date to today if not set — or, for a renewal, to the moment the
+            // still-active subscription it's continuing from actually ends.
+            if ($renewingFrom || !$subscription->start_date) {
+                $updateData['start_date'] = $startDate;
             }
 
             // Get pending payments before updating

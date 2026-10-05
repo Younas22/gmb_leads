@@ -382,7 +382,20 @@
                             </div>
                             @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
                             @if($isCurrentPlan)
-                                <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
+                                @if($package->price == 0 || !$currentPlan['is_active'])
+                                    <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                        {{ $currentPlan['is_pending'] ? 'Payment Pending' : 'Current Plan' }}
+                                    </button>
+                                @else
+                                    <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
+                                            data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"
+                                            data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
+                                            data-currency-symbol="{{ $currency['symbol'] }}"
+                                            title="Submit next month's payment now — your access continues without interruption once approved."
+                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                                        <i class="fas fa-rotate mr-1"></i> Renew Plan
+                                    </button>
+                                @endif
                             @elseif($package->price == 0)
                                 <form method="POST" action="{{ route('user.subscription.apply-free') }}">
                                     @csrf
@@ -442,7 +455,20 @@
                             </div>
                             @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
                             @if($isCurrentPlan)
-                                <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
+                                @if($package->price == 0 || !$currentPlan['is_active'])
+                                    <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                        {{ $currentPlan['is_pending'] ? 'Payment Pending' : 'Current Plan' }}
+                                    </button>
+                                @else
+                                    <button onclick="openPaymentModal(this.dataset.packageId, this.dataset.packageName, this.dataset.packagePrice)"
+                                            data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"
+                                            data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
+                                            data-currency-symbol="{{ $currency['symbol'] }}"
+                                            title="Submit next month's payment now — your access continues without interruption once approved."
+                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                                        <i class="fas fa-rotate mr-1"></i> Renew Plan
+                                    </button>
+                                @endif
                             @elseif($package->price == 0)
                                 <form method="POST" action="{{ route('user.subscription.apply-free') }}">
                                     @csrf
