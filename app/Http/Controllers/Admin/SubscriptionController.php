@@ -24,6 +24,11 @@ class SubscriptionController extends Controller
         $query = Subscription::with(['user', 'package.features', 'paymentMethod', 'payments'])
             ->orderBy('created_at', 'desc');
 
+        // Filter by giveaway ('yes' = giveaway users only, 'no' = everyone else)
+        if ($request->filled('giveaway')) {
+            $query->where('is_giveaway', $request->giveaway === 'yes');
+        }
+
         // Filter by package
         if ($request->filled('package_id')) {
             $query->where('package_id', $request->package_id);
@@ -115,11 +120,13 @@ class SubscriptionController extends Controller
             'end_date' => 'nullable|date|after:start_date',
             'status' => 'required|in:active,expired,cancelled',
             'is_trial' => 'boolean',
+            'is_giveaway' => 'boolean',
             'auto_renew' => 'boolean',
             'notes' => 'nullable|string',
         ]);
 
         $validated['is_trial'] = $request->boolean('is_trial');
+        $validated['is_giveaway'] = $request->boolean('is_giveaway');
         $validated['auto_renew'] = $request->boolean('auto_renew');
 
         // If creating an active subscription, expire all other active/pending ones
@@ -168,11 +175,13 @@ class SubscriptionController extends Controller
             'end_date' => 'nullable|date|after:start_date',
             'status' => 'required|in:active,expired,cancelled',
             'is_trial' => 'boolean',
+            'is_giveaway' => 'boolean',
             'auto_renew' => 'boolean',
             'notes' => 'nullable|string',
         ]);
 
         $validated['is_trial'] = $request->boolean('is_trial');
+        $validated['is_giveaway'] = $request->boolean('is_giveaway');
         $validated['auto_renew'] = $request->boolean('auto_renew');
 
         // If updating to active, expire all other active/pending subscriptions for this user
@@ -367,4 +376,5 @@ class SubscriptionController extends Controller
 
         return redirect()->route('admin.subscriptions.index')->with('success', 'Payment added successfully.');
     }
+
 }

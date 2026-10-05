@@ -10,10 +10,12 @@
             <h1 class="text-2xl font-bold text-gray-800">Subscriptions Management</h1>
             <p class="text-sm text-gray-500 mt-1">Manage user subscriptions and payments</p>
         </div>
-        <button onclick="openCreateModal()" class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-            <i class="fas fa-plus mr-2"></i>
-            Add Subscription
-        </button>
+        <div class="mt-4 sm:mt-0 flex flex-wrap gap-2">
+            <button onclick="openCreateModal()" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Add Subscription
+            </button>
+        </div>
     </div>
 
     <!-- Stats Cards -->
@@ -97,6 +99,14 @@
                     @foreach($allPackages as $package)
                     <option value="{{ $package->id }}" {{ (string) request('package_id') === (string) $package->id ? 'selected' : '' }}>{{ $package->name }} ({{ ucfirst($package->billing_type) }})</option>
                     @endforeach
+                </select>
+            </div>
+            <div class="w-44">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Giveaway</label>
+                <select name="giveaway" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">All Users</option>
+                    <option value="yes" {{ request('giveaway') === 'yes' ? 'selected' : '' }}>🎁 Giveaway only</option>
+                    <option value="no" {{ request('giveaway') === 'no' ? 'selected' : '' }}>Not giveaway</option>
                 </select>
             </div>
             <div class="w-48">
@@ -241,6 +251,9 @@
                                     <i class="fas fa-sync-alt mr-1 text-xs"></i>Auto
                                 </span>
                             @endif
+                            @if($subscription->is_giveaway)
+                                <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">🎁 Giveaway</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             @php
@@ -254,6 +267,11 @@
                             </button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            @if($subscription->is_giveaway)
+                                <button onclick="openViewModal({{ $subscription->id }}, 'giveaway')" class="text-amber-500 hover:text-amber-700 mr-3" title="Giveaway congratulations">
+                                    <i class="fas fa-gift"></i>
+                                </button>
+                            @endif
                             <button onclick="openViewModal({{ $subscription->id }})" class="text-blue-600 hover:text-blue-900 mr-3" title="View">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -416,6 +434,13 @@
                                 <span class="ml-2 text-sm text-gray-700">Auto Renew</span>
                             </label>
                         </div>
+
+                        <div class="flex items-center pt-6">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="is_giveaway" id="isGiveaway" value="1" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500">
+                                <span class="ml-2 text-sm text-gray-700">🎁 Giveaway user</span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Notes -->
@@ -494,7 +519,7 @@
 <!-- View Subscriber Modal -->
 <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden overflow-y-auto">
     <div class="flex items-start sm:items-center justify-center min-h-screen p-2">
-        <div class="max-w-3xl w-full">
+        <div id="screenshotWrap" class="max-w-3xl w-full">
             <!-- Controls (outside the card so they don't show in screenshots) -->
             <div class="flex flex-wrap justify-center gap-2 mb-2">
                 <button type="button" onclick="toggleViewPrivacy()" id="privacyBtn" class="inline-flex items-center px-3 py-2 bg-white text-gray-800 rounded-lg shadow hover:bg-gray-100 transition-colors text-sm font-medium">
@@ -534,95 +559,116 @@
                 </button>
             </div>
 
-            <!-- Screenshot card -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-primary-600 to-indigo-600 px-6 py-5 text-center text-white">
-                    <h3 class="text-2xl font-extrabold tracking-tight">🎉 New Subscriber Joined!</h3>
-                    <p class="text-sm text-white/85 mt-1">Another business owner just started hunting clients with us</p>
+            <!-- Screenshot card (social-post style, brand orange rgb(251,146,60)) -->
+            <style>
+                .sn-orange { background-color: rgb(251 146 60); }
+                .sn-orange-text { color: rgb(251 146 60); }
+                .sn-orange-border { border-color: rgb(251 146 60); }
+                .sn-orange-soft { background-color: rgb(255 247 237); }
+                .sn-grad { background: linear-gradient(135deg, rgb(251 146 60) 0%, rgb(249 115 22) 55%, rgb(234 88 12) 100%); }
+            </style>
+            <div id="screenshotCard" class="relative bg-white rounded-3xl shadow-2xl overflow-hidden ring-4 ring-orange-200/60">
+                <!-- Hero band -->
+                <div class="sn-grad relative px-6 pt-4 pb-6 text-center text-white overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></div>
+                    <div class="absolute -bottom-12 -left-8 w-44 h-44 rounded-full bg-white/10"></div>
+                    <div class="absolute top-4 left-6 text-3xl opacity-80 -rotate-12">✨</div>
+                    <div class="absolute top-5 right-7 text-3xl opacity-80 rotate-12">🚀</div>
+
+                    <span id="viewHeroBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-orange-600 text-[11px] font-extrabold uppercase tracking-widest shadow-md">
+                        <i class="fas fa-bolt"></i> Just Joined
+                    </span>
+                    <h3 id="viewHeroTitle" class="mt-2 text-2xl sm:text-3xl font-black tracking-tight leading-tight drop-shadow-sm">🎉 New Subscriber<br>Joined!</h3>
+                    <p id="viewHeroSub" class="mt-1.5 inline-block text-xs font-semibold bg-black/15 rounded-full px-3 py-1">Another business owner just started hunting clients with us</p>
                 </div>
 
-                <div class="px-5 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Left: subscriber + package -->
-                    <div>
-                        <div class="flex items-center">
-                            <img id="viewAvatar" src="" alt="User" class="w-14 h-14 rounded-full object-cover border-2 border-primary-100 shadow-sm bg-white">
-                            <div class="ml-3">
-                                <h4 id="viewName" class="text-base font-semibold text-gray-900 leading-tight"></h4>
-                                <span id="viewStatus" class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                <!-- Floating subscriber card overlapping the band -->
+                <div class="relative -mt-4 mx-5 bg-white rounded-2xl shadow-lg border-2 sn-orange-border p-3 flex items-center gap-3">
+                    <img id="viewAvatar" src="" alt="User" class="w-12 h-12 rounded-2xl object-cover border-4 border-orange-100 shadow bg-white flex-shrink-0">
+                    <div class="min-w-0 flex-1">
+                        <h4 id="viewName" class="text-lg font-extrabold text-gray-900 leading-tight truncate"></h4>
+                        <span id="viewStatus" class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"></span>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <div id="viewPrice" class="text-xl font-black sn-orange-text leading-none"></div>
+                        <div id="viewBilling" class="text-[11px] font-semibold text-gray-500 mt-1"></div>
+                    </div>
+                </div>
+
+                <div class="px-5 pt-3 pb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Left: contact + package -->
+                    <div class="space-y-3">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center text-sm">
+                                <span class="w-7 h-7 rounded-lg sn-orange-soft flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-envelope text-orange-500 text-xs"></i></span>
+                                <span id="viewEmail" class="text-gray-800 break-all font-medium"></span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="w-7 h-7 rounded-lg sn-orange-soft flex items-center justify-center mr-2 flex-shrink-0"><i class="fab fa-whatsapp text-orange-500 text-xs"></i></span>
+                                <span id="viewPhone" class="text-gray-800 font-medium"></span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="w-7 h-7 rounded-lg sn-orange-soft flex items-center justify-center mr-2 flex-shrink-0"><i class="fas fa-calendar-alt text-orange-500 text-xs"></i></span>
+                                <span id="viewJoined" class="text-gray-800 font-medium"></span>
                             </div>
                         </div>
 
-                        <div class="mt-3 space-y-1.5">
-                            <div class="flex items-center text-sm">
-                                <i class="fas fa-envelope w-6 text-gray-400"></i>
-                                <span id="viewEmail" class="text-gray-700 break-all"></span>
-                            </div>
-                            <div class="flex items-center text-sm">
-                                <i class="fab fa-whatsapp w-6 text-gray-400"></i>
-                                <span id="viewPhone" class="text-gray-700"></span>
-                            </div>
-                            <div class="flex items-center text-sm">
-                                <i class="fas fa-calendar-alt w-6 text-gray-400"></i>
-                                <span id="viewJoined" class="text-gray-700"></span>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 rounded-xl border border-orange-100 bg-orange-50 p-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="h-9 w-9 bg-orange-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-box text-orange-600"></i>
-                                    </div>
-                                    <div class="ml-3">
-                                        <div id="viewPackage" class="text-sm font-semibold text-gray-900"></div>
-                                        <div id="viewBilling" class="text-xs text-gray-500"></div>
-                                    </div>
+                        <div class="rounded-2xl border-2 border-dashed sn-orange-border bg-orange-50 p-3.5">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 sn-orange rounded-xl flex items-center justify-center shadow">
+                                    <i class="fas fa-box text-white"></i>
                                 </div>
-                                <div id="viewPrice" class="text-base font-bold text-orange-600"></div>
+                                <div class="ml-3 min-w-0">
+                                    <div id="viewPackage" class="text-sm font-extrabold text-gray-900 truncate"></div>
+                                    <div class="text-[11px] font-semibold text-orange-700">Active package</div>
+                                </div>
                             </div>
-                            <div id="viewDuration" class="mt-2 text-xs text-gray-600"></div>
+                            <div id="viewDuration" class="mt-2 text-xs font-medium text-gray-700"></div>
                             <ul id="viewFeatures" class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700"></ul>
                         </div>
                     </div>
 
-                    <!-- Right: why join (pain points) -->
-                    <div class="rounded-xl bg-gradient-to-br from-indigo-50 to-primary-50 border border-indigo-100 p-4">
-                        <h4 class="text-base font-bold text-gray-900">Still hunting clients manually? 😓</h4>
-                        <p class="text-xs text-gray-600 mt-1">Stop wasting hours on Google Maps copy-paste. Our tool finds complete business details for you.</p>
+                    <!-- Right: pitch -->
+                    <div class="rounded-2xl bg-gray-900 text-white p-4 relative overflow-hidden">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full sn-orange opacity-25"></div>
+                        <h4 id="viewPitchTitle" class="text-lg font-black leading-tight relative">Still hunting clients manually? 😓</h4>
+                        <p id="viewPitchText" class="text-xs text-gray-300 mt-1 relative">Stop wasting hours on Google Maps copy-paste. We find complete business details for you.</p>
 
-                        <div class="mt-2 space-y-1">
-                            <div class="flex items-start text-sm font-semibold text-gray-900">
-                                <i class="fas fa-bullseye text-red-500 mt-0.5 w-6"></i>
-                                <span>Join for direct client hunting</span>
+                        <div class="mt-3 space-y-1.5 relative">
+                            <div class="flex items-start text-sm font-bold">
+                                <i class="fas fa-bullseye sn-orange-text mt-0.5 w-6"></i>
+                                <span>Direct client hunting</span>
                             </div>
-                            <div class="flex items-start text-sm font-semibold text-gray-900">
-                                <i class="fas fa-infinity text-primary-600 mt-0.5 w-6"></i>
-                                <span>Join for unlimited leads</span>
+                            <div class="flex items-start text-sm font-bold">
+                                <i class="fas fa-infinity sn-orange-text mt-0.5 w-6"></i>
+                                <span>Unlimited leads</span>
                             </div>
                         </div>
 
-                        <p class="mt-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Every lead comes with</p>
-                        <ul class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-700">
-                            <li><i class="fas fa-store text-indigo-500 w-5"></i>Business Name</li>
-                            <li><i class="fas fa-envelope text-indigo-500 w-5"></i>Email</li>
-                            <li><i class="fas fa-phone text-indigo-500 w-5"></i>Phone Number</li>
-                            <li><i class="fas fa-share-alt text-indigo-500 w-5"></i>Social Media</li>
-                            <li><i class="fas fa-map-marker-alt text-indigo-500 w-5"></i>Address</li>
-                            <li><i class="fas fa-clock text-indigo-500 w-5"></i>Office Timings</li>
-                            <li><i class="fas fa-star text-yellow-500 w-5"></i>Rating</li>
-                            <li><i class="fas fa-comments text-indigo-500 w-5"></i>Total Reviews</li>
-                            <li class="col-span-2"><i class="fas fa-comment-dots text-indigo-500 w-5"></i>Latest Reviews</li>
+                        <p class="mt-3 text-[10px] font-bold text-orange-300 uppercase tracking-widest relative">Every lead comes with</p>
+                        <ul class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-gray-200 relative">
+                            <li><i class="fas fa-store sn-orange-text w-5"></i>Business Name</li>
+                            <li><i class="fas fa-envelope sn-orange-text w-5"></i>Email</li>
+                            <li><i class="fas fa-phone sn-orange-text w-5"></i>Phone Number</li>
+                            <li><i class="fas fa-share-alt sn-orange-text w-5"></i>Social Media</li>
+                            <li><i class="fas fa-map-marker-alt sn-orange-text w-5"></i>Address</li>
+                            <li><i class="fas fa-clock sn-orange-text w-5"></i>Office Timings</li>
+                            <li><i class="fas fa-star text-yellow-300 w-5"></i>Rating</li>
+                            <li><i class="fas fa-comments sn-orange-text w-5"></i>Total Reviews</li>
+                            <li class="col-span-2"><i class="fas fa-comment-dots sn-orange-text w-5"></i>Latest Reviews</li>
                         </ul>
-
-                        <div class="mt-3 rounded-lg bg-primary-600 text-white text-center text-sm font-semibold py-2">
-                            <i class="fas fa-rocket mr-1"></i> Join now &amp; start closing clients today!
-                        </div>
                     </div>
+                </div>
+
+                <!-- Footer CTA strip -->
+                <div class="sn-grad text-white text-center text-sm font-extrabold py-2.5 tracking-wide">
+                    <i class="fas fa-rocket mr-1"></i> Join now &amp; start closing clients today!
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 @endsection
 
@@ -643,6 +689,7 @@
             'start'    => $s->start_date ? $s->start_date->format('Y-m-d') : '',
             'end'      => $s->end_date ? $s->end_date->format('Y-m-d') : '',
             'is_trial' => (bool) $s->is_trial,
+            'is_giveaway' => (bool) $s->is_giveaway,
             'package'  => $p->name ?? 'Deleted Package',
             'billing'  => $p ? ucfirst($p->billing_type) : '',
             'price'    => $p ? $p->currency . ' ' . number_format($p->price, 0) : '',
@@ -721,15 +768,18 @@ function resetViewEdits() {
 function toggleViewEditor() {
     const editor = document.getElementById('viewEditor');
     editor.classList.toggle('hidden');
+    requestAnimationFrame(fitScreenshotCard);
     const open = !editor.classList.contains('hidden');
     document.getElementById('editorBtn').querySelector('span').textContent = open ? 'Close Editor' : 'Edit Price / Dates';
 }
 
-function openViewModal(subscriptionId) {
+function openViewModal(subscriptionId, mode = 'new') {
     const d = subscriptionDetails[subscriptionId];
     if (!d) return;
     currentViewId = subscriptionId;
     viewPrivacyOn = false;
+
+    applyCardMode(mode, d);
 
     document.getElementById('viewAvatar').src = d.avatar;
     document.getElementById('viewName').textContent = d.name;
@@ -760,8 +810,52 @@ function openViewModal(subscriptionId) {
     resetViewEdits();
     renderViewContact();
     document.getElementById('viewModal').classList.remove('hidden');
+    requestAnimationFrame(fitScreenshotCard);
     document.body.style.overflow = 'hidden';
 }
+
+/**
+ * Scale the screenshot card down (only if needed) so the WHOLE card — header and footer —
+ * fits the viewport in one view, ready for a clean screenshot.
+ */
+/** Switch the screenshot card between the normal "New Subscriber" text and the Giveaway congratulations. */
+function applyCardMode(mode, d) {
+    const first = (d.name || '').split(' ')[0] || d.name;
+    const isGiveaway = mode === 'giveaway';
+    document.getElementById('viewHeroTitle').innerHTML = isGiveaway
+        ? '🏆 Congratulations<br>' + escapeHtmlText(first) + '!'
+        : '🎉 New Subscriber<br>Joined!';
+    document.getElementById('viewHeroSub').textContent = isGiveaway
+        ? "You're this month's lucky Giveaway winner 🎁"
+        : 'Another business owner just started hunting clients with us';
+    document.getElementById('viewHeroBadge').innerHTML = isGiveaway
+        ? '<i class="fas fa-gift"></i> Giveaway Winner'
+        : '<i class="fas fa-bolt"></i> Just Joined';
+    document.getElementById('viewPitchTitle').textContent = isGiveaway
+        ? 'Enjoy your package on us! 🎉'
+        : 'Still hunting clients manually? 😓';
+    document.getElementById('viewPitchText').textContent = isGiveaway
+        ? "Congratulations on winning this month's giveaway. Start hunting clients with your free package today."
+        : 'Stop wasting hours on Google Maps copy-paste. We find complete business details for you.';
+}
+
+function escapeHtmlText(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+}
+
+function fitScreenshotCard() {
+    const card = document.getElementById('screenshotCard');
+    const wrap = document.getElementById('screenshotWrap');
+    if (!card || !wrap || document.getElementById('viewModal').classList.contains('hidden')) return;
+    card.style.zoom = '1';
+    const cardH = card.getBoundingClientRect().height;
+    const otherH = wrap.getBoundingClientRect().height - cardH; // controls + editor + spacing
+    const avail = window.innerHeight - otherH - 24;
+    card.style.zoom = Math.max(0.5, Math.min(1, avail / cardH)).toFixed(3);
+}
+window.addEventListener('resize', fitScreenshotCard);
 
 function closeViewModal() {
     document.getElementById('viewModal').classList.add('hidden');
@@ -809,6 +903,7 @@ function openEditModal(subscriptionId) {
             document.getElementById('status').value = data.status;
             document.getElementById('isTrial').checked = data.is_trial;
             document.getElementById('autoRenew').checked = data.auto_renew;
+            document.getElementById('isGiveaway').checked = !!data.is_giveaway;
             document.getElementById('notes').value = data.notes || '';
 
             document.getElementById('subscriptionModal').classList.remove('hidden');

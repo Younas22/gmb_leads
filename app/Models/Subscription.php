@@ -16,6 +16,7 @@ class Subscription extends Model
         'end_date',
         'status',
         'is_trial',
+        'is_giveaway',
         'auto_renew',
         'notes',
     ];
@@ -24,6 +25,7 @@ class Subscription extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'is_trial' => 'boolean',
+        'is_giveaway' => 'boolean',
         'auto_renew' => 'boolean',
         'amount_paid' => 'decimal:2',
     ];
