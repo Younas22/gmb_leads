@@ -58,6 +58,7 @@
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -359,7 +360,7 @@
 </head>
 <body class="bg-white font-inter">
     <!-- Navigation -->
-    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100/80 transition-all duration-300" role="navigation" aria-label="Main navigation">
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 transition-all duration-300" role="navigation" aria-label="Main navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-[72px]">
 
@@ -386,6 +387,10 @@
 
                 <!-- Desktop Navigation Links -->
                 <div class="hidden lg:flex items-center gap-1">
+                    <a href="#features" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
+                        Features
+                        <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
+                    </a>
                     <a href="#sample-data" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
                         Leads Sample
                         <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
@@ -402,6 +407,10 @@
                         FAQ
                         <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
                     </a>
+                    <a href="#contact" class="relative px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200 group">
+                        Contact
+                        <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary-orange rounded-full transition-all duration-200 group-hover:w-5"></span>
+                    </a>
                     <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 text-[0.9rem] font-medium text-white bg-green-500 hover:bg-green-600 rounded-lg transition-all duration-200">
                         <i class="fab fa-whatsapp text-base"></i>
                         Community
@@ -411,11 +420,11 @@
                 <!-- Desktop Right Side Actions -->
                 <div class="hidden lg:flex items-center gap-3">
                     @guest
-                        <a href="{{ route('auth.show') }}" class="px-4 py-2 text-[0.9rem] font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                        <a href="{{ route('auth.show') }}" class="inline-flex items-center px-5 py-2 text-[0.9rem] font-semibold text-primary-orange border-2 border-primary-orange rounded-lg hover:bg-orange-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-orange focus-visible:ring-offset-2">
                             Login
                         </a>
-                        <a href="{{ route('auth.show') }}" class="group relative inline-flex items-center gap-2 px-5 py-2.5 text-[0.9rem] font-semibold text-white bg-primary-orange rounded-full shadow-lg shadow-orange-200/50 hover:shadow-orange-300/60 hover:bg-dark-orange transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-orange focus:ring-offset-2">
-                            Start Free Trial
+                        <a href="{{ route('auth.show') }}" class="group relative inline-flex items-center gap-2 px-5 py-2.5 text-[0.9rem] font-semibold text-white bg-primary-orange rounded-lg hover:bg-dark-orange transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-orange focus-visible:ring-offset-2">
+                            Get Started
                             <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                             </svg>
@@ -448,6 +457,10 @@
         <div id="mobile-menu" class="lg:hidden hidden" role="menu">
             <div class="bg-white border-t border-gray-100 shadow-xl shadow-gray-200/20">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-1">
+                    <a href="#features" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
+                        <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                        Features
+                    </a>
                     <a href="#sample-data" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
                         <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
                         Leads Sample
@@ -464,17 +477,21 @@
                         <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
                         FAQ
                     </a>
+                    <a href="#contact" class="flex items-center gap-3 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-orange-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
+                        <svg class="w-5 h-5 text-primary-orange/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                        Contact
+                    </a>
 
                     <!-- Mobile Divider -->
                     <div class="my-3 border-t border-gray-100"></div>
 
                     <!-- Mobile Action Buttons -->
                     @guest
-                        <a href="{{ route('auth.show') }}" class="flex items-center justify-center gap-2 px-4 py-3 text-[0.95rem] font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
+                        <a href="{{ route('auth.show') }}" class="flex items-center justify-center gap-2 px-4 py-3 mb-2 text-[0.95rem] font-semibold text-primary-orange border-2 border-primary-orange hover:bg-orange-50 rounded-lg transition-colors duration-200" role="menuitem" onclick="closeMobileMenu()">
                             Login
                         </a>
-                        <a href="{{ route('auth.show') }}" class="flex items-center justify-center gap-2 px-4 py-3.5 text-[0.95rem] font-semibold text-white bg-primary-orange hover:bg-dark-orange rounded-xl shadow-lg shadow-orange-200/40 transition-all duration-200" role="menuitem" onclick="closeMobileMenu()">
-                            Start Free Trial
+                        <a href="{{ route('auth.show') }}" class="flex items-center justify-center gap-2 px-4 py-3.5 text-[0.95rem] font-semibold text-white bg-primary-orange hover:bg-dark-orange rounded-lg transition-colors duration-200" role="menuitem" onclick="closeMobileMenu()">
+                            Get Started
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                             </svg>
@@ -606,14 +623,77 @@
     @include('components.modern-hero')
     <!-- Hero Section -->
 
+    <!-- Video Demonstration -->
+    <section id="demo" class="py-20 bg-white" aria-labelledby="demo-heading">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+
+                <!-- Video Player -->
+                <div class="order-2 lg:order-1">
+                    <div class="relative rounded-2xl overflow-hidden shadow-xl bg-[#111111] aspect-video">
+                        <iframe
+                            class="absolute inset-0 w-full h-full"
+                            src="https://www.youtube.com/embed/YwUx_F4iE_M?rel=0&modestbranding=1"
+                            title="{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} — Product Demo"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Copy -->
+                <div class="order-1 lg:order-2">
+                    <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Watch Demo</p>
+                    <h2 id="demo-heading" class="text-2xl md:text-3xl font-extrabold text-[#111111] mb-4 leading-tight">See How Easy It Is to Find Real Clients</h2>
+                    <p class="text-gray-600 text-base mb-8 leading-relaxed">
+                        Watch a real walkthrough of {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} — from searching Google Maps to exporting contact-ready leads, in just a few minutes.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-orange/15 border border-primary-orange/30 flex items-center justify-center mt-0.5">
+                                <i class="fas fa-play text-primary-orange text-xs"></i>
+                            </span>
+                            <div>
+                                <p class="text-[#111111] font-semibold text-sm">Live platform demo</p>
+                                <p class="text-gray-500 text-sm">See the real interface in action, not a mockup.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-orange/15 border border-primary-orange/30 flex items-center justify-center mt-0.5">
+                                <i class="fas fa-database text-primary-orange text-xs"></i>
+                            </span>
+                            <div>
+                                <p class="text-[#111111] font-semibold text-sm">Real data examples</p>
+                                <p class="text-gray-500 text-sm">Actual businesses pulled live from Google Maps.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-orange/15 border border-primary-orange/30 flex items-center justify-center mt-0.5">
+                                <i class="fas fa-shoe-prints text-primary-orange text-xs"></i>
+                            </span>
+                            <div>
+                                <p class="text-[#111111] font-semibold text-sm">Step by step walkthrough</p>
+                                <p class="text-gray-500 text-sm">From first search to your exported lead list.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     <!-- Sample Sheet Data Section -->
-    <section class="py-20 bg-white" id="sample-data">
+    <section class="py-20 bg-gray-50" id="sample-data">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="text-center mb-10">
                 <p class="text-sm font-bold text-orange-500 uppercase tracking-widest mb-3">Real Output Preview</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">See What Data You Get</h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto">This is actual sample data exported from our Chrome Extension — the exact format you receive as an Excel file.</p>
+                <p class="text-base text-gray-500 max-w-2xl mx-auto">The tool extracts complete business information from Google Maps — accurate, verified and ready to use for your outreach campaigns. Below is a sample of the exact Excel format you receive.</p>
             </div>
 
             <!-- Sheet Table -->
@@ -629,7 +709,7 @@
                         </span>
                     </div>
                     <a href="{{ asset('public/sheet/sheet.xlsx') }}" download
-                       class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition-colors">
+                       class="inline-flex items-center px-3 py-1.5 bg-primary-orange hover:bg-dark-orange text-white text-xs font-medium rounded-lg transition-colors">
                         <i class="fas fa-download mr-1.5"></i> Download Sample
                     </a>
                 </div>
@@ -717,12 +797,12 @@
     </script>
 
     <!-- Who Is This For -->
-    <section class="py-12 bg-white">
+    <section class="py-20 bg-white" aria-label="Who is this for">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Section Heading -->
             <div class="text-center mb-8">
                 <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-2">Target Audience</p>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Built for People Who Need Clients</h2>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Who Is This For?</h2>
                 <p class="text-base text-gray-500 max-w-2xl mx-auto">{{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} is perfect for:</p>
             </div>
 
@@ -730,7 +810,7 @@
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
 
     <!-- Digital Marketers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
@@ -741,7 +821,7 @@
     </div>
 
     <!-- SEO Agencies -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -751,7 +831,7 @@
     </div>
 
     <!-- Freelancers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -761,7 +841,7 @@
     </div>
 
     <!-- Cold Emailers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -771,7 +851,7 @@
     </div>
 
     <!-- Sales Teams -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -781,7 +861,7 @@
     </div>
 
     <!-- Real Estate & Insurance -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"></path>
@@ -791,7 +871,7 @@
     </div>
 
     <!-- Local Service Providers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -802,7 +882,7 @@
     </div>
 
     <!-- Startups & Entrepreneurs -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2L2 7l10 5 10-5-10-5z"></path>
@@ -813,7 +893,7 @@
     </div>
 
     <!-- Marketing Consultants / Agencies -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18h14V3H5z"></path>
@@ -824,7 +904,7 @@
     </div>
 
     <!-- Social Media Managers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12c0 4.98 3.65 9.12 8.44 9.88v-6.99H7.9v-2.89h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.55v1.88h2.78l-.44 2.89h-2.34v6.99C18.35 21.12 22 16.98 22 12c0-5.52-4.48-10-10-10z"/>
@@ -834,7 +914,7 @@
     </div>
 
     <!-- Content Creators / Copywriters -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M4 5h16M4 12h16"></path>
@@ -844,7 +924,7 @@
     </div>
 
     <!-- Web Developers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h16v16H4z"></path>
@@ -854,7 +934,7 @@
     </div>
 
     <!-- Mobile App Developers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4h10v16H7z"></path>
@@ -864,7 +944,7 @@
     </div>
 
     <!-- Graphic Designers -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2l9 7-9 7-9-7 9-7z"></path>
@@ -874,7 +954,7 @@
     </div>
 
     <!-- Email Marketing Specialists -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l9 6 9-6v10H3V8z"></path>
@@ -884,7 +964,7 @@
     </div>
 
     <!-- Small Business Owners -->
-    <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
+    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-md hover:border-primary-orange/30 transition-all group">
         <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
             <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h18v18H3V3z"></path>
@@ -905,71 +985,96 @@
         </div>
     </section>
 
-    <!-- How It Works -->
-    <section id="how-it-works" class="py-20 bg-gray-50">
+    <!-- Key Features -->
+    <section id="features" class="py-20 bg-gray-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Section Heading -->
-            <div class="text-center mb-16">
-                <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Simple 4-Step Process</p>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">
+            <div class="text-center mb-12">
+                <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-2">Capabilities</p>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Built for People Who Need Clients</h2>
+                <p class="text-base text-gray-500 max-w-2xl mx-auto">Everything you need to find and export high quality business leads.</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                @php
+                    $keyFeatures = [
+                        ['icon' => 'fa-map-location-dot', 'title' => 'Google Maps Search'],
+                        ['icon' => 'fa-location-crosshairs', 'title' => 'Multi-Location Support'],
+                        ['icon' => 'fa-filter', 'title' => 'Industry Filters'],
+                        ['icon' => 'fa-file-export', 'title' => 'Bulk Data Export'],
+                        ['icon' => 'fa-phone', 'title' => 'Phone Numbers'],
+                        ['icon' => 'fa-envelope', 'title' => 'Email Addresses'],
+                        ['icon' => 'fa-globe', 'title' => 'Website Links'],
+                        ['icon' => 'fa-tags', 'title' => 'Business Categories'],
+                        ['icon' => 'fa-star', 'title' => 'Ratings & Reviews'],
+                        ['icon' => 'fa-share-nodes', 'title' => 'Social Media Links'],
+                        ['icon' => 'fa-clock', 'title' => 'Business Hours'],
+                        ['icon' => 'fa-folder-open', 'title' => 'Save & Organize Leads'],
+                    ];
+                @endphp
+                @foreach($keyFeatures as $feature)
+                    <div class="bg-white border border-gray-200 rounded-xl p-5 text-center hover:shadow-md hover:border-primary-orange/40 transition-all group">
+                        <div class="w-11 h-11 rounded-xl border-2 border-primary-orange/30 bg-orange-50 flex items-center justify-center mx-auto mb-3 group-hover:border-primary-orange group-hover:scale-105 transition-all">
+                            <i class="fas {{ $feature['icon'] }} text-primary-orange text-base"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-gray-900 leading-snug">{{ $feature['title'] }}</h3>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 bg-white" aria-labelledby="how-it-works-heading">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-14">
+                <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-2">Simple 4-Step Process</p>
+                <h2 id="how-it-works-heading" class="text-2xl md:text-3xl font-extrabold text-[#111111] mb-3">
                     How {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} Finds Clients for You
                 </h2>
+                <p class="text-base text-gray-500 max-w-2xl mx-auto">Get real business leads in just a few simple steps.</p>
             </div>
 
-            <!-- Steps Grid -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+            @php
+                $howSteps = [
+                    ['num' => '01', 'icon' => 'fa-keyboard',        'title' => 'Add Your Keywords',  'desc' => 'Enter the business type or service you want to search on Google Maps.'],
+                    ['num' => '02', 'icon' => 'fa-location-dot',    'title' => 'Choose Location',    'desc' => 'Select a country, state and city for your search.'],
+                    ['num' => '03', 'icon' => 'fa-filter',          'title' => 'Filter & Export',    'desc' => 'Apply filters and export the data to CSV or Excel.'],
+                    ['num' => '04', 'icon' => 'fa-paper-plane',     'title' => 'Start Outreach',     'desc' => 'Use the verified contacts to grow your business.'],
+                ];
+            @endphp
 
-                <!-- Connector line (desktop only) -->
-                <div class="hidden lg:block absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-primary-orange via-primary-blue to-primary-orange opacity-20"></div>
+            <!-- Desktop: horizontal with arrows / Mobile: vertical timeline -->
+            <ol class="relative flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-0">
+                @foreach($howSteps as $i => $step)
+                    <li class="relative flex lg:flex-col items-start lg:items-center gap-4 lg:gap-0 lg:flex-1 lg:text-center lg:px-4">
+                        {{-- mobile timeline line --}}
+                        @if(!$loop->last)
+                            <span class="lg:hidden absolute left-6 top-14 bottom-[-2rem] w-px bg-orange-200" aria-hidden="true"></span>
+                        @endif
 
-                <!-- Step 1 — Add Extension -->
-                <div class="relative text-center group">
-                    <div class="w-20 h-20 bg-orange-50 border-2 border-primary-orange rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
-                        <svg class="w-9 h-9 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </div>
-                    <span class="inline-block bg-primary-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 1</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Add Extension</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Install the Chrome Extension to start scraping Google Maps businesses.</p>
-                </div>
+                        <div class="relative flex-shrink-0 lg:mb-5">
+                            <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-primary-orange text-white flex items-center justify-center text-base lg:text-lg font-extrabold shadow-sm">
+                                {{ $step['num'] }}
+                            </div>
+                        </div>
 
-                <!-- Step 2 — Find Leads -->
-                <div class="relative text-center group">
-                    <div class="w-20 h-20 bg-blue-50 border-2 border-primary-blue rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
-                        <svg class="w-9 h-9 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <span class="inline-block bg-primary-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 2</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Find Leads</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Search businesses by keyword & location using our Chrome Extension.</p>
-                </div>
+                        <div class="lg:max-w-[220px]">
+                            <div class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-white mb-3 lg:mx-auto">
+                                <i class="fas {{ $step['icon'] }} text-[#111111] text-sm" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-[#111111] mb-1.5">{{ $step['title'] }}</h3>
+                            <p class="text-sm text-gray-500 leading-relaxed">{{ $step['desc'] }}</p>
+                        </div>
 
-                <!-- Step 3 — Save & Organize -->
-                <div class="relative text-center group">
-                    <div class="w-20 h-20 bg-orange-50 border-2 border-primary-orange rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
-                        <svg class="w-9 h-9 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                        </svg>
-                    </div>
-                    <span class="inline-block bg-primary-orange text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 3</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Save & Organize</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Save leads with contact details, ratings & business info to your list.</p>
-                </div>
-
-                <!-- Step 4 — Export & Contact -->
-                <div class="relative text-center group">
-                    <div class="w-20 h-20 bg-blue-50 border-2 border-primary-blue rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform group-hover:scale-110">
-                        <svg class="w-9 h-9 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <span class="inline-block bg-primary-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Step 4</span>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Export & Contact</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Download leads & track status — Contacted, Responded, Converted.</p>
-                </div>
-            </div>
+                        {{-- desktop connecting arrow --}}
+                        @if(!$loop->last)
+                            <span class="hidden lg:flex absolute top-7 -right-4 w-8 -translate-y-1/2 items-center justify-center text-orange-300" aria-hidden="true">
+                                <i class="fas fa-arrow-right-long text-lg"></i>
+                            </span>
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
         </div>
     </section>
 
@@ -977,35 +1082,35 @@
     <section class="py-20 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <p class="text-sm font-bold text-green-600 uppercase tracking-widest mb-3">Data You Can Trust</p>
+                <p class="text-sm font-bold text-primary-orange uppercase tracking-widest mb-3">Data You Can Trust</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">100% Real & Reliable Data</h2>
             </div>
 
             <div class="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
                 <!-- Trust Item 1 -->
-                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl px-5 py-4">
-                    <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-xl px-5 py-4">
+                    <div class="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <span class="text-sm font-semibold text-gray-800">Data directly from Google Maps</span>
+                    <span class="text-sm font-semibold text-gray-800">Real data from Google Maps</span>
                 </div>
 
                 <!-- Trust Item 2 -->
-                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl px-5 py-4">
-                    <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-xl px-5 py-4">
+                    <div class="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <span class="text-sm font-semibold text-gray-800">No fake scraping</span>
+                    <span class="text-sm font-semibold text-gray-800">No fake or bot data</span>
                 </div>
 
                 <!-- Trust Item 3 -->
-                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl px-5 py-4">
-                    <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-xl px-5 py-4">
+                    <div class="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
@@ -1013,13 +1118,13 @@
                 </div>
 
                 <!-- Trust Item 4 -->
-                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl px-5 py-4">
-                    <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-4 bg-gray-50 border border-gray-100 rounded-xl px-5 py-4">
+                    <div class="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <span class="text-sm font-semibold text-gray-800">Saved permanently in your account</span>
+                    <span class="text-sm font-semibold text-gray-800">Up to date business information</span>
                 </div>
             </div>
         </div>
@@ -1038,7 +1143,7 @@
             @if($companyPackages->count() > 0)
             <div class="flex justify-center mb-14">
                 <div class="inline-flex bg-gray-100 rounded-full p-1">
-                    <button class="tab-btn bg-primary-blue text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer" data-tab="user">Individual</button>
+                    <button class="tab-btn bg-primary-orange text-white px-6 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer" data-tab="user">Individual</button>
                     <button class="tab-btn text-gray-600 px-6 py-2 rounded-full text-sm font-semibold transition-colors hover:text-gray-900 cursor-pointer" data-tab="company">Company</button>
                 </div>
             </div>
@@ -1090,7 +1195,7 @@
                 <div class="inline-flex items-center bg-gray-100 rounded-full p-1 gap-1">
                     <button id="billing-monthly-btn"
                             onclick="switchBilling('monthly')"
-                            class="billing-toggle-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors bg-primary-blue text-white cursor-pointer">
+                            class="billing-toggle-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors bg-primary-orange text-white cursor-pointer">
                         Monthly
                     </button>
                     <button id="billing-yearly-btn"
@@ -1116,14 +1221,14 @@
                         $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
                         $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
                     @endphp
-                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-blue text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
+                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-orange text-white lg:scale-105 ring-4 ring-orange-200 shadow-xl' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-orange transition-colors' }}">
                         @if($isCurrentPlan)
                             <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                                 Your Active Plan
                             </div>
                         @elseif($package->is_popular)
-                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
-                                Popular
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#111111] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide whitespace-nowrap">
+                                Most Popular
                             </div>
                         @endif
 
@@ -1146,7 +1251,7 @@
                         @if($isCurrentPlan)
                             <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
                         @elseif($package->price == 0)
-                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-orange hover:bg-gray-100' : 'border-2 border-primary-orange text-primary-orange hover:bg-primary-orange hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                                 Start Free
                             </a>
                         @else
@@ -1155,7 +1260,7 @@
                                     data-package-name="{{ e($package->name) }}"
                                     data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                     data-currency-symbol="{{ $currency['symbol'] }}"
-                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-orange hover:bg-gray-100' : 'border-2 border-primary-orange text-primary-orange hover:bg-primary-orange hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                                 Get Started
                             </button>
                         @endif
@@ -1172,14 +1277,14 @@
                         $isCurrentPlan = isset($currentPlan) && $currentPlan && $currentPlan['package']->id === $package->id;
                         $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
                     @endphp
-                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-blue text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-blue transition-colors' }}">
+                    <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-primary-orange text-white lg:scale-105 ring-4 ring-orange-200 shadow-xl' : 'bg-white border-2 ' . $borderClass . ' hover:border-primary-orange transition-colors' }}">
                         @if($isCurrentPlan)
                             <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                                 Your Active Plan
                             </div>
                         @elseif($package->is_popular)
-                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary-orange text-white px-4 py-1 rounded-full text-sm font-semibold">
-                                Popular
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#111111] text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wide whitespace-nowrap">
+                                Most Popular
                             </div>
                         @endif
 
@@ -1207,7 +1312,7 @@
                         @if($isCurrentPlan)
                             <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">Current Plan</button>
                         @elseif($package->price == 0)
-                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                            <a href="{{ route('auth.show') }}" class="block w-full text-center {{ $package->is_popular ? 'bg-white text-primary-orange hover:bg-gray-100' : 'border-2 border-primary-orange text-primary-orange hover:bg-primary-orange hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                                 Start Free
                             </a>
                         @else
@@ -1216,7 +1321,7 @@
                                     data-package-name="{{ e($package->name) }}"
                                     data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                     data-currency-symbol="{{ $currency['symbol'] }}"
-                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-blue hover:bg-gray-100' : 'border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                    class="w-full {{ $package->is_popular ? 'bg-white text-primary-orange hover:bg-gray-100' : 'border-2 border-primary-orange text-primary-orange hover:bg-primary-orange hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
                                 Get Started
                             </button>
                         @endif
@@ -1231,7 +1336,7 @@
                 <div class="text-center mb-10">
                     <p class="text-xs font-bold text-primary-orange uppercase tracking-widest mb-3">What's Included</p>
                     <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Lead Intelligence by Plan</h3>
-                    <p class="text-gray-500 max-w-xl mx-auto">Each plan unlocks deeper business data. See exactly what intelligence you get at every tier.</p>
+                    <p class="text-gray-500 max-w-xl mx-auto">See what features are included in each plan and choose the best option for your business.</p>
                 </div>
 
                 <div class="max-w-5xl mx-auto overflow-x-auto">
@@ -1241,7 +1346,7 @@
                                 <th class="text-left py-2.5 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
                                 @foreach($monthlyUserPackages as $package)
                                     <th class="text-center py-2.5 px-3 w-1/5">
-                                        <span class="text-xs font-bold {{ $package->is_popular ? 'text-primary-blue' : 'text-gray-900' }}">{{ $package->name }}</span>
+                                        <span class="text-xs font-bold {{ $package->is_popular ? 'text-primary-orange' : 'text-gray-900' }}">{{ $package->name }}</span>
                                         <div class="text-xs text-gray-400 mt-0.5">
                                             @if($package->price == 0)
                                                 Free
@@ -1286,27 +1391,19 @@
                                         <td class="text-center py-2 px-3">
                                             @if($meta['type'] === 'bool')
                                                 @if($val === 'true')
-                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
-                                                        <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100" aria-label="Included">
+                                                        <svg class="w-3 h-3 text-primary-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                                         </svg>
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100">
-                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
-                                                    </span>
+                                                    <span class="inline-block text-gray-300 font-bold" aria-label="Not included">&mdash;</span>
                                                 @endif
                                             @else
                                                 @if(!$val || $val === 'false')
-                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100">
-                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
-                                                    </span>
+                                                    <span class="inline-block text-gray-300 font-bold" aria-label="Not included">&mdash;</span>
                                                 @elseif($val === 'unlimited')
-                                                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold">
                                                         Unlimited
                                                     </span>
                                                 @else
@@ -1338,7 +1435,7 @@
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Trusted by Growing Businesses</h2>
                 <div class="grid md:grid-cols-3 gap-8 mb-16">
                     <div class="text-center">
-                        <div class="text-4xl font-bold text-primary-blue mb-2">50,000+</div>
+                        <div class="text-4xl font-bold text-primary-orange mb-2">50,000+</div>
                         <div class="text-gray-600">Businesses Found</div>
                     </div>
                     <div class="text-center">
@@ -1346,7 +1443,7 @@
                         <div class="text-gray-600">Leads Generated</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-4xl font-bold text-primary-blue mb-2">1,200+</div>
+                        <div class="text-4xl font-bold text-primary-orange mb-2">1,200+</div>
                         <div class="text-gray-600">Happy Users</div>
                     </div>
                 </div>
@@ -1355,7 +1452,7 @@
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
                             <span class="text-white font-semibold text-sm">JS</span>
                         </div>
                         <div class="ml-3">
@@ -1381,7 +1478,7 @@
                 
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-primary-blue rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-primary-orange rounded-full flex items-center justify-center">
                             <span class="text-white font-semibold text-sm">DL</span>
                         </div>
                         <div class="ml-3">
@@ -1397,7 +1494,7 @@
 
     <!-- FAQ -->
     <section id="faq" class="py-20 bg-white" style="font-family: 'Inter', system-ui, -apple-system, sans-serif;">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Section Header -->
             <div class="text-center mb-14">
                 <p class="text-sm font-bold uppercase tracking-widest mb-3" style="color: rgb(249, 115, 22);">Support</p>
@@ -1405,13 +1502,14 @@
                 <p class="text-lg text-gray-500 max-w-xl mx-auto">Everything you need to know about {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} before getting started.</p>
             </div>
 
+            <div class="grid lg:grid-cols-3 gap-10 items-start">
             <!-- FAQ Accordion -->
-            <div class="space-y-3" id="faq-accordion">
+            <div class="space-y-3 lg:col-span-2" id="faq-accordion">
 
 
                 <!-- FAQ 3 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">How fresh and up-to-date is the data?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1428,7 +1526,7 @@
 
                 <!-- FAQ 5 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">What information do I get for each business?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1445,7 +1543,7 @@
 
                 <!-- FAQ 6 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">Can I export my leads?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1462,7 +1560,7 @@
 
                 <!-- FAQ 8 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">Are my saved leads stored permanently?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1479,7 +1577,7 @@
 
                 <!-- FAQ 9 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">Who is this tool designed for?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1496,7 +1594,7 @@
 
                 <!-- FAQ 10 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">What are the different pricing tiers?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1513,7 +1611,7 @@
 
                 <!-- FAQ 12 -->
                 <div class="faq-item border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:border-orange-200">
-                    <button onclick="toggleFAQ(this)" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200">
+                    <button type="button" onclick="toggleFAQ(this)" aria-expanded="false" class="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-orange">
                         <span class="text-base font-semibold text-gray-900 pr-4">How do I get started?</span>
                         <span class="faq-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300" style="background-color: rgba(249, 115, 22, 0.1);">
                             <svg class="w-4 h-4 transition-transform duration-300" style="color: rgb(249, 115, 22);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1530,36 +1628,56 @@
 
             </div>
 
-            <!-- Bottom CTA -->
-            <div class="text-center mt-12 pt-8 border-t border-gray-100">
-                <p class="text-gray-500 mb-4">Still have questions?</p>
-                <a href="#contact" class="inline-flex items-center gap-2 font-semibold transition-colors duration-200 hover:underline" style="color: rgb(249, 115, 22);">
-                    Contact our support team
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                    </svg>
-                </a>
+            <!-- Support Card -->
+            <div class="lg:col-span-1 lg:sticky lg:top-24">
+                <div class="rounded-2xl p-8 text-center" style="background: linear-gradient(145deg, rgba(249,115,22,0.06), rgba(249,115,22,0.02));border: 1px solid rgba(249,115,22,0.15);">
+                    <div class="w-14 h-14 rounded-2xl bg-primary-orange flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-200/60">
+                        <i class="fas fa-headset text-white text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Still have questions?</h3>
+                    <p class="text-sm text-gray-500 mb-6 leading-relaxed">Our support team is happy to help you get set up and answer anything not covered here.</p>
+                    <a href="#contact" class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-lg bg-primary-orange hover:bg-dark-orange text-white text-sm font-bold transition-colors shadow-lg shadow-orange-200/50">
+                        Contact Support
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
             </div>
         </div>
     </section>
 
     <!-- Final CTA Section -->
-    <section class="py-24 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 relative overflow-hidden">
-        <!-- Background accent -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary-orange/10 rounded-full blur-3xl"></div>
+    <section class="relative overflow-hidden bg-[#111111] py-16 sm:py-20" aria-labelledby="final-cta-heading">
+        <!-- subtle decorative dots -->
+        <div class="hero-dots absolute top-6 right-6 w-40 h-40 opacity-40 pointer-events-none" aria-hidden="true"></div>
+        <div class="hero-dots absolute bottom-6 left-6 w-28 h-28 opacity-30 pointer-events-none" aria-hidden="true"></div>
 
-        <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-5 leading-tight">
-                Stop Chasing Dead Leads.<br class="hidden sm:block">
-                <span class="text-primary-orange">Start Closing Real Clients.</span>
-            </h2>
-            <p class="text-lg text-gray-400 mb-10 max-w-xl mx-auto">
-                Launch your lead generation the smart way with {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }}.
-            </p>
-            <a href="{{ route('auth.show') }}" class="inline-block bg-primary-orange hover:bg-dark-orange text-white px-10 py-4 rounded-xl text-lg font-bold transition-all hover:scale-105 shadow-lg shadow-orange-500/20">
-                Get Started Now
-            </a>
-            <p class="text-sm text-gray-500 mt-4">No credit card required. Cancel anytime.</p>
+        <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-3 gap-8 items-center">
+                <div class="lg:col-span-2 text-center lg:text-left">
+                    <h2 id="final-cta-heading" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight mb-3">
+                        Stop Chasing Dead Leads.<br>
+                        <span class="text-primary-orange">Start Closing Real Clients.</span>
+                    </h2>
+                    <p class="text-base text-gray-400 max-w-xl mx-auto lg:mx-0">
+                        Join 1,000+ freelancers, agencies and sales professionals already using {{ \App\Models\Setting::get('site_name', 'CustomerNearme') }} to find and connect with real clients.
+                    </p>
+                </div>
+                <div class="text-center lg:text-right">
+                    <a href="{{ route('auth.show') }}" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-primary-orange hover:bg-dark-orange text-white px-8 py-4 rounded-lg text-base font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-orange focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]">
+                        Get Started Now
+                        <i class="fas fa-arrow-right text-sm" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <ul class="mt-10 pt-6 border-t border-white/10 flex flex-wrap justify-center lg:justify-start gap-x-8 gap-y-2 text-sm text-gray-300">
+                <li class="inline-flex items-center gap-1.5"><i class="fas fa-circle-check text-primary-orange" aria-hidden="true"></i>No credit card required</li>
+                <li class="inline-flex items-center gap-1.5"><i class="fas fa-circle-check text-primary-orange" aria-hidden="true"></i>Instant access</li>
+                <li class="inline-flex items-center gap-1.5"><i class="fas fa-circle-check text-primary-orange" aria-hidden="true"></i>3-day free trial</li>
+            </ul>
         </div>
     </section>
 
@@ -1582,7 +1700,7 @@
                 <div class="hidden sm:block flex-1 h-px bg-gradient-to-r from-transparent via-orange-300 to-orange-400"></div>
                 <!-- logo badge -->
                 <div class="relative mx-6">
-                    <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-orange-400/20 via-blue-400/10 to-transparent blur-xl"></div>
+                    <div class="absolute -inset-3 rounded-3xl bg-gradient-to-br from-orange-400/20 via-orange-200/10 to-transparent blur-xl"></div>
                     <a href="https://www.customernearme.com" class="relative flex items-center gap-3 bg-white rounded-2xl px-6 py-3.5 shadow-lg shadow-gray-200/60 ring-1 ring-gray-100 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                         @php
                             $footerLogo = \App\Models\Setting::get('site_logo');
@@ -1602,7 +1720,7 @@
                     </a>
                 </div>
                 <!-- gradient line right -->
-                <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-blue-300 to-blue-500"></div>
+                <div class="hidden sm:block flex-1 h-px bg-gradient-to-l from-transparent via-orange-300 to-orange-400"></div>
             </div>
 
 
@@ -1617,7 +1735,7 @@
                         <a href="#how-it-works" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">How It Works</a>
                         <a href="#pricing" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">Pricing</a>
                         <a href="#faq" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">FAQ</a>
-                        <a href="{{ route('auth.show') }}" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-blue-300 hover:text-blue-600 hover:shadow-md hover:shadow-blue-100/50 hover:-translate-y-px transition-all duration-200">Login</a>
+                        <a href="{{ route('auth.show') }}" class="px-4 py-2 text-[13px] font-medium text-gray-600 bg-white rounded-full border border-gray-200 shadow-sm hover:border-orange-300 hover:text-orange-600 hover:shadow-md hover:shadow-orange-100/50 hover:-translate-y-px transition-all duration-200">Login</a>
                     </div>
                     <div class="mt-auto">
                         <a href="{{ route('auth.show') }}" class="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-bold shadow-lg shadow-orange-200/50 hover:shadow-xl hover:shadow-orange-300/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
@@ -1631,7 +1749,7 @@
 
                 <!-- CARD B: Get in Touch -->
                 <div class="rounded-3xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 p-7 sm:p-8 flex flex-col">
-                    <h4 class="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600 mb-5">Get in Touch</h4>
+                    <h4 class="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-500 mb-5">Get in Touch</h4>
 
                     <!-- Email -->
                     <a href="mailto:info@customernearme.com" class="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-orange-200 hover:shadow-md hover:shadow-orange-100/40 transition-all duration-200 mb-3">
@@ -1712,7 +1830,7 @@
                         <div class="flex -space-x-1.5">
                             <span class="w-2.5 h-2.5 rounded-full bg-green-400 ring-2 ring-white"></span>
                             <span class="w-2.5 h-2.5 rounded-full bg-orange-400 ring-2 ring-white"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-400 ring-2 ring-white"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-gray-800 ring-2 ring-white"></span>
                         </div>
                         <span class="text-[12px] text-gray-500 font-medium">Built to find clients that actually respond</span>
                     </div>
@@ -1749,6 +1867,7 @@
                     var c = item.querySelector('.faq-content');
                     var i = item.querySelector('.faq-icon svg');
                     if (c) { c.style.maxHeight = '0px'; }
+                    var b = item.querySelector('button'); if (b) b.setAttribute('aria-expanded', 'false');
                     if (i) { i.style.transform = 'rotate(0deg)'; }
                     item.classList.remove('border-orange-300', 'shadow-sm');
                 }
@@ -1757,10 +1876,12 @@
             // Toggle current item
             if (isOpen) {
                 content.style.maxHeight = '0px';
+                button.setAttribute('aria-expanded', 'false');
                 icon.style.transform = 'rotate(0deg)';
                 faqItem.classList.remove('border-orange-300', 'shadow-sm');
             } else {
                 content.style.maxHeight = content.scrollHeight + 'px';
+                button.setAttribute('aria-expanded', 'true');
                 icon.style.transform = 'rotate(180deg)';
                 faqItem.classList.add('border-orange-300', 'shadow-sm');
             }
@@ -1799,7 +1920,7 @@
                     currentTab = this.dataset.tab;
                     document.querySelectorAll('.tab-btn').forEach(function(b) {
                         var active = b.dataset.tab === currentTab;
-                        b.classList.toggle('bg-primary-blue', active);
+                        b.classList.toggle('bg-primary-orange', active);
                         b.classList.toggle('text-white', active);
                         b.classList.toggle('text-gray-600', !active);
                     });
@@ -1821,11 +1942,11 @@
             monthlyGrid.classList.toggle('hidden', !isMonthly);
             yearlyGrid.classList.toggle('hidden', isMonthly);
 
-            monthlyBtn.classList.toggle('bg-primary-blue', isMonthly);
+            monthlyBtn.classList.toggle('bg-primary-orange', isMonthly);
             monthlyBtn.classList.toggle('text-white', isMonthly);
             monthlyBtn.classList.toggle('text-gray-600', !isMonthly);
 
-            yearlyBtn.classList.toggle('bg-primary-blue', !isMonthly);
+            yearlyBtn.classList.toggle('bg-primary-orange', !isMonthly);
             yearlyBtn.classList.toggle('text-white', !isMonthly);
             yearlyBtn.classList.toggle('text-gray-600', isMonthly);
         }
