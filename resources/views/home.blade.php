@@ -9,6 +9,11 @@
         $homeReviews = require resource_path('data/home-sample-reviews.php');
         $reviewsAreSamples = true;
     }
+    // Reviews temporarily hidden on the homepage (nav link + section). Set to true to show them again.
+    $showHomeReviews = false;
+    if (!$showHomeReviews) {
+        $homeReviews = [];
+    }
     // FAQ: one list for the accordion and the FAQPage structured data
     // AI locked by the admin in every package: present it as "coming soon" everywhere on this page
     $aiSoon = \App\Support\PlanFeatureCatalog::aiComingSoon();

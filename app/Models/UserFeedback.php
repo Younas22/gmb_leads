@@ -16,6 +16,8 @@ class UserFeedback extends Model
         'rating',
         'feedback_type',
         'message',
+        'suggestion',
+        'used_before',
         'admin_response',  // نیا field add کیا
         'contact_permission',
         'user_agent',
@@ -25,6 +27,7 @@ class UserFeedback extends Model
 
     protected $casts = [
         'contact_permission' => 'boolean',
+        'used_before' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

@@ -67,6 +67,7 @@ class User extends Authenticatable
             'signups_enabled' => 'boolean',
             'affiliate_active' => 'boolean',
             'custom_commission_value' => 'decimal:2',
+            'feedback_prompt_dismissed_at' => 'datetime',
         ];
     }
 

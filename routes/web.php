@@ -137,6 +137,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
             // Feedback - always accessible (so users can provide feedback regardless of subscription)
             Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+            Route::post('/feedback/dismiss-prompt', [FeedbackController::class, 'dismissPrompt'])->name('feedback.dismiss-prompt');
             Route::get('/feedback/history', [FeedbackController::class, 'userFeedback'])->name('feedback.history');
 
             // Affiliate / Referral routes (accessible without subscription)

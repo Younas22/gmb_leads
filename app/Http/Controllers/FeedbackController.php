@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserFeedback;
+use App\Services\FeedbackPrompt;
 
 class FeedbackController extends Controller
 {
@@ -15,18 +16,24 @@ class FeedbackController extends Controller
     {
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'feedback_type' => 'required|in:suggestion,bug,feature,general',
-            'message' => 'required|string|min:10|max:1000',
+            'feedback_type' => 'nullable|in:suggestion,bug,feature,general',
+            'message' => 'required|string|min:10|max:2000',
+            'suggestion' => 'nullable|string|max:2000',
+            'used_before' => 'nullable|boolean',
             'contact_permission' => 'nullable|boolean'
         ]);
 
         try {
+            $suggestion = trim((string) $request->input('suggestion', ''));
+
             UserFeedback::create([
                 'user_id' => Auth::id(),
                 'rating' => $request->rating,
-                'feedback_type' => $request->feedback_type,
+                'feedback_type' => $request->input('feedback_type') ?: 'general',
                 'message' => trim($request->message),
-                'contact_permission' => $request->has('contact_permission'),
+                'suggestion' => $suggestion !== '' ? $suggestion : null,
+                'used_before' => $request->has('used_before') ? $request->boolean('used_before') : null,
+                'contact_permission' => $request->boolean('contact_permission'),
                 'user_agent' => $request->userAgent(),
                 'ip_address' => $request->ip(),
                 'status' => 'pending'
@@ -51,6 +58,29 @@ class FeedbackController extends Controller
     }
 
 
+
+    /**
+     * Close the post-login feedback prompt — only allowed for users who really haven't
+     * used the tool yet. Anyone with saved leads, searches, exports or Lead Center leads
+     * must submit feedback instead, whatever they answered to "used before?".
+     */
+    public function dismissPrompt()
+    {
+        $user = Auth::user();
+        $activity = FeedbackPrompt::activity($user);
+
+        if (FeedbackPrompt::hasActivity($activity)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account already has activity in the tool, so please share your feedback before continuing.',
+                'activity' => $activity,
+            ], 422);
+        }
+
+        $user->forceFill(['feedback_prompt_dismissed_at' => now()])->save();
+
+        return response()->json(['success' => true]);
+    }
 
     /**
      * User feedback history with filters and stats
