@@ -275,6 +275,10 @@ Route::middleware(['web', 'auth'])->group(function () {
                         Route::post('/offers', [$o, 'store'])->middleware('throttle:ai-outreach-write')->name('offers.store');
                         Route::post('/offers/{offer}/generate', [$o, 'generate'])->whereNumber('offer')->middleware('throttle:ai-outreach-write')->name('offers.generate');
                         Route::get('/offers/{offer}/generations/{generation}', [$o, 'generation'])->whereNumber(['offer', 'generation'])->middleware('throttle:ai-outreach-read')->name('offers.generation');
+                        // "AI offers in progress": see what is queued/running and why, and stop it
+                        Route::get('/generations', [$o, 'generations'])->middleware('throttle:ai-outreach-read')->name('generations.index');
+                        Route::post('/generations/stop-all', [$o, 'stopAllGenerations'])->middleware('throttle:ai-outreach-write')->name('generations.stop-all');
+                        Route::post('/generations/{generation}/stop', [$o, 'stopGeneration'])->whereNumber('generation')->middleware('throttle:ai-outreach-write')->name('generations.stop');
                     });
 
                 // AI Outreach (Phase 2): website audit + offer match + email DRAFTS (nothing is sent)

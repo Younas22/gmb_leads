@@ -491,6 +491,84 @@ class OfferBuilderTest extends SecurityTestCase
         $this->actingAs($user)->postJson("/user/offer-builder/offers/{$offer->id}/generate")->assertOk();
     }
 
+    private function openGeneration(User $user, BuilderOffer $offer, string $status = 'queued'): BuilderOfferGeneration
+    {
+        $gen = new BuilderOfferGeneration();
+        $gen->forceFill(['builder_offer_id' => $offer->id, 'user_id' => $user->id, 'status' => $status, 'prompt' => 'x'])->save();
+
+        return $gen;
+    }
+
+    public function test_in_progress_list_shows_open_generations_and_stop_frees_the_limit(): void
+    {
+        $user = $this->owner();
+        $offers = [$this->draft($user), $this->draft($user), $this->draft($user)];
+        $gens = array_map(fn ($o) => $this->openGeneration($user, $o), $offers);
+        $gens[2]->forceFill(['status' => 'running', 'started_at' => now()])->save();
+
+        $fourth = $this->draft($user);
+        $this->actingAs($user)->postJson("/user/offer-builder/offers/{$fourth->id}/generate")
+            ->assertStatus(429)->assertJsonPath('message', fn ($m) => str_contains($m, 'AI offers in progress'));
+
+        $this->actingAs($user)->getJson(route('user.offer-builder.generations.index'))->assertOk()
+            ->assertJsonCount(3, 'open')
+            ->assertJsonPath('open.0.status', 'queued')
+            ->assertJsonPath('open.2.status', 'running')
+            ->assertJsonPath('open.0.stop_url', route('user.offer-builder.generations.stop', $gens[0]->id));
+
+        $this->actingAs($user)->postJson(route('user.offer-builder.generations.stop', $gens[0]->id))->assertOk();
+        $this->assertSame('failed', $gens[0]->fresh()->status);
+        $this->assertSame(BuilderOfferGeneration::STOPPED_MESSAGE, $gens[0]->fresh()->error_message);
+        $this->actingAs($user)->postJson(route('user.offer-builder.generations.stop', $gens[0]->id))->assertStatus(422);
+
+        $this->actingAs($user)->getJson(route('user.offer-builder.generations.index'))
+            ->assertJsonCount(2, 'open')->assertJsonPath('failed.0.stopped', true);
+
+        // A slot is free again: the fourth offer can be generated
+        $this->actingAs($user)->postJson("/user/offer-builder/offers/{$fourth->id}/generate")->assertOk();
+    }
+
+    public function test_stop_all_and_stale_runs_are_expired_by_the_list(): void
+    {
+        $user = $this->owner();
+        $a = $this->openGeneration($user, $this->draft($user));
+        $b = $this->openGeneration($user, $this->draft($user), 'running');
+        $old = $this->openGeneration($user, $this->draft($user));
+        $old->forceFill(['created_at' => now()->subHour()])->save();
+
+        $this->actingAs($user)->getJson(route('user.offer-builder.generations.index'))->assertJsonCount(2, 'open');
+        $this->assertSame('failed', $old->fresh()->status);
+
+        $this->actingAs($user)->postJson(route('user.offer-builder.generations.stop-all'))->assertOk()->assertJsonPath('stopped', 2);
+        $this->assertSame(['failed', 'failed'], [$a->fresh()->status, $b->fresh()->status]);
+    }
+
+    public function test_a_stopped_generation_is_skipped_by_the_worker(): void
+    {
+        $user = $this->owner();
+        $offer = $this->draft($user);
+        $gen = $this->openGeneration($user, $offer);
+        $gen->markFailed(BuilderOfferGeneration::STOPPED_MESSAGE);
+
+        (new \App\Jobs\GenerateBuilderOffer($gen->id))->handle(app(OfferGenerator::class));
+
+        $this->assertSame([], $this->aiRequests);
+        $this->assertNull($offer->fresh()->generated_content);
+        $this->assertSame(BuilderOfferGeneration::STOPPED_MESSAGE, $gen->fresh()->error_message);
+    }
+
+    public function test_users_cannot_see_or_stop_each_others_generations(): void
+    {
+        $alice = $this->owner();
+        $bob = $this->owner();
+        $gen = $this->openGeneration($alice, $this->draft($alice));
+
+        $this->actingAs($bob)->getJson(route('user.offer-builder.generations.index'))->assertJsonCount(0, 'open');
+        $this->actingAs($bob)->postJson(route('user.offer-builder.generations.stop', $gen->id))->assertNotFound();
+        $this->actingAs($bob)->postJson(route('user.offer-builder.generations.stop-all'))->assertJsonPath('stopped', 0);
+        $this->assertSame('queued', $gen->fresh()->status);
+    }
+
     public function test_regeneration_does_not_replace_the_saved_offer(): void
     {
         $user = $this->owner();

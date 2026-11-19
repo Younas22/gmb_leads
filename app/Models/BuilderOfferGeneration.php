@@ -15,6 +15,9 @@ class BuilderOfferGeneration extends Model
 
     public const OPEN = [self::STATUS_QUEUED, self::STATUS_RUNNING];
 
+    /** error_message of a run the user stopped (kept as "failed", so it no longer counts as open). */
+    public const STOPPED_MESSAGE = 'Stopped by you.';
+
     protected $fillable = [];
 
     protected $casts = [

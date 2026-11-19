@@ -60,6 +60,9 @@ class GenerateBuilderOffer implements ShouldQueue
             $language = (string) data_get($offer->generation_metadata, 'language', 'English');
             $result = $generator->generate($user, $gen->prompt, $language, $offer);
         } catch (AiProviderException $e) {
+            if (!$gen->fresh()?->isOpen()) {
+                return; // stopped by the user meanwhile
+            }
             if ($e->isRetryable() && $this->attempts() < $this->tries) {
                 $gen->forceFill(['status' => BuilderOfferGeneration::STATUS_QUEUED])->save();
                 $this->release(30);
@@ -75,6 +78,12 @@ class GenerateBuilderOffer implements ShouldQueue
         } catch (Throwable $e) {
             Log::warning('Offer generation failed', ['generation_id' => $gen->id, 'exception' => get_class($e)]);
             $gen->markFailed('Something went wrong while generating the offer. Please try again.');
+            return;
+        }
+
+        // Stopped by the user while the AI was writing: discard the answer
+        $gen->refresh();
+        if (!$gen->isOpen()) {
             return;
         }
 

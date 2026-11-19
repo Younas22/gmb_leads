@@ -118,7 +118,7 @@ class BuilderOfferController extends Controller
             }
             $open = BuilderOfferGeneration::where('user_id', $user->id)->whereIn('status', BuilderOfferGeneration::OPEN)->get()->reject->isStale()->count();
             if ($open >= $maxOpen) {
-                return "You already have {$open} offers generating. Please wait for one to finish.";
+                return "You already have {$open} offers generating. Stop one under \"AI offers in progress\" or wait for it to finish.";
             }
 
             $brief = $prompts->forAi($item->strategy, (array) $item->business_inputs, $item->additional_instructions, $item->custom_prompt);
@@ -165,6 +165,58 @@ class BuilderOfferController extends Controller
         }
 
         return response()->json(['status' => $gen->status, 'message' => $gen->error_message]);
+    }
+
+    /**
+     * "AI offers in progress": this user's queued/running generations (plus recent failures),
+     * with why each one is waiting, so a stuck one can be found and stopped.
+     */
+    public function generations(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // Expire runs the worker can no longer finish, so they stop counting toward the limit
+        BuilderOfferGeneration::where('user_id', $user->id)->whereIn('status', BuilderOfferGeneration::OPEN)->get()
+            ->filter->isStale()
+            ->each->markFailed('The AI worker did not finish this request. Please try again in a moment.');
+
+        $open = BuilderOfferGeneration::with('offer.strategy')->where('user_id', $user->id)
+            ->whereIn('status', BuilderOfferGeneration::OPEN)->oldest('id')->get();
+        $failed = BuilderOfferGeneration::with('offer.strategy')->where('user_id', $user->id)
+            ->where('status', BuilderOfferGeneration::STATUS_FAILED)
+            ->where('updated_at', '>=', now()->subDay())->latest('id')->limit(5)->get();
+
+        $staleAfter = (int) config('offer_builder.stale_after_minutes', 15);
+
+        return response()->json([
+            'ok' => true,
+            'max_open' => (int) config('offer_builder.max_open_generations_per_user', 3),
+            'open' => $open->map(fn (BuilderOfferGeneration $g) => $this->generationRow($g, $staleAfter))->values(),
+            'failed' => $failed->map(fn (BuilderOfferGeneration $g) => $this->generationRow($g, $staleAfter))->values(),
+        ]);
+    }
+
+    /** Stop one queued/running generation (only the user's own). The worker skips or discards it. */
+    public function stopGeneration(Request $request, int $generation): JsonResponse
+    {
+        $gen = BuilderOfferGeneration::where('user_id', $request->user()->id)->whereKey($generation)->firstOrFail();
+
+        if (!$gen->isOpen()) {
+            return $this->fail('This generation has already finished.');
+        }
+        $gen->markFailed(BuilderOfferGeneration::STOPPED_MESSAGE);
+
+        return response()->json(['ok' => true, 'message' => 'Generation stopped.']);
+    }
+
+    /** Stop all of this user's queued/running generations. */
+    public function stopAllGenerations(Request $request): JsonResponse
+    {
+        $open = BuilderOfferGeneration::where('user_id', $request->user()->id)->whereIn('status', BuilderOfferGeneration::OPEN)->get();
+        $open->each->markFailed(BuilderOfferGeneration::STOPPED_MESSAGE);
+
+        return response()->json(['ok' => true, 'stopped' => $open->count(),
+            'message' => $open->isEmpty() ? 'Nothing was generating.' : "Stopped {$open->count()} generation(s)."]);
     }
 
     /** "Save without AI": the strategy example filled with the answers becomes a profile offer. */
@@ -249,6 +301,31 @@ class BuilderOfferController extends Controller
             'additional_instructions' => trim((string) $request->input('additional_instructions')) ?: null,
             'custom_prompt' => null,
         ]);
+    }
+
+    private function generationRow(BuilderOfferGeneration $g, int $staleAfter): array
+    {
+        $since = $g->started_at ?? $g->created_at;
+        $waitingMinutes = $g->created_at ? (int) $g->created_at->diffInMinutes(now()) : 0;
+
+        $reason = match ($g->status) {
+            BuilderOfferGeneration::STATUS_QUEUED => $waitingMinutes >= 2
+                ? 'Waiting in the AI queue. The AI worker is busy or not running right now; it is stopped automatically after ' . $staleAfter . ' minutes.'
+                : 'Waiting in the AI queue for its turn.',
+            BuilderOfferGeneration::STATUS_RUNNING => 'The AI is writing this offer now.',
+            default => (string) $g->error_message,
+        };
+
+        return [
+            'id' => $g->id,
+            'title' => $g->offer?->title ?: 'Offer #' . $g->builder_offer_id,
+            'type' => $g->offer?->strategy?->name,
+            'status' => $g->status,
+            'reason' => $reason,
+            'since' => $since?->diffForHumans(),
+            'stopped' => $g->error_message === BuilderOfferGeneration::STOPPED_MESSAGE,
+            'stop_url' => $g->isOpen() ? route('user.offer-builder.generations.stop', $g->id) : null,
+        ];
     }
 
     private function fail(string $message, int $status = 422): JsonResponse

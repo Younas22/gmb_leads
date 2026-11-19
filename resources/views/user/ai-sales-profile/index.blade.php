@@ -500,6 +500,23 @@
                             </div>
                         </div>
 
+                        {{-- AI offers in progress: what is queued/running, why, and a Stop button (filled by obLoadGens) --}}
+                        <div id="ob-gens" class="hidden mb-4 border border-amber-200 bg-amber-50/60 rounded-xl p-3" data-testid="ob-generations"
+                             data-url="{{ route('user.offer-builder.generations.index') }}" data-stop-all="{{ route('user.offer-builder.generations.stop-all') }}">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                <p class="text-sm font-semibold text-gray-900"><i class="fas fa-gears text-amber-600 mr-1"></i> AI offers in progress <span id="ob-gens-count" class="text-xs font-normal text-slate-500"></span></p>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="obLoadGens()" class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer"><i class="fas fa-rotate mr-1"></i>Refresh</button>
+                                    <button type="button" id="ob-gens-stop-all" onclick="obStopGen(null, this)" class="text-xs px-2.5 py-1.5 rounded-lg border border-red-200 text-red-700 bg-white hover:bg-red-50 cursor-pointer"><i class="fas fa-stop mr-1"></i>Stop all</button>
+                                </div>
+                            </div>
+                            <div id="ob-gens-list" class="space-y-1.5"></div>
+                            <div id="ob-gens-failed" class="hidden mt-3">
+                                <p class="text-[11.5px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Recently failed or stopped (last 24 hours)</p>
+                                <div id="ob-gens-failed-list" class="space-y-1"></div>
+                            </div>
+                        </div>
+
                         <p class="text-sm font-semibold text-gray-900 mb-1"><i class="fas fa-gift text-orange-500 mr-1"></i> Create an offer</p>
                         <p class="text-xs text-slate-500 mb-3">Choose an offer type. We fill in the details from your profile; AI writes the offer.</p>
                         <div class="max-w-full overflow-x-auto">
@@ -680,6 +697,45 @@
         prompt: @json(route('user.offer-builder.prompt')),
         csrf: document.querySelector('meta[name="csrf-token"]').content,
     };
+    // AI offers in progress: list + stop
+    let obGensTimer = null;
+    function obEsc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    async function obLoadGens() {
+        const box = document.getElementById('ob-gens');
+        if (!box) return;
+        let d;
+        try { d = await (await fetch(box.dataset.url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })).json(); } catch { return; }
+        if (!d || !d.ok) return;
+        const row = (g, open) => `
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 bg-white border ${open ? 'border-amber-200' : 'border-slate-200'} rounded-lg px-3 py-2">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-semibold text-gray-900 break-words">${obEsc(g.title)}${g.type ? ` <span class="text-[11px] font-normal text-slate-500">· ${obEsc(g.type)}</span>` : ''}</p>
+                    <p class="text-[12px] ${open ? 'text-slate-600' : (g.stopped ? 'text-slate-500' : 'text-red-600')}">
+                        ${open ? `<span class="inline-block text-[10.5px] font-semibold uppercase px-1.5 py-0.5 rounded mr-1 ${g.status === 'running' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-800'}">${g.status === 'running' ? 'Running' : 'Queued'}</span>` : ''}
+                        ${obEsc(g.reason)} <span class="text-slate-400">· ${obEsc(g.since)}</span>
+                    </p>
+                </div>
+                ${open && g.stop_url ? `<button type="button" onclick="obStopGen('${obEsc(g.stop_url)}', this)" class="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 cursor-pointer"><i class="fas fa-stop mr-1"></i>Stop</button>` : ''}
+            </div>`;
+        document.getElementById('ob-gens-list').innerHTML = d.open.length ? d.open.map(g => row(g, true)).join('') : '<p class="text-[12.5px] text-slate-500">Nothing is generating right now.</p>';
+        document.getElementById('ob-gens-count').textContent = `(${d.open.length} of ${d.max_open} at a time)`;
+        document.getElementById('ob-gens-stop-all').classList.toggle('hidden', d.open.length < 2);
+        document.getElementById('ob-gens-failed-list').innerHTML = d.failed.map(g => row(g, false)).join('');
+        document.getElementById('ob-gens-failed').classList.toggle('hidden', !d.failed.length);
+        box.classList.toggle('hidden', !d.open.length && !d.failed.length);
+        clearTimeout(obGensTimer);
+        if (d.open.length) obGensTimer = setTimeout(obLoadGens, 10000);
+    }
+    async function obStopGen(url, btn) {
+        const all = !url;
+        if (!confirm(all ? 'Stop all AI offers that are generating?' : 'Stop this AI offer generation?')) return;
+        btn.disabled = true;
+        try { await obSend(all ? document.getElementById('ob-gens').dataset.stopAll : url); }
+        catch (err) { alert(err.message); }
+        finally { btn.disabled = false; obLoadGens(); }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', obLoadGens); else obLoadGens();
+
     function obPickCat(slug) {
         document.querySelectorAll('.ob-cat').forEach(b => {
             const on = b.dataset.cat === slug;
@@ -752,7 +808,10 @@
             }
             const draft = await obSend(OB.store, obQuickData(root));
             if (draft.missing && draft.missing.length) throw new Error('Please fill in: ' + draft.missing.join(', ') + '.');
-            const g = await obSend(draft.generate_url);
+            let g;
+            try { g = await obSend(draft.generate_url); }
+            catch (err) { obLoadGens(); throw err; } // e.g. "3 offers generating": show them with Stop buttons
+            obLoadGens();
             obQuickStatus(root, 'AI is writing your offer and messages… this usually takes 1 to 2 minutes. You can stay here.');
             root.querySelector('.ob-q-status').insertAdjacentHTML('afterbegin', '<i class="fas fa-spinner fa-spin mr-1 text-orange-500"></i>');
             const started = Date.now();
@@ -760,7 +819,7 @@
                 let d = {};
                 try { d = await (await fetch(g.status_url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })).json(); } catch {}
                 if (d.status === 'completed') { location.hash = 'offers'; location.reload(); return; }
-                if (d.status === 'failed') { obQuickBusy(root, false); obQuickStatus(root, d.message || 'The AI could not create this offer. Please try again.', true); return; }
+                if (d.status === 'failed') { obLoadGens(); obQuickBusy(root, false); obQuickStatus(root, d.message || 'The AI could not create this offer. Please try again.', true); return; }
                 if (Date.now() - started > 60000) obQuickStatus(root, 'Still working… the AI queue may be busy. The offer will appear in your list when it is ready.');
                 setTimeout(tick, 4000);
             };
