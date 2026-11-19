@@ -100,7 +100,7 @@
                             </div>
                             <div class="lg:col-span-6 space-y-2">
                                 <label class="sr-only" for="mode-{{ $key }}">For this user: {{ $r['name'] }}</label>
-                                <select id="mode-{{ $key }}" name="features[{{ $key }}][mode]" class="w-full sm:w-56 h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-500" onchange="cnmFeatureMode(this)" @disabled(!$installed)>
+                                <select id="mode-{{ $key }}" name="features[{{ $key }}][mode]" class="w-full sm:w-56 h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer disabled:cursor-not-allowed focus:ring-2 focus:ring-primary-500" onchange="cnmFeatureMode(this)" @disabled(!$installed)>
                                     <option value="package" @selected($mode === 'package')>Use package</option>
                                     <option value="custom" @selected($mode === 'custom')>Custom for this user</option>
                                     <option value="locked" @selected($mode === 'locked')>Locked for this user</option>
@@ -108,7 +108,7 @@
 
                                 <div data-mode="custom" class="{{ $mode === 'custom' ? '' : 'hidden' }} flex flex-wrap items-center gap-3">
                                     @if($r['type'] === 'bool')
-                                        <select name="features[{{ $key }}][value]" class="h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary-500" aria-label="{{ $r['name'] }} value" @disabled(!$installed)>
+                                        <select name="features[{{ $key }}][value]" class="h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer disabled:cursor-not-allowed focus:ring-2 focus:ring-primary-500" aria-label="{{ $r['name'] }} value" @disabled(!$installed)>
                                             <option value="true" @selected(in_array(strtolower($val), $on, true) || $unl)>On</option>
                                             <option value="false" @selected(!in_array(strtolower($val), $on, true) && !$unl)>Off</option>
                                         </select>
@@ -116,8 +116,8 @@
                                         <input type="{{ $r['type'] === 'value' ? 'number' : 'text' }}" @if($r['type'] === 'value') min="0" @endif name="features[{{ $key }}][value]" value="{{ $val }}" maxlength="255"
                                                placeholder="{{ $r['type'] === 'value' ? 'e.g. 100' : 'Value' }}" aria-label="{{ $r['name'] }} value"
                                                class="w-36 h-10 px-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500" @disabled(!$installed)>
-                                        <label class="inline-flex items-center gap-1.5 text-sm text-gray-700">
-                                            <input type="checkbox" name="features[{{ $key }}][is_unlimited]" value="1" @checked($unl) class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" @disabled(!$installed)>
+                                        <label class="inline-flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer select-none">
+                                            <input type="checkbox" name="features[{{ $key }}][is_unlimited]" value="1" @checked($unl) class="rounded border-gray-300 text-primary-600 cursor-pointer disabled:cursor-not-allowed focus:ring-primary-500" @disabled(!$installed)>
                                             Unlimited
                                         </label>
                                     @endif
@@ -138,7 +138,7 @@
 
         <div class="sticky bottom-0 bg-gray-50 py-4 flex justify-end gap-3">
             <a href="{{ route('admin.subscriptions.index') }}" class="h-10 inline-flex items-center px-4 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white hover:bg-gray-50">Cancel</a>
-            <button type="submit" class="h-10 inline-flex items-center px-5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold disabled:bg-gray-300" @disabled(!$installed)>
+            <button type="submit" class="h-10 inline-flex items-center px-5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed" @disabled(!$installed)>
                 <i class="fas fa-save mr-2" aria-hidden="true"></i>Save custom features
             </button>
         </div>
