@@ -1,0 +1,3 @@
+# Legacy payment screenshots (financial data). No direct web access —
+# admins view them through /admin/payments/{id}/screenshot.
+Require all denied

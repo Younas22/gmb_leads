@@ -1,0 +1,58 @@
+{
+    "_about": "AI Sales Profile for LimoSchedule. Imported with: php artisan sales-profile:import database/data/sales-profiles/limoschedule.json --owner=EMAIL (dry run) then --apply. Text supplied by the business owner on 2026-11-14.",
+    "profile": {
+        "company_name": "LimoSchedule",
+        "description": "LimoSchedule provides self-hosted, white-label booking and fleet management software for limousine, chauffeur, taxi, black car and airport transfer businesses.\n\nWe help transportation operators modernize their booking process with a professional online booking website, automated fare calculations, online payments, driver management, dispatch tools and an integrated admin dashboard.\n\nUnlike traditional subscription-based booking platforms, LimoSchedule offers a one-time software license starting at $1,999, giving businesses ownership and control of their booking system without ongoing SaaS licensing fees.",
+        "website": "https://limoschedule.com",
+        "portfolio_urls": ["https://limoschedule.com"],
+        "target_industries": [
+            "Limousine Companies", "Chauffeur Services", "Black Car Services", "Executive Transportation",
+            "Airport Transfer Companies", "Taxi Companies", "Private Car Services", "Luxury Transportation",
+            "Corporate Transportation", "Shuttle Services", "Private Airport Transportation", "Wedding Transportation",
+            "Event Transportation", "Small Fleet Operators", "Transportation Startups", "Limo Booking Companies",
+            "Ground Transportation Providers", "VIP Transportation", "Hotel Transfer Operators", "Party Bus and Limo Companies"
+        ],
+        "target_locations": [
+            "United States", "Atlanta (Georgia USA)", "New York (USA)", "Los Angeles (California USA)", "Miami (Florida USA)",
+            "Houston (Texas USA)", "Dallas (Texas USA)", "Chicago (Illinois USA)", "Orlando (Florida USA)", "Las Vegas (Nevada USA)",
+            "San Francisco (California USA)", "Canada", "Toronto (Canada)", "Vancouver (Canada)", "United Kingdom",
+            "London (UK)", "United Arab Emirates", "Dubai (UAE)", "Abu Dhabi (UAE)", "Australia"
+        ],
+        "language": "en",
+        "tone": "professional",
+        "sender_name": "Muhammad Younas",
+        "sender_postal_address": null,
+        "signature": "Muhammad Younas\nFounder | LimoSchedule\nWhite-Label Limo, Taxi & Chauffeur Booking Software\nhttps://limoschedule.com",
+        "ai_instructions": "You are an expert B2B software sales assistant for LimoSchedule. Find legitimate opportunities among limousine, chauffeur, black car, airport transfer, taxi and private transportation companies. Analyze each prospect's website and available information first.\n\nLook for verified opportunities: no online booking; bookings only by phone or contact form; no visible instant fare estimator; no online payment; outdated or hard-to-use booking interface; poor mobile booking; no clear customer booking flow; manual reservation management (only with evidence). Never claim a company lacks dispatch software, driver management or internal automation just because it is not visible publicly.\n\nRecommend features that match verified needs. Priority benefits: white-label branding; one-time license starting at $1,999; self-hosted ownership; online reservations; automated fare calculation; customer, driver and admin dashboards; online payments; booking and dispatch management; multi-language and multi-currency support.\n\nEmail rules:\n1. First emails 80-120 words.\n2. Open with a genuine, specific observation about the business.\n3. Mention only problems confirmed by website evidence.\n4. Connect one or two relevant features to their needs.\n5. Explain the benefit in simple language.\n6. No exaggerated claims, fake statistics or guaranteed revenue.\n7. Do not criticize their website unnecessarily.\n8. No generic openers such as \"I hope this email finds you well.\"\n9. No aggressive selling, spam phrases or excessive exclamation marks.\n10. End with a simple invitation to see a demo or discuss their booking workflow.\n11. Never invent testimonials or case studies.\n12. Do not promise unverified integrations or features.\n13. Respect consent, suppression lists and outreach regulations.\n14. Draft only; never send automatically.\n\nPrimary call to action: \"Would you be open to a quick look at how LimoSchedule could work for your business?\"\nMake every email sound personally written, not mass-generated."
+    },
+    "skills": [
+        "Limousine Booking Software Development", "Chauffeur Reservation System Development", "Taxi Booking Platform Development",
+        "White-Label Transportation Software", "Online Booking System Integration", "Transportation Website Development",
+        "Fleet Management Software", "Driver and Dispatch Management Systems", "Online Fare Calculator Development",
+        "Stripe and PayPal Payment Integration", "Customer and Driver Portal Development", "PHP and Laravel Development",
+        "Self-Hosted SaaS Software Deployment", "Multi-Language Booking Platforms", "Multi-Currency Payment Systems",
+        "Booking Workflow Automation", "Reservation Dashboard Development", "Transportation Business Digital Transformation",
+        "Admin Dashboard and Reporting Systems", "Booking Website SEO Optimization"
+    ],
+    "services": [
+        {"title": "Complete Limo Booking Software", "description": "Self-hosted, white-label limousine booking software with a public booking website, customer dashboard, driver dashboard and administration panel.", "ideal_for": "Limo and chauffeur operators whose website has no online booking form"},
+        {"title": "Chauffeur Booking Platform", "description": "A professional online booking solution for executive transportation, corporate chauffeur and luxury black car services.", "ideal_for": "Executive, corporate and black car services without an online booking flow"},
+        {"title": "Taxi Reservation System", "description": "Online taxi booking software with reservation management, automated pricing and customer booking capabilities.", "ideal_for": "Taxi companies that take bookings only by phone"},
+        {"title": "Airport Transfer Booking System", "description": "Online reservation and fare calculation functionality designed for airport transfer companies and private transportation operators.", "ideal_for": "Airport transfer operators without online reservations or fare estimates"},
+        {"title": "White-Label Transportation Website", "description": "A branded and mobile-responsive transportation booking website that enables customers to request and manage reservations online.", "ideal_for": "Websites with mobile booking usability problems"},
+        {"title": "Online Fare Calculator", "description": "Automated ride fare calculations based on configurable pricing rules, vehicle categories and booking requirements.", "ideal_for": "Websites with no visible fare estimator"},
+        {"title": "Driver Management Portal", "description": "Driver dashboard for assigned reservations, availability, trip details, earnings and booking activity.", "ideal_for": null},
+        {"title": "Customer Booking Portal", "description": "Customer dashboard for booking management, saved details, invoices, booking history and account preferences.", "ideal_for": "Businesses that advertise phone-only booking"},
+        {"title": "Dispatch and Booking Management", "description": "Administrative tools for managing reservations, assigning drivers, coordinating bookings and monitoring operational activity.", "ideal_for": "Operators with visible manual booking workflows"},
+        {"title": "Online Payment Integration", "description": "Payment collection integration through supported providers such as Stripe and PayPal.", "ideal_for": "Websites with no online payment option"},
+        {"title": "Self-Hosted Booking Software Setup", "description": "Installation and configuration of the LimoSchedule software on the customer's hosting environment, subject to agreed setup requirements.", "ideal_for": null},
+        {"title": "Transportation Booking Software Customization", "description": "Additional development or workflow customization based on the client's requirements, feasibility and agreed scope.", "ideal_for": null}
+    ],
+    "offers": [
+        {"title": "LimoSchedule One-Time Software License", "price_hint": "Starting at $1,999 - one-time license", "description": "Get a self-hosted, white-label booking system for your limo, chauffeur or taxi business. Manage online bookings, customers, drivers, fares and payments with your own branded software, without recurring LimoSchedule SaaS licensing fees.\nCTA: Request a Demo", "ideal_for": null},
+        {"title": "Free Booking Website Review", "price_hint": "Free", "description": "Complimentary Website Booking Experience Review. We can review your current transportation website's public booking experience and identify opportunities to make reservations easier for customers. The review focuses on visible booking features, mobile usability, fare estimates and payment flow.\nCTA: Request a Free Review", "ideal_for": "Basic contact form only (reservation workflow)"},
+        {"title": "Free LimoSchedule Product Demo", "price_hint": "Free demo", "description": "Explore LimoSchedule Before Purchasing. See how LimoSchedule manages customer reservations, vehicle categories, fare calculations, driver assignments, payments and business administration through one integrated platform.\nCTA: View a Demo", "ideal_for": null},
+        {"title": "No Recurring Software License Fee", "price_hint": "One-time license", "description": "Own Your Booking Software. Purchase a one-time LimoSchedule license and deploy the software on your own infrastructure instead of paying ongoing LimoSchedule SaaS subscription fees. Hosting, payment processing, external services, custom development and maintenance may involve separate costs.\nCTA: Learn More", "ideal_for": null},
+        {"title": "Booking Workflow Consultation", "price_hint": null,"description": "Discuss Your Transportation Booking Requirements. Share your current reservation workflow and business requirements. We can discuss how LimoSchedule's existing features might support your operation and identify any additional customization that may be required.\nCTA: Discuss Your Requirements", "ideal_for": null}
+    ]
+}

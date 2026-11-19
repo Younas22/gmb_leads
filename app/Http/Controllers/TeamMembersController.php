@@ -83,7 +83,6 @@ class TeamMembersController extends Controller
                 'name' => trim($request->first_name . ' ' . $request->last_name),
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'plain_password' => $request->password,
                 'company_id' => $user->id,
                 'user_type' => User::TYPE_USER,
                 'login_type' => User::LOGIN_REGULAR,
@@ -152,7 +151,6 @@ class TeamMembersController extends Controller
                 ]);
 
                 $updateData['password'] = Hash::make($request->password);
-                $updateData['plain_password'] = $request->password;
             }
 
             $teamMember->update($updateData);
@@ -277,7 +275,6 @@ class TeamMembersController extends Controller
                 'last_name' => $teamMember->last_name,
                 'name' => $teamMember->name,
                 'email' => $teamMember->email,
-                'password' => $teamMember->plain_password,
                 'status' => $teamMember->status,
                 'created_at' => $teamMember->created_at->format('M d, Y h:i A'),
                 'last_login' => $teamMember->last_login ? $teamMember->last_login->format('M d, Y h:i A') : 'Never',

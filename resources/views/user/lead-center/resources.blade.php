@@ -149,7 +149,7 @@ function showToast(message, type) {
     const t = document.createElement('div');
     t.className = `fixed bottom-6 right-6 z-[999] px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all
         ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
-    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${cnmEscape(message)}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
 }
@@ -258,7 +258,7 @@ function textResourceHtml(item, kind, accentClass) {
             <div class="flex items-start justify-between gap-2">
                 <p class="text-sm font-semibold ${accentClass} truncate">${escapeHtml(item.title)}</p>
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <button onclick='copyText(${JSON.stringify(item.content)})' title="Copy" class="text-gray-300 hover:text-primary-600"><i class="fas fa-copy text-xs"></i></button>
+                    <button onclick="copyText(${cnmEscape(JSON.stringify(String(item.content)))})" title="Copy" class="text-gray-300 hover:text-primary-600"><i class="fas fa-copy text-xs"></i></button>
                     <button onclick="delete${kind === 'prompt' ? 'Prompt' : 'Template'}(${item.id})" title="Delete" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt text-xs"></i></button>
                 </div>
             </div>

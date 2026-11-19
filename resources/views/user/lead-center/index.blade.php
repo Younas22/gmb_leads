@@ -238,7 +238,7 @@
                                 <td class="px-4 py-3">
                                     <div class="text-sm font-semibold text-gray-900 cursor-pointer hover:text-primary-600 transition-colors inline-flex items-center gap-1.5 group"
                                          title="Click to copy this lead"
-                                         onclick="copySingleLead(this, '{{ addslashes($lead->company_name) }}', '{{ addslashes($lead->website) }}')">
+                                         onclick="copySingleLead(this, @js($lead->company_name), @js($lead->website))">
                                         {{ $lead->company_name }}
                                         <i class="fas fa-copy text-[10px] text-gray-300 group-hover:text-primary-500"></i>
                                     </div>
@@ -247,7 +247,7 @@
                                     @endif
                                     <div class="md:hidden text-xs text-gray-500 mt-0.5">
                                         @if($lead->website)
-                                            <a href="{{ $lead->website }}" target="_blank" class="text-blue-600 hover:underline">{{ str_replace(['http://','https://'], '', $lead->website) }}</a>
+                                            <a href="{{ \App\Support\SafeUrl::href($lead->website) }}" rel="noopener noreferrer" target="_blank" class="text-blue-600 hover:underline">{{ str_replace(['http://','https://'], '', $lead->website) }}</a>
                                         @endif
                                     </div>
                                 </td>
@@ -268,7 +268,7 @@
                                         </div>
                                     @endif
                                     @if($lead->website)
-                                        <a href="{{ $lead->website }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all">
+                                        <a href="{{ \App\Support\SafeUrl::href($lead->website) }}" rel="noopener noreferrer" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all">
                                             {{ str_replace(['http://','https://'], '', $lead->website) }}
                                         </a>
                                     @else
@@ -319,7 +319,7 @@
                                            class="bg-primary-600 hover:bg-primary-700 text-white w-7 h-7 rounded flex items-center justify-center text-xs">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <button onclick="deleteLead({{ $lead->id }}, '{{ addslashes($lead->company_name) }}')" title="Remove"
+                                        <button onclick="deleteLead({{ $lead->id }}, @js($lead->company_name))" title="Remove"
                                                 class="bg-red-100 hover:bg-red-200 text-red-600 w-7 h-7 rounded flex items-center justify-center text-xs">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -438,7 +438,7 @@ function showToast(message, type) {
     const t = document.createElement('div');
     t.className = `fixed bottom-6 right-6 z-[999] px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all
         ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
-    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${cnmEscape(message)}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }

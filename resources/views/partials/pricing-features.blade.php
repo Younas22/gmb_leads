@@ -1,57 +1,30 @@
-<ul class="space-y-4 mb-8 flex-grow">
-    @php
-        $sortedFeatures = $package->features->sort(function($a, $b) use ($boolFeatures) {
-            $aIsBool = in_array($a->feature_key, $boolFeatures);
-            $bIsBool = in_array($b->feature_key, $boolFeatures);
-            if (!$aIsBool && $bIsBool) return -1;
-            if ($aIsBool && !$bIsBool) return 1;
-            if ($aIsBool && $bIsBool) {
-                if ($a->feature_value === 'true' && $b->feature_value !== 'true') return -1;
-                if ($a->feature_value !== 'true' && $b->feature_value === 'true') return 1;
-            }
-            return 0;
-        });
-    @endphp
-    @foreach($sortedFeatures as $feature)
-        @if(isset($featureLabels[$feature->feature_key]) && !in_array($feature->feature_key, $hideFromCards))
-            <li class="flex items-center">
-                @if(in_array($feature->feature_key, $boolFeatures))
-                    @if($feature->feature_value === 'true')
-                        <svg class="w-5 h-5 {{ $package->is_popular ? 'text-white' : 'text-orange-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        {{ $featureLabels[$feature->feature_key] }}
-                    @else
-                        <svg class="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        <span class="{{ $package->is_popular ? 'opacity-50' : 'text-gray-400' }}">{{ $featureLabels[$feature->feature_key] }}</span>
+{{-- Pricing card feature lines (home + subscription). Source: App\Support\PlanFeatureCatalog::CARD.
+     Old callers still pass $boolFeatures / $featureLabels / $hideFromCards; they are no longer needed.
+     Pass $lightCard = true when the popular card has a white background (homepage). --}}
+@php $onDark = $package->is_popular && empty($lightCard); @endphp
+<ul class="{{ empty($lightCard) ? 'space-y-4 mb-8' : 'space-y-2.5 mb-6 text-[13.5px] text-gray-700' }} flex-grow">
+    @foreach(\App\Support\PlanFeatureCatalog::cardLines($package) as [$label, $included, $value, $locked])
+        <li class="flex items-center">
+            @if($locked)
+                {{-- Locked by the admin: announced, not yet available --}}
+                <i class="far fa-clock w-5 text-center mr-3 flex-shrink-0 {{ $onDark ? 'text-white/70' : 'text-orange-400' }}" aria-hidden="true"></i>
+                <span class="{{ $onDark ? 'opacity-80' : 'text-gray-500' }}">{{ $label }}</span>
+                <span class="ml-2 px-2 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wide whitespace-nowrap {{ $onDark ? 'bg-white/15 text-white' : 'bg-orange-50 text-orange-700 border border-orange-200' }}">Coming soon</span>
+            @elseif($included)
+                <svg class="w-5 h-5 {{ $onDark ? 'text-white' : 'text-orange-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>{{ $label }}{{ $value ? ':' : '' }}
+                    @if($value)
+                        <strong class="ml-1 whitespace-nowrap">{{ $value }}</strong>
                     @endif
-                @elseif($feature->feature_value === 'false')
-                    <svg class="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    <span class="{{ $package->is_popular ? 'opacity-50' : 'text-gray-400' }}">{{ $featureLabels[$feature->feature_key] }}</span>
-                @else
-                    <svg class="w-5 h-5 {{ $package->is_popular ? 'text-white' : 'text-orange-500' }} mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    {{ $featureLabels[$feature->feature_key] }}:
-                    <strong class="ml-1">
-                        @if($feature->feature_value === 'unlimited')
-                            Unlimited
-                        @elseif($feature->feature_key === 'daily_leads_limit')
-                            {{ number_format((int)$feature->feature_value) }}/day
-                        @elseif($feature->feature_key === 'max_devices')
-                            {{ $feature->feature_value }} {{ (int)$feature->feature_value === 1 ? 'Device' : 'Devices' }}
-                        @elseif($feature->feature_key === 'export_leads')
-                            {{ number_format((int)$feature->feature_value) }}/month
-                        @else
-                            {{ $feature->is_unlimited ? 'Unlimited' : number_format((int)$feature->feature_value) }}
-                        @endif
-                    </strong>
-                @endif
-            </li>
-        @endif
+                </span>
+            @else
+                <svg class="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span class="{{ $onDark ? 'opacity-50' : 'text-gray-400' }}">{{ $label }}</span>
+            @endif
+        </li>
     @endforeach
 </ul>

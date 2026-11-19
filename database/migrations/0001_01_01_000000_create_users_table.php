@@ -40,7 +40,7 @@ return new class extends Migration
 
             $table->boolean('welcome_tutorial_seen')->default(false);
             $table->timestamp('welcome_tutorial_seen_at')->nullable();
-            $table->timestamp('email_verified_at')->nullable()->after('email_verification_token');
+            $table->timestamp('email_verified_at')->nullable(); // ->after() is not valid inside CREATE TABLE
 
             // Tracking
             $table->timestamp('last_login')->nullable();

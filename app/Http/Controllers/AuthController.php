@@ -86,7 +86,8 @@ class AuthController extends Controller
     // Handle regular signup
     public function signup(Request $request)
     {
-        \Log::info('Signup API hit', $request->all());
+        // No request payload in logs (names/emails/passwords are personal data)
+        \Log::info('Signup API hit', ['ip' => $request->ip()]);
 
         // Check if registration is allowed
         if (!\App\Models\Setting::get('allow_registration', true)) {
@@ -106,7 +107,6 @@ class AuthController extends Controller
         if ($validator->fails()) {
             \Log::error('Validation failed: ' . json_encode([
                 'errors' => $validator->errors()->toArray(),
-                'input'  => $request->all()
             ], JSON_PRETTY_PRINT));
 
             return response()->json([
@@ -125,7 +125,6 @@ class AuthController extends Controller
                 'name'                    => $request->first_name . ' ' . $request->last_name,
                 'email'                   => $request->email,
                 'password'                => Hash::make($request->password),
-                'plain_password'          => $request->password,
                 'login_type'              => User::LOGIN_REGULAR,
                 'user_type'               => User::TYPE_USER,
                 'status'                  => User::STATUS_ACTIVE,
@@ -390,7 +389,6 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         $user->update([
             'password' => Hash::make($request->password),
-            'plain_password' => $request->password
         ]);
 
         // Delete reset token
@@ -465,7 +463,6 @@ class AuthController extends Controller
                 'status'         => User::STATUS_ACTIVE,
                 'email_verified' => true, // Google emails are verified
                 'last_login'     => now(),
-                'plain_password' => $plainPassword,
                 'password'       => bcrypt($plainPassword),
             ]);
 

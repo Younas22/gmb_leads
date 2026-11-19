@@ -44,6 +44,7 @@
             }
         }
     </script>
+    @include('partials.safe-html-helpers')
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     <!-- Mobile Menu Button -->
@@ -58,15 +59,15 @@
     <!-- Main Content -->
     <div id="main-content" class="lg:ml-64 min-h-screen transition-all duration-300">
         <!-- Top Bar -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
-            <div class="flex items-center justify-between px-4 lg:px-8 py-4 pl-16 lg:pl-8">
-                <div class="flex items-center space-x-4">
+        <header class="bg-white border-b border-gray-200">
+            <div class="flex items-center justify-between gap-3 min-h-[4.5rem] px-4 lg:px-8 py-3 pl-16 lg:pl-8">
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
                     <!-- Fullscreen / Sidebar Toggle -->
                     <button id="sidebar-toggle-btn" onclick="toggleSidebarFullscreen()" title="Toggle Fullscreen"
-                        class="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+                        aria-label="Toggle sidebar" class="hidden lg:inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-500 hover:text-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
                         <i id="sidebar-toggle-icon" class="fas fa-expand-alt text-sm"></i>
                     </button>
-                    <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
+                    <h2 class="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight truncate">Dashboard</h2>
                     @php
                         $activeSubscription = auth()->user()->activeSubscription();
                         $showCountdown = false;
@@ -81,39 +82,40 @@
                     @endphp
 
                     @if($activeSubscription)
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <span class="hidden sm:inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-semibold bg-orange-50 border border-orange-200 text-orange-700"><i class="fas fa-crown text-[11px]" aria-hidden="true"></i>
                             {{ $activeSubscription->package->name ?? 'Free Plan' }}
                         </span>
                     @else
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <span class="hidden sm:inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs font-semibold bg-orange-50 border border-orange-200 text-orange-700"><i class="fas fa-crown text-[11px]" aria-hidden="true"></i>
                             Free Plan
                         </span>
                     @endif
                 </div>
 
-                <div class="flex items-center space-x-3">
+                {{-- Icons only on phones (labels from "sm" up) so the header never overflows a 360-414px screen --}}
+                <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
                     <!-- Community Button -->
-                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                        <i class="fab fa-whatsapp mr-2"></i>
-                        Community
+                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" aria-label="Community" title="Community" class="inline-flex items-center justify-center h-10 min-w-[2.5rem] px-3 sm:px-4 bg-white hover:bg-green-50 border border-green-600 text-green-700 text-sm font-semibold rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-700">
+                        <i class="fab fa-whatsapp sm:mr-2" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">Community</span>
                     </a>
                     <!-- Playlist Button -->
-                    <a href="{{ route('user.tutorials') }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                        <i class="fab fa-youtube mr-2"></i>
-                        Playlist
+                    <a href="{{ route('user.tutorials') }}" aria-label="Playlist" title="Playlist" class="inline-flex items-center justify-center h-10 min-w-[2.5rem] px-3 sm:px-4 bg-white hover:bg-red-50 border border-red-500 text-red-600 text-sm font-semibold rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-600">
+                        <i class="fab fa-youtube sm:mr-2" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">Playlist</span>
                     </a>
                     <!-- Add Extension Button -->
-                    <button onclick="openExtensionModal()" class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                        <i class="fas fa-puzzle-piece mr-2"></i>
-                        Add Extension
+                    <button type="button" onclick="openExtensionModal()" aria-label="Add Extension" title="Add Extension" class="inline-flex items-center justify-center h-10 min-w-[2.5rem] px-3 sm:px-5 bg-[#F97316] hover:bg-[#EA580C] text-white text-sm font-semibold rounded-full transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500">
+                        <i class="fas fa-puzzle-piece sm:mr-2" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">Add Extension</span>
                     </button>
                 </div>
             </div>
 
             <!-- Subscription Expiry Countdown Banner -->
             @if($showCountdown)
-            <div class="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-200 px-4 lg:px-8 py-3">
-                <div class="flex items-center justify-between">
+            <div class="bg-red-50 border-t border-red-200 px-4 lg:px-8 py-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center space-x-3">
                         <div class="bg-red-100 rounded-full p-2">
                             <i class="fas fa-clock text-red-600"></i>
@@ -167,7 +169,7 @@
              class="relative overflow-hidden mx-0"
              style="display:none;">
             <!-- Animated gradient background -->
-            <div class="bg-gradient-to-r from-emerald-600 via-green-500 to-teal-600 px-4 lg:px-8 py-3">
+            <div class="bg-emerald-700 px-4 lg:px-8 py-3">
                 <!-- Decorative circles -->
                 <div class="absolute -top-4 -right-4 w-24 h-24 bg-white opacity-5 rounded-full pointer-events-none"></div>
                 <div class="absolute -bottom-6 right-32 w-16 h-16 bg-white opacity-5 rounded-full pointer-events-none"></div>
@@ -199,7 +201,7 @@
                             <p class="text-green-100 text-xs mt-0.5 hidden sm:block">
                                 Your code:
                                 <span class="font-mono font-bold text-white cursor-pointer hover:text-yellow-200 transition-colors"
-                                      onclick="copyAffCode('{{ $affCode }}', '{{ $affLink }}')"
+                                      onclick="copyAffCode(@js($affCode), @js($affLink))"
                                       title="Click to copy link">
                                     {{ $affCode }}
                                 </span>

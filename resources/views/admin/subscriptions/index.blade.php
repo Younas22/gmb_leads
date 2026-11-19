@@ -198,9 +198,9 @@
                                     @endif
                                 </div>
                             </div>
-                            @php $screenshotPath = $subscription->payments->where('screenshot', '!=', null)->first()?->screenshot; @endphp
-                            @if($screenshotPath)
-                            <a href="{{ asset('public/' . $screenshotPath) }}" target="_blank" class="mt-1.5 text-xs text-blue-600 hover:underline flex items-center">
+                            @php $screenshotPayment = $subscription->payments->where('screenshot', '!=', null)->first(); @endphp
+                            @if($screenshotPayment)
+                            <a href="{{ route('admin.payments.screenshot', $screenshotPayment) }}" target="_blank" rel="noopener" class="mt-1.5 text-xs text-blue-600 hover:underline flex items-center">
                                 <i class="fas fa-image mr-1"></i> View Screenshot
                             </a>
                             @endif
@@ -261,7 +261,7 @@
                                 $devFeature = $subscription->package ? $subscription->package->features->firstWhere('feature_key', 'max_devices') : null;
                                 $devLimit = $devFeature ? (($devFeature->is_unlimited || $devFeature->feature_value === 'unlimited') ? '∞' : $devFeature->feature_value) : '—';
                             @endphp
-                            <button onclick="openDevicesModal({{ $subscription->id }}, '{{ $subscription->user ? addslashes($subscription->user->first_name ? $subscription->user->first_name . ' ' . $subscription->user->last_name : $subscription->user->name) : 'Deleted User' }}')"
+                            <button onclick="openDevicesModal({{ $subscription->id }}, @js($subscription->user ? ($subscription->user->first_name ? $subscription->user->first_name . ' ' . $subscription->user->last_name : $subscription->user->name) : 'Deleted User'))"
                                 class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
                                 <i class="fas fa-laptop mr-1.5"></i>{{ $devUsed }} / {{ $devLimit }}
                             </button>
@@ -278,7 +278,12 @@
                             <button onclick="openEditModal({{ $subscription->id }})" class="text-primary-600 hover:text-primary-900 mr-3" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="confirmDelete({{ $subscription->id }}, '{{ $subscription->user ? addslashes($subscription->user->name) : 'Unknown' }}')" class="text-red-600 hover:text-red-900" title="Delete">
+                            @php $customFeatures = $customFeatureCounts[$subscription->user_id] ?? 0; @endphp
+                            <a href="{{ route('admin.subscriptions.features', $subscription) }}" class="relative inline-block {{ $customFeatures ? 'text-orange-600 hover:text-orange-800' : 'text-gray-500 hover:text-gray-800' }} mr-3" title="Custom features for this user{{ $customFeatures ? ' (' . $customFeatures . ' set)' : '' }}" aria-label="Custom features for this user">
+                                <i class="fas fa-sliders"></i>
+                                @if($customFeatures)<span class="absolute -top-2 -right-2 min-w-[1rem] h-4 px-1 rounded-full bg-orange-500 text-white text-[10px] leading-4 text-center">{{ $customFeatures }}</span>@endif
+                            </a>
+                            <button onclick="confirmDelete({{ $subscription->id }}, @js($subscription->user ? $subscription->user->name : 'Unknown'))" class="text-red-600 hover:text-red-900" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>

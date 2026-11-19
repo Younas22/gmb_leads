@@ -22,3 +22,25 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# User uploads (personal data) — never commit
+/public/assets/avatar/*
+!/public/assets/avatar/.htaccess
+!/public/assets/avatar/placeholder.jpg
+!/public/assets/avatar/placeholder-image.jpeg
+/public/images/payments/*
+!/public/images/payments/.htaccess
+
+# Database dumps, backups and local databases (customer data) — never commit
+*.sql
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+/db/
+/backups/
+
+# Any environment file except the empty template
+.env.*
+!.env.example

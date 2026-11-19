@@ -179,7 +179,29 @@ class SubscriptionController extends Controller
             ->orderBy('last_seen_at', 'desc')
             ->get();
 
+        // AI and email usage of the current plan: [label, icon, used, limit (-1 unlimited, 0 not included), period]
+        $owner = $user->getAccountOwner();
+        $aiQuota = app(\App\Services\Ai\AiQuota::class);
+        $resendQuota = app(\App\Services\Resend\ResendQuota::class);
+        $gmail = app(\App\Services\Gmail\OutboundEmailService::class);
+        // Admin lock message for a usage tile: the first locked key wins (null when nothing is locked)
+        $lockOf = function (array $keys) use ($user) {
+            foreach ($keys as $key) {
+                if ($message = \App\Services\PlanFeatures::lockMessage($user, $key)) {
+                    return $message;
+                }
+            }
+            return null;
+        };
+        $featureUsage = [
+            ['AI Website Analyses', 'fa-magnifying-glass-chart', $aiQuota->used($owner, 'website_audit'), $aiQuota->limit($user, 'website_audit'), 'this month', $lockOf(['ai_sales_profile_enabled', 'ai_audits_monthly'])],
+            ['AI Email Drafts', 'fa-wand-magic-sparkles', $aiQuota->used($owner, 'email_draft'), $aiQuota->limit($user, 'email_draft'), 'this month', $lockOf(['ai_sales_profile_enabled', 'ai_email_drafts_monthly'])],
+            ['Gmail Emails', 'fa-envelope', \App\Services\PlanFeatures::enabled($user, 'gmail_sending_enabled') ? $gmail->sentToday($user) : 0, \App\Services\PlanFeatures::enabled($user, 'gmail_sending_enabled') ? $gmail->dailyLimit($user) : 0, 'today', $lockOf(['gmail_sending_enabled', 'email_sends_daily'])],
+            ['Resend Emails', 'fa-paper-plane', $resendQuota->used($owner, \App\Services\Resend\ResendQuota::MONTHLY), $resendQuota->limit($user, \App\Services\Resend\ResendQuota::MONTHLY), 'this month', $lockOf(['resend_connection_enabled', 'resend_emails_monthly'])],
+        ];
+
         return view('user.subscription', compact(
+            'featureUsage',
             'user',
             'currentPlan',
             'availablePlans',
@@ -293,15 +315,13 @@ class SubscriptionController extends Controller
         $request->validate([
             'package_id'        => 'required|exists:packages,id',
             'payment_method_id' => 'required|exists:payment_methods,id',
-            'screenshot'        => 'required|file|mimes:jpg,jpeg,png,gif|max:5120',
+            'screenshot'        => 'required|file|image|mimes:jpg,jpeg,png,gif,webp|extensions:jpg,jpeg,png,gif,webp|max:5120',
         ]);
         $package = Package::find($request->package_id);
 
-        // Screenshot store karo - public/images/payments folder mein
-        $file = $request->file('screenshot');
-        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('images/payments'), $filename);
-        $screenshotPath = 'images/payments/' . $filename;
+        // Payment proofs are private: stored outside the web root (storage/app/private/payments)
+        // and only viewable by admins through admin.payments.screenshot.
+        $screenshotPath = \App\Support\SecureUpload::storePrivate($request->file('screenshot'), 'payments');
 
         // Pending subscription banao
         $subscription = Subscription::create([

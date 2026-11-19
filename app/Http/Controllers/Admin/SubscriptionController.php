@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserFeatureOverride;
+use App\Services\FeatureOverrides;
+use App\Support\PlanFeatureCatalog;
 use App\Models\Subscription;
 use App\Models\Package;
 use App\Models\User;
@@ -12,6 +15,7 @@ use App\Models\Setting;
 use App\Models\UserExtensionDevice;
 use App\Services\AffiliateService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class SubscriptionController extends Controller
@@ -72,7 +76,13 @@ class SubscriptionController extends Controller
             'total_revenue' => Payment::completed()->sum('amount'),
         ];
 
-        return view('admin.subscriptions.index', compact('subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats', 'currencyCode', 'currencySymbol', 'deviceCounts'));
+        // Users with custom features (admin overrides), for the badge on the Custom features action
+        $customFeatureCounts = FeatureOverrides::installed()
+            ? UserFeatureOverride::whereIn('user_id', $subscriptions->getCollection()->pluck('user_id')->filter()->unique())
+                ->selectRaw('user_id, COUNT(*) as total')->groupBy('user_id')->pluck('total', 'user_id')->all()
+            : [];
+
+        return view('admin.subscriptions.index', compact('customFeatureCounts', 'subscriptions', 'packages', 'allPackages', 'users', 'paymentMethods', 'stats', 'currencyCode', 'currencySymbol', 'deviceCounts'));
     }
 
     /**
@@ -394,4 +404,92 @@ class SubscriptionController extends Controller
         return redirect()->route('admin.subscriptions.index')->with('success', 'Payment added successfully.');
     }
 
+
+    /**
+     * Custom features for this subscription's user: change any package feature for this one
+     * user (another value, unlimited, or locked with a message). Saved per user, so it also
+     * applies after a renewal; team members of a company follow the company owner's settings.
+     */
+    public function features(Subscription $subscription)
+    {
+        $subscription->load(['user', 'package.features']);
+        $installed = FeatureOverrides::installed();
+        $overrides = $installed && $subscription->user_id
+            ? UserFeatureOverride::where('user_id', $subscription->user_id)->get()->keyBy('feature_key')
+            : collect();
+
+        return view('admin.subscriptions.features', [
+            'subscription' => $subscription,
+            'rows' => $this->featureRows($subscription, $overrides),
+            'installed' => $installed,
+        ]);
+    }
+
+    public function updateFeatures(Request $request, Subscription $subscription)
+    {
+        abort_unless(FeatureOverrides::installed(), 409, 'Run the database migrations first.');
+        abort_unless($subscription->user_id, 404);
+
+        $request->validate([
+            'features' => 'nullable|array',
+            'features.*.mode' => 'required|in:package,custom,locked',
+            'features.*.value' => 'nullable|string|max:255',
+            'features.*.lock_message' => 'nullable|string|max:255',
+        ]);
+
+        $subscription->load('package.features');
+        $allowed = array_keys($this->featureRows($subscription, UserFeatureOverride::where('user_id', $subscription->user_id)->get()->keyBy('feature_key')));
+        $saved = 0;
+
+        DB::transaction(function () use ($request, $subscription, $allowed, &$saved) {
+            UserFeatureOverride::where('user_id', $subscription->user_id)->delete();
+
+            foreach ((array) $request->input('features', []) as $key => $f) {
+                if (!in_array((string) $key, $allowed, true) || ($f['mode'] ?? 'package') === 'package') {
+                    continue;
+                }
+                $locked = $f['mode'] === 'locked';
+                $unlimited = !$locked && !empty($f['is_unlimited']);
+
+                UserFeatureOverride::create([
+                    'user_id' => $subscription->user_id,
+                    'feature_key' => (string) $key,
+                    'feature_value' => $locked || $unlimited ? null : (trim((string) ($f['value'] ?? '')) ?: '0'),
+                    'is_unlimited' => $unlimited,
+                    'is_locked' => $locked,
+                    'lock_message' => $locked ? (trim((string) ($f['lock_message'] ?? '')) ?: null) : null,
+                ]);
+                $saved++;
+            }
+        });
+        app(FeatureOverrides::class)->forget((int) $subscription->user_id);
+
+        return redirect()->route('admin.subscriptions.features', $subscription)
+            ->with('success', $saved ? "Saved {$saved} custom feature" . ($saved === 1 ? '' : 's') . ' for this user.' : 'This user now uses the package features only.');
+    }
+
+    /**
+     * Every feature an admin can customise: the catalog plus any other key the package (or an
+     * existing override) uses.
+     *
+     * @return array<string, array{name: string, desc: string, type: string, group: string, package: ?object, override: ?object}>
+     */
+    private function featureRows(Subscription $subscription, $overrides): array
+    {
+        $packageRows = $subscription->package ? $subscription->package->features->keyBy('feature_key') : collect();
+        $rows = [];
+
+        foreach (PlanFeatureCatalog::FEATURES as $key => [$name, $desc, $type, , $group]) {
+            $rows[$key] = ['name' => $name, 'desc' => $desc, 'type' => $type, 'group' => PlanFeatureCatalog::GROUPS[$group] ?? 'Other',
+                'package' => $packageRows->get($key), 'override' => $overrides->get($key)];
+        }
+        foreach (array_unique(array_merge($packageRows->keys()->all(), $overrides->keys()->all())) as $key) {
+            if (!isset($rows[$key]) && preg_match('/^[a-z0-9_]{1,100}$/', (string) $key)) {
+                $rows[$key] = ['name' => ucwords(str_replace('_', ' ', $key)), 'desc' => '', 'type' => 'text', 'group' => 'Other package features',
+                    'package' => $packageRows->get($key), 'override' => $overrides->get($key)];
+            }
+        }
+
+        return $rows;
+    }
 }

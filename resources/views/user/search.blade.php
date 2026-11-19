@@ -6,26 +6,108 @@
 
 @section('content')
 
-<div class="p-4 lg:p-8">
+{{-- Find Leads page look: Poppins + custom fields (this page only). Kept outside the .p-4.lg:p-8
+     wrapper, whose innerHTML is replaced when results come back. --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* Page tokens (this page only) */
+    body.bg-gray-50 { background-color: #f8fafc; }
+    .cnm-find, .cnm-find button, .cnm-find input, .cnm-find select, .select2-dropdown,
+    #sidebar, #main-content > header { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
 
-<!-- Search Heading -->
-<div class="mb-5">
-    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl px-6 py-5 text-white">
-        <div class="flex items-center gap-4">
-            <div class="bg-white bg-opacity-20 rounded-xl p-3 flex-shrink-0">
-                <i class="fas fa-search text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold leading-tight">Find Your Next Business Leads</h1>
-                <p class="text-orange-100 text-sm mt-0.5">Search businesses by keyword &amp; location — grab contacts, ratings, and more in seconds</p>
-            </div>
-        </div>
-    </div>
+    /* Field shell: label above, outlined field with a leading icon */
+    .cnm-find { --field-h: 60px; --field-border: #dce3ed; --focus: #f97316; --focus-ring: rgba(249, 115, 22, .16); }
+    @media (max-width: 639px) { .cnm-find { --field-h: 56px; } }
+    .cnm-label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; row-gap: 4px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #111827; }
+    .cnm-label .req { color: #dc2626; }
+    .cnm-field { position: relative; }
+    .cnm-field-icon { position: absolute; left: 0; top: 0; z-index: 2; width: 50px; height: var(--field-h); display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 15px; pointer-events: none; transition: color .15s ease; }
+    .cnm-field:focus-within .cnm-field-icon { color: var(--focus); }
+    .cnm-error { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: #dc2626; }
+
+    /* Native inputs / selects */
+    .cnm-input { width: 100%; height: var(--field-h); padding: 0 18px; border: 1px solid var(--field-border); border-radius: 14px; background-color: #ffffff; color: #111827; font-size: 15px; font-weight: 500; transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease; }
+    .cnm-input::placeholder { color: #94a3b8; font-weight: 400; }
+    .cnm-input:hover { border-color: #b6c2d2; }
+    .cnm-input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 4px var(--focus-ring); }
+    .cnm-input:disabled { background-color: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    .cnm-field.has-icon .cnm-input { padding-left: 50px; }
+    select.cnm-input { -webkit-appearance: none; -moz-appearance: none; appearance: none; padding-right: 46px; cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; }
+
+    /* Select2 single selects: the real visible control */
+    .cnm-find .select2-container { width: 100% !important; }
+    .cnm-find .select2-container--default .select2-selection--single { height: var(--field-h) !important; border: 1px solid var(--field-border) !important; border-radius: 14px !important; background-color: #ffffff !important; outline: none !important; transition: border-color .15s ease, box-shadow .15s ease; }
+    .cnm-find .select2-container--default .select2-selection--single:hover { border-color: #b6c2d2 !important; }
+    .cnm-find .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: calc(var(--field-h) - 2px) !important; padding-left: 18px !important; padding-right: 46px !important; color: #111827 !important; font-size: 15px !important; font-weight: 500 !important; }
+    .cnm-find .cnm-field.has-icon .select2-selection--single .select2-selection__rendered { padding-left: 50px !important; }
+    .cnm-find .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #94a3b8 !important; font-weight: 400 !important; }
+    .cnm-find .select2-container--default .select2-selection--single .select2-selection__arrow { height: calc(var(--field-h) - 2px) !important; width: 44px !important; right: 4px !important; top: 0 !important;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat center / 16px; transition: transform .15s ease; }
+    .cnm-find .select2-container--default .select2-selection--single .select2-selection__arrow b { display: none !important; }
+    .cnm-find .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow { transform: rotate(180deg); }
+    .cnm-find .select2-container--default.select2-container--focus .select2-selection--single,
+    .cnm-find .select2-container--default.select2-container--open .select2-selection--single { border-color: var(--focus) !important; box-shadow: 0 0 0 4px var(--focus-ring) !important; border-radius: 14px !important; }
+    .cnm-find .select2-container--default.select2-container--disabled .select2-selection--single { background-color: #f1f5f9 !important; border-color: #e2e8f0 !important; cursor: not-allowed !important; }
+    .cnm-find .select2-container--default.select2-container--disabled .select2-selection__rendered,
+    .cnm-find .select2-container--default.select2-container--disabled .select2-selection__placeholder { color: #94a3b8 !important; }
+    .cnm-find .select2-container--default .select2-selection__clear { color: #94a3b8 !important; font-size: 18px !important; margin-right: 4px !important; }
+    .cnm-find .select2-container--default .select2-selection__clear:hover { color: #dc2626 !important; }
+
+    /* Validation error */
+    .cnm-field.is-invalid .cnm-input,
+    .cnm-field.is-invalid .select2-container--default .select2-selection--single { border-color: #dc2626 !important; }
+    .cnm-field.is-invalid .cnm-field-icon { color: #dc2626; }
+
+    /* Search Query: the dominant field */
+    .cnm-field.is-primary { --field-h: 64px; }
+    @media (max-width: 639px) { .cnm-field.is-primary { --field-h: 58px; } }
+    .cnm-field.is-primary .cnm-field-icon { color: #f97316; font-size: 17px; width: 54px; }
+    .cnm-find .cnm-field.is-primary .select2-selection--single { border-color: #c3cdda !important; }
+    .cnm-find .cnm-field.is-primary .select2-selection--single .select2-selection__rendered { font-size: 16px !important; padding-left: 54px !important; }
+
+    /* Select2 dropdown (attached to <body>, so never clipped by the cards) */
+    .select2-container--open .select2-dropdown { z-index: 1060; }
+    .select2-dropdown { border: 1px solid #e2e8f0 !important; border-radius: 14px !important; box-shadow: 0 18px 36px -14px rgba(15, 23, 42, .28) !important; overflow: hidden; }
+    .select2-dropdown--below { margin-top: 6px !important; }
+    .select2-dropdown--above { margin-top: -6px !important; }
+    .select2-container--default .select2-search--dropdown { padding: 8px !important; }
+    .select2-container--default .select2-search--dropdown .select2-search__field { height: 44px; border: 1px solid #dce3ed !important; border-radius: 10px !important; padding: 0 14px !important; font-size: 14px !important; color: #111827; outline: none !important; }
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus { border-color: #f97316 !important; box-shadow: 0 0 0 3px rgba(249, 115, 22, .16) !important; }
+    .select2-container--default .select2-results > .select2-results__options { max-height: min(300px, 50vh) !important; }
+    .select2-container--default .select2-results__option { padding: 11px 16px !important; font-size: 14px !important; color: #334155; }
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted[aria-selected]:hover,
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { background-color: #fff7ed !important; color: #c2410c !important; }
+    .select2-container--default .select2-results__option[aria-selected="true"],
+    .select2-container--default .select2-results__option--selected { background-color: #f8fafc !important; color: #111827 !important; font-weight: 600; }
+    .select2-container--default .select2-results__message,
+    .select2-container--default .select2-results__option--loading { color: #64748b !important; }
+
+    /* Primary action: same height as the fields */
+    .cnm-btn { height: var(--field-h); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .cnm-find *, .select2-dropdown, .select2-selection__arrow { transition: none !important; }
+    }
+</style>
+
+<div class="p-4 lg:p-8 cnm-find">
+
+<div class="max-w-[1080px] mx-auto">
+
+<!-- Search Heading (centred, compact) -->
+<div class="text-center pt-2 sm:pt-6 pb-6 sm:pb-8 px-2">
+    <h1 class="text-[26px] sm:text-[34px] leading-tight font-bold text-gray-900 tracking-tight">Find Your Next Business Leads</h1>
+    <p class="mt-2 text-sm sm:text-[15px] leading-relaxed text-slate-500 max-w-xl mx-auto">Search businesses by keyword &amp; location — grab contacts, ratings, and more in seconds</p>
 </div>
 
-<!-- Search Form -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
-    <form action="{{ route('user.search.post') }}" method="POST" id="searchForm">
+<!-- Search Form: the focus of the page -->
+<div class="bg-white rounded-[20px] border border-slate-200 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_16px_40px_-24px_rgba(15,23,42,0.22)] mb-6">
+    <form action="{{ route('user.search.post') }}" method="POST" id="searchForm" class="p-5 sm:p-8 lg:p-10 space-y-6 sm:space-y-7">
         @csrf
         <input type="hidden" name="page_token" id="page_token" value="">
         <input type="hidden" name="original_lat" id="original_lat" value="{{ $searchData['original_lat'] ?? '' }}">
@@ -33,247 +115,248 @@
         <input type="hidden" name="original_state_id" id="original_state_id" value="{{ $searchData['state_id'] ?? '' }}">
         <input type="hidden" name="original_city_id" id="original_city_id" value="{{ $searchData['city_id'] ?? '' }}">
 
-        <!-- Location hint -->
-        <div class="px-4 pt-4">
-            <div class="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-2">
-                <i class="fas fa-info-circle text-blue-400 flex-shrink-0 text-sm"></i>
-                <p class="text-xs text-blue-700">Select <strong>Country</strong> first to unlock State &amp; City. Choose only <strong>State</strong> to search the entire state, or also select a <strong>City</strong> to narrow results to that city only.</p>
-            </div>
-        </div>
-
-        <!-- Row 1: Country, State, City -->
-        <div class="p-4 pb-0">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Row 1: Location (Country, State, City) -->
+        <fieldset class="min-w-0">
+            <legend class="sr-only">Location</legend>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-globe text-[10px] mr-1"></i>Country <span class="text-red-400">*</span></label>
-                    <select name="country_id"
-                            id="country_select"
-                            required
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                        <option value="">Select Country</option>
-                        @if(isset($countries))
-                            @foreach($countries as $country)
-                                <option value="{{ $country->id }}"
-                                        data-name="{{ $country->name }}"
-                                        data-lat="{{ $country->latitude }}"
-                                        data-lng="{{ $country->longitude }}"
-                                        {{ old('country_id', $searchData['country_id'] ?? '') == $country->id ? 'selected' : '' }}>
-                                    {{ $country->name }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <label for="country_select" class="cnm-label">Country <span class="req" aria-hidden="true">*</span></label>
+                    <div class="cnm-field has-icon @error('country_id') is-invalid @enderror">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-globe"></i></span>
+                        <select name="country_id"
+                                id="country_select"
+                                required
+                                aria-describedby="location-hint @error('country_id') country_select-error @enderror"
+                                @error('country_id') aria-invalid="true" @enderror
+                                class="cnm-input">
+                            <option value="">Select Country</option>
+                            @if(isset($countries))
+                                @foreach($countries as $country)
+                                    <option value="{{ $country->id }}"
+                                            data-name="{{ $country->name }}"
+                                            data-lat="{{ $country->latitude }}"
+                                            data-lng="{{ $country->longitude }}"
+                                            {{ old('country_id', $searchData['country_id'] ?? '') == $country->id ? 'selected' : '' }}>
+                                        {{ $country->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
                     @error('country_id')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        <p id="country_select-error" class="cnm-error" role="alert"><i class="fas fa-circle-exclamation" aria-hidden="true"></i>{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-map text-[10px] mr-1"></i>State</label>
-                    <select name="state_id"
-                            id="state_select"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                            disabled>
-                        <option value="">Select State</option>
-                    </select>
+                    <label for="state_select" class="cnm-label">State</label>
+                    <div class="cnm-field has-icon @error('state_id') is-invalid @enderror">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-map"></i></span>
+                        <select name="state_id"
+                                id="state_select"
+                                @error('state_id') aria-invalid="true" aria-describedby="state_select-error" @enderror
+                                class="cnm-input"
+                                disabled>
+                            <option value="">Select State</option>
+                        </select>
+                    </div>
                     @error('state_id')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        <p id="state_select-error" class="cnm-error" role="alert"><i class="fas fa-circle-exclamation" aria-hidden="true"></i>{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-city text-[10px] mr-1"></i>City</label>
-                    <select name="city_id"
-                            id="city_select"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
-                            disabled>
-                        <option value="">Select City</option>
-                    </select>
+                    <label for="city_select" class="cnm-label">City</label>
+                    <div class="cnm-field has-icon @error('city_id') is-invalid @enderror">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-city"></i></span>
+                        <select name="city_id"
+                                id="city_select"
+                                @error('city_id') aria-invalid="true" aria-describedby="city_select-error" @enderror
+                                class="cnm-input"
+                                disabled>
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
                     @error('city_id')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        <p id="city_select-error" class="cnm-error" role="alert"><i class="fas fa-circle-exclamation" aria-hidden="true"></i>{{ $message }}</p>
                     @enderror
                 </div>
             </div>
-        </div>
+            <p id="location-hint" class="mt-3 flex items-start gap-2 text-[13px] leading-relaxed text-slate-500">
+                <i class="fas fa-info-circle text-blue-600 mt-[3px] flex-shrink-0" aria-hidden="true"></i>
+                <span>Select <strong class="font-semibold text-gray-900">Country</strong> first to unlock State &amp; City. Choose only <strong class="font-semibold text-gray-900">State</strong> to search the entire state, or also select a <strong class="font-semibold text-gray-900">City</strong> to narrow results to that city only.</span>
+            </p>
+        </fieldset>
 
-        <!-- Row 2: Search Query (full width) -->
-        <div class="px-4 pt-3">
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                    <i class="fas fa-search text-[10px] mr-1"></i>Search Query <span class="text-red-400">*</span>
-                    <span class="ml-2 inline-flex items-center gap-1 bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-semibold px-2 py-0.5 rounded-full normal-case tracking-normal">
-                        <i class="fas fa-layer-group text-[9px]"></i>
-                        {{ number_format($nicheCount) }} niches available
-                    </span>
-                </label>
-                <select name="query"
-                        id="search_query"
-                        required
-                        class="w-full">
-                    @if(old('query', $searchData['query'] ?? ''))
-                        <option value="{{ old('query', $searchData['query'] ?? '') }}" selected>{{ old('query', $searchData['query'] ?? '') }}</option>
+        <!-- Row 2: Search Query (dominant) + Radius + action -->
+        <div class="pt-6 sm:pt-7 border-t border-slate-100">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_190px_auto] gap-4 sm:gap-5 items-end">
+                <div class="sm:col-span-2 xl:col-span-1 min-w-0">
+                    <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 mb-2">
+                        <label for="search_query" class="cnm-label !mb-0 !text-sm">Search Query <span class="req" aria-hidden="true">*</span></label>
+                        <span class="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold whitespace-nowrap">
+                            <i class="fas fa-layer-group text-[11px]" aria-hidden="true"></i>
+                            {{ number_format($nicheCount) }} niches available
+                        </span>
+                    </div>
+                    <div class="cnm-field has-icon is-primary @error('query') is-invalid @enderror">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-search"></i></span>
+                        <select name="query"
+                                id="search_query"
+                                required
+                                @error('query') aria-invalid="true" aria-describedby="search_query-error" @enderror
+                                class="w-full">
+                            @if(old('query', $searchData['query'] ?? ''))
+                                <option value="{{ old('query', $searchData['query'] ?? '') }}" selected>{{ old('query', $searchData['query'] ?? '') }}</option>
+                            @endif
+                        </select>
+                    </div>
+                    @error('query')
+                        <p id="search_query-error" class="cnm-error" role="alert"><i class="fas fa-circle-exclamation" aria-hidden="true"></i>{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="radius_select" class="cnm-label">Radius</label>
+                    <div class="cnm-field has-icon">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-crosshairs"></i></span>
+                        <select name="radius"
+                                id="radius_select"
+                                class="cnm-input">
+                            <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
+                            <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
+                            <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
+                            <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
+                            <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    @if($extensionMode)
+                        {{-- Extension Mode: opens Google Maps in a new tab --}}
+                        <button type="submit" id="searchBtn" class="cnm-btn w-full xl:w-auto inline-flex items-center justify-center gap-2.5 px-7 rounded-[14px] bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-[15px] font-semibold shadow-sm transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+                            <span id="btnText">Open in Google Maps</span>
+                        </button>
+                    @else
+                        <button type="submit" id="searchBtn" class="cnm-btn w-full xl:w-auto inline-flex items-center justify-center px-8 rounded-[14px] bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-[15px] font-semibold shadow-sm transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed">
+                            <i class="fas fa-search mr-2" id="searchIcon"></i>
+                            <span id="btnText">Search</span>
+                        </button>
                     @endif
-                </select>
-                @error('query')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
+                </div>
             </div>
-        </div>
 
-        <!-- Row 3: Radius, Max Reviews, Review Within Days, Search Button -->
-        <div class="p-4 pt-3 pb-4">
-            @if($extensionMode)
-            {{-- Extension Mode: 2-col layout --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @unless($extensionMode)
+            {{-- Normal Mode: review filters --}}
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 xl:max-w-[60%]">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-crosshairs text-[10px] mr-1"></i>Radius</label>
-                    <select name="radius"
-                            id="radius_select"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                        <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
-                        <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
-                        <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
-                        <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
-                        <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button type="submit" id="searchBtn" class="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold px-8 py-2.5 rounded-lg transition-all shadow-sm hover:shadow text-sm flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
-                        <span id="btnText">Open in Google Maps</span>
-                    </button>
-                </div>
-            </div>
-            @else
-            {{-- Normal Mode: 4-col layout --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-crosshairs text-[10px] mr-1"></i>Radius</label>
-                    <select name="radius"
-                            id="radius_select"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                        <option value="5" {{ old('radius', $searchData['radius'] ?? 10) == 5 ? 'selected' : '' }}>5 km</option>
-                        <option value="10" {{ old('radius', $searchData['radius'] ?? 10) == 10 ? 'selected' : '' }}>10 km</option>
-                        <option value="25" {{ old('radius', $searchData['radius'] ?? 10) == 25 ? 'selected' : '' }}>25 km</option>
-                        <option value="50" {{ old('radius', $searchData['radius'] ?? 10) == 50 ? 'selected' : '' }}>50 km</option>
-                        <option value="100" {{ old('radius', $searchData['radius'] ?? 10) == 100 ? 'selected' : '' }}>100 km</option>
-                    </select>
+                    <label for="review_max" class="cnm-label">Max Reviews</label>
+                    <div class="cnm-field has-icon">
+                        <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-star"></i></span>
+                        <input type="number"
+                               name="review_max"
+                               id="review_max"
+                               value="{{ old('review_max', $searchData['review_max'] ?? 0) }}"
+                               placeholder="0 = No filter"
+                               min="0"
+                               class="cnm-input">
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-star text-[10px] mr-1"></i>Max Reviews</label>
-                    <input type="number"
-                           name="review_max"
-                           id="review_max"
-                           value="{{ old('review_max', $searchData['review_max'] ?? 0) }}"
-                           placeholder="0 = No filter"
-                           min="0"
-                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
-                </div>
-                <div class="relative">
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5"><i class="fas fa-calendar-alt text-[10px] mr-1"></i>Review Within Days</label>
+                    <label class="cnm-label" @if(auth()->user()->hasFeature('latest_review_insights')) for="latest_review_within_days" @endif>Review Within Days</label>
                     @if(!auth()->user()->hasFeature('latest_review_insights'))
-                        <div class="relative">
+                        <div class="cnm-field has-icon">
+                            <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
                             <input type="number"
                                    value="0"
                                    disabled
-                                   class="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 text-sm cursor-not-allowed">
+                                   aria-label="Review Within Days (locked on your plan)"
+                                   class="cnm-input">
                             <input type="hidden" name="latest_review_within_days" value="0">
                             <a href="{{ route('user.subscription') }}"
-                               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow"
+                               class="absolute top-1/2 -translate-y-1/2 right-3 z-10 inline-flex items-center gap-1 h-9 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-1"
                                title="Upgrade to unlock this filter">
-                                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
+                                <i class="fas fa-lock text-[10px]" aria-hidden="true"></i>Upgrade
                             </a>
                         </div>
                     @else
-                        <input type="number"
-                               name="latest_review_within_days"
-                               id="latest_review_within_days"
-                               value="{{ old('latest_review_within_days', $searchData['latest_review_within_days'] ?? 0) }}"
-                               placeholder="0 = No filter"
-                               min="0"
-                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <div class="cnm-field has-icon">
+                            <span class="cnm-field-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
+                            <input type="number"
+                                   name="latest_review_within_days"
+                                   id="latest_review_within_days"
+                                   value="{{ old('latest_review_within_days', $searchData['latest_review_within_days'] ?? 0) }}"
+                                   placeholder="0 = No filter"
+                                   min="0"
+                                   class="cnm-input">
+                        </div>
                     @endif
                 </div>
-                <div class="flex items-end">
-                    <button type="submit" id="searchBtn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold px-8 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none text-sm">
-                        <i class="fas fa-search mr-2" id="searchIcon"></i>
-                        <span id="btnText">Search</span>
-                    </button>
-                </div>
             </div>
-            @endif
+            @endunless
         </div>
     </form>
-    
+
     <!-- Progress Bar (Hidden by default) -->
-    <div id="progressContainer" class="mt-4 px-4 pb-4 hidden">
-        <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+    <div id="progressContainer" class="px-5 sm:px-8 lg:px-10 pb-6 hidden">
+        <div class="bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div id="progressBar" class="bg-orange-500 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
         </div>
         <div class="flex justify-between items-center mt-2">
-            <p class="text-sm text-gray-600" id="progressText">Initializing search...</p>
-            <span class="text-sm font-medium text-gray-700" id="progressPercent">0%</span>
+            <p class="text-sm text-slate-600" id="progressText">Initializing search...</p>
+            <span class="text-sm font-semibold text-slate-800" id="progressPercent">0%</span>
         </div>
     </div>
-    
+
     {{-- Errors are now shown in modal via JavaScript --}}
-    
+
     @if(session('success'))
-        <div class="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-            <i class="fas fa-check-circle mr-2"></i>
+        <div class="mx-5 sm:mx-8 lg:mx-10 mb-6 bg-green-50 border border-green-200 text-green-800 text-sm px-4 py-3 rounded-xl">
+            <i class="fas fa-check-circle mr-2" aria-hidden="true"></i>
             {{ session('success') }}
         </div>
     @endif
 
     @if(session('info'))
-        <div class="mt-4 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
-            <i class="fas fa-info-circle mr-2"></i>
+        <div class="mx-5 sm:mx-8 lg:mx-10 mb-6 bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3 rounded-xl">
+            <i class="fas fa-info-circle mr-2" aria-hidden="true"></i>
             {{ session('info') }}
         </div>
     @endif
 </div>
 
-<!-- Search Tips & Instructions -->
+<!-- Quick Tips: compact, below the form -->
 @if(!isset($searchPerformed) || !$searchPerformed)
-<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border border-blue-100 mb-6">
-    <div class="flex items-start space-x-4">
-        <div class="bg-blue-100 p-3 rounded-full">
-            <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
-        </div>
-        <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">Search Tips for Better Results</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                    <h4 class="font-medium text-gray-700 mb-2">Search Query Examples:</h4>
-                    <ul class="space-y-1 text-gray-600">
-                        <li>• restaurants</li>
-                        <li>• hotels</li>
-                        <li>• travel agencies</li>
-                        <li>• car dealerships</li>
-                        <li>• beauty salons</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-medium text-gray-700 mb-2">Pro Tips:</h4>
-                    <ul class="space-y-1 text-gray-600">
-                        <li>• Enter only the business type — no city or country needed</li>
-                        <li>• Use the location field below to target a specific area</li>
-                        <li>• Adjust the radius to widen or narrow your search area</li>
-                        <li>• Try different keywords if results are too few</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mt-4 p-3 bg-white rounded-lg border border-blue-200">
-                <p class="text-sm text-gray-700">
-                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                    <strong>Note:</strong> Search results include business details, contact information, ratings, and social media links when available.
-                </p>
-            </div>
-        </div>
+<section class="mb-6 rounded-2xl bg-slate-50 border border-slate-200 px-5 sm:px-6 py-5" aria-labelledby="search-tips-title">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <h3 id="search-tips-title" class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+            <i class="fas fa-lightbulb text-yellow-600" aria-hidden="true"></i>Quick Tips
+        </h3>
+        <span class="text-xs text-slate-500">Search Query Examples:</span>
+        <ul class="flex flex-wrap items-center gap-1.5" aria-label="Search Query Examples">
+            <li class="inline-flex items-center h-7 px-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium">restaurants</li>
+            <li class="inline-flex items-center h-7 px-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium">hotels</li>
+            <li class="inline-flex items-center h-7 px-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium">travel agencies</li>
+            <li class="inline-flex items-center h-7 px-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium">car dealerships</li>
+            <li class="inline-flex items-center h-7 px-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs font-medium">beauty salons</li>
+        </ul>
     </div>
-</div>
+    <ul class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2.5 text-[13px] leading-snug text-slate-600">
+        <li class="flex items-start gap-2.5"><i class="fas fa-keyboard text-slate-400 w-4 text-center mt-0.5 flex-shrink-0" aria-hidden="true"></i>Enter only the business type — no city or country needed</li>
+        <li class="flex items-start gap-2.5"><i class="fas fa-location-dot text-slate-400 w-4 text-center mt-0.5 flex-shrink-0" aria-hidden="true"></i>Use the location field below to target a specific area</li>
+        <li class="flex items-start gap-2.5"><i class="fas fa-crosshairs text-slate-400 w-4 text-center mt-0.5 flex-shrink-0" aria-hidden="true"></i>Adjust the radius to widen or narrow your search area</li>
+        <li class="flex items-start gap-2.5"><i class="fas fa-rotate text-slate-400 w-4 text-center mt-0.5 flex-shrink-0" aria-hidden="true"></i>Try different keywords if results are too few</li>
+    </ul>
+    <p class="mt-4 pt-4 border-t border-slate-200 flex items-start gap-2.5 text-[13px] leading-snug text-slate-600">
+        <i class="fas fa-info-circle text-blue-600 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+        <span><strong class="font-semibold text-gray-900">Note:</strong> Search results include business details, contact information, ratings, and social media links when available.</span>
+    </p>
+</section>
 @endif
 
+</div>{{-- /max-w --}}
 
     @if(isset($searchPerformed) && $searchPerformed && isset($formattedResults))
         <!-- Results Header -->
@@ -306,7 +389,7 @@
                         @if(isset($nextPageToken) && !empty($nextPageToken))
                             <button type="button" 
                                     id="loadMoreBtn"
-                                    onclick="loadNextPage('{{ $nextPageToken }}')"
+                                    onclick="loadNextPage(@js($nextPageToken))"
                                     class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-6 py-2 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                                 <i class="fas fa-chevron-right mr-2" id="loadMoreIcon"></i>
                                 <span id="loadMoreText">Load More Results</span>
@@ -384,7 +467,7 @@
                                     <div class="flex items-center space-x-2">
                                         <i class="fas fa-globe text-primary-600"></i>
                                         @if($result['website'])
-                                            <a href="{{ $result['website'] }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                            <a href="{{ \App\Support\SafeUrl::href($result['website']) }}" rel="noopener noreferrer" target="_blank" class="text-blue-600 hover:text-blue-800">
                                                 {{ str_replace(['http://', 'https://'], '', $result['website']) }}
                                             </a>
                                         @else
@@ -424,7 +507,7 @@
                                                     $color = 'text-black';
                                                 }
                                             @endphp
-                                            <a href="{{ $social_link }}" target="_blank" class="{{ $color }} hover:opacity-80 transition-opacity">
+                                            <a href="{{ \App\Support\SafeUrl::href($social_link) }}" rel="noopener noreferrer" target="_blank" class="{{ $color }} hover:opacity-80 transition-opacity">
                                                 <i class="{{ $icon }} text-lg"></i>
                                             </a>
                                         @endforeach
@@ -435,7 +518,7 @@
                             <div class="flex items-center justify-between pt-3 border-t border-gray-200">
                                 <div class="flex space-x-2">
                                     @if($result['profile'])
-                                        <a href="{{ $result['profile'] }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium">
+                                        <a href="{{ \App\Support\SafeUrl::href($result['profile']) }}" rel="noopener noreferrer" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium">
                                             <i class="fab fa-google mr-1"></i>View Profile
                                         </a>
                                     @endif
@@ -460,7 +543,7 @@
                     
                     <!-- Hidden result data for save functionality -->
                     <script type="application/json" class="result-data">
-                        {!! json_encode($result) !!}
+                        {!! json_encode($result, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}
                     </script>
                 </div>
             @endforeach
@@ -478,7 +561,7 @@
 
 <!-- Error Modal -->
 <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
         <div class="text-center">
             <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
                 <i class="fas fa-exclamation-triangle text-3xl text-red-600"></i>
@@ -504,7 +587,7 @@
 
 <!-- Save Status Modal -->
 <div id="saveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full mx-4">
         <div class="text-center">
             <div id="saveModalIcon" class="mx-auto mb-4 w-12 h-12 rounded-full flex items-center justify-center">
                 <i class="fas fa-spinner fa-spin text-2xl text-primary-600" id="saveSpinner"></i>
@@ -529,103 +612,7 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-<!-- Custom Select2 Styling -->
-<style>
-    /* Custom Select2 styling to match your design */
-    .select2-container--default .select2-selection--single {
-        border: 1px solid #d1d5db !important;
-        border-radius: 0.5rem !important;
-        height: 38px !important;
-        line-height: 36px !important;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 36px !important;
-        padding-left: 12px !important;
-        padding-right: 20px !important;
-        color: #374151 !important;
-        font-size: 0.875rem !important;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 36px !important;
-        right: 8px !important;
-        top: 1px !important;
-    }
-
-    .select2-container--default.select2-container--focus .select2-selection--single,
-    .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-        outline: none !important;
-    }
-
-    .select2-dropdown {
-        border: 1px solid #d1d5db !important;
-        border-radius: 0.5rem !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-        margin-top: 4px !important;
-    }
-
-    .select2-container--default .select2-results__option {
-        padding: 8px 12px !important;
-        font-size: 0.875rem !important;
-    }
-
-    .select2-container--default .select2-results__option--highlighted[aria-selected],
-    .select2-container--default .select2-results__option--highlighted[aria-selected]:hover {
-        background-color: #3b82f6 !important;
-        color: white !important;
-    }
-
-    .select2-container--default .select2-results__option[aria-selected="true"] {
-        background-color: #dbeafe !important;
-        color: #1e40af !important;
-    }
-
-    .select2-container--default .select2-search--dropdown {
-        padding: 8px !important;
-    }
-
-    .select2-container--default .select2-search--dropdown .select2-search__field {
-        border: 1px solid #d1d5db !important;
-        border-radius: 0.375rem !important;
-        padding: 6px 12px !important;
-        font-size: 0.875rem !important;
-        outline: none !important;
-    }
-
-    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    }
-
-    .select2-container {
-        width: 100% !important;
-        font-family: inherit !important;
-    }
-
-    .select2-selection__placeholder {
-        color: #9ca3af !important;
-    }
-
-    /* Disabled state */
-    .select2-container--default.select2-container--disabled .select2-selection--single {
-        background-color: #f9fafb !important;
-        cursor: not-allowed !important;
-    }
-
-    /* Clear button styling */
-    .select2-container--default .select2-selection__clear {
-        color: #6b7280 !important;
-        font-size: 1.2em !important;
-        margin-right: 10px !important;
-    }
-
-    .select2-container--default .select2-selection__clear:hover {
-        color: #ef4444 !important;
-    }
-</style>
+{{-- Field and Select2 styling for this page lives at the top of the content section --}}
 
 <!-- Select2 JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -692,6 +679,29 @@ function initializeFormHandlers() {
             if (!term) return null;
             return { id: term, text: term, newTag: true };
         }
+    });
+
+    // Before the niche list opens, scroll the field up (label still visible below the header)
+    // so there is room underneath and Select2 opens the list below the field, not above it.
+    $('#search_query').off('select2:opening.cnmScroll').on('select2:opening.cnmScroll', function () {
+        const field = this.closest('.cnm-field') || this;
+        const wrap = document.querySelector('.cnm-find');
+        const keepAbove = 110;  // px from the top of the window: room for the label
+        const listRoom = 340;   // the list (max 300px) + a small gap
+        const scrollUp = () => {
+            const top = field.getBoundingClientRect().top;
+            if (top > keepAbove) window.scrollTo({ top: window.scrollY + top - keepAbove, behavior: 'auto' });
+        };
+        scrollUp();
+        // A short page cannot scroll that far: add room at the bottom while the list is open
+        const below = window.innerHeight - field.getBoundingClientRect().bottom;
+        if (below < listRoom && wrap) {
+            wrap.style.paddingBottom = (listRoom - below + 32) + 'px';
+            scrollUp();
+        }
+    }).off('select2:close.cnmScroll').on('select2:close.cnmScroll', function () {
+        const wrap = document.querySelector('.cnm-find');
+        if (wrap) wrap.style.paddingBottom = '';
     });
 
     // Initialize Select2 on all three dropdowns

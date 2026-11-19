@@ -9,7 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Allow the request through only for authenticated admin users.
+     *
+     * Non-admins always get HTTP 403 (JSON or HTML) — never a redirect — so that
+     * admin-only endpoints cannot be reached by guessing URLs.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -22,8 +25,8 @@ class AdminMiddleware
                     'message' => 'Access denied. Admin privileges required.'
                 ], 403);
             }
-            
-            return redirect()->route('user.dashboard')->with('error', 'Access denied. Admin privileges required.');
+
+            abort(403, 'Access denied. Admin privileges required.');
         }
 
         return $next($request);

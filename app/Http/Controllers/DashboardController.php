@@ -88,7 +88,54 @@ class DashboardController extends Controller
             ->orderBy('last_seen_at', 'desc')
             ->get();
 
-        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData', 'currentPlan', 'myDevices'));
+        $ai = $this->aiSummary($user);
+        // AI locked by the admin: the dashboard shows it locked (with the admin's message) instead of hiding it
+        $aiLock = $ai ? null : \App\Services\PlanFeatures::lockMessage($user, 'ai_sales_profile_enabled');
+
+        return view('user.dashboard', compact('user', 'stats', 'recentLeads', 'recentSearches', 'usageData', 'currentPlan', 'myDevices', 'ai', 'aiLock'));
+    }
+
+    /**
+     * AI assistant snapshot for the dashboard: profile readiness, this month's AI usage and
+     * drafts waiting for review. Null when the plan does not include the AI features.
+     */
+    private function aiSummary($user): ?array
+    {
+        if (!\App\Services\PlanFeatures::enabled($user, 'ai_sales_profile_enabled')) {
+            return null;
+        }
+
+        $owner = $user->getAccountOwner();
+        $aiService = app(\App\Services\Ai\AiService::class);
+        $quota = $aiService->quota();
+
+        $usage = [];
+        foreach (config('ai.quota_features') as $feature => $key) {
+            $usage[$feature] = [
+                'used' => $quota->used($owner, $feature),
+                'limit' => $quota->limit($user, $feature),
+                'lock' => \App\Services\PlanFeatures::lockMessage($user, $key),
+            ];
+        }
+
+        $profile = \App\Models\UserSalesProfile::forOwner($owner);
+        $activeOffers = \App\Models\UserOffer::ownedBy($owner)->where('is_active', true)->count();
+
+        return [
+            'available' => $aiService->isAvailable(),
+            'completeness' => $profile->completeness($activeOffers),
+            'usage' => $usage,
+            'analyses' => \App\Models\AiLeadAnalysis::ownedBy($owner)->count(),
+            'drafts_to_review' => \App\Models\AiEmailDraft::ownedBy($owner)->where('is_current', true)
+                ->where('review_status', \App\Models\AiEmailDraft::REVIEW_DRAFT)->count(),
+            'approved' => \App\Models\AiEmailDraft::ownedBy($owner)->where('is_current', true)
+                ->where('review_status', \App\Models\AiEmailDraft::REVIEW_APPROVED)->count(),
+            'email_on' => \App\Services\PlanFeatures::enabled($user, 'gmail_sending_enabled')
+                || \App\Services\PlanFeatures::enabled($user, 'resend_connection_enabled'),
+            'email_lock' => \App\Services\PlanFeatures::lockMessage($user, 'gmail_sending_enabled')
+                ?? \App\Services\PlanFeatures::lockMessage($user, 'resend_connection_enabled'),
+            'offers_lock' => \App\Services\PlanFeatures::lockMessage($user, 'ai_offers_monthly'),
+        ];
     }
 
     /**
@@ -203,15 +250,17 @@ class DashboardController extends Controller
 
         if ($currentSubscription && $currentSubscription->package) {
             $hasSubscription = true;
-            foreach ($currentSubscription->package->features as $feature) {
-                if ($feature->feature_key === 'daily_leads_limit') {
-                    $dailyLeadsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited')
-                        ? 999999
-                        : (int)$feature->feature_value;
-                }
-                if ($feature->feature_key === 'api_limit') {
-                    $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
-                }
+            // The rows that apply to this user (admin "Custom features" first); a locked row counts as 0
+            $rows = app(\App\Services\FeatureOverrides::class);
+            $feature = $rows->row($currentSubscription, 'daily_leads_limit');
+            if ($feature && empty($feature->is_locked)) {
+                $dailyLeadsLimit = ($feature->is_unlimited || $feature->feature_value === 'unlimited')
+                    ? 999999
+                    : (int)$feature->feature_value;
+            }
+            $feature = $rows->row($currentSubscription, 'api_limit');
+            if ($feature && empty($feature->is_locked)) {
+                $apiKeysLimit = $feature->is_unlimited ? 999999 : (int)$feature->feature_value;
             }
         }
 
@@ -532,7 +581,6 @@ class DashboardController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'whatsapp_number' => $user->whatsapp_number,
-            'plain_password' => $user->plain_password,
             'user_type' => $user->user_type,
             'status' => $user->status,
             'login_type' => $user->login_type,

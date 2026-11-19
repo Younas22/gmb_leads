@@ -68,7 +68,7 @@
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between mb-4">
                     <span id="referralLinkText" class="text-sm text-gray-700 font-mono break-all">{{ $user->getReferralLink() }}</span>
-                    <button onclick="copyLink('{{ $user->getReferralLink() }}')"
+                    <button onclick="copyLink(@js($user->getReferralLink()))"
                         class="ml-3 flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors">
                         <i class="fas fa-copy mr-1"></i> Copy
                     </button>

@@ -203,7 +203,7 @@
                             </button>
                             @endif
                             @if($payment->screenshot)
-                            <a href="{{ asset('public/' . $payment->screenshot) }}" target="_blank" class="text-blue-600 hover:text-blue-900 ml-2" title="View Screenshot">
+                            <a href="{{ route('admin.payments.screenshot', $payment) }}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-900 ml-2" title="View Screenshot">
                                 <i class="fas fa-image"></i>
                             </a>
                             @endif

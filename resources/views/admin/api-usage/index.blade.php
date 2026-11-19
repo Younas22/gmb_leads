@@ -152,10 +152,10 @@
                             <button onclick="openEditModal({{ $key->id }})" class="text-primary-600 hover:text-primary-900 mr-2" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="confirmReset({{ $key->id }}, '{{ $key->key_name }}')" class="text-orange-600 hover:text-orange-900 mr-2" title="Reset Counts">
+                            <button onclick="confirmReset({{ $key->id }}, @js($key->key_name))" class="text-orange-600 hover:text-orange-900 mr-2" title="Reset Counts">
                                 <i class="fas fa-redo"></i>
                             </button>
-                            <button onclick="confirmDelete({{ $key->id }}, '{{ $key->key_name }}')" class="text-red-600 hover:text-red-900" title="Delete">
+                            <button onclick="confirmDelete({{ $key->id }}, @js($key->key_name))" class="text-red-600 hover:text-red-900" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>

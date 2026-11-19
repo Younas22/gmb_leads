@@ -32,70 +32,22 @@ use App\Http\Controllers\Admin\AffiliateController as AdminAffiliateController;
 |--------------------------------------------------------------------------
 */
 
-// ── TEMPORARY FIX ROUTE — delete after use ──────────────
-Route::get('/temp-affiliate-fix', function(\Illuminate\Http\Request $request) {
-    // Security: sirf admin run kare
-    if (!auth()->check() || !auth()->user()->isAdmin()) {
-        return response()->json(['error' => 'Unauthorized'], 403);
-    }
-
-    $action = $request->query('action', 'status');
-
-    // action=fix&email=USER_EMAIL&ref=REFERRAL_CODE
-    if ($action === 'fix') {
-        $email   = $request->query('email');
-        $refCode = $request->query('ref');
-
-        if (!$email || !$refCode) {
-            return response()->json(['error' => 'email aur ref required hain']);
-        }
-
-        $referrer = \App\Models\User::where('referral_code', $refCode)->first();
-        if (!$referrer) {
-            return response()->json(['error' => "Referral code '$refCode' ka koi user nahi mila"]);
-        }
-
-        $newUser = \App\Models\User::where('email', $email)->first();
-        if (!$newUser) {
-            return response()->json(['error' => "Email '$email' ka koi user nahi mila"]);
-        }
-
-        // referred_by set karo
-        $newUser->update(['referred_by' => $refCode]);
-
-        // Click record karo
-        \App\Models\AffiliateClick::firstOrCreate(
-            ['referral_code' => $refCode, 'ip' => $newUser->id . '-manual'],
-            ['user_agent' => 'Manual fix', 'converted' => true, 'converted_at' => now()]
-        );
-
-        // Referrer ka earning record ensure karo
-        $referrer->getOrCreateEarning();
-
-        return response()->json([
-            'success' => true,
-            'referrer' => $referrer->name . ' (code: ' . $refCode . ')',
-            'new_user' => $newUser->name . ' (referred_by: ' . $newUser->fresh()->referred_by . ')',
-            'message'  => 'Fix ho gaya! Ab affiliate dashboard check karo.',
-        ]);
-    }
-
-    // action=status — sab users aur clicks dekho
-    if ($action === 'status') {
-        $clicks = \App\Models\AffiliateClick::latest()->take(10)->get(['referral_code','ip','converted','created_at']);
-        $recent = \App\Models\User::latest()->take(10)->get(['id','name','email','referral_code','referred_by','created_at']);
-        return response()->json([
-            'recent_users'  => $recent,
-            'recent_clicks' => $clicks,
-        ], 200, [], JSON_PRETTY_PRINT);
-    }
-
-    return response()->json(['actions' => 'status, fix']);
-});
-// ── END TEMPORARY ROUTE ──────────────────────────────────
-
 // Home page
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Public opt-out for outreach recipients (signed links; POST also serves RFC 8058 one-click)
+Route::get('/email/unsubscribe/{email}', [App\Http\Controllers\EmailSending\UnsubscribeController::class, 'show'])
+    ->whereNumber('email')->middleware(['signed', 'throttle:unsubscribe'])->name('email.unsubscribe');
+Route::post('/email/unsubscribe/{email}', [App\Http\Controllers\EmailSending\UnsubscribeController::class, 'confirm'])
+    ->whereNumber('email')->middleware(['signed', 'throttle:unsubscribe'])->name('email.unsubscribe.confirm');
+
+// Phase 4: tracked-link redirect. The destination comes from the stored link record only.
+Route::get('/r/{token}', App\Http\Controllers\EmailTracking\TrackedLinkController::class)
+    ->where('token', '[A-Za-z0-9_-]{32}')->middleware('throttle:email-link')->name('email.link');
+
+// Phase 5: customer Resend webhooks (Svix-signed; the token only selects the customer's config)
+Route::post('/webhooks/resend/{token}', App\Http\Controllers\Resend\ResendWebhookController::class)
+    ->where('token', '[A-Za-z0-9]{48}')->middleware('throttle:resend-webhook')->name('customer-resend.webhook');
 
 // CSRF token refresh endpoint
 Route::get('/csrf-token', function () {
@@ -143,8 +95,8 @@ Route::get('/login', function () {
 // Authentication routes (no auth required)
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/', [AuthController::class, 'showAuth'])->name('show');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
-    Route::post('/signup', [AuthController::class, 'signup'])->name('signup');
+    Route::post('/login', [AuthController::class, 'login'])->name('login')->middleware('throttle:login');
+    Route::post('/signup', [AuthController::class, 'signup'])->name('signup')->middleware('throttle:auth-sensitive');
     Route::get('/google', [AuthController::class, 'redirectToGoogle'])->name('google');
     Route::get('/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -152,13 +104,13 @@ Route::prefix('auth')->name('auth.')->group(function () {
     
     // Email Verification
     Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
-    Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->name('resend.verification');
+    Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->name('resend.verification')->middleware('throttle:auth-sensitive');
     
     // Password Reset
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('forgot.password');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('send.reset.link');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('send.reset.link')->middleware('throttle:auth-sensitive');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('reset.password');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.submit');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.submit')->middleware('throttle:auth-sensitive');
 });
 
 // Protected Routes (require authentication)
@@ -207,11 +159,11 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
                 Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
                 Route::post('/avatar/upload', [ProfileController::class, 'uploadAvatar'])->name('avatar.upload');
-                Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+                Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update')->middleware('throttle:password-change');
                 Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('preferences.update');
                 Route::delete('/profile/account', [ProfileController::class, 'deleteAccount'])->name('account.delete');
                 Route::delete('/profile/data', [ProfileController::class, 'clearData'])->name('data.clear');
-                Route::post('/profile/verify-email', [ProfileController::class, 'resendVerification'])->name('verification.send');
+                Route::post('/profile/verify-email', [ProfileController::class, 'resendVerification'])->name('verification.send')->middleware('throttle:auth-sensitive');
 
                 // Tutorial routes
                 Route::get('/tutorials', [TutorialsController::class, 'index'])->name('tutorials');
@@ -250,7 +202,6 @@ Route::middleware(['web', 'auth'])->group(function () {
                 Route::post('/folders/{id}/remove-leads', [App\Http\Controllers\FolderController::class, 'removeLeads'])->name('folders.remove-leads');
                 Route::delete('/folders/{id}', [App\Http\Controllers\FolderController::class, 'destroy'])->name('folders.destroy');
 
-                Route::get('/debug-reviews', [LeadsController::class, 'debugReviews'])->name('debug.reviews');
 
                 // Lead Center — business-development workspace built on top of My Leads
                 Route::prefix('lead-center')->name('lead-center.')->group(function () {
@@ -295,6 +246,168 @@ Route::middleware(['web', 'auth'])->group(function () {
                     });
                 });
 
+                // AI Sales Profile (Phase 1) — owner-scoped; team members read-only
+                Route::prefix('ai-sales-profile')->name('ai-profile.')
+                    ->middleware('plan.feature:ai_sales_profile_enabled')
+                    ->group(function () {
+                        Route::get('/', [App\Http\Controllers\AiSalesProfile\SalesProfileController::class, 'index'])->name('index');
+                        Route::put('/', [App\Http\Controllers\AiSalesProfile\SalesProfileController::class, 'update'])->name('update');
+                        Route::post('/offers', [App\Http\Controllers\AiSalesProfile\SalesOfferController::class, 'store'])->name('offers.store');
+                        Route::put('/offers/{offer}', [App\Http\Controllers\AiSalesProfile\SalesOfferController::class, 'update'])->whereNumber('offer')->name('offers.update');
+                        Route::patch('/offers/{offer}/toggle', [App\Http\Controllers\AiSalesProfile\SalesOfferController::class, 'toggle'])->whereNumber('offer')->name('offers.toggle');
+                        Route::delete('/offers/{offer}', [App\Http\Controllers\AiSalesProfile\SalesOfferController::class, 'destroy'])->whereNumber('offer')->name('offers.destroy');
+                    });
+
+                // Offers in the AI Sales Profile (AI Offer Builder engine): 4 categories / 16 offer types →
+                // short pre-filled form → AI offer (queued) or "Save without AI". Records are private per user.
+                Route::prefix('offer-builder')->name('offer-builder.')
+                    ->middleware(['plan.feature:ai_sales_profile_enabled', App\Http\Middleware\EnsureOfferBuilderInstalled::class])
+                    ->group(function () {
+                        $o = App\Http\Controllers\OfferBuilder\BuilderOfferController::class;
+
+                        Route::get('/quick-form', [$o, 'quickForm'])->middleware('throttle:ai-outreach-read')->name('quick-form');
+                        Route::post('/quick-save', [$o, 'quickSave'])->middleware('throttle:ai-outreach-write')->name('quick-save');
+                        Route::post('/prompt', [$o, 'prompt'])->middleware('throttle:ai-outreach-read')->name('prompt');
+                        Route::post('/offers', [$o, 'store'])->middleware('throttle:ai-outreach-write')->name('offers.store');
+                        Route::post('/offers/{offer}/generate', [$o, 'generate'])->whereNumber('offer')->middleware('throttle:ai-outreach-write')->name('offers.generate');
+                        Route::get('/offers/{offer}/generations/{generation}', [$o, 'generation'])->whereNumber(['offer', 'generation'])->middleware('throttle:ai-outreach-read')->name('offers.generation');
+                    });
+
+                // AI Outreach (Phase 2): website audit + offer match + email DRAFTS (nothing is sent)
+                Route::prefix('ai-outreach')->name('ai-outreach.')
+                    ->middleware('plan.feature:ai_sales_profile_enabled')
+                    ->group(function () {
+                        $c = App\Http\Controllers\AiOutreach\AiOutreachController::class;
+                        $a = App\Http\Controllers\AiOutreach\AiAnalysisController::class;
+                        $d = App\Http\Controllers\AiOutreach\AiDraftController::class;
+
+                        Route::get('/', [$c, 'index'])->name('index');
+                        Route::post('/folders/add', [$c, 'addToFolder'])->middleware('throttle:ai-outreach-write')->name('folders.add');
+                        Route::get('/usage', [$c, 'usage'])->name('usage');
+                        Route::post('/estimate', [$c, 'estimate'])->middleware('throttle:ai-outreach-read')->name('estimate');
+                        Route::post('/analyze', [$c, 'start'])->middleware('throttle:ai-outreach-write')->name('start');
+                        Route::get('/batches/{batch}', [$c, 'batch'])->whereNumber('batch')->name('batch');
+                        Route::get('/batches/{batch}/status', [$c, 'batchStatus'])->whereNumber('batch')->middleware('throttle:ai-outreach-read')->name('batch.status');
+                        Route::post('/batches/{batch}/retry-failed', [$c, 'retryBatchFailed'])->whereNumber('batch')->middleware('throttle:ai-outreach-write')->name('batch.retry');
+
+                        Route::get('/analyses/{analysis}', [$a, 'show'])->whereNumber('analysis')->name('analysis');
+                        Route::post('/analyses/{analysis}/retry', [$a, 'retry'])->whereNumber('analysis')->middleware('throttle:ai-outreach-write')->name('analysis.retry');
+                        Route::post('/analyses/{analysis}/regenerate', [$a, 'regenerate'])->whereNumber('analysis')->middleware('throttle:ai-outreach-write')->name('analysis.regenerate');
+
+                        Route::put('/drafts/{draft}', [$d, 'update'])->whereNumber('draft')->name('draft.update');
+                        Route::post('/drafts/{draft}/approve', [$d, 'approve'])->whereNumber('draft')->name('draft.approve');
+                        Route::post('/drafts/{draft}/discard', [$d, 'discard'])->whereNumber('draft')->name('draft.discard');
+                        Route::post('/drafts/{draft}/restore', [$d, 'restore'])->whereNumber('draft')->name('draft.restore');
+                    });
+
+                // Email Sending (Phase 3): the user's own Gmail, one confirmed email at a time
+                Route::prefix('email-sending')->name('email-sending.')
+                    ->middleware('plan.feature:gmail_sending_enabled')
+                    ->group(function () {
+                        $g = App\Http\Controllers\EmailSending\GmailConnectionController::class;
+                        $o = App\Http\Controllers\EmailSending\OutboundEmailController::class;
+
+                        Route::get('/', [$g, 'index'])->name('index');
+                        Route::post('/google/connect', [$g, 'connect'])->middleware('throttle:ai-outreach-write')->name('connect');
+                        Route::get('/google/callback', [$g, 'callback'])->name('callback');
+                        Route::post('/google/disconnect', [$g, 'disconnect'])->name('disconnect');
+                        Route::post('/suppressions', [$g, 'addSuppression'])->name('suppressions.store');
+                        Route::delete('/suppressions/{suppression}', [$g, 'removeSuppression'])->whereNumber('suppression')->name('suppressions.destroy');
+
+                        Route::post('/drafts/{draft}/send', [$o, 'store'])->whereNumber('draft')->middleware('throttle:email-send')->name('send');
+                        Route::post('/emails/{email}/cancel', [$o, 'cancel'])->whereNumber('email')->name('cancel');
+                        Route::post('/emails/{email}/retry', [$o, 'retry'])->whereNumber('email')->middleware('throttle:email-send')->name('retry');
+
+                        // Phase 4: link tracking preference (plan feature checked in the controller)
+                        Route::put('/tracking-settings', [App\Http\Controllers\EmailTracking\TrackingSettingsController::class, 'update'])->name('tracking.update');
+                    });
+
+                // Resend (Phase 5): the customer's own Resend account (BYOK)
+                Route::prefix('email-sending/resend')->name('email-sending.resend.')
+                    ->middleware('plan.feature:resend_connection_enabled')
+                    ->group(function () {
+                        $s = App\Http\Controllers\Resend\ResendSettingsController::class;
+
+                        Route::get('/', [$s, 'show'])->name('show');
+                        Route::post('/connect', [$s, 'connect'])->middleware('throttle:ai-outreach-write')->name('connect');
+                        Route::post('/check', [$s, 'check'])->middleware('throttle:ai-outreach-write')->name('check');
+                        Route::post('/disconnect', [$s, 'disconnect'])->name('disconnect');
+                        Route::post('/domains', [$s, 'addDomain'])->middleware('throttle:ai-outreach-write')->name('domains.store');
+                        Route::post('/domains/{domain}/verify', [$s, 'verifyDomain'])->whereNumber('domain')->middleware('throttle:ai-outreach-write')->name('domains.verify');
+                        Route::post('/domains/{domain}/refresh', [$s, 'refreshDomain'])->whereNumber('domain')->middleware('throttle:ai-outreach-write')->name('domains.refresh');
+                        Route::put('/domains/{domain}/tracking', [$s, 'domainTracking'])->whereNumber('domain')->name('domains.tracking');
+                        Route::post('/senders', [$s, 'addSender'])->name('senders.store');
+                        Route::delete('/senders/{sender}', [$s, 'deleteSender'])->whereNumber('sender')->name('senders.destroy');
+                        Route::post('/webhook', [$s, 'createWebhook'])->middleware('throttle:ai-outreach-write')->name('webhook.create');
+                        Route::put('/webhook/secret', [$s, 'webhookSecret'])->name('webhook.secret');
+                        Route::put('/lead-outreach', [$s, 'leadOutreach'])->name('lead-outreach');
+                    });
+
+                Route::post('/email-sending/resend/drafts/{draft}/send', [App\Http\Controllers\Resend\ResendSendController::class, 'store'])
+                    ->whereNumber('draft')->middleware(['plan.feature:resend_single_sending_enabled', 'throttle:email-send'])->name('email-sending.resend.send');
+
+                // Send to a lead folder: every lead gets its own AI email, spaced out (Gmail or Resend)
+                $fs = App\Http\Controllers\Outreach\FolderSendController::class;
+                Route::get('/campaigns/folder-send', [$fs, 'create'])->name('folder-sends.create');
+                Route::post('/campaigns/folder-send', [$fs, 'store'])->middleware('throttle:email-send')->name('folder-sends.store');
+                Route::get('/campaigns/folder-sends/{send}', [$fs, 'show'])->whereNumber('send')->name('folder-sends.show');
+                Route::post('/campaigns/folder-sends/{send}/cancel', [$fs, 'cancel'])->whereNumber('send')->name('folder-sends.cancel');
+
+                // Campaigns to opted-in contacts (Phase 5)
+                Route::prefix('campaigns')->name('campaigns.')
+                    ->middleware('plan.feature:resend_campaigns_enabled')
+                    ->group(function () {
+                        $c = App\Http\Controllers\Resend\CampaignController::class;
+                        $k = App\Http\Controllers\Resend\ContactController::class;
+
+                        Route::get('/', [$c, 'index'])->name('index');
+                        Route::get('/create', [$c, 'create'])->name('create');
+                        Route::post('/ai-write', [$c, 'aiWrite'])->middleware('throttle:ai-outreach-write')->name('ai-write');
+                        Route::post('/', [$c, 'store'])->name('store');
+                        Route::get('/{campaign}', [$c, 'show'])->whereNumber('campaign')->name('show');
+                        Route::get('/{campaign}/edit', [$c, 'edit'])->whereNumber('campaign')->name('edit');
+                        Route::put('/{campaign}', [$c, 'update'])->whereNumber('campaign')->name('update');
+                        Route::post('/{campaign}/test', [$c, 'test'])->whereNumber('campaign')->middleware('throttle:email-send')->name('test');
+                        Route::post('/{campaign}/approve', [$c, 'approve'])->whereNumber('campaign')->middleware('throttle:email-send')->name('approve');
+                        Route::post('/{campaign}/cancel', [$c, 'cancel'])->whereNumber('campaign')->name('cancel');
+                        Route::post('/templates', [$c, 'storeTemplate'])->name('templates.store');
+                        Route::delete('/templates/{template}', [$c, 'destroyTemplate'])->whereNumber('template')->name('templates.destroy');
+
+                        Route::get('/contacts', [$k, 'index'])->name('contacts.index');
+                        Route::post('/contacts', [$k, 'store'])->name('contacts.store');
+                        Route::post('/contacts/import', [$k, 'import'])->middleware('throttle:ai-outreach-write')->name('contacts.import');
+                        Route::post('/contacts/{contact}/withdraw', [$k, 'withdraw'])->whereNumber('contact')->name('contacts.withdraw');
+                        Route::get('/contacts/{contact}/history', [$k, 'history'])->whereNumber('contact')->name('contacts.history');
+                        Route::post('/lists', [$k, 'storeList'])->name('lists.store');
+                        Route::post('/lists/add', [$k, 'addToList'])->name('lists.add');
+                    });
+
+                // Email Analytics (Phase 4): tracking results, manual replies, timelines
+                Route::prefix('email-analytics')->name('email-analytics.')
+                    ->middleware('plan.feature:email_analytics_enabled')
+                    ->group(function () {
+                        $a = App\Http\Controllers\EmailTracking\EmailAnalyticsController::class;
+                        $r = App\Http\Controllers\EmailTracking\EmailReplyController::class;
+
+                        Route::get('/', [$a, 'index'])->name('index');
+                        Route::get('/emails/{email}', [$a, 'email'])->whereNumber('email')->name('email');
+                        Route::get('/leads/{lead}', [$a, 'lead'])->whereNumber('lead')->name('lead');
+                        Route::post('/emails/{email}/reply', [$r, 'store'])->whereNumber('email')->name('reply.store');
+                        Route::delete('/emails/{email}/reply', [$r, 'destroy'])->whereNumber('email')->name('reply.destroy');
+                    });
+
+                // Follow-up reminders (Phase 4). Reminders only: nothing is sent automatically.
+                Route::prefix('email-follow-ups')->name('email-follow-ups.')
+                    ->middleware('plan.feature:email_followups_enabled')
+                    ->group(function () {
+                        $f = App\Http\Controllers\EmailTracking\FollowUpController::class;
+
+                        Route::get('/', [$f, 'index'])->name('index');
+                        Route::post('/', [$f, 'store'])->name('store');
+                        Route::post('/{followUp}/complete', [$f, 'complete'])->whereNumber('followUp')->name('complete');
+                        Route::post('/{followUp}/cancel', [$f, 'cancel'])->whereNumber('followUp')->name('cancel');
+                    });
+
                 // API Keys
                 Route::get('/api-keys', [ApiKeysController::class, 'index'])->name('api-keys');
                 Route::post('/api-keys', [ApiKeysController::class, 'store'])->name('api-keys.store');
@@ -322,9 +435,15 @@ Route::middleware(['web', 'auth'])->group(function () {
             });
         });
     
-    // Admin Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // Admin Routes — every route in this group requires an admin account (HTTP 403 otherwise)
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+
+        // AI Setup: one active provider (Claude or ChatGPT), keys, models, effort, limits
+        Route::get('/ai-setup', [App\Http\Controllers\Admin\AiSetupController::class, 'index'])->name('ai-setup.index');
+        Route::put('/ai-setup', [App\Http\Controllers\Admin\AiSetupController::class, 'update'])->name('ai-setup.update');
+        Route::post('/ai-setup/test/{provider}', [App\Http\Controllers\Admin\AiSetupController::class, 'test'])
+            ->whereIn('provider', ['anthropic', 'openai', 'gemini', 'openrouter'])->middleware('throttle:10,1')->name('ai-setup.test');
         Route::get('/switch-to-user', [DashboardController::class, 'switchToUserView'])->name('switch.to.user');
         Route::get('/switch-to-admin', [DashboardController::class, 'switchToAdminView'])->name('switch.to.admin');
         Route::get('/users', [DashboardController::class, 'adminUsers'])->name('users');
@@ -349,11 +468,14 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/subscriptions/{subscription}', [AdminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
         Route::post('/subscriptions/{subscription}/toggle-status', [AdminSubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle-status');
         Route::get('/subscriptions/{subscription}/devices', [AdminSubscriptionController::class, 'devices'])->name('subscriptions.devices');
+        Route::get('/subscriptions/{subscription}/features', [AdminSubscriptionController::class, 'features'])->name('subscriptions.features');
+        Route::put('/subscriptions/{subscription}/features', [AdminSubscriptionController::class, 'updateFeatures'])->name('subscriptions.features.update');
         Route::delete('/devices/{device}', [AdminSubscriptionController::class, 'destroyDevice'])->name('devices.destroy');
 
         // Payments
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
         Route::post('/payments/{payment}/status', [AdminPaymentController::class, 'updateStatus'])->name('payments.update-status');
+        Route::get('/payments/{payment}/screenshot', [AdminPaymentController::class, 'screenshot'])->name('payments.screenshot');
 
         // Reports
         Route::prefix('reports')->name('reports.')->group(function () {

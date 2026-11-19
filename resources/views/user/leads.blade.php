@@ -3,7 +3,111 @@
 @section('title', 'Saved Leads')
 
 @section('content')
-<div class="p-3 lg:p-4">
+{{-- My Leads look: Poppins + custom controls (this page only) --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body.bg-gray-50 { background-color: #f8fafc; }
+    .cnm-leads, .cnm-leads button, .cnm-leads input, .cnm-leads select, body .select2-dropdown,
+    #sidebar, #main-content > header { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+
+    /* Search input */
+    .cnm-search { width: 100%; height: 38px; padding: 0 12px 0 36px; border: 1px solid #dce3ed; border-radius: 9px; background: #fff; color: #111827; font-size: 13px; transition: border-color .15s, box-shadow .15s; }
+    .cnm-search::placeholder { color: #94a3b8; }
+    .cnm-search:hover { border-color: #b6c2d2; }
+    .cnm-search:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, .15); }
+
+    /* Native selects */
+    .cnm-select { width: 100%; height: 36px; padding: 0 30px 0 11px; border: 1px solid #dce3ed; border-radius: 9px; background-color: #fff; color: #111827; font-size: 12.5px; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+        -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; }
+    .cnm-select:hover { border-color: #b6c2d2; }
+    .cnm-select:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, .15); }
+    .cnm-select:disabled { background-color: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    .cnm-select.is-sm { height: 32px; border-radius: 8px; font-size: 12px; padding-left: 10px; padding-right: 28px; background-position: right 9px center; }
+    .cnm-leads #userFilter { height: 36px; padding: 0 30px 0 11px; border: 1px solid #dce3ed; border-radius: 9px; font-size: 12.5px; background-color: #fff; }
+    .cnm-label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #334155; }
+
+    /* Select2 (Country / State / City) */
+    .cnm-leads .select2-container { width: 100% !important; }
+    .cnm-leads .select2-container--default .select2-selection--single { height: 36px !important; border: 1px solid #dce3ed !important; border-radius: 9px !important; background: #fff !important; transition: border-color .15s, box-shadow .15s; }
+    .cnm-leads .select2-container--default .select2-selection--single:hover { border-color: #b6c2d2 !important; }
+    .cnm-leads .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px !important; padding-left: 11px !important; padding-right: 30px !important; color: #111827 !important; font-size: 12.5px !important; }
+    .cnm-leads .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #94a3b8 !important; }
+    .cnm-leads .select2-container--default .select2-selection--single .select2-selection__arrow { height: 34px !important; width: 30px !important; right: 2px !important; top: 0 !important;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat center / 12px; }
+    .cnm-leads .select2-container--default .select2-selection--single .select2-selection__arrow b { display: none !important; }
+    .cnm-leads .select2-container--default.select2-container--focus .select2-selection--single,
+    .cnm-leads .select2-container--default.select2-container--open .select2-selection--single { border-color: #f97316 !important; box-shadow: 0 0 0 3px rgba(249, 115, 22, .15) !important; border-radius: 9px !important; }
+    .cnm-leads .select2-container--default.select2-container--disabled .select2-selection--single { background: #f1f5f9 !important; border-color: #e2e8f0 !important; cursor: not-allowed !important; }
+    body .select2-dropdown { border: 1px solid #e2e8f0 !important; border-radius: 12px !important; box-shadow: 0 16px 32px -12px rgba(15, 23, 42, .25) !important; overflow: hidden; margin-top: 6px !important; }
+    body .select2-container--default .select2-results__option { padding: 7px 12px !important; font-size: 13px !important; }
+    body .select2-container--default .select2-results__option--highlighted[aria-selected],
+    body .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { background-color: #fff7ed !important; color: #c2410c !important; }
+    body .select2-container--default .select2-search--dropdown .select2-search__field { height: 34px; border: 1px solid #dce3ed !important; border-radius: 10px !important; padding: 0 12px !important; }
+    body .select2-container--default .select2-search--dropdown .select2-search__field:focus { border-color: #f97316 !important; box-shadow: 0 0 0 3px rgba(249, 115, 22, .16) !important; outline: none; }
+
+    /* Filters are always visible (one compact row) */
+    .filters-container { display: block; }
+
+    /* Buttons */
+    .cnm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background-color .15s, border-color .15s, color .15s; }
+    .cnm-btn:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+    .cnm-btn-neutral { background: #fff; border: 1px solid #e2e8f0; color: #334155; }
+    .cnm-btn-neutral:hover { background: #f8fafc; border-color: #cbd5e1; color: #111827; }
+    .cnm-btn-primary { background: #f97316; border: 1px solid #f97316; color: #fff; font-weight: 600; }
+    .cnm-btn-primary:hover { background: #ea580c; border-color: #ea580c; }
+    .cnm-btn-danger { background: #fff; border: 1px solid #fecaca; color: #dc2626; }
+    .cnm-btn-danger:hover { background: #fef2f2; }
+    .cnm-btn-locked { background: #f1f5f9; border: 1px solid #e2e8f0; color: #94a3b8; }
+    .cnm-btn-indigo { background: #eef2ff; border: 1px solid #c7d2fe; color: #4338ca; }
+    .cnm-btn-indigo:hover { background: #e0e7ff; }
+    .cnm-btn-purple { background: #7c3aed; border: 1px solid #7c3aed; color: #fff; font-weight: 600; }
+    .cnm-btn-purple:hover { background: #6d28d9; }
+    .cnm-btn-blue { background: #2563eb; border: 1px solid #2563eb; color: #fff; font-weight: 600; }
+    .cnm-btn-blue:hover { background: #1d4ed8; }
+
+    /* Stat cards */
+    .cnm-stat { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; transition: border-color .15s, box-shadow .15s; min-width: 0; }
+    .cnm-stat:hover { border-color: #cbd5e1; }
+    .cnm-stat[aria-current="true"] { border-color: #fb923c; box-shadow: 0 0 0 2px #ffedd5; background: #fffaf5; }
+    .cnm-stat:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+    .cnm-stat-i { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; }
+
+    /* Type / folder pills */
+    .cnm-pill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid; font-size: 12px; font-weight: 500; white-space: nowrap; transition: background-color .15s, border-color .15s; }
+    .cnm-pill:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+    .cnm-pill .n { font-size: 11px; font-weight: 500; opacity: .75; }
+
+    /* Row actions */
+    .cnm-act { width: 30px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; color: #fff; font-size: 11px; transition: background-color .15s; }
+    .cnm-act:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+    .cnm-act.is-view { background: #2563eb; } .cnm-act.is-view:hover { background: #1d4ed8; }
+    .cnm-act.is-copy { background: #16a34a; } .cnm-act.is-copy:hover { background: #15803d; }
+
+    /* Table */
+    .cnm-table th { padding: 9px 12px; font-size: 12px; font-weight: 600; color: #111827; text-align: left; white-space: nowrap; }
+    .cnm-table td { padding: 8px 12px; vertical-align: middle; }
+    .cnm-icon-btn { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; border: 1px solid #e2e8f0; background: #fff; color: #475569; transition: all .15s; }
+    .cnm-icon-btn:hover { border-color: #fdba74; background: #fff7ed; color: #c2410c; }
+    .cnm-icon-btn:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+    .cnm-copy { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; color: #94a3b8; flex-shrink: 0; transition: all .15s; }
+    .cnm-copy:hover { background: #fff7ed; color: #ea580c; }
+    .cnm-copy:focus-visible { outline: 2px solid #f97316; outline-offset: 1px; }
+
+    /* Pagination (Laravel's Tailwind view) */
+    .cnm-pagination nav .shadow-sm { box-shadow: none !important; }
+    .cnm-pagination nav .relative.inline-flex.items-center { min-width: 32px; height: 32px; padding: 0 8px !important; justify-content: center; margin-left: 4px !important; border-radius: 8px !important; border-color: #e2e8f0 !important; font-size: 13px; }
+    .cnm-pagination nav a.relative.inline-flex:hover { background: #fff7ed !important; color: #c2410c !important; border-color: #fdba74 !important; }
+    .cnm-pagination nav span[aria-current="page"] > span { background: #f97316 !important; border-color: #f97316 !important; color: #fff !important; font-weight: 600; }
+    .cnm-pagination nav span[aria-disabled="true"] > span { color: #cbd5e1 !important; }
+
+    @media (prefers-reduced-motion: reduce) { .cnm-leads * { transition: none !important; } }
+</style>
+
+<div class="p-4 lg:px-6 lg:py-5 cnm-leads">
     <!-- Package Export Info -->
     @php
         $exportLimit = Auth::user()->getFeatureLimit('export_leads');
@@ -16,389 +120,343 @@
             && !str_contains(strtolower($_sub->package->slug ?? ''), 'trial')
             && !str_contains(strtolower($_sub->package->name ?? ''), 'trial')
             && (($_sub->package->price ?? 0) > 0);
+
+        // Advanced filters in use (the Filters panel opens when any is set)
+        $activeFilterCount = collect([$countryId ?? null, request('state_id'), request('city_id'), $status ?? null, $rating ?? null, $lastReview ?? null, $reviewsCount ?? null, $selectedUserId ?? null])
+            ->filter(fn ($v) => $v !== null && $v !== '')->count();
     @endphp
 
-    @if($exportLimit !== -1)
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="bg-blue-100 p-1.5 rounded-md">
-                        <i class="fas fa-download text-blue-600 text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-blue-900">Monthly Export Limit</p>
-                        <p class="text-[10px] text-blue-700">
-                            Used <span class="font-semibold">{{ $todayExportCount }}</span> of
-                            <span class="font-semibold">{{ $exportLimit }}</span> exports this month.
-                        </p>
-                    </div>
-                </div>
+    <!-- Page heading + export allowance -->
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h1 class="text-[18px] font-bold text-gray-900 tracking-tight">My Leads</h1>
+        @if($exportLimit !== -1)
+            <div class="flex items-center gap-2.5 rounded-lg border border-blue-100 bg-white pl-3 pr-2 py-1">
+                <i class="fas fa-download text-blue-600 text-sm" aria-hidden="true"></i>
+                <p class="text-[11.5px] text-slate-600 leading-snug">
+                    <span class="font-semibold text-gray-900">Monthly Export Limit:</span>
+                    Used <span class="font-semibold text-gray-900">{{ $todayExportCount }}</span> of
+                    <span class="font-semibold text-gray-900">{{ $exportLimit }}</span> exports this month.
+                </p>
                 @if($todayExportCount >= $exportLimit)
-                    <a href="{{ route('user.subscription') }}"
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors">
-                        <i class="fas fa-arrow-up mr-1"></i>Upgrade
+                    <a href="{{ route('user.subscription') }}" class="cnm-btn cnm-btn-primary !h-8 !px-3 !text-xs">
+                        <i class="fas fa-arrow-up" aria-hidden="true"></i>Upgrade
                     </a>
                 @endif
             </div>
-        </div>
-    @endif
+        @endif
+    </div>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-check-circle text-green-600 text-lg"></i>
-                <p class="text-sm text-green-800">{{ session('success') }}</p>
-            </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl px-3.5 py-2 mb-3 flex items-center gap-2.5 text-[13px]" role="status">
+            <i class="fas fa-check-circle text-green-600" aria-hidden="true"></i>
+            <p class="text-sm text-green-800">{{ session('success') }}</p>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
-                <p class="text-sm text-red-800">{!! session('error') !!}</p>
-            </div>
+        <div class="bg-red-50 border border-red-200 rounded-xl px-3.5 py-2 mb-3 flex items-center gap-2.5 text-[13px]" role="alert">
+            <i class="fas fa-exclamation-circle text-red-600" aria-hidden="true"></i>
+            <p class="text-sm text-red-800">{{ session('error') }}</p>
         </div>
     @endif
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 mb-6">
+    <!-- A · Lead status overview (each card filters the table, as before) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 mb-3">
         @php
         $statCards = [
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => ''])),              'active' => !request('status') && !request('has_follow_up'), 'color' => 'primary', 'icon' => 'fa-bookmark',       'label' => 'Total',      'value' => $stats['total']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])), 'active' => request('status') === 'not_contacted', 'color' => 'orange', 'icon' => 'fa-clock',       'label' => 'Pending',    'value' => $stats['pending']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])),     'active' => request('status') === 'contacted',  'color' => 'green',   'icon' => 'fa-phone',         'label' => 'Contacted',  'value' => $stats['contacted']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])),     'active' => request('status') === 'responded',  'color' => 'blue',    'icon' => 'fa-reply',         'label' => 'Responded',  'value' => $stats['responded']],
-            ['href' => route('user.leads', array_merge(request()->except(['status','has_follow_up']), ['has_follow_up' => '1'])), 'active' => request('has_follow_up') === '1', 'color' => 'indigo', 'icon' => 'fa-calendar-alt', 'label' => 'Scheduled', 'value' => $stats['scheduled']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])),     'active' => request('status') === 'follow_up',  'color' => 'purple',  'icon' => 'fa-calendar-check','label' => 'Follow Up',  'value' => $stats['follow_up']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])),     'active' => request('status') === 'converted',  'color' => 'emerald', 'icon' => 'fa-check-circle',  'label' => 'Converted',  'value' => $stats['converted']],
-            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])),        'active' => request('status') === 'closed',     'color' => 'red',     'icon' => 'fa-times-circle',  'label' => 'Closed',     'value' => $stats['closed']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => ''])),              'active' => !request('status') && !request('has_follow_up'), 'tint' => 'bg-orange-50 text-orange-600', 'icon' => 'fa-bookmark',       'label' => 'Total',      'value' => $stats['total']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'not_contacted'])), 'active' => request('status') === 'not_contacted', 'tint' => 'bg-amber-50 text-amber-600',   'icon' => 'fa-clock',          'label' => 'Pending',    'value' => $stats['pending']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'contacted'])),     'active' => request('status') === 'contacted',     'tint' => 'bg-blue-50 text-blue-600',     'icon' => 'fa-phone',          'label' => 'Contacted',  'value' => $stats['contacted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'responded'])),     'active' => request('status') === 'responded',     'tint' => 'bg-teal-50 text-teal-600',     'icon' => 'fa-reply',          'label' => 'Responded',  'value' => $stats['responded']],
+            ['href' => route('user.leads', array_merge(request()->except(['status','has_follow_up']), ['has_follow_up' => '1'])), 'active' => request('has_follow_up') === '1', 'tint' => 'bg-indigo-50 text-indigo-600', 'icon' => 'fa-calendar-alt', 'label' => 'Scheduled', 'value' => $stats['scheduled']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'follow_up'])),     'active' => request('status') === 'follow_up',     'tint' => 'bg-purple-50 text-purple-600', 'icon' => 'fa-calendar-check', 'label' => 'Follow Up',  'value' => $stats['follow_up']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'converted'])),     'active' => request('status') === 'converted',     'tint' => 'bg-green-50 text-green-600',   'icon' => 'fa-check-circle',   'label' => 'Converted',  'value' => $stats['converted']],
+            ['href' => route('user.leads', array_merge(request()->except('status'), ['status' => 'closed'])),        'active' => request('status') === 'closed',        'tint' => 'bg-slate-100 text-slate-500',  'icon' => 'fa-times-circle',   'label' => 'Closed',     'value' => $stats['closed']],
         ];
-        $ringMap = ['primary'=>'ring-primary-400','green'=>'ring-green-400','orange'=>'ring-orange-400','emerald'=>'ring-emerald-400','blue'=>'ring-blue-400','red'=>'ring-red-400','purple'=>'ring-purple-400','indigo'=>'ring-indigo-400'];
-        $bgMap   = ['primary'=>'bg-primary-100','green'=>'bg-green-100','orange'=>'bg-orange-100','emerald'=>'bg-emerald-100','blue'=>'bg-blue-100','red'=>'bg-red-100','purple'=>'bg-purple-100','indigo'=>'bg-indigo-100'];
-        $txtMap  = ['primary'=>'text-primary-600','green'=>'text-green-600','orange'=>'text-orange-600','emerald'=>'text-emerald-600','blue'=>'text-blue-600','red'=>'text-red-600','purple'=>'text-purple-600','indigo'=>'text-indigo-600'];
-        $brdMap  = ['primary'=>'hover:border-primary-400','green'=>'hover:border-green-400','orange'=>'hover:border-orange-400','emerald'=>'hover:border-emerald-400','blue'=>'hover:border-blue-400','red'=>'hover:border-red-400','purple'=>'hover:border-purple-400','indigo'=>'hover:border-indigo-400'];
         @endphp
 
         @foreach($statCards as $card)
-        @php $c = $card['color']; @endphp
-        <a href="{{ $card['href'] }}"
-           class="bg-white rounded-xl shadow-sm border border-gray-100 {{ $brdMap[$c] }} hover:shadow-md transition-all cursor-pointer {{ $card['active'] ? 'ring-2 '.$ringMap[$c] : '' }} p-3 flex flex-col items-center text-center gap-1.5">
-            <div class="p-2 {{ $bgMap[$c] }} rounded-lg">
-                <i class="fas {{ $card['icon'] }} {{ $txtMap[$c] }} text-base"></i>
-            </div>
-            <p class="text-[11px] font-medium text-gray-500 leading-tight">{{ $card['label'] }}</p>
-            <p class="text-xl font-bold text-gray-900 leading-none">{{ $card['value'] }}</p>
+        <a href="{{ $card['href'] }}" @if($card['active']) aria-current="true" @endif class="cnm-stat">
+            <span class="cnm-stat-i {{ $card['tint'] }}" aria-hidden="true"><i class="fas {{ $card['icon'] }}"></i></span>
+            <span class="min-w-0">
+                <span class="block text-[18px] font-bold text-gray-900 leading-tight">{{ $card['value'] }}</span>
+                <span class="block text-[11.5px] {{ $card['active'] ? 'text-orange-700 font-semibold' : 'text-slate-500' }} truncate">{{ $card['label'] }}</span>
+            </span>
         </a>
         @endforeach
     </div>
 
+<!-- B · Search & filter workspace -->
+<div class="bg-white rounded-2xl border border-slate-200 mb-3 overflow-hidden">
+<form method="GET" action="{{ route('user.leads') }}" class="p-3 sm:px-4">
 
-
-<style>
-.search-form { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; }
-.search-input { background: rgba(255,255,255,0.8); border: 1px solid #d1d5db; transition: all 0.2s; }
-.search-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: white; }
-.select-custom { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e"); background-position: right 6px center; background-repeat: no-repeat; background-size: 14px; }
-.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-.btn-primary:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-1px); }
-.filters-container { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-.filters-container.open { max-height: 400px; }
-@media (min-width: 1024px) {
-    .compact-select { max-width: 110px; }
-}
-</style>
-
-<!-- Compact Single Form -->
-<form method="GET" action="{{ route('user.leads') }}" class="search-form rounded-xl shadow-sm p-3">
-    
-    <!-- Top Row: Search + Mobile Toggle -->
-    <div class="flex gap-2 mb-3">
-        <div class="flex-1 relative">
-            <input type="text" 
-                   name="search" 
+    <!-- Primary search row -->
+    <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex-1 relative min-w-0">
+            <label for="leadSearch" class="sr-only">Search leads</label>
+            <input type="text"
+                   id="leadSearch"
+                   name="search"
                    value="{{ $search }}"
-                   placeholder="Search by name, email, phone..." 
-                   class="search-input w-full pl-9 pr-3 py-2 rounded-lg text-sm appearance-none">
-            <div class="absolute left-3 top-1/2 -translate-y-1/2">
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+                   placeholder="Search by name, email, phone..."
+                   class="cnm-search">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 text-xs pointer-events-none" aria-hidden="true"></i>
+        </div>
+        <div class="grid grid-cols-2 sm:flex gap-2">
+            <button type="submit" class="cnm-btn cnm-btn-primary !h-[38px] !px-6 !text-[13px]">
+                <i class="fas fa-search text-[11px]" aria-hidden="true"></i>Search
+            </button>
+            <a href="{{ route('user.leads') }}" class="cnm-btn cnm-btn-neutral !h-[38px] !px-4 !text-[13px]">
+                Clear{{ $activeFilterCount ? ' (' . $activeFilterCount . ')' : '' }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Has Email / Phone / Website (switches submit the form, as before) -->
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Has:</span>
+
+        <!-- Email -->
+        @php $emailOn = ($hasEmail ?? '1') !== '0'; @endphp
+        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none min-h-[26px]">
+            <input type="hidden" name="has_email" value="{{ $emailOn ? '1' : '0' }}">
+            <button type="button"
+                onclick="toggleFilter(this, 'has_email')"
+                role="switch" aria-checked="{{ $emailOn ? 'true' : 'false' }}" aria-label="Has email"
+                data-active="{{ $emailOn ? '1' : '0' }}"
+                class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 {{ $emailOn ? 'bg-orange-500' : 'bg-slate-300' }}">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $emailOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            </button>
+            <span class="text-[12.5px] text-slate-700"><i class="fas fa-envelope text-slate-400 text-xs mr-1" aria-hidden="true"></i>Email</span>
+        </label>
+
+        <!-- Phone -->
+        @php $phoneOn = ($hasPhone ?? '1') !== '0'; @endphp
+        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none min-h-[26px]">
+            <input type="hidden" name="has_phone" value="{{ $phoneOn ? '1' : '0' }}">
+            <button type="button"
+                onclick="toggleFilter(this, 'has_phone')"
+                role="switch" aria-checked="{{ $phoneOn ? 'true' : 'false' }}" aria-label="Has phone"
+                data-active="{{ $phoneOn ? '1' : '0' }}"
+                class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 {{ $phoneOn ? 'bg-orange-500' : 'bg-slate-300' }}">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $phoneOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            </button>
+            <span class="text-[12.5px] text-slate-700"><i class="fas fa-phone text-slate-400 text-xs mr-1" aria-hidden="true"></i>Phone</span>
+        </label>
+
+        <!-- Website -->
+        @php $websiteOn = ($hasWebsite ?? '1') !== '0'; @endphp
+        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none min-h-[26px]">
+            <input type="hidden" name="has_website" value="{{ $websiteOn ? '1' : '0' }}">
+            <button type="button"
+                onclick="toggleFilter(this, 'has_website')"
+                role="switch" aria-checked="{{ $websiteOn ? 'true' : 'false' }}" aria-label="Has website"
+                data-active="{{ $websiteOn ? '1' : '0' }}"
+                class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 {{ $websiteOn ? 'bg-orange-500' : 'bg-slate-300' }}">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $websiteOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
+            </button>
+            <span class="text-[12.5px] text-slate-700"><i class="fas fa-globe text-slate-400 text-xs mr-1" aria-hidden="true"></i>Website</span>
+        </label>
+    </div>
+
+    <!-- Advanced filters (kept in the form when collapsed, so their values still apply) -->
+    <div id="filtersContainer" class="filters-container open">
+        <div class="mt-2 space-y-2">
+
+            <!-- User Filter (Company Only) -->
+            @if(auth()->user()->isCompany() || auth()->user()->isTeamMember())
+                <x-user-filter :selectedUserId="$selectedUserId ?? null" />
+            @endif
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2">
+                <!-- Country -->
+                <div class="min-w-0">
+                    <label for="country_select" class="cnm-label sr-only">Country</label>
+                    <select name="country_id" id="country_select" class="cnm-select">
+                        <option value="">Country</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country->id }}" {{ $countryId == $country->id ? 'selected' : '' }}>
+                                {{ $country->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- State -->
+                <div class="min-w-0">
+                    <label for="state_select" class="cnm-label sr-only">State</label>
+                    <select name="state_id" id="state_select" class="cnm-select" disabled>
+                        <option value="">State</option>
+                    </select>
+                </div>
+
+                <!-- City -->
+                <div class="min-w-0">
+                    <label for="city_select" class="cnm-label sr-only">City</label>
+                    <select name="city_id" id="city_select" class="cnm-select" disabled>
+                        <option value="">City</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="min-w-0">
+                    <label for="statusFilter" class="cnm-label sr-only">Status</label>
+                    <select name="status" id="statusFilter" class="cnm-select">
+                        <option value="">Status</option>
+                        <option value="not_contacted"  {{ $status == 'not_contacted'  ? 'selected' : '' }}>Pending</option>
+                        <option value="contacted"      {{ $status == 'contacted'      ? 'selected' : '' }}>Contacted</option>
+                        <option value="responded"      {{ $status == 'responded'      ? 'selected' : '' }}>Responded</option>
+                        <option value="converted"      {{ $status == 'converted'      ? 'selected' : '' }}>Converted</option>
+                        <option value="closed"         {{ $status == 'closed'         ? 'selected' : '' }}>Closed</option>
+                        <option value="follow_up"      {{ $status == 'follow_up'      ? 'selected' : '' }}>Follow Up</option>
+                    </select>
+                </div>
+
+                @if(auth()->user()->hasFeature('advanced_review_filters'))
+                    <div class="min-w-0">
+                        <label for="ratingFilter" class="cnm-label sr-only">Rating</label>
+                        <select name="rating" id="ratingFilter" class="cnm-select">
+                            <option value="">Rating</option>
+                            <option value="4.5" {{ $rating == '4.5' ? 'selected' : '' }}>4.5+</option>
+                            <option value="4.0" {{ $rating == '4.0' ? 'selected' : '' }}>4.0+</option>
+                            <option value="3.5" {{ $rating == '3.5' ? 'selected' : '' }}>3.5+</option>
+                            <option value="3.0" {{ $rating == '3.0' ? 'selected' : '' }}>3.0+</option>
+                        </select>
+                    </div>
+
+                    <div class="min-w-0">
+                        <label for="lastReviewFilter" class="cnm-label sr-only">Review</label>
+                        <select name="last_review" id="lastReviewFilter" class="cnm-select">
+                            <option value="">Review</option>
+                            <option value="1-day"    {{ $lastReview == '1-day'    ? 'selected' : '' }}>1 day</option>
+                            <option value="1-week"   {{ $lastReview == '1-week'   ? 'selected' : '' }}>1 week</option>
+                            <option value="1-month"  {{ $lastReview == '1-month'  ? 'selected' : '' }}>1 month</option>
+                            <option value="3-months" {{ $lastReview == '3-months' ? 'selected' : '' }}>3 months</option>
+                            <option value="6-months" {{ $lastReview == '6-months' ? 'selected' : '' }}>6 months</option>
+                        </select>
+                    </div>
+
+                    <div class="min-w-0">
+                        <label for="reviewsCountFilter" class="cnm-label sr-only">Reviews #</label>
+                        <select name="reviews_count" id="reviewsCountFilter" class="cnm-select">
+                            <option value="">Reviews #</option>
+                            <option value="lt30"   {{ $reviewsCount == 'lt30'   ? 'selected' : '' }}>&lt; 30</option>
+                            <option value="gte30"  {{ $reviewsCount == 'gte30'  ? 'selected' : '' }}>30+</option>
+                            <option value="lt50"   {{ $reviewsCount == 'lt50'   ? 'selected' : '' }}>&lt; 50</option>
+                            <option value="gte50"  {{ $reviewsCount == 'gte50'  ? 'selected' : '' }}>50+</option>
+                            <option value="lt100"  {{ $reviewsCount == 'lt100'  ? 'selected' : '' }}>&lt; 100</option>
+                            <option value="gte100" {{ $reviewsCount == 'gte100' ? 'selected' : '' }}>100+</option>
+                        </select>
+                    </div>
+                @else
+                    @foreach([['Rating', 'Upgrade to unlock rating filters'], ['Review', 'Upgrade to unlock review filters'], ['Reviews #', 'Upgrade to unlock review count filters']] as [$lockedLabel, $lockedTitle])
+                        <!-- {{ $lockedLabel }} Filter - Locked -->
+                        <div class="min-w-0">
+                            <span class="cnm-label sr-only">{{ $lockedLabel }}</span>
+                            <div class="relative">
+                                <select disabled class="cnm-select" aria-label="{{ $lockedLabel }} (locked on your plan)">
+                                    <option value="">{{ $lockedLabel }}</option>
+                                </select>
+                                <a href="{{ route('user.subscription') }}"
+                                   class="absolute top-1/2 -translate-y-1/2 right-7 z-10 inline-flex items-center gap-1 h-6 px-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-semibold transition-colors"
+                                   title="{{ $lockedTitle }}">
+                                    <i class="fas fa-lock text-[9px]" aria-hidden="true"></i>Upgrade
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
             </div>
         </div>
-        
-        <!-- Mobile Toggle -->
-        <button type="button" onclick="toggleFilters()" class="lg:hidden search-input px-3 py-2 rounded-lg text-sm border bg-white">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-            </svg>
-        </button>
-        
-        <!-- Desktop Buttons -->
-        <button type="submit" class="hidden lg:block btn-primary text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-            Search
-        </button>
-        <a href="{{ route('user.leads') }}" class="hidden lg:block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors border">
-            Clear
-        </a>
     </div>
 
-    <!-- User Filter (Company Only) -->
-    @if(auth()->user()->isCompany() || auth()->user()->isTeamMember())
-    <div class="mb-3">
-        <x-user-filter :selectedUserId="$selectedUserId ?? null" />
-    </div>
-    @endif
-
-   <div class="flex flex-col lg:flex-row gap-1.5 lg:flex-nowrap">
-
-    <!-- Country -->
-    <div class="lg:flex-[2]">
-        <select name="country_id" id="country_select"
-            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full">
-            <option value="">Country</option>
-            @foreach($countries as $country)
-                <option value="{{ $country->id }}" {{ $countryId == $country->id ? 'selected' : '' }}>
-                    {{ $country->name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-    <!-- State -->
-    <div class="lg:flex-[2]">
-        <select name="state_id" id="state_select"
-            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full"
-            disabled>
-            <option value="">State</option>
-        </select>
-    </div>
-
-    <!-- City -->
-    <div class="lg:flex-[2]">
-        <select name="city_id" id="city_select"
-            class="search-input px-2 py-2 rounded-lg text-sm appearance-none cursor-pointer w-full"
-            disabled>
-            <option value="">City</option>
-        </select>
-    </div>
-
-    <!-- Rest normal size -->
-    <select name="status" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-        <option value="">Status</option>
-        <option value="not_contacted"  {{ $status == 'not_contacted'  ? 'selected' : '' }}>Pending</option>
-        <option value="contacted"      {{ $status == 'contacted'      ? 'selected' : '' }}>Contacted</option>
-        <option value="responded"      {{ $status == 'responded'      ? 'selected' : '' }}>Responded</option>
-        <option value="converted"      {{ $status == 'converted'      ? 'selected' : '' }}>Converted</option>
-        <option value="closed"         {{ $status == 'closed'         ? 'selected' : '' }}>Closed</option>
-        <option value="follow_up"      {{ $status == 'follow_up'      ? 'selected' : '' }}>Follow Up</option>
-    </select>
-
-
-    @if(auth()->user()->hasFeature('advanced_review_filters'))
-        <select name="rating" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-            <option value="">Rating</option>
-            <option value="4.5" {{ $rating == '4.5' ? 'selected' : '' }}>4.5+</option>
-            <option value="4.0" {{ $rating == '4.0' ? 'selected' : '' }}>4.0+</option>
-            <option value="3.5" {{ $rating == '3.5' ? 'selected' : '' }}>3.5+</option>
-            <option value="3.0" {{ $rating == '3.0' ? 'selected' : '' }}>3.0+</option>
-        </select>
-
-        <select name="last_review" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-            <option value="">Review</option>
-            <option value="1-day"    {{ $lastReview == '1-day'    ? 'selected' : '' }}>1 day</option>
-            <option value="1-week"   {{ $lastReview == '1-week'   ? 'selected' : '' }}>1 week</option>
-            <option value="1-month"  {{ $lastReview == '1-month'  ? 'selected' : '' }}>1 month</option>
-            <option value="3-months" {{ $lastReview == '3-months' ? 'selected' : '' }}>3 months</option>
-            <option value="6-months" {{ $lastReview == '6-months' ? 'selected' : '' }}>6 months</option>
-        </select>
-
-        <select name="reviews_count" class="search-input compact-select px-2 py-2 rounded-lg text-sm cursor-pointer lg:flex-1">
-            <option value="">Reviews #</option>
-            <option value="lt30"   {{ $reviewsCount == 'lt30'   ? 'selected' : '' }}>&lt; 30</option>
-            <option value="gte30"  {{ $reviewsCount == 'gte30'  ? 'selected' : '' }}>30+</option>
-            <option value="lt50"   {{ $reviewsCount == 'lt50'   ? 'selected' : '' }}>&lt; 50</option>
-            <option value="gte50"  {{ $reviewsCount == 'gte50'  ? 'selected' : '' }}>50+</option>
-            <option value="lt100"  {{ $reviewsCount == 'lt100'  ? 'selected' : '' }}>&lt; 100</option>
-            <option value="gte100" {{ $reviewsCount == 'gte100' ? 'selected' : '' }}>100+</option>
-        </select>
-    @else
-        <!-- Rating Filter - Locked -->
-        <div class="relative lg:flex-1">
-            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
-                <option value="">Rating</option>
-            </select>
-            <a href="{{ route('user.subscription') }}"
-               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
-               title="Upgrade to unlock rating filters">
-                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
-            </a>
-        </div>
-
-        <!-- Review Filter - Locked -->
-        <div class="relative lg:flex-1">
-            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
-                <option value="">Review</option>
-            </select>
-            <a href="{{ route('user.subscription') }}"
-               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
-               title="Upgrade to unlock review filters">
-                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
-            </a>
-        </div>
-
-        <!-- Reviews Count Filter - Locked -->
-        <div class="relative lg:flex-1">
-            <select disabled class="search-input compact-select px-2 py-2 rounded-lg text-sm bg-gray-50 text-gray-400 cursor-not-allowed lg:w-full">
-                <option value="">Reviews #</option>
-            </select>
-            <a href="{{ route('user.subscription') }}"
-               class="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm transition-all hover:shadow z-10"
-               title="Upgrade to unlock review count filters">
-                <i class="fas fa-lock mr-0.5 text-[8px]"></i>Upgrade
-            </a>
-        </div>
-    @endif
-
-</div>
-
-<!-- Preserve lead_category across search form submissions -->
-<input type="hidden" name="lead_category" value="{{ $leadCategory ?? '' }}">
-
-<!-- Has Email / Phone / Website toggle row -->
-<div class="flex items-center gap-4 mt-2.5 pt-2.5 border-t border-gray-200">
-    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide flex-shrink-0">Has:</span>
-
-    <!-- Email -->
-    @php $emailOn = ($hasEmail ?? '1') !== '0'; @endphp
-    <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_email" value="{{ $emailOn ? '1' : '0' }}">
-        <button type="button"
-            onclick="toggleFilter(this, 'has_email')"
-            data-active="{{ $emailOn ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $emailOn ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $emailOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
-        </button>
-        <span class="text-xs text-gray-600">Email</span>
-    </label>
-
-    <!-- Phone -->
-    @php $phoneOn = ($hasPhone ?? '1') !== '0'; @endphp
-    <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_phone" value="{{ $phoneOn ? '1' : '0' }}">
-        <button type="button"
-            onclick="toggleFilter(this, 'has_phone')"
-            data-active="{{ $phoneOn ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $phoneOn ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $phoneOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
-        </button>
-        <span class="text-xs text-gray-600">Phone</span>
-    </label>
-
-    <!-- Website -->
-    @php $websiteOn = ($hasWebsite ?? '1') !== '0'; @endphp
-    <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="hidden" name="has_website" value="{{ $websiteOn ? '1' : '0' }}">
-        <button type="button"
-            onclick="toggleFilter(this, 'has_website')"
-            data-active="{{ $websiteOn ? '1' : '0' }}"
-            class="relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none {{ $websiteOn ? 'bg-green-500' : 'bg-gray-300' }}">
-            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 {{ $websiteOn ? 'translate-x-4' : 'translate-x-0' }}"></span>
-        </button>
-        <span class="text-xs text-gray-600">Website</span>
-    </label>
-</div>
-
+    <!-- Preserve lead_category across search form submissions -->
+    <input type="hidden" name="lead_category" value="{{ $leadCategory ?? '' }}">
 </form>
 
-<!-- Lead Category Filter Pills -->
+<!-- C · Lead types and folders -->
 @php
     $baseParams = request()->except(['lead_category', 'page']);
     $catPills = [
-        ''            => ['label' => 'All Leads',    'icon' => '',   'count' => $stats['total'],                    'active_cls' => 'bg-gray-800 text-white border-gray-800',     'inactive_cls' => 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'],
-        'seo_weak'    => ['label' => 'SEO Weak',     'icon' => '📉', 'count' => $categoryStats['seo_weak'],         'active_cls' => 'bg-orange-500 text-white border-orange-500',  'inactive_cls' => 'bg-white text-orange-600 border-orange-300 hover:border-orange-400'],
-        'low_rating'  => ['label' => 'Low Rating',   'icon' => '⭐', 'count' => $categoryStats['low_rating'],        'active_cls' => 'bg-pink-500 text-white border-pink-500',      'inactive_cls' => 'bg-white text-pink-600 border-pink-300 hover:border-pink-400'],
-        'hot'         => ['label' => 'Hot',          'icon' => '🔥', 'count' => $categoryStats['hot'],              'active_cls' => 'bg-red-500 text-white border-red-500',        'inactive_cls' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
-        'good'        => ['label' => 'Good',         'icon' => '👍', 'count' => $categoryStats['good'],             'active_cls' => 'bg-yellow-500 text-white border-yellow-500',  'inactive_cls' => 'bg-white text-yellow-600 border-yellow-300 hover:border-yellow-400'],
-        'competitive' => ['label' => 'Competitive',  'icon' => '🧠', 'count' => $categoryStats['competitive'],      'active_cls' => 'bg-blue-500 text-white border-blue-500',      'inactive_cls' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
-        'inactive'    => ['label' => 'Inactive',     'icon' => '❌', 'count' => $categoryStats['inactive'],         'active_cls' => 'bg-gray-400 text-white border-gray-400',      'inactive_cls' => 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'],
+        ''            => ['label' => 'All Leads',   'icon' => null,                  'tone' => 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50',     'count' => $stats['total']],
+        'seo_weak'    => ['label' => 'SEO Weak',    'icon' => 'fa-layer-group',      'tone' => 'bg-white border-orange-300 text-orange-700 hover:bg-orange-50',  'count' => $categoryStats['seo_weak']],
+        'low_rating'  => ['label' => 'Low Rating',  'icon' => 'fa-star',             'tone' => 'bg-white border-pink-300 text-pink-700 hover:bg-pink-50',        'count' => $categoryStats['low_rating']],
+        'hot'         => ['label' => 'Hot',         'icon' => 'fa-fire',             'tone' => 'bg-white border-red-300 text-red-700 hover:bg-red-50',           'count' => $categoryStats['hot']],
+        'good'        => ['label' => 'Good',        'icon' => 'fa-thumbs-up',        'tone' => 'bg-white border-amber-300 text-amber-700 hover:bg-amber-50',     'count' => $categoryStats['good']],
+        'competitive' => ['label' => 'Competitive', 'icon' => 'fa-scale-balanced',   'tone' => 'bg-white border-violet-300 text-violet-700 hover:bg-violet-50',  'count' => $categoryStats['competitive']],
+        'inactive'    => ['label' => 'Inactive',    'icon' => 'fa-xmark',            'tone' => 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50',     'count' => $categoryStats['inactive']],
     ];
+    $chip = 'cnm-pill';
 @endphp
-<div class="flex flex-wrap items-center gap-2 my-3">
-    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide mr-1">Filter by type:</span>
-    @foreach($catPills as $catKey => $pill)
-        @php
-            $isActive = ($leadCategory ?? '') === $catKey;
-            $url = route('user.leads', $catKey === '' ? $baseParams : array_merge($baseParams, ['lead_category' => $catKey]));
-            $isSeoWeakPill = $catKey === 'seo_weak';
-        @endphp
-        @if($isSeoWeakPill && !$hasSeoAccess)
-            <button type="button" onclick="showSeoUpgradeModal()"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-white text-gray-400 border-gray-200 cursor-not-allowed">
-                <span>📉</span>
-                {{ $pill['label'] }}
-                <i class="fas fa-lock text-[10px] ml-0.5 text-purple-400"></i>
-            </button>
-        @else
-            <a href="{{ $url }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $pill['active_cls'] : $pill['inactive_cls'] }}">
-                @if($pill['icon']) <span>{{ $pill['icon'] }}</span> @endif
-                {{ $pill['label'] }}
-                <span class="ml-1 {{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $pill['count'] }})</span>
+<div class="border-t border-slate-100 divide-y divide-slate-100">
+    <div class="flex items-center gap-2.5 px-3 sm:px-4 py-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide flex-shrink-0">Filter by type:</span>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 min-w-0">
+            @foreach($catPills as $catKey => $pill)
+                @php
+                    $isActive = ($leadCategory ?? '') === $catKey;
+                    $url = route('user.leads', $catKey === '' ? $baseParams : array_merge($baseParams, ['lead_category' => $catKey]));
+                    $isSeoWeakPill = $catKey === 'seo_weak';
+                @endphp
+                @if($isSeoWeakPill && !$hasSeoAccess)
+                    <button type="button" onclick="showSeoUpgradeModal()"
+                            class="{{ $chip }} bg-slate-50 border-slate-200 text-slate-400" title="Upgrade to unlock">
+                        <i class="fas {{ $pill['icon'] }} text-[10px]" aria-hidden="true"></i>
+                        {{ $pill['label'] }}
+                        <i class="fas fa-lock text-[10px] text-purple-400" aria-hidden="true"></i>
+                    </button>
+                @else
+                    <a href="{{ $url }}" @if($isActive) aria-current="true" @endif
+                       class="{{ $chip }} {{ $isActive ? 'bg-gray-900 border-gray-900 text-white' : $pill['tone'] }}">
+                        @if($pill['icon'])<i class="fas {{ $pill['icon'] }} text-[10px]" aria-hidden="true"></i>@endif
+                        {{ $pill['label'] }}
+                        <span class="n">({{ $pill['count'] }})</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Folder Filter Pills -->
+    @if($folders->count() > 0)
+    @php $folderBaseParams = request()->except(['folder_id', 'page']); @endphp
+    <div class="flex items-center gap-2.5 px-3 sm:px-4 py-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide flex-shrink-0 flex items-center gap-1.5">
+            <i class="fas fa-folder text-slate-400" aria-hidden="true"></i> Folders:
+        </span>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 min-w-0">
+            <a href="{{ route('user.leads', $folderBaseParams) }}" @if(!$folderId) aria-current="true" @endif
+               class="{{ $chip }} {{ !$folderId ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50' }}">
+                All
             </a>
-        @endif
-    @endforeach
+
+            @foreach($folders as $folder)
+                @php
+                    $folderDots = ['blue' => 'text-blue-500', 'green' => 'text-green-500', 'purple' => 'text-purple-500', 'red' => 'text-red-500', 'orange' => 'text-orange-500', 'pink' => 'text-pink-500', 'teal' => 'text-teal-500'];
+                    $dot = $folderDots[$folder->color] ?? $folderDots['blue'];
+                    $isActive = (string)$folderId === (string)$folder->id;
+                @endphp
+                <a href="{{ route('user.leads', array_merge($folderBaseParams, ['folder_id' => $folder->id])) }}" @if($isActive) aria-current="true" @endif
+                   class="{{ $chip }} {{ $isActive ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-blue-200 text-blue-700 hover:bg-blue-50' }}">
+                    <i class="fas fa-folder text-[10px] {{ $isActive ? 'text-white' : $dot }}" aria-hidden="true"></i>
+                    {{ $folder->name }}
+                    <span class="n">({{ $folder->leads_count }})</span>
+                </a>
+            @endforeach
+
+            <button type="button" onclick="openFolderModal(null, 'create')"
+                    class="{{ $chip }} bg-white border-slate-300 text-slate-600 hover:border-orange-400 hover:text-orange-600">
+                <i class="fas fa-plus text-[10px]" aria-hidden="true"></i> New Folder
+            </button>
+        </div>
+    </div>
+    @endif
 </div>
-
-<!-- Folder Filter Pills -->
-@if($folders->count() > 0)
-<div class="flex flex-wrap items-center gap-2 mb-3">
-    <span class="text-xs text-gray-500 font-medium uppercase tracking-wide mr-1 flex items-center gap-1">
-        <i class="fas fa-folder text-gray-400"></i> Folders:
-    </span>
-
-    @php
-        $folderBaseParams = request()->except(['folder_id', 'page']);
-    @endphp
-
-    <a href="{{ route('user.leads', $folderBaseParams) }}"
-       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all
-              {{ !$folderId ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400' }}">
-        All
-    </a>
-
-    @foreach($folders as $folder)
-        @php
-            $folderColors = [
-                'blue'   => ['active' => 'bg-blue-500 text-white border-blue-500',   'inactive' => 'bg-white text-blue-600 border-blue-300 hover:border-blue-400'],
-                'green'  => ['active' => 'bg-green-500 text-white border-green-500', 'inactive' => 'bg-white text-green-600 border-green-300 hover:border-green-400'],
-                'purple' => ['active' => 'bg-purple-500 text-white border-purple-500','inactive' => 'bg-white text-purple-600 border-purple-300 hover:border-purple-400'],
-                'red'    => ['active' => 'bg-red-500 text-white border-red-500',     'inactive' => 'bg-white text-red-600 border-red-300 hover:border-red-400'],
-                'orange' => ['active' => 'bg-orange-500 text-white border-orange-500','inactive' => 'bg-white text-orange-600 border-orange-300 hover:border-orange-400'],
-                'pink'   => ['active' => 'bg-pink-500 text-white border-pink-500',   'inactive' => 'bg-white text-pink-600 border-pink-300 hover:border-pink-400'],
-                'teal'   => ['active' => 'bg-teal-500 text-white border-teal-500',   'inactive' => 'bg-white text-teal-600 border-teal-300 hover:border-teal-400'],
-            ];
-            $fc = $folderColors[$folder->color] ?? $folderColors['blue'];
-            $isActive = (string)$folderId === (string)$folder->id;
-        @endphp
-        <a href="{{ route('user.leads', array_merge($folderBaseParams, ['folder_id' => $folder->id])) }}"
-           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all {{ $isActive ? $fc['active'] : $fc['inactive'] }}">
-            <i class="fas fa-folder text-[10px]"></i>
-            {{ $folder->name }}
-            <span class="{{ $isActive ? 'opacity-80' : 'opacity-60' }} font-normal">({{ $folder->leads_count }})</span>
-        </a>
-    @endforeach
-
-    <button type="button" onclick="openFolderModal(null, 'create')"
-            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs font-medium text-gray-500 border-dashed border-gray-400 hover:border-gray-500 hover:text-gray-700 transition-all">
-        <i class="fas fa-plus text-[10px]"></i> New Folder
-    </button>
 </div>
-@endif
 
     @if($leads->count() > 0)
-        <!-- Bulk Actions Bar -->
+        <!-- D · Bulk / page actions -->
         @php
             $exportLimit = Auth::user()->getFeatureLimit('export_leads');
             $todayExportCount = \App\Models\ExportHistory::where('user_id', Auth::id())
@@ -406,20 +464,22 @@
                 ->count();
             $canExport = $exportLimit === -1 || $todayExportCount < $exportLimit;
         @endphp
-        @php $btn = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors'; @endphp
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
-            <div class="px-4 py-3 flex flex-wrap items-center gap-2 justify-between">
+        <div class="bg-white rounded-t-2xl border border-slate-200 border-b-0">
+            <div class="px-3 sm:px-4 py-2 flex flex-wrap items-center gap-2 justify-between">
 
                 <!-- Left: select-all + bulk actions (shown when rows checked) -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 rounded border-gray-300 cursor-pointer">
-                    <label for="selectAll" class="text-xs text-gray-600 cursor-pointer font-medium">Select All</label>
-                    <span id="selectedCount" class="text-xs text-gray-400">(0 selected)</span>
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <label for="selectAll" class="inline-flex items-center gap-2 h-8 pr-1 cursor-pointer">
+                        <input type="checkbox" id="selectAll" class="w-4 h-4 rounded border-slate-300 accent-orange-500 cursor-pointer">
+                        <span class="text-[13px] font-medium text-slate-700">Select All</span>
+                    </label>
+                    <span id="selectedCount" class="text-xs text-slate-500" aria-live="polite">(0 selected)</span>
 
                     <div id="bulkActions" class="flex flex-wrap items-center gap-2 hidden">
-                        <div class="w-px h-4 bg-gray-300 mx-1"></div>
-                        <select id="bulkStatus" class="px-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-blue-400">
+                        <span class="hidden sm:block w-px h-6 bg-slate-200 mx-1" aria-hidden="true"></span>
+                        <label for="bulkStatus" class="sr-only">Change Status</label>
+                        <select id="bulkStatus" class="cnm-select is-sm !w-auto">
                             <option value="">Change Status</option>
                             <option value="not_contacted">Not Contacted</option>
                             <option value="contacted">Contacted</option>
@@ -427,17 +487,22 @@
                             <option value="converted">Converted</option>
                             <option value="closed">Closed</option>
                         </select>
-                        <button onclick="bulkUpdateStatus()" class="{{ $btn }} bg-green-600 hover:bg-green-700 text-white">
-                            <i class="fas fa-check"></i> Update Status
+                        <button onclick="bulkUpdateStatus()" class="cnm-btn !bg-gray-900 !text-white hover:!bg-gray-800">
+                            <i class="fas fa-check" aria-hidden="true"></i> Update Status
                         </button>
-                        <button onclick="bulkDelete()" class="{{ $btn }} bg-red-600 hover:bg-red-700 text-white">
-                            <i class="fas fa-trash"></i> Delete Selected
+                        <button onclick="openFolderModal(getSelectedLeadIds(), 'move')" class="cnm-btn cnm-btn-neutral">
+                            <i class="fas fa-folder-open text-slate-500" aria-hidden="true"></i> Move to Folder
                         </button>
-                        <button onclick="openFolderModal(getSelectedLeadIds(), 'move')" class="{{ $btn }} bg-indigo-600 hover:bg-indigo-700 text-white">
-                            <i class="fas fa-folder-open"></i> Move to Folder
+                        <button onclick="addSelectedToLeadCenter()" class="cnm-btn cnm-btn-neutral">
+                            <i class="fas fa-bullseye text-slate-500" aria-hidden="true"></i> Add to Lead Center
                         </button>
-                        <button onclick="addSelectedToLeadCenter()" class="{{ $btn }} bg-teal-600 hover:bg-teal-700 text-white">
-                            <i class="fas fa-bullseye"></i> Add to Lead Center
+                        @if(\App\Services\PlanFeatures::enabled(auth()->user(), 'ai_sales_profile_enabled'))
+                            <button type="button" onclick="cnmOpenAnalyze(getSelectedLeadIds())" class="cnm-btn cnm-btn-primary" data-testid="analyze-with-ai">
+                                <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Analyze with AI
+                            </button>
+                        @endif
+                        <button onclick="bulkDelete()" class="cnm-btn cnm-btn-danger">
+                            <i class="fas fa-trash" aria-hidden="true"></i> Delete Selected
                         </button>
                     </div>
                 </div>
@@ -446,26 +511,23 @@
                 <div class="flex flex-wrap items-center gap-2">
 
                     <!-- Folders -->
-                    <button type="button" onclick="openFolderModal([], 'create')" class="{{ $btn }} bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200">
-                        <i class="fas fa-folder-plus"></i> Folders
+                    <button type="button" onclick="openFolderModal([], 'create')" class="cnm-btn cnm-btn-indigo">
+                        <i class="fas fa-folder" aria-hidden="true"></i> Folders
                     </button>
 
                     <!-- SEO Analytics -->
                     @if($hasSeoAccess)
-                        <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn"
-                                class="{{ $btn }} bg-purple-600 hover:bg-purple-700 text-white">
-                            <i class="fas fa-tachometer-alt"></i> SEO Analytics
+                        <button type="button" onclick="startSeoAnalytics()" id="seoAnalyticsBtn" class="cnm-btn cnm-btn-purple">
+                            <i class="fas fa-chart-simple" aria-hidden="true"></i> SEO Analytics
                         </button>
                     @else
-                        <button type="button" onclick="showSeoUpgradeModal()"
-                                class="{{ $btn }} bg-gray-200 hover:bg-gray-300 text-gray-500">
-                            <i class="fas fa-lock"></i> SEO Analytics
+                        <button type="button" onclick="showSeoUpgradeModal()" class="cnm-btn cnm-btn-locked">
+                            <i class="fas fa-lock" aria-hidden="true"></i> SEO Analytics
                         </button>
                     @endif
 
                     <!-- Hide / Show Details -->
-                    <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn"
-                            class="{{ $btn }} bg-orange-500 hover:bg-orange-600 text-white">
+                    <button type="button" onclick="toggleLeadsVisibility()" id="toggleVisibilityBtn" class="cnm-btn cnm-btn-primary">
                         <i class="fas fa-eye-slash" id="visibilityIcon"></i>
                         <span id="visibilityText">Hide Details</span>
                     </button>
@@ -473,25 +535,23 @@
                     <!-- Export -->
                     <div class="relative inline-block">
                         @if($canExport)
-                            <button type="button" onclick="toggleExportDropdown()"
-                                    class="{{ $btn }} bg-primary-600 hover:bg-primary-700 text-white">
-                                <i class="fas fa-download"></i> Export
-                                <i class="fas fa-chevron-down text-[10px]"></i>
+                            <button type="button" onclick="toggleExportDropdown()" aria-haspopup="true" class="cnm-btn cnm-btn-blue">
+                                <i class="fas fa-download" aria-hidden="true"></i> Export
+                                <i class="fas fa-chevron-down text-[10px]" aria-hidden="true"></i>
                             </button>
-                            <div id="exportDropdown" class="hidden absolute right-0 mt-1.5 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black/5 z-10 overflow-hidden">
+                            <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white border border-slate-200 z-20 overflow-hidden py-1">
                                 <a href="{{ route('user.leads.export', request()->all()) }}"
-                                   class="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-file-csv text-blue-500"></i> Export as CSV
+                                   class="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-slate-700 hover:bg-orange-50 hover:text-orange-700 transition-colors">
+                                    <i class="fas fa-file-csv text-blue-500 w-4 text-center" aria-hidden="true"></i> Export as CSV
                                 </a>
                                 <a href="{{ route('user.leads.export.excel', request()->all()) }}"
-                                   class="flex items-center gap-2 px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-file-excel text-green-500"></i> Export as Excel
+                                   class="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-slate-700 hover:bg-orange-50 hover:text-orange-700 transition-colors">
+                                    <i class="fas fa-file-excel text-green-600 w-4 text-center" aria-hidden="true"></i> Export as Excel
                                 </a>
                             </div>
                         @else
-                            <button type="button" onclick="showExportLimitModal()"
-                                    class="{{ $btn }} bg-gray-200 hover:bg-gray-300 text-gray-500">
-                                <i class="fas fa-download"></i> Export <i class="fas fa-lock text-[10px]"></i>
+                            <button type="button" onclick="showExportLimitModal()" class="cnm-btn cnm-btn-locked">
+                                <i class="fas fa-download" aria-hidden="true"></i> Export <i class="fas fa-lock text-[10px]" aria-hidden="true"></i>
                             </button>
                         @endif
                     </div>
@@ -500,219 +560,217 @@
             </div>
         </div>
 
-        <!-- Leads Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <!-- E · Leads Table -->
+        <div class="bg-white rounded-b-2xl border border-slate-200">
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[760px]">
-                    <thead class="bg-gray-50 border-b border-gray-200">
+                <table class="cnm-table w-full min-w-[1000px]">
+                    <thead class="bg-slate-50 border-y border-slate-200">
                         <tr>
-                            <th class="text-left px-4 py-3 w-10">
-                                <span class="text-xs font-semibold text-gray-700">Sel</span>
-                            </th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700">Business</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-28 hidden lg:table-cell">Lead Type</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700">Contact</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-36 hidden xl:table-cell">Location</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-28 hidden lg:table-cell">Rating</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-36">Status</th>
-                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-700 w-20">Actions</th>
+                            <th class="w-12"><span class="sr-only">Select</span></th>
+                            <th class="min-w-[180px]">Business</th>
+                            <th class="w-36">Lead Type</th>
+                            <th class="min-w-[230px]">Contact</th>
+                            <th class="w-40">Location</th>
+                            <th class="w-36">Rating</th>
+                            <th class="w-36">Status</th>
+                            <th class="w-24 !text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-slate-100">
                         @foreach($leads as $lead)
-                            <tr class="hover:bg-gray-50 cursor-pointer lead-row" data-lead-id="{{ $lead->id }}">
-                                <td class="px-4 py-3 w-10">
+                            <tr class="hover:bg-slate-50 cursor-pointer lead-row transition-colors" data-lead-id="{{ $lead->id }}">
+                                <td class="w-12">
                                     <input type="checkbox"
-                                           class="w-4 h-4 text-primary-600 rounded border-gray-300 lead-checkbox"
+                                           class="w-4 h-4 rounded border-slate-300 accent-orange-500 lead-checkbox"
                                            value="{{ $lead->id }}"
+                                           aria-label="Select {{ $lead->name }}"
                                            onclick="event.stopPropagation()">
                                 </td>
 
-                                <td class="px-4 py-3">
-                                    <div>
-                                        <div class="text-sm font-semibold text-gray-900 contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
-                                    </div>
+                                <td>
+                                    <div class="text-[13px] font-semibold text-gray-900 leading-snug break-words contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
                                 </td>
 
                                 {{-- Lead Type Badge --}}
                                 @php
                                     $cat = $lead->lead_category;
                                     $catCfg = [
-                                        'hot'         => ['bg' => 'bg-red-50',    'border' => 'border-red-200',    'text' => 'text-red-600',    'icon' => '🔥', 'label' => 'Hot Lead',    'sub' => 'Contact now',       'tip' => 'No website · low reviews · recently active'],
-                                        'good'        => ['bg' => 'bg-yellow-50', 'border' => 'border-yellow-200', 'text' => 'text-yellow-700', 'icon' => '👍', 'label' => 'Good Lead',   'sub' => 'Worth trying',      'tip' => 'Moderate reviews · recently active'],
-                                        'competitive' => ['bg' => 'bg-blue-50',   'border' => 'border-blue-200',   'text' => 'text-blue-600',   'icon' => '🧠', 'label' => 'Competitive', 'sub' => 'Strong pitch',     'tip' => 'High reviews or older activity'],
-                                        'inactive'    => ['bg' => 'bg-gray-50',   'border' => 'border-gray-200',   'text' => 'text-gray-500',   'icon' => '❌', 'label' => 'Inactive',   'sub' => 'Skip this',         'tip' => 'No activity in 365+ days'],
+                                        'hot'         => ['cls' => 'bg-red-50 text-red-700 border-red-200',          'icon' => 'fa-fire',           'label' => 'Hot Lead',    'sub' => 'Contact now',  'tip' => 'No website · low reviews · recently active'],
+                                        'good'        => ['cls' => 'bg-yellow-50 text-yellow-800 border-yellow-100', 'icon' => 'fa-thumbs-up',      'label' => 'Good Lead',   'sub' => 'Worth trying', 'tip' => 'Moderate reviews · recently active'],
+                                        'competitive' => ['cls' => 'bg-violet-50 text-violet-700 border-violet-200',       'icon' => 'fa-scale-balanced', 'label' => 'Competitive', 'sub' => 'Strong pitch', 'tip' => 'High reviews or older activity'],
+                                        'inactive'    => ['cls' => 'bg-slate-50 text-slate-600 border-slate-200',    'icon' => 'fa-circle-xmark',   'label' => 'Inactive',    'sub' => 'Skip this',    'tip' => 'No activity in 365+ days'],
                                     ];
                                     $cfg = $catCfg[$cat] ?? $catCfg['inactive'];
                                 @endphp
-                                <td class="px-4 py-3 w-28 hidden lg:table-cell">
-                                    <div class="relative group inline-block">
-                                        <div class="{{ $cfg['bg'] }} {{ $cfg['border'] }} border rounded-lg px-2 py-1.5 flex flex-col items-start cursor-default min-w-[90px]">
-                                            <span class="{{ $cfg['text'] }} text-xs font-semibold leading-tight">{{ $cfg['icon'] }} {{ $cfg['label'] }}</span>
-                                            <span class="text-gray-400 text-[10px] leading-tight">{{ $cfg['sub'] }}</span>
-                                        </div>
+                                <td class="w-36">
+                                    <div class="relative group inline-block" title="{{ $cfg['tip'] }}">
+                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[11.5px] font-medium whitespace-nowrap {{ $cfg['cls'] }}">
+                                            <i class="fas {{ $cfg['icon'] }} text-[10px]" aria-hidden="true"></i>{{ $cfg['label'] }}
+                                        </span>
+                                        <span class="sr-only">{{ $cfg['sub'] }}</span>
                                         {{-- Tooltip --}}
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                                        <div class="absolute bottom-full left-0 mb-2 px-2.5 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg" aria-hidden="true">
                                             {{ $cfg['tip'] }}
-                                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                                         </div>
                                     </div>
                                 </td>
 
-                               <td class="px-4 py-3 max-w-xs">
-                                <div class="space-y-1 truncate">
-                                    @if($lead->phone)
-                                        <div class="flex items-center text-sm text-gray-600 gap-2">
-                                            <i class="fas fa-phone w-4"></i>
-                                            <span class="contact-detail" data-type="phone" data-original="{{ $lead->phone }}">{{ $lead->phone }}</span>
-                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->phone }}', this)"
-                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
-                                                    title="Copy phone">
-                                                <i class="fas fa-copy text-xs"></i>
-                                            </button>
-                                        </div>
-                                    @endif
-                                    @if($lead->email)
-                                        <div class="flex items-center text-sm text-gray-600 gap-2">
-                                            <i class="fas fa-envelope w-4"></i>
-                                            <span class="contact-detail" data-type="email" data-original="{{ $lead->email }}">{{ $lead->email }}</span>
-                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->email }}', this)"
-                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
-                                                    title="Copy email">
-                                                <i class="fas fa-copy text-xs"></i>
-                                            </button>
-                                        </div>
-                                    @endif
-                                    @if($lead->website)
-                                        <div class="flex items-center text-sm text-gray-600 gap-2">
-                                            <i class="fas fa-globe w-4"></i>
-                                            <a href="{{ $lead->website }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate contact-detail" data-type="website" data-original="{{ str_replace(['http://', 'https://'], '', $lead->website) }}">
-                                                {{ str_replace(['http://', 'https://'], '', $lead->website) }}
-                                            </a>
-                                            <button onclick="event.stopPropagation(); copyToClipboard('{{ $lead->website }}', this)"
-                                                    class="text-blue-500 hover:text-blue-700 transition-colors copy-btn"
-                                                    title="Copy website">
-                                                <i class="fas fa-copy text-xs"></i>
-                                            </button>
-                                        </div>
-                                        {{-- SEO Score Badge --}}
-                                        <div id="seo-score-{{ $lead->id }}" class="mt-1">
-                                            @if(!$hasSeoAccess)
-                                                <button onclick="event.stopPropagation(); showSeoUpgradeModal()"
-                                                        class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-purple-50 text-purple-500 border border-purple-200 hover:bg-purple-100 transition-colors">
-                                                    <i class="fas fa-lock text-[9px]"></i> SEO Score
+                                <td class="max-w-[300px]">
+                                    <div class="space-y-0.5">
+                                        @if($lead->phone)
+                                            <div class="flex items-center gap-1.5 text-[12px] text-slate-700 min-w-0 leading-5">
+                                                <i class="fas fa-phone w-3.5 text-center text-slate-500 text-[10px] flex-shrink-0" aria-hidden="true"></i>
+                                                <span class="contact-detail break-all" data-type="phone" data-original="{{ $lead->phone }}">{{ $lead->phone }}</span>
+                                                <button onclick="event.stopPropagation(); copyToClipboard(@js($lead->phone), this)"
+                                                        class="cnm-copy copy-btn"
+                                                        title="Copy phone" aria-label="Copy phone">
+                                                    <i class="fas fa-copy text-[10px]"></i>
                                                 </button>
-                                            @elseif($lead->seo_score === null)
-                                                {{-- Not checked yet; will be filled by SEO Analytics button --}}
-                                            @else
-                                                @php
-                                                    $seoScore = $lead->seo_score;
-                                                    if ($seoScore <= 50) {
-                                                        $seoBg = 'bg-red-100'; $seoText = 'text-red-700'; $seoLabel = 'Weak';
-                                                    } elseif ($seoScore <= 70) {
-                                                        $seoBg = 'bg-yellow-100'; $seoText = 'text-yellow-700'; $seoLabel = 'OK';
-                                                    } else {
-                                                        $seoBg = 'bg-green-100'; $seoText = 'text-green-700'; $seoLabel = 'Strong';
-                                                    }
-                                                @endphp
-                                                <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded {{ $seoBg }} {{ $seoText }}">
-                                                    <i class="fas fa-tachometer-alt"></i> SEO {{ $seoScore }} · {{ $seoLabel }}
+                                            </div>
+                                        @endif
+                                        @if($lead->email)
+                                            <div class="flex items-center gap-1.5 text-[12px] text-slate-700 min-w-0 leading-5">
+                                                <i class="fas fa-envelope w-3.5 text-center text-slate-500 text-[10px] flex-shrink-0" aria-hidden="true"></i>
+                                                <span class="contact-detail break-all" data-type="email" data-original="{{ $lead->email }}">{{ $lead->email }}</span>
+                                                <button onclick="event.stopPropagation(); copyToClipboard(@js($lead->email), this)"
+                                                        class="cnm-copy copy-btn"
+                                                        title="Copy email" aria-label="Copy email">
+                                                    <i class="fas fa-copy text-[10px]"></i>
+                                                </button>
+                                            </div>
+                                        @endif
+                                        @if($lead->website)
+                                            <div class="flex items-center gap-1.5 text-[12px] min-w-0 leading-5">
+                                                <i class="fas fa-globe w-3.5 text-center text-slate-500 text-[10px] flex-shrink-0" aria-hidden="true"></i>
+                                                <a href="{{ \App\Support\SafeUrl::href($lead->website) }}" rel="noopener noreferrer" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline break-all contact-detail" data-type="website" data-original="{{ str_replace(['http://', 'https://'], '', $lead->website) }}">
+                                                    {{ str_replace(['http://', 'https://'], '', $lead->website) }}
+                                                </a>
+                                                <button onclick="event.stopPropagation(); copyToClipboard(@js($lead->website), this)"
+                                                        class="cnm-copy copy-btn"
+                                                        title="Copy website" aria-label="Copy website">
+                                                    <i class="fas fa-copy text-[10px]"></i>
+                                                </button>
+                                            </div>
+                                            {{-- SEO Score Badge --}}
+                                            <div id="seo-score-{{ $lead->id }}" class="pl-5">
+                                                @if(!$hasSeoAccess)
+                                                    <button onclick="event.stopPropagation(); showSeoUpgradeModal()"
+                                                            class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-purple-50 text-purple-600 border border-purple-100 hover:bg-purple-100 transition-colors">
+                                                        <i class="fas fa-lock text-[9px]" aria-hidden="true"></i> SEO Score
+                                                    </button>
+                                                @elseif($lead->seo_score === null)
+                                                    {{-- Not checked yet; will be filled by SEO Analytics button --}}
+                                                @elseif($lead->seo_score < 0)
+                                                    {{-- Checked, but no score was available — never show an invented number --}}
+                                                    <span class="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
+                                                        <i class="fas fa-exclamation-circle text-orange-400" aria-hidden="true"></i>
+                                                        SEO N/A
+                                                        <button onclick="event.stopPropagation(); retrySeoCheck({{ (int) $lead->id }}, this)"
+                                                                class="ml-0.5 inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors">
+                                                            <i class="fas fa-redo text-[8px]" aria-hidden="true"></i> Retry
+                                                        </button>
+                                                    </span>
+                                                @else
+                                                    @php
+                                                        $seoScore = $lead->seo_score;
+                                                        if ($seoScore <= 50) {
+                                                            $seoBg = 'bg-red-50'; $seoText = 'text-red-700'; $seoLabel = 'Weak';
+                                                        } elseif ($seoScore <= 70) {
+                                                            $seoBg = 'bg-yellow-50'; $seoText = 'text-yellow-800'; $seoLabel = 'OK';
+                                                        } else {
+                                                            $seoBg = 'bg-green-50'; $seoText = 'text-green-700'; $seoLabel = 'Strong';
+                                                        }
+                                                    @endphp
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md {{ $seoBg }} {{ $seoText }}">
+                                                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i> SEO {{ $seoScore }} · {{ $seoLabel }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <div>
+                                                <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-red-50 text-red-700">
+                                                    <i class="fas fa-ban" aria-hidden="true"></i> No Website · SEO Weak
                                                 </span>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <div class="mt-1">
-                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-red-100 text-red-700">
-                                                <i class="fas fa-ban"></i> No Website · SEO Weak
-                                            </span>
-                                        </div>
-                                    @endif
-                                    @if(!$lead->phone && !$lead->email && $lead->website)
-                                        <span class="text-xs text-gray-400 italic">No contact info</span>
-                                    @endif
-                                </div>
-                            </td>
+                                            </div>
+                                        @endif
+                                        @if(!$lead->phone && !$lead->email && $lead->website)
+                                            <span class="text-xs text-slate-400 italic">No contact info</span>
+                                        @endif
+                                    </div>
+                                </td>
 
-
-                                <td class="px-4 py-3 w-36 hidden xl:table-cell">
-                                    <div class="text-sm text-gray-600 contact-detail" data-type="location" data-original="{{ $lead->search_location }}">
+                                <td class="w-40">
+                                    <div class="text-[12px] text-slate-600 leading-snug break-words contact-detail" data-type="location" data-original="{{ $lead->search_location }}">
                                         {{ $lead->search_location }}
                                     </div>
-
-                                    <!-- <div class="text-sm text-gray-600">
-                                        {{ $lead->city ? $lead->city . ', ' : '' }}{{ $lead->country }}
-                                    </div>
-                                    @if($lead->address)
-                                        <div class="text-xs text-gray-500">{{ Str::limit($lead->address, 50) }}</div>
-                                    @endif -->
                                 </td>
 
-                              <td class="px-4 py-3 w-28 hidden lg:table-cell">
-    @if($lead->rating && $lead->rating > 0)
-        <div class="flex items-center space-x-1">
-            <div class="flex text-yellow-400 text-sm">
-                @for($i = 1; $i <= 5; $i++)
-                    @if($i <= floor($lead->rating))
-                        <i class="fas fa-star"></i>
-                    @elseif($i <= $lead->rating)
-                        <i class="fas fa-star-half-alt"></i>
-                    @else
-                        <i class="far fa-star"></i>
-                    @endif
-                @endfor
-            </div>
-            <span class="text-sm font-medium text-gray-700">{{ number_format($lead->rating, 1) }}</span>
-        </div>
-        @if($lead->total_reviews > 0)
-            <div class="text-xs text-gray-500">{{ number_format($lead->total_reviews) }} reviews</div>
+                                <td class="w-36">
+                                    @if($lead->rating && $lead->rating > 0)
+                                        <div class="flex items-center gap-1.5">
+                                            <div class="flex text-amber-400 text-[11px] gap-px" aria-hidden="true">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    @if($i <= floor($lead->rating))
+                                                        <i class="fas fa-star"></i>
+                                                    @elseif($i <= $lead->rating)
+                                                        <i class="fas fa-star-half-alt"></i>
+                                                    @else
+                                                        <i class="far fa-star"></i>
+                                                    @endif
+                                                @endfor
+                                            </div>
+                                            <span class="text-[13px] font-semibold text-gray-900">{{ number_format($lead->rating, 1) }}</span>
+                                        </div>
+                                        @if($lead->total_reviews > 0)
+                                            <div class="text-[11.5px] text-slate-500">{{ number_format($lead->total_reviews) }} reviews</div>
 
-            @php
-                // Try reviews_sample first (pro plan), then fall back to last_review_date column (growth plan)
-                $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
-                $latestReviewDate = null;
+                                            @php
+                                                // Try reviews_sample first (pro plan), then fall back to last_review_date column (growth plan)
+                                                $reviewsSample = $lead->reviews_sample ? json_decode($lead->reviews_sample, true) : [];
+                                                $latestReviewDate = null;
 
-                if (!empty($reviewsSample) && is_array($reviewsSample)) {
-                    $latestTime = 0;
-                    foreach ($reviewsSample as $review) {
-                        if (isset($review['time']) && $review['time'] > $latestTime) {
-                            $latestTime = $review['time'];
-                        }
-                    }
-                    if ($latestTime > 0) {
-                        $latestReviewDate = \Carbon\Carbon::createFromTimestamp($latestTime);
-                    }
-                }
+                                                if (!empty($reviewsSample) && is_array($reviewsSample)) {
+                                                    $latestTime = 0;
+                                                    foreach ($reviewsSample as $review) {
+                                                        if (isset($review['time']) && $review['time'] > $latestTime) {
+                                                            $latestTime = $review['time'];
+                                                        }
+                                                    }
+                                                    if ($latestTime > 0) {
+                                                        $latestReviewDate = \Carbon\Carbon::createFromTimestamp($latestTime);
+                                                    }
+                                                }
 
-                // Fallback to last_review_date DB column (saved from API's latest_review_date)
-                if (!$latestReviewDate && $lead->last_review_date) {
-                    $latestReviewDate = \Carbon\Carbon::parse($lead->last_review_date);
-                }
-            @endphp
+                                                // Fallback to last_review_date DB column (saved from API's latest_review_date)
+                                                if (!$latestReviewDate && $lead->last_review_date) {
+                                                    $latestReviewDate = \Carbon\Carbon::parse($lead->last_review_date);
+                                                }
+                                            @endphp
 
-            @if($latestReviewDate)
-                <p class="text-xs text-gray-400 mt-1">
-                    Last: {{ $latestReviewDate->diffForHumans() }}
-                </p>
-            @endif
-        @endif
-    @else
-        <span class="text-sm text-gray-400">No rating</span>
-    @endif
-</td>
-                                
+                                            @if($latestReviewDate)
+                                                <p class="text-[10.5px] text-slate-400">
+                                                    Last: {{ $latestReviewDate->diffForHumans() }}
+                                                </p>
+                                            @endif
+                                        @endif
+                                    @else
+                                        <span class="text-xs text-slate-400">No rating</span>
+                                    @endif
+                                </td>
 
-                               
-
-
-                                <td class="px-4 py-3 w-36">
+                                <td class="w-44">
                                     @php
                                         $statusColors = [
-                                            'not_contacted' => 'bg-red-100 text-red-700',
-                                            'contacted'     => 'bg-blue-100 text-blue-700',
-                                            'responded'     => 'bg-yellow-100 text-yellow-700',
-                                            'converted'     => 'bg-green-100 text-green-700',
-                                            'closed'        => 'bg-gray-100 text-gray-700',
-                                            'follow_up'     => 'bg-purple-100 text-purple-700',
+                                            'not_contacted' => 'bg-amber-50 text-amber-800 border-amber-200',
+                                            'contacted'     => 'bg-blue-50 text-blue-700 border-blue-200',
+                                            'responded'     => 'bg-teal-50 text-teal-700 border-teal-200',
+                                            'converted'     => 'bg-green-50 text-green-700 border-green-200',
+                                            'closed'        => 'bg-slate-100 text-slate-600 border-slate-200',
+                                            'follow_up'     => 'bg-purple-50 text-purple-700 border-purple-200',
+                                        ];
+                                        $statusDots = [
+                                            'not_contacted' => 'bg-amber-500', 'contacted' => 'bg-blue-500', 'responded' => 'bg-teal-500',
+                                            'converted' => 'bg-green-500', 'closed' => 'bg-slate-400', 'follow_up' => 'bg-purple-500',
                                         ];
                                         $statusLabels = [
                                             'not_contacted' => 'Pending',
@@ -757,22 +815,23 @@
                                         }
                                     @endphp
                                     <div class="space-y-1">
-                                        <span class="inline-block px-2 py-1 {{ $statusColors[$lead->contact_status] ?? 'bg-gray-100 text-gray-700' }} text-xs font-medium rounded-full">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11.5px] font-medium {{ $statusColors[$lead->contact_status] ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                            <span class="w-1.5 h-1.5 rounded-full {{ $statusDots[$lead->contact_status] ?? 'bg-slate-400' }}" aria-hidden="true"></span>
                                             {{ $statusLabels[$lead->contact_status] ?? 'Unknown' }}
                                         </span>
 
                                         @if($fuDate)
                                             @if($lead->contact_status === 'follow_up')
                                                 {{-- Done --}}
-                                                <div class="flex items-center gap-1 text-[10px] font-medium text-green-600">
-                                                    <i class="fas fa-check-circle text-[9px]"></i>
+                                                <div class="flex items-center gap-1 text-[11px] font-medium text-green-700">
+                                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i>
                                                     Follow up was done on {{ \Carbon\Carbon::parse($fuDate)->format('M d, Y') }}
                                                 </div>
                                             @else
                                                 {{-- Pending follow-up --}}
                                                 <div class="flex items-center gap-1 flex-wrap">
-                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-full">
-                                                        <i class="fas fa-calendar-alt text-[9px]"></i>
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-medium text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-md">
+                                                        <i class="fas fa-calendar-alt text-[9px]" aria-hidden="true"></i>
                                                         {{ \Carbon\Carbon::parse($fuDate)->format('M d') }}
                                                     </span>
                                                     @if($chUrl)
@@ -780,24 +839,25 @@
                                                            target="{{ $fuSource === 'email' ? '_self' : '_blank' }}"
                                                            onclick="event.stopPropagation()"
                                                            title="Open {{ $chLabel }}"
-                                                           class="inline-flex items-center gap-0.5 text-[10px] font-semibold text-white bg-purple-500 hover:bg-purple-700 px-1.5 py-0.5 rounded-full transition-colors">
-                                                            <i class="{{ $chIcon }} text-[9px]"></i> {{ $chLabel }}
+                                                           class="inline-flex items-center gap-1 text-[11px] font-medium text-white bg-purple-600 hover:bg-purple-700 px-1.5 py-0.5 rounded-md transition-colors">
+                                                            <i class="{{ $chIcon }} text-[9px]" aria-hidden="true"></i> {{ $chLabel }}
                                                         </a>
                                                     @endif
                                                 </div>
-                                                <div class="text-[9px] text-gray-400 leading-tight">Do follow up on this date</div>
+                                                <div class="text-[11px] text-slate-500 leading-tight">Do follow up on this date</div>
                                             @endif
                                         @endif
                                     </div>
                                 </td>
 
-                                <td class="px-4 py-3 w-20">
-                                    <div class="flex flex-col gap-1">
-                                        <button class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded text-xs font-medium view-btn"
-                                                onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})">
-                                            <i class="fas fa-eye mr-1"></i>
+                                <td class="w-24">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button class="cnm-act is-view view-btn"
+                                                onclick="event.stopPropagation(); openLeadDetails({{ $lead->id }})"
+                                                title="View lead details" aria-label="View lead details">
+                                            <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-medium copy-all-btn"
+                                        <button class="cnm-act is-copy copy-all-btn"
                                                 onclick="event.stopPropagation(); copyAllLeadData({{ json_encode([
                                                     'name' => $lead->name,
                                                     'category' => $lead->category,
@@ -810,8 +870,8 @@
                                                     'total_reviews' => $lead->total_reviews,
                                                     'status' => $lead->contact_status
                                                 ]) }})"
-                                                title="Copy all lead data">
-                                            <i class="fas fa-copy mr-1"></i>
+                                                title="Copy all lead data" aria-label="Copy all lead data">
+                                            <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -822,45 +882,44 @@
             </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mt-6">
-            <div class="px-6 py-4">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="text-sm text-gray-700">
-                            Showing <span class="font-medium">{{ $leads->firstItem() }}</span> to
-                            <span class="font-medium">{{ $leads->lastItem() }}</span> of
-                            <span class="font-medium">{{ $leads->total() }}</span> results
-                        </div>
-                        <!-- Per Page Selector -->
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-xs text-gray-500">Per page:</span>
-                            <select onchange="changePerPage(this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer focus:outline-none focus:border-primary-400">
-                                <option value="10"  {{ request('per_page', 30) == 10  ? 'selected' : '' }}>10</option>
-                                <option value="20"  {{ request('per_page', 30) == 20  ? 'selected' : '' }}>20</option>
-                                <option value="30"  {{ request('per_page', 30) == 30  ? 'selected' : '' }}>30</option>
-                                <option value="50"  {{ request('per_page', 30) == 50  ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('per_page', 30) == 100 ? 'selected' : '' }}>100</option>
-                                <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
-                            </select>
-                        </div>
-                    </div>
-                    {{ $leads->links('pagination::tailwind') }}
+        <!-- F · Pagination -->
+        <div class="mt-3 bg-white rounded-2xl border border-slate-200 px-3 sm:px-4 py-2.5 flex flex-col lg:flex-row items-center justify-between gap-2.5 cnm-pagination">
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <div class="text-[12.5px] text-slate-600">
+                    Showing <span class="font-semibold text-gray-900">{{ $leads->firstItem() }}</span> to
+                    <span class="font-semibold text-gray-900">{{ $leads->lastItem() }}</span> of
+                    <span class="font-semibold text-gray-900">{{ $leads->total() }}</span> results
+                </div>
+                <!-- Per Page Selector -->
+                <div class="flex items-center gap-2">
+                    <label for="perPage" class="text-xs text-slate-500">Per page:</label>
+                    <select id="perPage" onchange="changePerPage(this.value)" class="cnm-select is-sm !w-20">
+                        <option value="10"  {{ request('per_page', 30) == 10  ? 'selected' : '' }}>10</option>
+                        <option value="20"  {{ request('per_page', 30) == 20  ? 'selected' : '' }}>20</option>
+                        <option value="30"  {{ request('per_page', 30) == 30  ? 'selected' : '' }}>30</option>
+                        <option value="50"  {{ request('per_page', 30) == 50  ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 30) == 100 ? 'selected' : '' }}>100</option>
+                        <option value="all" {{ request('per_page') == 'all'   ? 'selected' : '' }}>All</option>
+                    </select>
                 </div>
             </div>
+            {{ $leads->links('pagination::tailwind') }}
         </div>
     @else
         <!-- Empty State -->
-        <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-100 text-center">
-            <i class="fas fa-bookmark text-gray-400 text-4xl mb-4"></i>
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">No Saved Leads</h3>
-            <p class="text-gray-600 mb-4">You haven't saved any leads yet. Start by searching for businesses and saving potential leads.</p>
-            <a href="{{ route('user.search') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium">
-                <i class="fas fa-search mr-2"></i>Search for Leads
+        <div class="bg-white rounded-2xl border border-slate-200 px-6 py-10 text-center">
+            <span class="mx-auto mb-4 w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center" aria-hidden="true">
+                <i class="fas fa-bookmark text-orange-500 text-xl"></i>
+            </span>
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">No Saved Leads</h3>
+            <p class="text-[13px] text-slate-500 mb-4 max-w-md mx-auto">You haven't saved any leads yet. Search Google Maps for businesses in your niche, save the best ones, then let AI qualify them for you.</p>
+            <a href="{{ route('user.search') }}" class="cnm-btn cnm-btn-primary !h-9 !px-5 !text-[13px]">
+                <i class="fas fa-search" aria-hidden="true"></i>Search for Leads
             </a>
         </div>
     @endif
 </div>
+
 
 <!-- Lead Details Panel -->
 <div id="leadDetailsPanel" class="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50">
@@ -903,7 +962,7 @@
         </div>
         <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div id="seoProgressFill"
-                 class="h-3 rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-500 to-indigo-500"
+                 class="h-3 rounded-full transition-all duration-500 ease-out bg-orange-500"
                  style="width: 0%"></div>
         </div>
         <p class="text-[10px] text-center text-gray-400 mt-1.5">
@@ -1327,8 +1386,16 @@ function openLeadDetails(leadId) {
 // Global: currently open lead (used by channel info functions)
 let _currentLead = null;
 
-function showLeadDetails(lead) {
-    _currentLead = lead;
+function showLeadDetails(rawLead) {
+    // Raw values are kept for saving / editing; everything rendered below uses an
+    // HTML-escaped copy, and URLs are restricted to http(s).
+    _currentLead = rawLead;
+    const lead = cnmEscapeDeep(rawLead);
+    const safeWebsite = cnmSafeUrl(rawLead.website);
+    lead.website = safeWebsite ? cnmEscape(safeWebsite) : '';
+    const safeProfile = cnmSafeUrl(rawLead.google_profile_url);
+    lead.google_profile_url = safeProfile ? cnmEscape(safeProfile) : '';
+    lead.id = parseInt(rawLead.id, 10);
 
     const panel = document.getElementById('leadDetailsPanel');
     const overlay = document.getElementById('overlay');
@@ -1365,7 +1432,7 @@ function showLeadDetails(lead) {
     
     // Build social links
     let socialLinksHtml = '';
-    let socialLinksData = lead.social_links;
+    let socialLinksData = rawLead.social_links;
     if (typeof socialLinksData === 'string') {
         try { socialLinksData = JSON.parse(socialLinksData); } catch(e) { socialLinksData = null; }
     }
@@ -1379,8 +1446,10 @@ function showLeadDetails(lead) {
     // Keep _currentLead.social_links always as a normalized array so getChannelContact works
     _currentLead.social_links = socialUrls;
     if (socialUrls.length > 0) {
-        socialLinksHtml = socialUrls.map(link => {
-            link = link.replace(/\/+$/, '');
+        socialLinksHtml = socialUrls.map(rawLink => {
+            const safeLink = cnmSafeUrl(String(rawLink || '').replace(/\/+$/, ''));
+            if (!safeLink) return '';
+            const link = cnmEscape(safeLink);
             let icon = 'fas fa-link';
             let color = 'text-gray-600';
             if (link.includes('facebook.com')) { icon = 'fab fa-facebook'; color = 'text-blue-600'; }
@@ -1572,8 +1641,14 @@ function showLeadDetails(lead) {
                         <i class="fab fa-google mr-2"></i>View Google Profile
                     </a>
                 ` : ''}
-                
-                <button onclick="deleteLead(${lead.id})" 
+
+                ${window.cnmAiOutreachEnabled ? `
+                <button type="button" onclick="cnmOpenAnalyze([${lead.id}])"
+                        class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium">
+                    <i class="fas fa-wand-magic-sparkles mr-2"></i>Analyze with AI
+                </button>` : ''}
+
+                <button onclick="deleteLead(${lead.id})"
                         class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium">
                     <i class="fas fa-trash mr-2"></i>Delete Lead
                 </button>
@@ -1733,11 +1808,16 @@ function renderChannelInfo(channel) {
     const icon  = icons[channel] || '🔗';
 
     if (info && info.value) {
-        const linkAttr = info.href ? `href="${info.href}" target="_blank"` : '';
+        // mailto: links are built from the stored email; everything else must be http(s)
+        let safeHref = '';
+        if (info.href) {
+            safeHref = info.href.startsWith('mailto:') ? info.href : (cnmSafeUrl(info.href) || '');
+        }
+        const linkAttr = safeHref ? `href="${cnmEscape(safeHref)}" target="_blank" rel="noopener noreferrer"` : '';
         box.innerHTML = `
             <div class="flex items-center gap-2 bg-white border border-purple-200 rounded-lg px-3 py-2">
                 <span class="text-base">${icon}</span>
-                <a ${linkAttr} class="flex-1 text-sm text-blue-600 hover:underline truncate">${info.value}</a>
+                <a ${linkAttr} class="flex-1 text-sm text-blue-600 hover:underline truncate">${cnmEscape(info.value)}</a>
                 <button onclick="startEditChannel('${channel}')"
                         class="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-1 rounded transition-colors">
                     <i class="fas fa-edit mr-1"></i>Change
@@ -1777,7 +1857,7 @@ function buildEditInput(channel, value) {
     const type = channel === 'email' ? 'email' : 'text';
     return `
         <div class="flex gap-2">
-            <input type="${type}" id="channelEditInput" value="${value}"
+            <input type="${type}" id="channelEditInput" value="${cnmEscape(value)}"
                    placeholder="${ph}"
                    class="flex-1 p-1.5 border border-gray-300 rounded text-sm focus:border-purple-400 outline-none">
             <button onclick="saveChannelContact('${channel}')"
@@ -2052,11 +2132,12 @@ function toggleFilter(btn, fieldName) {
     const newActive = !isActive;
 
     btn.dataset.active = newActive ? '1' : '0';
-    btn.classList.toggle('bg-green-500', newActive);
-    btn.classList.toggle('bg-gray-300', !newActive);
+    btn.setAttribute('aria-checked', newActive ? 'true' : 'false');
+    btn.classList.toggle('bg-orange-500', newActive);
+    btn.classList.toggle('bg-slate-300', !newActive);
 
     const knob = btn.querySelector('span');
-    knob.classList.toggle('translate-x-4', newActive);
+    knob.classList.toggle('translate-x-5', newActive);
     knob.classList.toggle('translate-x-0', !newActive);
 
     // Update the hidden input value
@@ -2078,7 +2159,10 @@ function changePerPage(value) {
 // Mobile filters toggle
 function toggleFilters() {
     const filters = document.getElementById('filtersContainer');
-    filters.classList.toggle('open');
+    if (!filters) return;
+    const open = filters.classList.toggle('open');
+    const toggle = document.getElementById('filtersToggle');
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
 // Export dropdown toggle
@@ -2150,7 +2234,7 @@ function toggleLeadsVisibility() {
         if (isDetailsHidden) {
             btn.style.display = 'none';
         } else {
-            btn.style.display = 'block';
+            btn.style.display = '';
         }
     });
 
@@ -2206,19 +2290,18 @@ function maskText(text, type) {
 // Copy to clipboard function
 function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(function() {
-        // Store original HTML
+        // Store original HTML and classes
         const originalHTML = button.innerHTML;
+        const originalClass = button.className;
 
         // Change icon to check
         button.innerHTML = '<i class="fas fa-check text-xs"></i>';
-        button.classList.remove('text-blue-500', 'hover:text-blue-700');
-        button.classList.add('text-green-500');
+        button.classList.add('!text-green-600');
 
         // Reset after 2 seconds
         setTimeout(function() {
             button.innerHTML = originalHTML;
-            button.classList.remove('text-green-500');
-            button.classList.add('text-blue-500', 'hover:text-blue-700');
+            button.className = originalClass;
         }, 2000);
     }).catch(function(err) {
         console.error('Could not copy text: ', err);
@@ -2513,16 +2596,16 @@ function loadFolders() {
                         <i class="fas fa-folder"></i>
                     </span>
                     <div>
-                        <p class="text-sm font-medium text-gray-900">${f.name}</p>
+                        <p class="text-sm font-medium text-gray-900">${cnmEscape(f.name)}</p>
                         <p class="text-xs text-gray-400">${f.leads_count} lead${f.leads_count !== 1 ? 's' : ''}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    ${_folderMode === 'move' ? `<button onclick="moveLeadsToFolder(${f.id}, '${f.name}')"
+                    ${_folderMode === 'move' ? `<button onclick="moveLeadsToFolder(${parseInt(f.id, 10)}, ${cnmEscape(JSON.stringify(String(f.name)))})"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                         Move Here
                     </button>` : ''}
-                    <button onclick="deleteFolder(${f.id}, '${f.name}', this)"
+                    <button onclick="deleteFolder(${parseInt(f.id, 10)}, ${cnmEscape(JSON.stringify(String(f.name)))}, this)"
                         class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 w-6 h-6 flex items-center justify-center rounded transition-all"
                         title="Delete folder">
                         <i class="fas fa-trash-alt text-xs"></i>
@@ -2612,7 +2695,7 @@ function showToast(message, type) {
     const t = document.createElement('div');
     t.className = `fixed bottom-6 right-6 z-[999] px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all
         ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
-    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${cnmEscape(message)}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
 }
@@ -2620,4 +2703,7 @@ function showToast(message, type) {
 // Close modal on Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFolderModal(); });
 </script>
+@if(\App\Services\PlanFeatures::enabled(auth()->user(), 'ai_sales_profile_enabled'))
+    @include('user.ai-outreach._analyze-modal')
+@endif
 @endpush

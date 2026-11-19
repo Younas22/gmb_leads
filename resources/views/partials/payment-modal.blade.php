@@ -35,7 +35,7 @@
                         @foreach($paymentMethods as $method)
                             @if($method->slug !== 'card')
                             <button type="button"
-                                onclick="selectPaymentMethod({{ $method->id }}, '{{ e($method->name) }}', '{{ e($method->slug) }}')"
+                                onclick="selectPaymentMethod({{ $method->id }}, @js($method->name), @js($method->slug))"
                                 class="flex items-center gap-1.5 px-2.5 py-1.5 border border-gray-200 rounded-full hover:border-primary-blue hover:bg-blue-50 transition-all">
                                 <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
                                     {{ $method->slug === 'jazzcash' ? 'bg-green-500 text-white' : '' }}

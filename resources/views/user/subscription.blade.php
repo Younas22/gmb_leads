@@ -1,43 +1,52 @@
 @extends('layouts.app')
 
-@section('title', 'User Dashboard')
+@section('title', 'Subscription')
 
 @section('content')
+@include('user._ui-kit')
+<style>
+    .sub-page { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+    .sub-plans ul.space-y-4 > * + * { margin-top: .5rem; }
+    .sub-plans ul.mb-8 { margin-bottom: 1.1rem; font-size: 13px; }
+    .sub-plans ul svg.w-5 { width: 1rem; height: 1rem; margin-right: .5rem; }
+    .sub-plans ul svg.w-4 { width: .875rem; height: .875rem; margin-right: .5rem; }
+</style>
+<div class="sub-page cnm-ui">
         <!-- Free Trial Banner -->
         @if($currentPlan && $currentPlan['subscription']->is_trial)
             @php $trialEndTs = $currentPlan['subscription']->created_at->addDays(3)->timestamp; @endphp
-            <div class="mx-4 lg:mx-8 mt-4">
-                <div class="bg-orange-50 border border-orange-200 px-5 py-4 rounded-xl">
+            <div class="max-w-[1180px] mx-auto px-4 lg:px-6 mt-4">
+                <div class="bg-orange-50 border border-orange-200 px-4 py-3 rounded-xl">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <i class="fas fa-hourglass-half text-orange-500 text-xl flex-shrink-0 mt-1"></i>
                             <div>
-                                <p class="font-bold text-orange-800 mb-2">Free Trial Active — Time Remaining</p>
+                                <p class="font-semibold text-[13px] text-orange-800 mb-1.5">Free Trial Active — Time Remaining</p>
                                 <div class="flex items-center gap-2">
-                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
-                                        <div id="trial-cd-days" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-2 py-1 text-center min-w-[44px]">
+                                        <div id="trial-cd-days" class="text-lg font-bold text-orange-600 leading-none">—</div>
                                         <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">days</div>
                                     </div>
-                                    <span class="text-orange-400 font-bold text-xl">:</span>
-                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
-                                        <div id="trial-cd-hrs" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                    <span class="text-orange-400 font-bold">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-2 py-1 text-center min-w-[44px]">
+                                        <div id="trial-cd-hrs" class="text-lg font-bold text-orange-600 leading-none">—</div>
                                         <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">hrs</div>
                                     </div>
-                                    <span class="text-orange-400 font-bold text-xl">:</span>
-                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
-                                        <div id="trial-cd-min" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                    <span class="text-orange-400 font-bold">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-2 py-1 text-center min-w-[44px]">
+                                        <div id="trial-cd-min" class="text-lg font-bold text-orange-600 leading-none">—</div>
                                         <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">min</div>
                                     </div>
-                                    <span class="text-orange-400 font-bold text-xl">:</span>
-                                    <div class="bg-white border border-orange-200 rounded-lg px-3 py-2 text-center min-w-[56px]">
-                                        <div id="trial-cd-sec" class="text-2xl font-extrabold text-orange-600 leading-none">—</div>
+                                    <span class="text-orange-400 font-bold">:</span>
+                                    <div class="bg-white border border-orange-200 rounded-lg px-2 py-1 text-center min-w-[44px]">
+                                        <div id="trial-cd-sec" class="text-lg font-bold text-orange-600 leading-none">—</div>
                                         <div class="text-xs font-semibold text-orange-400 uppercase tracking-wide mt-0.5">sec</div>
                                     </div>
                                 </div>
-                                <p class="text-xs text-orange-600 mt-2">Upgrade to a paid plan to keep full access after trial ends.</p>
+                                <p class="text-[11.5px] text-orange-700 mt-1.5">Upgrade before the timer hits zero to keep your leads, AI tools and campaigns running without a break.</p>
                             </div>
                         </div>
-                        <a href="#pricing-plans" class="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap">
+                        <a href="#pricing-plans" class="ui-btn flex-shrink-0">
                             Upgrade Now
                         </a>
                     </div>
@@ -81,8 +90,8 @@
 
         <!-- Flash Messages -->
         @if(session('payment_success'))
-        <div class="mx-4 lg:mx-8 mt-4">
-            <div class="bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-xl flex items-center">
+        <div class="max-w-[1180px] mx-auto px-4 lg:px-6 mt-4">
+            <div class="ui-note is-ok items-center">
                 <svg class="w-5 h-5 mr-3 flex-shrink-0 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 <div>
                     <strong>Payment Submitted!</strong> We've received your payment screenshot. Our team will verify it and activate your subscription shortly.
@@ -91,22 +100,35 @@
         </div>
         @endif
 
-        <!-- Search Form -->
-        <div class="p-4 lg:p-8">
+        <div class="ui-page">
+            <div class="ui-head mb-3.5">
+                <div class="ui-head-main">
+                    <span class="ui-head-icon"><i class="fas fa-crown"></i></span>
+                    <div class="min-w-0">
+                        <h1 class="ui-title">Subscription</h1>
+                        <p class="ui-sub">Your plan, usage and invoices in one place. Upgrade any time to unlock more leads, AI audits and email drafts.</p>
+                    </div>
+                </div>
+            </div>
             <!-- Current Plan Overview -->
             @php
-                $planFeatures = $currentPlan ? $currentPlan['package']->features->keyBy('feature_key') : collect();
-                $dailyLimit     = $planFeatures->get('daily_leads_limit');
-                $exportLeads    = $planFeatures->get('export_leads');
-                $maxDevices     = $planFeatures->get('max_devices');
-                $prioritySupport= $planFeatures->get('priority_support');
-                $unlimitedMap   = $planFeatures->get('unlimited_map_scraping');
+                // The row that applies to this user: admin "Custom features" first, else the package.
+                // Locked rows (package or per-user) are shown as Locked with the admin's message, like the sidebar.
+                $featureRows    = app(\App\Services\FeatureOverrides::class);
+                $subRow         = fn (string $key) => $currentPlan ? $featureRows->row($currentPlan['subscription'], $key) : null;
+                $lockOf         = fn (string $key) => \App\Services\FeatureOverrides::lockMessageOf($subRow($key));
+                $openRow        = fn (string $key) => (($r = $subRow($key)) && empty($r->is_locked)) ? $r : null;
+                $dailyLimit     = $openRow('daily_leads_limit');
+                $exportLeads    = $openRow('export_leads');
+                $maxDevices     = $openRow('max_devices');
+                $prioritySupport= $openRow('priority_support');
+                $unlimitedMap   = $openRow('unlimited_map_scraping');
             @endphp
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
+            <div class="ui-card mb-5 overflow-hidden">
                 <!-- Header -->
-                <div class="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100">
+                <div class="px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 border-b border-slate-100">
                     <div class="flex items-center flex-wrap gap-2">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Current Plan</h3>
+                        <h3 class="text-[15px] font-semibold text-gray-900">Current Plan</h3>
                         @if($currentPlan)
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
                                 {{ $currentPlan['is_active'] ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
@@ -141,7 +163,7 @@
                             </span>
                         @endif
                         @if(!$currentPlan || $currentPlan['package']->price == 0)
-                            <a href="#pricing-plans" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                            <a href="#pricing-plans" class="ui-btn ui-sm">
                                 <i class="fas fa-arrow-up mr-1 text-xs"></i>Upgrade Now
                             </a>
                         @endif
@@ -152,23 +174,26 @@
                 <!-- Feature Stats -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100">
                     <!-- Daily Leads Limit -->
-                    <div class="px-6 py-5">
+                    <div class="px-4 py-3">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-map-marker-alt text-orange-500 text-xs"></i>
                             </div>
                             <span class="text-xs font-medium text-gray-500">Daily Leads Limit</span>
                         </div>
+                        @if($dlLock = $lockOf('daily_leads_limit'))
+                            <div class="mt-2">@include('user._lock-badge', ['message' => $dlLock])</div>
+                        @else
                         <div class="mt-2">
                             @if($usageData['daily_leads']['unlimited'])
-                                <span class="text-xl font-bold text-gray-800"><i class="fas fa-infinity mr-1 text-green-500"></i>Unlimited</span>
+                                <span class="text-[17px] font-bold text-gray-800"><i class="fas fa-infinity mr-1 text-green-500"></i>Unlimited</span>
                             @elseif($dailyLimit)
-                                <span class="text-xl font-bold {{ $usageData['daily_leads']['percentage'] >= 85 ? 'text-red-600' : 'text-gray-800' }}">
+                                <span class="text-[17px] font-bold {{ $usageData['daily_leads']['percentage'] >= 85 ? 'text-red-600' : 'text-gray-800' }}">
                                     {{ number_format($usageData['daily_leads']['used']) }}
                                 </span>
                                 <span class="text-sm text-gray-500">/ {{ number_format((int)$dailyLimit->feature_value) }} today</span>
                             @else
-                                <span class="text-xl font-bold text-gray-400">—</span>
+                                <span class="text-[17px] font-bold text-gray-400">—</span>
                             @endif
                         </div>
                         @if(!$usageData['daily_leads']['unlimited'] && $dailyLimit)
@@ -182,50 +207,59 @@
                         @else
                             <p class="text-xs text-gray-400 mt-1">No daily limit on your plan</p>
                         @endif
+                        @endif
                     </div>
 
                     <!-- Export Leads -->
-                    <div class="px-6 py-5">
+                    <div class="px-4 py-3">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-download text-green-500 text-xs"></i>
                             </div>
                             <span class="text-xs font-medium text-gray-500">Export Leads</span>
                         </div>
+                        @if($exportLock = $lockOf('export_leads'))
+                            <div class="mt-2">@include('user._lock-badge', ['message' => $exportLock])</div>
+                        @else
                         <div class="mt-2">
                             @if($exportLeads && $exportLeads->feature_value === 'unlimited')
-                                <span class="text-xl font-bold text-gray-800">Unlimited</span>
+                                <span class="text-[17px] font-bold text-gray-800">Unlimited</span>
                             @elseif($exportLeads && $exportLeads->feature_value !== 'false')
-                                <span class="text-xl font-bold text-gray-800">{{ number_format((int)$exportLeads->feature_value) }}</span>
+                                <span class="text-[17px] font-bold text-gray-800">{{ number_format((int)$exportLeads->feature_value) }}</span>
                                 <span class="text-sm text-gray-500">/mo</span>
                             @else
-                                <span class="text-xl font-bold text-gray-400">Not included</span>
+                                <span class="text-[17px] font-bold text-gray-400">Not included</span>
                             @endif
                         </div>
                         <p class="text-xs text-gray-400 mt-1">CSV / Excel downloads</p>
+                        @endif
                     </div>
 
                     <!-- Devices Access -->
-                    <div class="px-6 py-5">
+                    <div class="px-4 py-3">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-laptop text-blue-500 text-xs"></i>
                             </div>
                             <span class="text-xs font-medium text-gray-500">Devices Access</span>
                         </div>
+                        @if($devicesLock = $lockOf('max_devices'))
+                            <div class="mt-2">@include('user._lock-badge', ['message' => $devicesLock])</div>
+                        @else
                         <div class="mt-2">
                             @if($maxDevices)
-                                <span class="text-xl font-bold text-gray-800">{{ $myDevices->count() }}</span>
+                                <span class="text-[17px] font-bold text-gray-800">{{ $myDevices->count() }}</span>
                                 <span class="text-sm text-gray-500">/ {{ ($maxDevices->is_unlimited || $maxDevices->feature_value === 'unlimited') ? '∞' : $maxDevices->feature_value }} {{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
                             @else
-                                <span class="text-xl font-bold text-gray-400">—</span>
+                                <span class="text-[17px] font-bold text-gray-400">—</span>
                             @endif
                         </div>
                         <p class="text-xs text-gray-400 mt-1">Simultaneous logins</p>
+                        @endif
                     </div>
 
                     <!-- Priority Support -->
-                    <div class="px-6 py-5">
+                    <div class="px-4 py-3">
                         <div class="flex items-center gap-2 mb-1">
                             <div class="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-headset text-purple-500 text-xs"></i>
@@ -233,7 +267,9 @@
                             <span class="text-xs font-medium text-gray-500">Priority Support</span>
                         </div>
                         <div class="mt-2 flex items-center gap-2">
-                            @if($prioritySupport && $prioritySupport->feature_value === 'true')
+                            @if($supportLock = $lockOf('priority_support'))
+                                @include('user._lock-badge', ['message' => $supportLock])
+                            @elseif(\App\Services\PlanFeatures::enabled($user, 'priority_support'))
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                     Included
@@ -249,20 +285,42 @@
                     </div>
                 </div>
 
+                <!-- AI & email usage (this plan) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100 border-t border-gray-100" data-testid="ai-email-usage">
+                    @foreach($featureUsage as [$label, $icon, $used, $limit, $period, $tileLock])
+                        <div class="px-4 py-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0"><i class="fas {{ $icon }} text-orange-500 text-xs"></i></div>
+                                <span class="text-xs font-medium text-gray-500">{{ $label }}</span>
+                            </div>
+                            <div class="mt-2">
+                                @if($tileLock)
+                                    @include('user._lock-badge', ['message' => $tileLock])
+                                @elseif($limit === 0)
+                                    <span class="text-[17px] font-bold text-gray-400">Not included</span>
+                                @elseif($limit === -1)
+                                    <span class="text-[17px] font-bold text-gray-800">{{ number_format($used) }}</span>
+                                    <span class="text-sm text-gray-500">/ <i class="fas fa-infinity text-green-500"></i> {{ $period }}</span>
+                                @else
+                                    @php $pct = $limit > 0 ? min(100, (int) round($used / $limit * 100)) : 0; @endphp
+                                    <span class="text-[17px] font-bold {{ $pct >= 85 ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($used) }}</span>
+                                    <span class="text-sm text-gray-500">/ {{ number_format($limit) }} {{ $period }}</span>
+                                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2"><div class="h-1.5 rounded-full {{ $pct >= 85 ? 'bg-red-500' : 'bg-orange-400' }}" style="width: {{ $pct }}%"></div></div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
                 <!-- Active Features Row -->
-                <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-2">
-                    @foreach([
-                        'unlimited_map_scraping' => 'Unlimited Map Scraping',
-                        'basic_business_signals' => 'Basic Business Signals',
-                        'contact_ready_leads'    => 'Contact-Ready Leads',
-                        'email_scraping'         => 'Email Scraping',
-                        'social_media_scraping'  => 'Social Media Scraping',
-                        'website_extraction'     => 'Website Extraction',
-                        'latest_review_insights' => 'Latest Review Insights',
-                        'advanced_review_filters'=> 'Advanced Review Filters',
-                    ] as $key => $label)
-                        @php $f = $planFeatures->get($key); @endphp
-                        @if($f && $f->feature_value === 'true')
+                <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-1.5">
+                    @foreach(collect(\App\Support\PlanFeatureCatalog::FEATURES)->filter(fn ($m) => $m[2] === 'bool')->map(fn ($m) => $m[0]) as $key => $label)
+                        @if($featLock = $lockOf($key))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-xs font-medium" title="{{ $featLock }}" data-testid="locked-feature">
+                                <i class="fas fa-lock text-[9px]" aria-hidden="true"></i>
+                                {{ $label }} <span class="sr-only">(locked: {{ $featLock }})</span>
+                            </span>
+                        @elseif(\App\Services\PlanFeatures::enabled($user, $key))
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-green-200 text-green-700 text-xs font-medium">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                 {{ $label }}
@@ -273,8 +331,8 @@
 
                 <!-- My Devices -->
                 @if($myDevices->count() > 0)
-                <div class="px-6 py-4 border-t border-gray-100">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">My Registered Devices</h4>
+                <div class="px-4 py-3 border-t border-slate-100">
+                    <h4 class="text-[12px] font-semibold text-gray-700 mb-2">My Registered Devices</h4>
                     <div class="space-y-2">
                         @foreach($myDevices as $device)
                         <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
@@ -291,13 +349,13 @@
 
                 @else
                 <!-- No Plan -->
-                <div class="px-6 py-10 text-center">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <div class="px-4 py-6 text-center">
+                    <div class="ui-empty-i">
                         <i class="fas fa-box-open text-gray-400 text-xl"></i>
                     </div>
                     <p class="text-gray-600 font-medium mb-1">No active plan yet</p>
-                    <p class="text-sm text-gray-400 mb-4">Choose a plan below to start generating leads.</p>
-                    <a href="#pricing-plans" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+                    <p class="text-[12.5px] text-slate-500 mb-3">Pick a plan below and start finding, qualifying and contacting leads today.</p>
+                    <a href="#pricing-plans" class="ui-btn ui-sm">
                         View Plans
                     </a>
                 </div>
@@ -305,8 +363,11 @@
             </div>
 
             <!-- Pricing Plans -->
-            <div class="mb-8" id="pricing-plans">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">Choose Your Plan</h3>
+            <div class="mb-5 sub-plans scroll-mt-4" id="pricing-plans">
+                <div class="text-center">
+                    <h3 class="text-[19px] font-bold text-gray-900">Choose Your Plan</h3>
+                    <p class="text-[12.5px] text-slate-500 mt-0.5">Every plan includes the Chrome extension. Higher plans add more daily leads, AI website audits, AI email drafts and email sending.</p>
+                </div>
 
                 @php
                     $featureLabels = [
@@ -339,14 +400,14 @@
                 @endphp
 
                 <!-- Monthly / Yearly Billing Toggle -->
-                <div class="flex justify-center mb-6 mt-2">
+                <div class="flex justify-center mb-5 mt-3">
                     <div class="inline-flex items-center bg-gray-100 rounded-full p-1 gap-1">
                         <button id="sub-billing-monthly-btn" onclick="subSwitchBilling('monthly')"
-                                class="sub-billing-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors bg-blue-600 text-white cursor-pointer">
+                                class="sub-billing-btn px-4 py-1.5 rounded-full text-[13px] font-semibold transition-colors bg-orange-500 text-white cursor-pointer">
                             Monthly
                         </button>
                         <button id="sub-billing-yearly-btn" onclick="subSwitchBilling('yearly')"
-                                class="sub-billing-btn px-5 py-2 rounded-full text-sm font-semibold transition-colors text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-2">
+                                class="sub-billing-btn px-4 py-1.5 rounded-full text-[13px] font-semibold transition-colors text-gray-600 hover:text-gray-900 cursor-pointer flex items-center gap-2">
                             Yearly
                             <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">Save 2 months</span>
                         </button>
@@ -355,35 +416,35 @@
 
                 {{-- Monthly Grid --}}
                 <div id="sub-billing-monthly-grid">
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto pt-2">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto pt-2">
                         @forelse($monthlyPlans as $package)
                         @php
                             $isCurrentPlan = $currentPlan && $currentPlan['package']->id === $package->id;
-                            $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
+                            $borderClass   = $isCurrentPlan ? 'border-green-500 !border-2' : ($package->is_popular ? 'border-orange-500' : 'border-slate-200');
                         @endphp
-                        <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-blue-600 text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-blue-500 transition-colors' }}">
+                        <div class="rounded-2xl p-5 flex flex-col relative text-[13px] {{ $package->is_popular ? 'bg-[#111827] text-white ring-2 ring-orange-500' : 'bg-white border ' . $borderClass . ' hover:border-orange-300 transition-colors' }}">
                             @if($isCurrentPlan)
-                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Your Active Plan</div>
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-3 py-0.5 rounded-full text-[11.5px] font-semibold whitespace-nowrap">Your Active Plan</div>
                             @elseif($package->is_popular)
-                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Popular</div>
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[11.5px] font-semibold">Most Popular</div>
                             @endif
-                            <div class="text-center mb-6">
-                                <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-1">{{ $package->name }}</h3>
+                            <div class="text-center mb-4">
+                                <h3 class="text-[16px] font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-0.5">{{ $package->name }}</h3>
                                 @if($package->description)
-                                    <p class="text-sm {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-3">{{ $package->description }}</p>
+                                    <p class="text-[12px] {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-2">{{ $package->description }}</p>
                                 @endif
-                                <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
+                                <div class="text-[28px] leading-tight font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
                                     @if($package->price == 0)
-                                        {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                        {{ $currency['symbol'] }}0<span class="text-[13px] font-medium {{ $package->is_popular ? 'opacity-80' : 'text-gray-500' }}">/month</span>
                                     @else
-                                        {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 2) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                        {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 2) }}<span class="text-[13px] font-medium {{ $package->is_popular ? 'opacity-80' : 'text-gray-500' }}">/month</span>
                                     @endif
                                 </div>
                             </div>
                             @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
                             @if($isCurrentPlan)
                                 @if($package->price == 0 || !$currentPlan['is_active'])
-                                    <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                    <button class="w-full bg-gray-200 text-gray-500 py-2.5 rounded-lg text-[13px] font-semibold cursor-not-allowed">
                                         {{ $currentPlan['is_pending'] ? 'Payment Pending' : 'Current Plan' }}
                                     </button>
                                 @else
@@ -392,7 +453,7 @@
                                             data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                             data-currency-symbol="{{ $currency['symbol'] }}"
                                             title="Submit next month's payment now — your access continues without interruption once approved."
-                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                         <i class="fas fa-rotate mr-1"></i> Renew Plan
                                     </button>
                                 @endif
@@ -401,7 +462,7 @@
                                     @csrf
                                     <input type="hidden" name="package_id" value="{{ $package->id }}">
                                     <button type="submit"
-                                            class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                            class="w-full {{ $package->is_popular ? 'bg-orange-500 text-white hover:bg-orange-600' : 'border border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white' }} py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                         Select Free Plan
                                     </button>
                                 </form>
@@ -410,7 +471,7 @@
                                         data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"
                                         data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                         data-currency-symbol="{{ $currency['symbol'] }}"
-                                        class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                        class="w-full {{ $package->is_popular ? 'bg-orange-500 text-white hover:bg-orange-600' : 'border border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white' }} py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                     Get Started
                                 </button>
                             @endif
@@ -423,32 +484,32 @@
 
                 {{-- Yearly Grid --}}
                 <div id="sub-billing-yearly-grid" class="hidden">
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto pt-2">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto pt-2">
                         @forelse($yearlyPlans as $package)
                         @php
                             $isCurrentPlan = $currentPlan && $currentPlan['package']->id === $package->id;
-                            $borderClass   = $isCurrentPlan ? 'border-green-500 border-4' : ($package->is_popular ? 'border-orange-500' : 'border-gray-200');
+                            $borderClass   = $isCurrentPlan ? 'border-green-500 !border-2' : ($package->is_popular ? 'border-orange-500' : 'border-slate-200');
                         @endphp
-                        <div class="rounded-xl p-8 flex flex-col relative {{ $package->is_popular ? 'bg-blue-600 text-white transform scale-105' : 'bg-white border-2 ' . $borderClass . ' hover:border-blue-500 transition-colors' }}">
+                        <div class="rounded-2xl p-5 flex flex-col relative text-[13px] {{ $package->is_popular ? 'bg-[#111827] text-white ring-2 ring-orange-500' : 'bg-white border ' . $borderClass . ' hover:border-orange-300 transition-colors' }}">
                             @if($isCurrentPlan)
-                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Your Active Plan</div>
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-3 py-0.5 rounded-full text-[11.5px] font-semibold whitespace-nowrap">Your Active Plan</div>
                             @elseif($package->is_popular)
-                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Popular</div>
+                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[11.5px] font-semibold">Most Popular</div>
                             @endif
-                            <div class="text-center mb-6">
-                                <h3 class="text-xl font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-1">{{ $package->name }}</h3>
+                            <div class="text-center mb-4">
+                                <h3 class="text-[16px] font-semibold {{ $package->is_popular ? '' : 'text-gray-900' }} mb-0.5">{{ $package->name }}</h3>
                                 @if($package->description)
-                                    <p class="text-sm {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-3">{{ $package->description }}</p>
+                                    <p class="text-[12px] {{ $package->is_popular ? 'opacity-75' : 'text-gray-500' }} mb-2">{{ $package->description }}</p>
                                 @endif
-                                <div class="text-4xl font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
+                                <div class="text-[28px] leading-tight font-bold {{ $package->is_popular ? '' : 'text-gray-900' }}">
                                     @if($package->price == 0)
-                                        {{ $currency['symbol'] }}0<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/month</span>
+                                        {{ $currency['symbol'] }}0<span class="text-[13px] font-medium {{ $package->is_popular ? 'opacity-80' : 'text-gray-500' }}">/month</span>
                                     @else
-                                        {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price / 12, $currency), 2) }}<span class="text-lg {{ $package->is_popular ? 'opacity-80' : 'text-gray-600' }}">/mo</span>
+                                        {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price / 12, $currency), 2) }}<span class="text-[13px] font-medium {{ $package->is_popular ? 'opacity-80' : 'text-gray-500' }}">/mo</span>
                                     @endif
                                 </div>
                                 @if($package->billing_type === 'yearly' && $package->price > 0)
-                                    <div class="text-sm {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-1">
+                                    <div class="text-[12px] {{ $package->is_popular ? 'opacity-70' : 'text-gray-500' }} mt-0.5">
                                         billed {{ $currency['symbol'] }}{{ number_format(\App\Services\CurrencyHelper::convert((float)$package->price, $currency), 2) }}/year
                                     </div>
                                 @endif
@@ -456,7 +517,7 @@
                             @include('partials.pricing-features', compact('package', 'boolFeatures', 'featureLabels', 'hideFromCards'))
                             @if($isCurrentPlan)
                                 @if($package->price == 0 || !$currentPlan['is_active'])
-                                    <button class="w-full bg-gray-200 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed">
+                                    <button class="w-full bg-gray-200 text-gray-500 py-2.5 rounded-lg text-[13px] font-semibold cursor-not-allowed">
                                         {{ $currentPlan['is_pending'] ? 'Payment Pending' : 'Current Plan' }}
                                     </button>
                                 @else
@@ -465,7 +526,7 @@
                                             data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                             data-currency-symbol="{{ $currency['symbol'] }}"
                                             title="Submit next month's payment now — your access continues without interruption once approved."
-                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                                            class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                         <i class="fas fa-rotate mr-1"></i> Renew Plan
                                     </button>
                                 @endif
@@ -474,7 +535,7 @@
                                     @csrf
                                     <input type="hidden" name="package_id" value="{{ $package->id }}">
                                     <button type="submit"
-                                            class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                            class="w-full {{ $package->is_popular ? 'bg-orange-500 text-white hover:bg-orange-600' : 'border border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white' }} py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                         Select Free Plan
                                     </button>
                                 </form>
@@ -483,7 +544,7 @@
                                         data-package-id="{{ $package->id }}" data-package-name="{{ e($package->name) }}"
                                         data-package-price="{{ \App\Services\CurrencyHelper::convert((float)$package->price, $currency) }}"
                                         data-currency-symbol="{{ $currency['symbol'] }}"
-                                        class="w-full {{ $package->is_popular ? 'bg-white text-blue-600 hover:bg-gray-100' : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white' }} py-3 rounded-lg font-semibold transition-colors">
+                                        class="w-full {{ $package->is_popular ? 'bg-orange-500 text-white hover:bg-orange-600' : 'border border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white' }} py-2.5 rounded-lg text-[13px] font-semibold transition-colors">
                                     Get Started
                                 </button>
                             @endif
@@ -494,23 +555,23 @@
                     </div>
                 </div>
 
-                <!-- Lead Intelligence by Plan -->
+                <!-- Everything Included by Plan -->
                 @if($availablePlans->count() > 0)
-                <div class="mt-14">
-                    <div class="text-center mb-10">
-                        <p class="text-xs font-bold text-orange-500 uppercase tracking-widest mb-3">What's Included</p>
-                        <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">Lead Intelligence by Plan</h3>
-                        <p class="text-gray-500 max-w-xl mx-auto">Each plan unlocks deeper business data. See exactly what intelligence you get at every tier.</p>
+                <div class="mt-8">
+                    <div class="text-center mb-4">
+                        <p class="text-[11px] font-bold text-orange-500 uppercase tracking-widest mb-1">What's Included</p>
+                        <h3 class="text-[19px] font-bold text-gray-900 mb-1">Everything Included by Plan</h3>
+                        <p class="text-[12.5px] text-gray-500 max-w-xl mx-auto">Each plan unlocks deeper business data and more AI. See exactly what you get at every tier.</p>
                     </div>
 
-                    <div class="max-w-5xl mx-auto overflow-x-auto">
+                    <div class="max-w-5xl mx-auto overflow-x-auto ui-card">
                         <table class="w-full">
                             <thead>
-                                <tr class="border-b-2 border-gray-200">
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
+                                <tr class="border-b border-slate-200 bg-slate-50">
+                                    <th class="text-left py-2.5 px-4 text-[11px] font-semibold text-gray-500 uppercase tracking-wider w-2/5">Feature</th>
                                     @foreach($monthlyPlans as $package)
-                                        <th class="text-center py-4 px-4 w-1/5">
-                                            <span class="text-sm font-bold {{ $package->is_popular ? 'text-blue-600' : 'text-gray-900' }}">{{ $package->name }}</span>
+                                        <th class="text-center py-2.5 px-3 w-1/5">
+                                            <span class="text-[13px] font-bold {{ $package->is_popular ? 'text-orange-600' : 'text-gray-900' }}">{{ $package->name }}</span>
                                             <div class="text-xs text-gray-400 mt-0.5">
                                                 @if($package->price == 0)
                                                     Free
@@ -524,42 +585,34 @@
                             </thead>
                             <tbody>
                                 @php
-                                    $intelligenceLabels = [
-                                        'unlimited_map_scraping'  => ['name' => 'Unlimited Map Scraping',   'desc' => 'Scrape as many Google Maps results as you need',  'type' => 'bool'],
-                                        'basic_business_signals'  => ['name' => 'Basic Business Signals',   'desc' => 'Name, address, category, rating, total reviews',  'type' => 'bool'],
-                                        'contact_ready_leads'     => ['name' => 'Contact-Ready Leads',      'desc' => 'Verified phone & website data included',          'type' => 'bool'],
-                                        'email_scraping'          => ['name' => 'Email Scraping',           'desc' => 'Extract emails from business websites',           'type' => 'bool'],
-                                        'social_media_scraping'   => ['name' => 'Social Media Scraping',    'desc' => 'Facebook, Instagram, Twitter & more',             'type' => 'bool'],
-                                        'website_extraction'      => ['name' => 'Website Extraction',       'desc' => 'Pull full website URL from listings',             'type' => 'bool'],
-                                        'latest_review_insights'  => ['name' => 'Latest Review Insights',  'desc' => 'Recent review text & sentiment signals',          'type' => 'bool'],
-                                        'advanced_review_filters' => ['name' => 'Advanced Review Filters', 'desc' => 'Filter by rating, recency & keywords',            'type' => 'bool'],
-                                        'daily_leads_limit'       => ['name' => 'Daily Leads Limit',        'desc' => 'Max leads you can collect per day',               'type' => 'value', 'suffix' => '/day'],
-                                        'export_leads'            => ['name' => 'Export Leads',             'desc' => 'Download leads as CSV / Excel',                   'type' => 'value', 'suffix' => ''],
-                                        'max_devices'             => ['name' => 'Devices Access',           'desc' => 'Number of devices that can access your account',  'type' => 'value', 'suffix' => ''],
-                                        'priority_support'        => ['name' => 'Priority Support',         'desc' => 'Fast-track support response',                     'type' => 'bool'],
-                                    ];
+                                    $intelligenceLabels = \App\Support\PlanFeatureCatalog::comparisonRows();
                                 @endphp
                                 @foreach($intelligenceLabels as $featureKey => $meta)
+                                @if($meta['type'] === 'group')
+                                    <tr class="bg-gray-50"><td colspan="{{ 1 + $monthlyPlans->count() }}" class="py-2 px-4 text-[11px] font-bold text-gray-700 uppercase tracking-wider">{{ $meta['name'] }}</td></tr>
+                                    @continue
+                                @endif
                                     <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                                        <td class="py-4 px-4">
-                                            <div class="font-medium text-gray-900 text-sm">{{ $meta['name'] }}</div>
-                                            <div class="text-xs text-gray-400 mt-0.5">{{ $meta['desc'] }}</div>
+                                        <td class="py-2 px-4">
+                                            <div class="font-medium text-gray-900 text-[13px]">{{ $meta['name'] }}</div>
+                                            <div class="text-[11px] text-gray-400">{{ $meta['desc'] }}</div>
                                         </td>
                                         @foreach($monthlyPlans as $package)
                                             @php
-                                                $feat = $package->features->firstWhere('feature_key', $featureKey);
-                                                $val  = $feat ? $feat->feature_value : null;
+                                                $val = \App\Support\PlanFeatureCatalog::legacyValue($package, $featureKey);
                                             @endphp
-                                            <td class="text-center py-4 px-4">
-                                                @if($meta['type'] === 'bool')
+                                            <td class="text-center py-2 px-3">
+                                                @if(\App\Support\PlanFeatureCatalog::isLocked($package, $featureKey))
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-semibold whitespace-nowrap" title="Coming soon"><i class="far fa-clock text-[9px]" aria-hidden="true"></i>Soon</span>
+                                                @elseif($meta['type'] === 'bool')
                                                     @if($val === 'true')
-                                                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-100">
+                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100">
                                                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                                             </svg>
                                                         </span>
                                                     @else
-                                                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
+                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100">
                                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                             </svg>
@@ -567,7 +620,7 @@
                                                     @endif
                                                 @else
                                                     @if(!$val || $val === 'false')
-                                                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100">
+                                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100">
                                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                             </svg>
@@ -596,12 +649,12 @@
             </div>
 
             <!-- Billing History -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">
-                    <i class="fas fa-receipt text-primary-600 mr-2"></i>Billing History
+            <div class="ui-card p-4">
+                <h3 class="ui-card-t mb-2.5">
+                    <i class="fas fa-receipt"></i>Billing History
                 </h3>
                 @if($billingHistory && $billingHistory->count() > 0)
-                    <div class="space-y-3">
+                    <div class="space-y-2">
                         @foreach($billingHistory as $payment)
                             @php
                                 $invoiceDate   = ($payment->paid_at ?? $payment->created_at)->format('M d, Y');
@@ -615,10 +668,10 @@
                                 $status        = $payment->status ?? 'paid';
                                 $billingType   = optional(optional($payment->subscription)->package)->billing_type ?? '';
                             @endphp
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl gap-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl gap-2.5">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-file-invoice-dollar text-primary-600"></i>
+                                    <div class="ui-head-icon !w-8 !h-8 !text-[13px]">
+                                        <i class="fas fa-file-invoice-dollar"></i>
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-gray-800">{{ $packageName }}</p>
@@ -650,7 +703,7 @@
                                             customerName: '{{ addslashes(auth()->user()->first_name . ' ' . auth()->user()->last_name) }}',
                                             customerEmail: '{{ auth()->user()->email }}'
                                         })"
-                                        class="inline-flex items-center gap-1.5 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                        class="ui-btn-light ui-sm">
                                         <i class="fas fa-eye text-xs"></i>
                                         View Invoice
                                     </button>
@@ -659,8 +712,8 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-10">
-                        <i class="fas fa-receipt text-gray-300 text-4xl mb-3"></i>
+                    <div class="ui-empty">
+                        <div class="ui-empty-i"><i class="fas fa-receipt"></i></div>
                         <p class="text-sm text-gray-500">No billing history yet</p>
                         <p class="text-xs text-gray-400">Your payment history will appear here</p>
                     </div>
@@ -783,12 +836,12 @@
                 $showManagement  = $showUpgrade || $showCancel;
             @endphp
             @if($showManagement)
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-8">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Plan Management</h3>
+            <div class="ui-card p-4 mt-4">
+                <h3 class="ui-card-t mb-2.5"><i class="fas fa-sliders"></i>Plan Management</h3>
 
                 <div class="grid grid-cols-1 {{ $showUpgrade && $showCancel ? 'md:grid-cols-2' : 'md:grid-cols-1' }} gap-3 sm:gap-4">
                     @if($showUpgrade)
-                    <a href="#pricing-plans" class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                    <a href="#pricing-plans" class="ui-btn">
                         <i class="fas fa-{{ $currentPlan ? 'arrow-up' : 'rocket' }} mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         {{ $currentPlan ? 'Upgrade Plan' : 'Get Started' }}
                     </a>
@@ -796,7 +849,7 @@
 
                     @if($showCancel)
                     <button onclick="document.getElementById('cancelPlanModal').classList.remove('hidden'); document.body.style.overflow='hidden';"
-                            class="flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm sm:text-base font-medium">
+                            class="ui-btn-danger">
                         <i class="fas fa-times mr-1 sm:mr-2 text-xs sm:text-sm"></i>
                         Cancel Plan
                     </button>
@@ -819,7 +872,7 @@
             @endphp
 
             @if($showWarning)
-            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="mt-4 ui-note is-warn">
                 <div class="flex items-start space-x-3">
                     <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
                     <div>
@@ -949,13 +1002,14 @@
             monthlyGrid.classList.toggle('hidden', !isMonthly);
             yearlyGrid.classList.toggle('hidden', isMonthly);
 
-            monthlyBtn.classList.toggle('bg-blue-600', isMonthly);
+            monthlyBtn.classList.toggle('bg-orange-500', isMonthly);
             monthlyBtn.classList.toggle('text-white', isMonthly);
             monthlyBtn.classList.toggle('text-gray-600', !isMonthly);
 
-            yearlyBtn.classList.toggle('bg-blue-600', !isMonthly);
+            yearlyBtn.classList.toggle('bg-orange-500', !isMonthly);
             yearlyBtn.classList.toggle('text-white', !isMonthly);
             yearlyBtn.classList.toggle('text-gray-600', isMonthly);
         }
     </script>
+</div>
 @endsection

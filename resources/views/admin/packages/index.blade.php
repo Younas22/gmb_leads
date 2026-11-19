@@ -84,6 +84,10 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="text-sm text-gray-500">{{ $package->features->count() }} features</span>
+                            @php $lockedCount = $package->features->where('is_locked', true)->count(); @endphp
+                            @if($lockedCount)
+                                <span class="ml-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium"><i class="fas fa-lock text-[10px]" aria-hidden="true"></i>{{ $lockedCount }} locked</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <button onclick="toggleStatus({{ $package->id }})" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-colors {{ $package->status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-red-100 text-red-800 hover:bg-red-200' }}" id="status-badge-{{ $package->id }}">
@@ -95,7 +99,7 @@
                             <button onclick="openEditModal({{ $package->id }})" class="text-primary-600 hover:text-primary-900 mr-3">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="confirmDelete({{ $package->id }}, '{{ $package->name }}')" class="text-red-600 hover:text-red-900">
+                            <button onclick="confirmDelete({{ $package->id }}, @js($package->name))" class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -220,7 +224,12 @@
                         <div id="featuresContainer" class="space-y-3">
                             <!-- Features will be added here dynamically -->
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">Common keys: leads_limit, searches_per_day, api_keys, export_data, priority_support</p>
+                        <datalist id="featureKeyOptions">
+                            @foreach(\App\Support\PlanFeatureCatalog::FEATURES as $fKey => $fDef)
+                                <option value="{{ $fKey }}">{{ $fDef[0] }}</option>
+                            @endforeach
+                        </datalist>
+                        <p class="text-xs text-gray-500 mt-2">Start typing a key to pick from the list. Tick <strong>Lock</strong> to show the feature as locked (with your message) in the users' sidebar instead of hiding it.</p>
                     </div>
                 </div>
 
@@ -313,7 +322,7 @@ function openEditModal(packageId) {
             featureIndex = 0;
             if (data.features && data.features.length > 0) {
                 data.features.forEach(feature => {
-                    addFeature(feature.feature_key, feature.feature_value, feature.is_unlimited);
+                    addFeature(feature.feature_key, feature.feature_value, feature.is_unlimited, feature.is_locked, feature.lock_message);
                 });
             } else {
                 addFeature();
@@ -329,23 +338,43 @@ function closeModal() {
     document.body.style.overflow = 'auto';
 }
 
-function addFeature(key = '', value = '', isUnlimited = false) {
+function addFeature(key = '', value = '', isUnlimited = false, isLocked = false, lockMessage = '') {
     const container = document.getElementById('featuresContainer');
+    const esc = window.cnmEscape;
+    const i = featureIndex;
     const html = `
-        <div class="flex items-center space-x-2" id="feature-${featureIndex}">
-            <input type="text" name="features[${featureIndex}][key]" value="${key}" placeholder="Feature key" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
-            <input type="text" name="features[${featureIndex}][value]" value="${value}" placeholder="Value" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
-            <label class="flex items-center space-x-1 text-sm text-gray-600">
-                <input type="checkbox" name="features[${featureIndex}][is_unlimited]" value="1" ${isUnlimited ? 'checked' : ''} class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                <span>Unlimited</span>
-            </label>
-            <button type="button" onclick="removeFeature(${featureIndex})" class="text-red-500 hover:text-red-700">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="rounded-lg border ${isLocked ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-white'} p-2 space-y-2" id="feature-${i}">
+            <div class="flex flex-wrap items-center gap-2">
+                <input type="text" name="features[${i}][key]" value="${esc(key)}" list="featureKeyOptions" placeholder="Feature key" maxlength="100" class="flex-1 min-w-[10rem] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
+                <input type="text" name="features[${i}][value]" value="${esc(value ?? '')}" placeholder="Value" maxlength="255" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500">
+                <label class="flex items-center space-x-1 text-sm text-gray-600">
+                    <input type="checkbox" name="features[${i}][is_unlimited]" value="1" ${isUnlimited ? 'checked' : ''} class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                    <span>Unlimited</span>
+                </label>
+                <label class="flex items-center space-x-1 text-sm text-amber-700 font-medium" title="Show this feature locked, with your message">
+                    <input type="checkbox" name="features[${i}][is_locked]" value="1" ${isLocked ? 'checked' : ''} onchange="toggleFeatureLock(${i}, this.checked)" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500">
+                    <span><i class="fas fa-lock text-xs mr-0.5"></i>Lock</span>
+                </label>
+                <button type="button" onclick="removeFeature(${i})" class="text-red-500 hover:text-red-700" aria-label="Remove feature">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="${isLocked ? '' : 'hidden'}" id="feature-lock-${i}">
+                <input type="text" name="features[${i}][lock_message]" value="${esc(lockMessage ?? '')}" maxlength="255" placeholder="Message users see, e.g. Coming soon, or Upgrade to Pro to unlock" class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-amber-500">
+            </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
     featureIndex++;
+}
+
+function toggleFeatureLock(index, locked) {
+    const row = document.getElementById(`feature-${index}`);
+    document.getElementById(`feature-lock-${index}`).classList.toggle('hidden', !locked);
+    row.classList.toggle('border-amber-300', locked);
+    row.classList.toggle('bg-amber-50', locked);
+    row.classList.toggle('border-gray-200', !locked);
+    row.classList.toggle('bg-white', !locked);
 }
 
 function removeFeature(index) {

@@ -137,7 +137,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Password</p>
-                                <p class="text-xs sm:text-sm text-gray-700 font-mono">{{ $member->plain_password ?? '••••••' }}</p>
+                                <p class="text-xs sm:text-sm text-gray-700 font-mono">••••••</p>
                             </div>
                             <div>
                                 <p class="text-xs text-gray-500 mb-1">Created</p>
@@ -153,9 +153,9 @@
                     <!-- Actions -->
                     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 ml-2">
                         <!-- Copy Credentials -->
-                        <button onclick="copyCredentials('{{ $member->email }}', '{{ $member->plain_password }}', '{{ url('auth') }}')"
+                        <button onclick="copyCredentials(@js($member->email), @js(url('auth')))"
                                 class="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-medium transition-colors"
-                                title="Copy Credentials">
+                                title="Copy Login Details">
                             <i class="fas fa-copy"></i>
                         </button>
 
@@ -497,11 +497,13 @@ document.getElementById('member-modal').addEventListener('click', (e) => {
 });
 
 // Copy credentials to clipboard
-function copyCredentials(email, password, loginUrl) {
-    const credentials = `Email: ${email}\nPassword: ${password}\nLogin URL: ${loginUrl}`;
+function copyCredentials(email, loginUrl) {
+    // Passwords are no longer stored in readable form. Share the password you
+    // set separately, or reset it from the edit dialog.
+    const credentials = `Email: ${email}\nLogin URL: ${loginUrl}`;
 
     navigator.clipboard.writeText(credentials).then(() => {
-        showSuccessToast('Credentials copied to clipboard!');
+        showSuccessToast('Login details copied (password is not stored — share it separately).');
     }).catch(err => {
         console.error('Failed to copy:', err);
         showErrorToast('Failed to copy credentials');

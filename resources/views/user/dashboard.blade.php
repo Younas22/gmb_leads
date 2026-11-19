@@ -3,33 +3,86 @@
 @section('title', 'User Dashboard')
 
 @section('content')
-<main class="p-4 lg:p-8">
+@include('user._ui-kit')
+<style>
+    .db-step { display: flex; align-items: center; gap: 10px; padding: 9px 11px; background: #fff; border: 1px solid #E2E8F0; border-radius: 11px; min-width: 0; }
+    .db-step-n { width: 26px; height: 26px; border-radius: 8px; background: #FFF7ED; color: #EA580C; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .db-step.is-ai .db-step-n { background: #111827; color: #FDBA74; }
+    .db-tile { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #E2E8F0; border-radius: 11px; background: #fff; transition: border-color .15s, background-color .15s; min-width: 0; }
+    .db-tile:hover { border-color: #FDBA74; background: #FFFBF7; }
+    .db-tile-i { width: 32px; height: 32px; border-radius: 9px; background: #FFF7ED; color: #EA580C; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+    .db-tile:focus-visible { outline: 2px solid #F97316; outline-offset: 2px; }
+    .db-kpi { position: relative; overflow: hidden; background: #fff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .db-kpi-i { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+    .db-kpi-v { font-size: 22px; font-weight: 700; line-height: 1.1; color: #111827; }
+    .db-kpi-l { font-size: 12px; color: #64748B; }
+    .db-kpi-bar { position: absolute; left: 0; bottom: 0; height: 3px; }
+    .db-row { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid #F1F5F9; min-width: 0; }
+    .db-row:last-child { border-bottom: 0; }
+    .db-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; color: #334155; font-size: 13px; font-weight: 500; transition: background-color .15s, color .15s; }
+    .db-link:hover { background: #FFF7ED; color: #C2410C; }
+    .db-link:focus-visible { outline: 2px solid #F97316; outline-offset: 1px; }
+    .db-link i.lead { width: 30px; height: 30px; border-radius: 9px; background: #F8FAFC; color: #EA580C; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+    /* Screenshot layout */
+    .dbx-banner { background: #FFF5EE; border: 1px solid #FBD9C4; border-radius: 24px; padding: 28px; position: relative; overflow: hidden; }
+    @media (min-width: 1024px) { .dbx-banner { padding: 32px 36px; } }
+    .dbx-step { position: relative; display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1px solid #EEE7E2; border-radius: 16px; padding: 14px; box-shadow: 0 2px 6px -4px rgba(17, 24, 39, .12); min-width: 0; }
+    .dbx-step-i { width: 42px; height: 42px; border-radius: 12px; background: #FFF1E7; color: #F97316; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 17px; }
+    .dbx-arrow { display: none; }
+    @media (min-width: 1280px) { .dbx-arrow { display: flex; position: absolute; right: -15px; top: 50%; transform: translateY(-50%); width: 18px; color: #F97316; font-size: 13px; justify-content: center; z-index: 1; } }
+    .dbx-card { background: #fff; border: 1px solid #ECEEF1; border-radius: 20px; box-shadow: 0 2px 8px -5px rgba(17, 24, 39, .12); }
+    .dbx-kpi { display: flex; align-items: center; gap: 16px; padding: 18px 20px; }
+    .dbx-kpi-i { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 21px; }
+    .dbx-kpi-v { font-size: 26px; font-weight: 700; line-height: 1.1; color: #111827; }
+    .dbx-kpi-l { font-size: 14px; color: #475569; margin-top: 2px; }
+    .dbx-quick { display: flex; align-items: center; gap: 14px; padding: 16px 18px; transition: border-color .15s, box-shadow .15s; }
+    .dbx-quick:hover { border-color: #FDBA74; box-shadow: 0 6px 16px -10px rgba(249, 115, 22, .45); }
+    .dbx-quick:focus-visible { outline: 2px solid #F97316; outline-offset: 2px; }
+    .dbx-go { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: center; color: #111827; font-size: 12px; margin-left: auto; flex-shrink: 0; transition: background-color .15s, color .15s, border-color .15s; }
+    .dbx-quick:hover .dbx-go { background: #F97316; border-color: #F97316; color: #fff; }
+    .dbx-soon { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: #F1F5F9; color: #475569; font-size: 10.5px; font-weight: 600; text-transform: lowercase; }
+    .dbx-pill { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 999px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+</style>
+
+<main class="cnm-ui ui-page !max-w-[1440px] space-y-5">
 @include('user.welcome-tutorial-modal')
+
+{{-- Phase 4: follow-up reminders (reminders only; nothing is sent automatically) --}}
+@if(\App\Services\PlanFeatures::enabled(auth()->user(), 'email_followups_enabled'))
+    @php
+        $fuBase = \App\Models\EmailFollowUp::ownedBy(auth()->user()->getAccountOwner())->open();
+        $fuOverdue = (clone $fuBase)->where('due_date', '<', today()->toDateString())->count();
+        $fuToday = (clone $fuBase)->where('due_date', today()->toDateString())->count();
+    @endphp
+    @if($fuOverdue + $fuToday > 0)
+        <div class="ui-note is-brand items-center justify-between flex-wrap" data-testid="dashboard-follow-ups">
+            <div>
+                <i class="fas fa-bell text-orange-500 mr-1"></i>
+                {{-- Keep Blade directives on their own lines: an if/endif glued to a word compiled only half and broke the page layout --}}
+                <strong>{{ $fuToday }}</strong> follow-up{{ $fuToday === 1 ? '' : 's' }} due today
+                @if($fuOverdue)
+                    and <strong class="text-red-600">{{ $fuOverdue }}</strong> overdue
+                @endif
+                <span class="text-slate-500">· a quick check-in is often what turns a lead into a client.</span>
+            </div>
+            <a href="{{ route('user.email-follow-ups.index') }}" class="ui-btn ui-sm">View follow-ups</a>
+        </div>
+    @endif
+@endif
 
 <!-- Email Verification Notice -->
 @if(!auth()->user()->email_verified)
-<div class="mb-6">
-    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4 shadow-sm">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i class="fas fa-envelope text-blue-600 text-2xl"></i>
-            </div>
-            <div class="ml-4 flex-1">
-                <h3 class="text-lg font-semibold text-blue-800 mb-1">
-                    <i class="fas fa-info-circle mr-2"></i>Please Verify Your Email
-                </h3>
-                <p class="text-sm text-blue-700 mb-3">
-                    We've sent a verification email to <strong>{{ auth()->user()->email }}</strong>. Please check your inbox and click the verification link to complete your registration.
-                </p>
-                <div class="flex flex-wrap gap-3">
-                    <button onclick="resendVerification()" id="resendBtn" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        Resend Verification Email
-                    </button>
-                </div>
-            </div>
-        </div>
+<div class="ui-note is-info flex-wrap items-center">
+    <i class="fas fa-envelope text-blue-600" aria-hidden="true"></i>
+    <div class="flex-1 min-w-[220px]">
+        <p class="font-semibold">Please Verify Your Email</p>
+        <p class="text-[12px] mt-0.5">We sent a link to <strong>{{ auth()->user()->email }}</strong>. Verify it to keep your account secure and receive important updates.</p>
     </div>
+    <button onclick="resendVerification()" id="resendBtn" class="ui-btn-dark ui-sm">
+        <i class="fas fa-paper-plane"></i>
+        Resend Verification Email
+    </button>
 </div>
 
 <script>
@@ -38,7 +91,7 @@ function resendVerification() {
     const originalText = btn.innerHTML;
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
     fetch('{{ route("auth.resend.verification") }}', {
         method: 'POST',
@@ -50,14 +103,9 @@ function resendVerification() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Email Sent!';
-            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            btn.classList.add('bg-green-600');
-
+            btn.innerHTML = '<i class="fas fa-check"></i> Email Sent!';
             setTimeout(() => {
                 btn.innerHTML = originalText;
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 btn.disabled = false;
             }, 3000);
         } else {
@@ -78,614 +126,394 @@ function resendVerification() {
 
 <!-- Pending Subscription Warning -->
 @if(auth()->user()->hasRestrictedAccess())
-<div class="mb-6">
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 shadow-sm">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
-            </div>
-            <div class="ml-4 flex-1">
-                <h3 class="text-lg font-semibold text-yellow-800 mb-1">
-                    <i class="fas fa-clock mr-2"></i>Subscription Pending Activation
-                </h3>
-                <p class="text-sm text-yellow-700 mb-3">
-                    Your payment has been submitted successfully and is currently under review by our admin team.
-                    You will receive full access to all features once your subscription is activated.
-                </p>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('user.subscription') }}" class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        View Subscription Status
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="ui-note is-warn flex-wrap items-center">
+    <i class="fas fa-clock text-amber-600" aria-hidden="true"></i>
+    <div class="flex-1 min-w-[220px]">
+        <p class="font-semibold">Subscription Pending Activation</p>
+        <p class="text-[12px] mt-0.5">Your payment is in and our team is reviewing it. Every feature unlocks as soon as your plan is activated.</p>
     </div>
+    <a href="{{ route('user.subscription') }}" class="ui-btn-light ui-sm">View Subscription Status</a>
 </div>
 @endif
 
 <!-- Warning flash message from middleware -->
 @if(session('warning'))
-<div class="mb-6">
-    <div class="bg-orange-50 border border-orange-200 text-orange-700 px-5 py-4 rounded-xl flex items-center">
-        <i class="fas fa-exclamation-circle text-orange-500 mr-3"></i>
-        <div>{{ session('warning') }}</div>
-    </div>
+<div class="ui-note is-brand">
+    <i class="fas fa-exclamation-circle text-orange-500"></i>
+    <div>{{ session('warning') }}</div>
 </div>
 @endif
 
-<!-- Welcome Section -->
-<div class="mb-8">
-    <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-5 sm:p-7 text-white">
-        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+@php
+    $dlData = $usageData['daily_leads'];
+    $totalLeads = max(0, (int) $stats['total_leads']);
+    $pct = fn ($n) => $totalLeads > 0 ? min(100, (int) round($n / $totalLeads * 100)) : 0;
+    $hour = (int) now()->format('G');
+    $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
+    $restricted = auth()->user()->hasRestrictedAccess();
+    $statusMeta = [
+        'not_contacted' => ['Pending', 'bg-amber-50 text-amber-700 border-amber-200'],
+        'contacted' => ['Contacted', 'bg-blue-50 text-blue-700 border-blue-200'],
+        'responded' => ['Responded', 'bg-teal-50 text-teal-700 border-teal-200'],
+        'follow_up' => ['Follow Up', 'bg-purple-50 text-purple-700 border-purple-200'],
+        'converted' => ['Converted', 'bg-green-50 text-green-700 border-green-200'],
+        'closed' => ['Closed', 'bg-slate-100 text-slate-600 border-slate-200'],
+    ];
+@endphp
+@if($currentPlan)
+@php
+    // The rows that apply to this user: admin "Custom features" first, else the package; locked = not included
+    $featureRows  = app(\App\Services\FeatureOverrides::class);
+    $pfRow        = function (string $key) use ($featureRows, $currentPlan) {
+        $row = $featureRows->row($currentPlan['subscription'], $key);
+        return ($row && empty($row->is_locked)) ? $row : null;
+    };
+    $dl           = $usageData['daily_leads'];
+    $dlFeature    = $pfRow('daily_leads_limit');
+    $exportLeads  = $pfRow('export_leads');
+    $maxDevices   = $pfRow('max_devices');
+    $prioritySupp = $pfRow('priority_support');
+    $pfLock       = fn (string $key) => \App\Services\FeatureOverrides::lockMessageOf($featureRows->row($currentPlan['subscription'], $key));
+    $dlLock       = $pfLock('daily_leads_limit');
+    $exportLock   = $pfLock('export_leads');
+    $devicesLock  = $pfLock('max_devices');
+    $supportLock  = $pfLock('priority_support');
+@endphp
+@else
+@php $dlLock = $exportLock = $devicesLock = $supportLock = null; $exportLeads = $maxDevices = $prioritySupp = null; @endphp
+@endif
 
-            <!-- Left: Welcome text + system overview -->
-            <div class="flex-1">
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-1">Welcome back, {{ $user->first_name }}!</h1>
-                <p class="text-primary-100 text-sm sm:text-base mb-5">
-                    @if($usageData['daily_leads']['is_unlimited'])
-                        You have unlimited leads today. Start building your business network!
-                    @elseif($usageData['daily_leads']['has_plan'])
-                        You have {{ number_format($usageData['daily_leads']['remaining']) }} leads remaining today out of {{ number_format($usageData['daily_leads']['limit']) }}.
-                    @else
-                        Start searching for businesses to build your lead database.
-                    @endif
-                </p>
 
-                <!-- System overview steps -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
-                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
-                            <i class="fas fa-puzzle-piece text-white text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-white font-semibold text-sm">1. Add Extension</p>
-                            <p class="text-primary-100 text-xs mt-0.5">Install the Chrome Extension to start scraping Google Maps businesses</p>
-                        </div>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
-                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
-                            <i class="fas fa-search text-white text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-white font-semibold text-sm">2. Find Leads</p>
-                            <p class="text-primary-100 text-xs mt-0.5">Search businesses by keyword &amp; location using our Chrome Extension</p>
-                        </div>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
-                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
-                            <i class="fas fa-bookmark text-white text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-white font-semibold text-sm">3. Save &amp; Organize</p>
-                            <p class="text-primary-100 text-xs mt-0.5">Save leads with contact details, ratings &amp; business info to your list</p>
-                        </div>
-                    </div>
-                    <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 flex items-start gap-3">
-                        <div class="bg-white bg-opacity-20 rounded-lg p-2 flex-shrink-0">
-                            <i class="fas fa-download text-white text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-white font-semibold text-sm">4. Export &amp; Contact</p>
-                            <p class="text-primary-100 text-xs mt-0.5">Download leads &amp; track status — Contacted, Responded, Converted</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@php
+    $emailLock = \App\Services\PlanFeatures::lockMessage(auth()->user(), 'gmail_sending_enabled');
+    $illustration = file_exists(public_path('assets/images/dashboard-illustration.png'));
+@endphp
 
-            <!-- Right: Playlist + Community buttons + what's inside -->
-            @if(!auth()->user()->hasRestrictedAccess())
-            <div class="lg:flex-shrink-0 lg:w-64">
-                <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors text-sm mb-2">
-                    <i class="fab fa-whatsapp text-lg"></i>
-                    Community
-                </a>
-                <a href="{{ route('user.tutorials') }}" class="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-lg font-semibold transition-colors text-sm mb-3">
-                    <i class="fas fa-play-circle text-lg"></i>
-                    Playlist
-                </a>
-                <div class="bg-white bg-opacity-10 rounded-lg px-4 py-3 space-y-2">
-                    <p class="text-primary-100 text-xs font-semibold uppercase tracking-wide mb-1">Videos included:</p>
-                    <div class="flex items-center gap-2 text-xs text-white">
-                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
-                        How to install the Chrome Extension
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-white">
-                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
-                        How to search &amp; scrape businesses
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-white">
-                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
-                        How to manage &amp; export your leads
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-white">
-                        <i class="fas fa-check-circle text-orange-300 flex-shrink-0"></i>
-                        How to track lead contact status
-                    </div>
-                </div>
-            </div>
-            @else
-                <a href="{{ route('user.subscription') }}" class="inline-flex items-center justify-center bg-yellow-500 text-white px-5 py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm">
-                    <i class="fas fa-clock mr-2"></i>View Subscription Status
-                </a>
-            @endif
-
+<!-- Welcome banner + how it works -->
+<section class="dbx-banner" aria-labelledby="dashboard-welcome-title">
+    <div class="flex items-center gap-6">
+        <div class="min-w-0 flex-1">
+            <h1 id="dashboard-welcome-title" class="text-[28px] sm:text-[36px] font-extrabold leading-tight tracking-[-0.02em] text-[#111827]">Welcome back, <span class="text-[#F97316]">{{ $user->first_name }}!</span></h1>
+            <p class="mt-1.5 text-[15px] sm:text-[16px] text-[#475569]">
+                @if($dlData['is_unlimited'])
+                    {{ $ai ? 'You have unlimited leads today. Find them, let AI qualify them, and start the conversation.' : 'You have unlimited leads today. Find them and start the conversation.' }}
+                @elseif($dlData['has_plan'])
+                    You have {{ number_format($dlData['remaining']) }} leads remaining today out of {{ number_format($dlData['limit']) }}.
+                @else
+                    Start searching for businesses to build your lead database.
+                @endif
+            </p>
+    <ol class="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-7">
+        @foreach([
+            ['fa-puzzle-piece', '1. Add Extension', 'Install the Chrome Extension and pull businesses from Google Maps', null],
+            ['fa-search', '2. Find & Save Leads', 'Search by keyword & location, then save contacts, ratings & websites', null],
+            ['fa-wand-magic-sparkles', '3. Analyze with AI', 'Get insights and a personalized email', $aiLock],
+            ['fa-paper-plane', '4. Send & Follow Up', 'Approve drafts, send from your own inbox and track every reply', $emailLock],
+        ] as $si => [$sIcon, $sTitle, $sText, $sLock])
+            <li class="dbx-step">
+                <span class="dbx-step-i" aria-hidden="true"><i class="fas {{ $sIcon }}"></i></span>
+                <span class="min-w-0">
+                    <span class="flex flex-wrap items-center gap-1.5 text-[14px] font-semibold text-[#111827]">{{ $sTitle }}@if($sLock)<span class="dbx-soon" title="{{ $sLock }}">soon</span>@endif</span>
+                    <span class="block text-[12px] text-[#64748B] leading-snug mt-0.5">{{ $sText }}</span>
+                </span>
+                @if($si < 3)<span class="dbx-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>@endif
+            </li>
+        @endforeach
+    </ol>
         </div>
+        @if($illustration)
+            <img src="{{ asset('public/assets/images/dashboard-illustration.png') }}" alt="" width="290" height="230"
+                 class="hidden 2xl:block w-[250px] h-auto flex-shrink-0" style="mix-blend-mode: multiply;">
+        @endif
     </div>
+</section>
+
+<!-- Lead pipeline -->
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4">
+    @foreach([
+        ['Total Leads', $stats['total_leads'], 'fa-users', 'bg-[#FFF1E7] text-[#F97316]'],
+        ['Contacted', $stats['contacted_leads'], 'fa-phone', 'bg-[#FFF1E7] text-[#F97316]'],
+        ['Pending', $stats['pending_leads'], 'fa-hourglass-half', 'bg-[#FFF1E7] text-[#F97316]'],
+        ['Converted', $stats['converted_leads'], 'fa-circle-check', 'bg-green-50 text-[#16A34A]'],
+    ] as [$kLabel, $kValue, $kIcon, $kTint])
+        <div class="dbx-card dbx-kpi">
+            <span class="dbx-kpi-i {{ $kTint }}" aria-hidden="true"><i class="fas {{ $kIcon }}"></i></span>
+            <div class="min-w-0">
+                <p class="dbx-kpi-v">{{ number_format($kValue) }}</p>
+                <p class="dbx-kpi-l">{{ $kLabel }}</p>
+            </div>
+        </div>
+    @endforeach
 </div>
 
-    <!-- Lead Status Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <!-- Total Leads -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Total Leads</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ number_format($stats['total_leads']) }}</p>
-                </div>
-                <div class="bg-indigo-100 rounded-lg p-3">
-                    <i class="fas fa-users text-indigo-600 text-xl"></i>
-                </div>
+<!-- AI Sales Assistant -->
+@if($ai)
+@php
+    $aiLabels = ['website_audit' => ['Website audits', 'fa-magnifying-glass-chart'], 'email_draft' => ['Email drafts', 'fa-envelope-open-text'], 'offer_builder' => ['AI offers', 'fa-gift']];
+@endphp
+<section class="ui-card overflow-hidden" aria-labelledby="dashboard-ai-title" data-testid="dashboard-ai">
+    <div class="ui-card-h !bg-[#111827] !border-[#111827]">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-8 h-8 rounded-lg bg-white/10 text-[#FDBA74] flex items-center justify-center flex-shrink-0"><i class="fas fa-wand-magic-sparkles text-sm"></i></span>
+            <div class="min-w-0">
+                <h2 id="dashboard-ai-title" class="text-[14px] font-semibold text-white">AI Sales Assistant</h2>
+                <p class="text-[11.5px] text-slate-300">Your AI researches each lead, picks the right offer and writes the first email. You stay in control: nothing is sent without your approval.</p>
             </div>
         </div>
-
-        <!-- Contacted -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Contacted</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ number_format($stats['contacted_leads']) }}</p>
-                </div>
-                <div class="bg-blue-100 rounded-lg p-3">
-                    <i class="fas fa-phone-alt text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Pending</p>
-                    <p class="text-3xl font-bold text-orange-500">{{ number_format($stats['pending_leads']) }}</p>
-                </div>
-                <div class="bg-orange-100 rounded-lg p-3">
-                    <i class="fas fa-clock text-orange-500 text-xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Converted -->
-        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Converted</p>
-                    <p class="text-3xl font-bold text-green-600">{{ number_format($stats['converted_leads']) }}</p>
-                </div>
-                <div class="bg-green-100 rounded-lg p-3">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
+        @if($ai['available'])
+            <span class="ui-badge !bg-white/10 !border-white/20 !text-green-300"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>AI ready</span>
+        @else
+            <span class="ui-badge !bg-white/10 !border-white/20 !text-slate-300">AI not configured yet</span>
+        @endif
     </div>
 
-    <!-- Quick Actions -->
-    @if(!auth()->user()->hasRestrictedAccess())
-    <div class="grid grid-cols-2 gap-4 mb-8">
-        <a href="{{ route('user.search') }}" class="flex items-center p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-primary-300 hover:shadow-md transition-all group">
-            <div class="bg-primary-100 group-hover:bg-primary-200 rounded-xl p-4 mr-4 transition-colors">
-                <i class="fas fa-search text-primary-600 text-2xl"></i>
+    <div class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+        {{-- 1. Profile readiness --}}
+        <div class="p-4">
+            <p class="ui-stat-l"><i class="fas fa-user-tie"></i>AI Sales Profile</p>
+            <div class="flex items-baseline gap-1.5 mt-1">
+                <span class="text-[22px] font-bold text-gray-900">{{ (int) $ai['completeness'] }}%</span>
+                <span class="text-[12px] text-slate-500">complete</span>
             </div>
-            <div>
-                <p class="text-base font-semibold text-gray-800">Find Leads</p>
-                <p class="text-sm text-gray-500">Search for new businesses</p>
-            </div>
-            <i class="fas fa-chevron-right text-gray-300 group-hover:text-primary-400 ml-auto transition-colors"></i>
-        </a>
-        <a href="{{ route('user.leads') }}" class="flex items-center p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-green-300 hover:shadow-md transition-all group">
-            <div class="bg-green-100 group-hover:bg-green-200 rounded-xl p-4 mr-4 transition-colors">
-                <i class="fas fa-bookmark text-green-600 text-2xl"></i>
-            </div>
-            <div>
-                <p class="text-base font-semibold text-gray-800">My Leads</p>
-                <p class="text-sm text-gray-500">View your saved leads</p>
-            </div>
-            <i class="fas fa-chevron-right text-gray-300 group-hover:text-green-400 ml-auto transition-colors"></i>
-        </a>
-    </div>
-    @endif
-
-    <!-- Current Plan Stats -->
-    @if($currentPlan)
-    @php
-        $pf           = $currentPlan['package']->features->keyBy('feature_key');
-        $dl           = $usageData['daily_leads'];
-        $dlFeature    = $pf->get('daily_leads_limit');
-        $exportLeads  = $pf->get('export_leads');
-        $maxDevices   = $pf->get('max_devices');
-        $prioritySupp = $pf->get('priority_support');
-    @endphp
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <div>
-                <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-chart-bar text-orange-500"></i>
-                    {{ $currentPlan['package']->name }}
-                </h3>
-                <div class="flex items-center gap-3 mt-1">
-                    @if($currentPlan['end_date'])
-                        <span class="text-xs text-gray-500">
-                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>
-                            Expires: <span class="{{ $currentPlan['end_date']->isPast() ? 'text-red-500 font-medium' : ($currentPlan['end_date']->diffInDays() <= 7 ? 'text-orange-500 font-medium' : 'text-gray-600') }}">
-                                {{ $currentPlan['end_date']->format('d M Y') }}
-                            </span>
-                        </span>
-                        @if(!$currentPlan['end_date']->isPast())
-                            <span class="text-xs text-gray-400">({{ $currentPlan['end_date']->diffForHumans() }})</span>
-                        @endif
-                    @else
-                        <span class="text-xs text-green-600"><i class="fas fa-infinity mr-1"></i>No expiry</span>
-                    @endif
-                </div>
-            </div>
-            <a href="{{ route('user.subscription') }}" class="text-xs text-primary-600 hover:underline">View Plan</a>
-        </div>
-        <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-gray-100">
-
-            <!-- Daily Leads Limit -->
-            <div class="px-6 py-5">
-                <div class="flex items-center gap-2 mb-1">
-                    <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-map-marker-alt text-orange-500 text-xs"></i>
-                    </div>
-                    <span class="text-xs font-medium text-gray-500">Daily Leads Limit</span>
-                </div>
-                <div class="mt-2">
-                    @if($dl['is_unlimited'])
-                        <span class="text-xl font-bold text-gray-800">Unlimited</span>
-                    @else
-                        <span class="text-xl font-bold {{ $dl['percentage'] >= 85 ? 'text-red-600' : 'text-gray-800' }}">
-                            {{ number_format($dl['used']) }}
-                        </span>
-                        <span class="text-sm text-gray-500">/ {{ number_format($dl['limit']) }} today</span>
-                    @endif
-                </div>
-                @if(!$dl['is_unlimited'])
-                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2 mb-1">
-                        <div class="h-1.5 rounded-full {{ $dl['percentage'] >= 85 ? 'bg-red-500' : 'bg-orange-400' }}"
-                             style="width:<?php echo min($dl['percentage'], 100); ?>%"></div>
-                    </div>
-                    <p class="text-xs {{ $dl['percentage'] >= 85 ? 'text-red-500' : 'text-gray-400' }}">
-                        {{ number_format($dl['remaining']) }} remaining today
-                        @if($dl['percentage'] >= 85) · <span class="font-medium">Near limit</span> @endif
-                    </p>
+            <div class="ui-bar"><span style="width: {{ (int) $ai['completeness'] }}%"></span></div>
+            <p class="text-[11.5px] text-slate-500 mt-2 leading-snug">
+                @if($ai['completeness'] >= 100)
+                    The AI knows your business, services and voice. Every email is on-brand.
                 @else
-                    <p class="text-xs text-gray-400 mt-1">No daily limit on your plan</p>
+                    The more the AI knows about what you sell, the sharper and more personal each email gets.
                 @endif
-            </div>
-
-            <!-- Export Leads -->
-            <div class="px-6 py-5">
-                <div class="flex items-center gap-2 mb-1">
-                    <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-download text-green-500 text-xs"></i>
-                    </div>
-                    <span class="text-xs font-medium text-gray-500">Export Leads</span>
-                </div>
-                <div class="mt-2">
-                    @if($exportLeads && $exportLeads->feature_value === 'unlimited')
-                        <span class="text-xl font-bold text-gray-800">Unlimited</span>
-                    @elseif($exportLeads && $exportLeads->feature_value !== 'false')
-                        <span class="text-xl font-bold text-gray-800">{{ number_format((int)$exportLeads->feature_value) }}</span>
-                        <span class="text-sm text-gray-500">/mo</span>
-                    @else
-                        <span class="text-xl font-bold text-gray-400">Not included</span>
-                    @endif
-                </div>
-                <p class="text-xs text-gray-400 mt-1">CSV / Excel downloads</p>
-            </div>
-
-            <!-- Devices Access -->
-            <div class="px-6 py-5">
-                <div class="flex items-center gap-2 mb-1">
-                    <div class="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-laptop text-blue-500 text-xs"></i>
-                    </div>
-                    <span class="text-xs font-medium text-gray-500">Devices Access</span>
-                </div>
-                <div class="mt-2">
-                    @if($maxDevices)
-                        <span class="text-xl font-bold text-gray-800">{{ $myDevices->count() }}</span>
-                        <span class="text-sm text-gray-500">/ {{ ($maxDevices->is_unlimited || $maxDevices->feature_value === 'unlimited') ? '∞' : $maxDevices->feature_value }} {{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
-                    @else
-                        <span class="text-xl font-bold text-gray-400">—</span>
-                    @endif
-                </div>
-                <p class="text-xs text-gray-400 mt-1">Simultaneous logins</p>
-            </div>
-
-            <!-- Priority Support -->
-            <div class="px-6 py-5">
-                <div class="flex items-center gap-2 mb-1">
-                    <div class="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-headset text-purple-500 text-xs"></i>
-                    </div>
-                    <span class="text-xs font-medium text-gray-500">Priority Support</span>
-                </div>
-                <div class="mt-2 flex items-center gap-2">
-                    @if($prioritySupp && $prioritySupp->feature_value === 'true')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            Included
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-sm font-semibold">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            Not included
-                        </span>
-                    @endif
-                </div>
-                <p class="text-xs text-gray-400 mt-1">Fast-track support response</p>
-            </div>
-
+            </p>
+            <a href="{{ route('user.ai-profile.index') }}" class="ui-btn-light ui-sm mt-2.5">{{ $ai['completeness'] >= 100 ? 'Review profile' : 'Complete profile' }} <i class="fas fa-arrow-right text-[10px]"></i></a>
         </div>
 
-        <!-- My Devices -->
-        @if($myDevices->count() > 0)
-        <div class="px-6 py-4 border-t border-gray-100">
-            <h4 class="text-sm font-semibold text-gray-700 mb-3">My Registered Devices</h4>
-            <div class="space-y-2">
-                @foreach($myDevices as $device)
-                <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-laptop text-blue-400 text-sm"></i>
-                        <span class="text-sm text-gray-700">{{ $device->device_name ?: 'Unknown Device' }}</span>
+        {{-- 2. Usage this month --}}
+        <div class="p-4">
+            <p class="ui-stat-l"><i class="fas fa-gauge-high"></i>AI usage · {{ now()->format('F') }}</p>
+            <div class="space-y-2.5 mt-2">
+                @foreach($ai['usage'] as $feature => $u)
+                    @php
+                        [$uLabel, $uIcon] = $aiLabels[$feature] ?? [$feature, 'fa-circle'];
+                        $uPct = $u['limit'] > 0 ? min(100, (int) round($u['used'] / $u['limit'] * 100)) : 0;
+                    @endphp
+                    <div>
+                        <div class="flex items-center justify-between gap-2 text-[12px]">
+                            <span class="text-slate-700"><i class="fas {{ $uIcon }} text-slate-400 w-4"></i>{{ $uLabel }}</span>
+                            <span class="font-semibold text-gray-900 whitespace-nowrap">
+                                @if(!empty($u['lock']))
+                                    @include('user._lock-badge', ['message' => $u['lock'], 'compact' => true])
+                                @elseif($u['limit'] === -1)
+                                    {{ number_format($u['used']) }} <span class="font-normal text-slate-500">/ unlimited</span>
+                                @elseif($u['limit'] === 0)
+                                    <span class="font-normal text-slate-400">Not in your plan</span>
+                                @else
+                                    {{ number_format($u['used']) }} <span class="font-normal text-slate-500">/ {{ number_format($u['limit']) }}</span>
+                                @endif
+                            </span>
+                        </div>
+                        @if(!empty($u['lock']))
+                            <p class="text-[11px] text-slate-500 mt-0.5">{{ $u['lock'] }}</p>
+                        @elseif($u['limit'] > 0)
+                            <div class="ui-bar !mt-1"><span class="{{ $uPct >= 85 ? 'is-hot' : '' }}" style="width: {{ $uPct }}%"></span></div>
+                        @endif
                     </div>
-                    <span class="text-xs text-gray-400">Registered {{ $device->created_at->format('M d, Y') }}</span>
-                </div>
                 @endforeach
             </div>
         </div>
+
+        {{-- 3. Work waiting for you --}}
+        <div class="p-4">
+            <p class="ui-stat-l"><i class="fas fa-inbox"></i>Ready for you</p>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+                <div class="rounded-lg bg-[#FFF7ED] border border-[#FED7AA] px-2.5 py-2">
+                    <p class="text-[18px] font-bold text-[#C2410C] leading-tight">{{ number_format($ai['drafts_to_review']) }}</p>
+                    <p class="text-[10.5px] text-[#9A3412]">Drafts to review</p>
+                </div>
+                <div class="rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-2">
+                    <p class="text-[18px] font-bold text-gray-900 leading-tight">{{ number_format($ai['approved']) }}</p>
+                    <p class="text-[10.5px] text-slate-500">Approved</p>
+                </div>
+                <div class="rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-2">
+                    <p class="text-[18px] font-bold text-gray-900 leading-tight">{{ number_format($ai['analyses']) }}</p>
+                    <p class="text-[10.5px] text-slate-500">Leads analyzed</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-3">
+                @if($ai['drafts_to_review'] > 0)
+                    <a href="{{ route('user.ai-outreach.index', ['review' => 'draft']) }}" class="ui-btn ui-sm"><i class="fas fa-pen-to-square"></i> Review drafts</a>
+                @else
+                    <a href="{{ route('user.leads') }}" class="ui-btn ui-sm"><i class="fas fa-wand-magic-sparkles"></i> Analyze leads with AI</a>
+                @endif
+                <a href="{{ route('user.ai-outreach.index') }}" class="ui-btn-light ui-sm">Open AI Outreach</a>
+            </div>
+        </div>
+    </div>
+
+    {{-- Every AI feature, one click away --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-3 bg-slate-50 border-t border-slate-100">
+        <a href="{{ route('user.ai-outreach.index') }}" class="db-tile">
+            <span class="db-tile-i"><i class="fas fa-magnifying-glass-chart"></i></span>
+            <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-gray-900">AI Website Audit</span><span class="block text-[11px] text-slate-500 truncate">Spot what each business is missing</span></span>
+        </a>
+        <a href="{{ route('user.ai-outreach.index') }}" class="db-tile">
+            <span class="db-tile-i"><i class="fas fa-envelope-open-text"></i></span>
+            <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-gray-900">AI Email Drafts</span><span class="block text-[11px] text-slate-500 truncate">Personal first emails, in your voice</span></span>
+        </a>
+        @if($ai['offers_lock'])
+            <div class="db-tile !bg-slate-50 cursor-not-allowed" title="{{ $ai['offers_lock'] }}" data-testid="locked-tile">
+                <span class="db-tile-i !bg-slate-100 !text-slate-400"><i class="fas fa-lock"></i></span>
+                <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-slate-500">AI Offer Builder</span><span class="block text-[11px] text-slate-500 truncate">{{ $ai['offers_lock'] }}</span></span>
+            </div>
+        @else
+            <a href="{{ route('user.ai-profile.index') }}#offers" class="db-tile">
+                <span class="db-tile-i"><i class="fas fa-gift"></i></span>
+                <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-gray-900">AI Offer Builder</span><span class="block text-[11px] text-slate-500 truncate">Irresistible offers from your business details</span></span>
+            </a>
+        @endif
+        @if($ai['email_on'])
+            <a href="{{ route('user.email-sending.index') }}" class="db-tile">
+                <span class="db-tile-i"><i class="fas fa-paper-plane"></i></span>
+                <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-gray-900">Send &amp; Track</span><span class="block text-[11px] text-slate-500 truncate">Send approved drafts, track replies</span></span>
+            </a>
+        @elseif($ai['email_lock'])
+            <div class="db-tile !bg-slate-50 cursor-not-allowed" title="{{ $ai['email_lock'] }}" data-testid="locked-tile">
+                <span class="db-tile-i !bg-slate-100 !text-slate-400"><i class="fas fa-lock"></i></span>
+                <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-slate-500">Send &amp; Track</span><span class="block text-[11px] text-slate-500 truncate">{{ $ai['email_lock'] }}</span></span>
+            </div>
+        @else
+            <a href="{{ route('user.ai-profile.index') }}" class="db-tile">
+                <span class="db-tile-i"><i class="fas fa-user-tie"></i></span>
+                <span class="min-w-0"><span class="block text-[12.5px] font-semibold text-gray-900">Train your AI</span><span class="block text-[11px] text-slate-500 truncate">Services, audience and tone of voice</span></span>
+            </a>
         @endif
     </div>
-    @endif
-
-    @if($stats['total_leads'] == 0)
-    <!-- Getting Started Guide -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border border-blue-100 mb-8">
-        <div class="flex items-start space-x-4">
-            <div class="bg-blue-100 p-3 rounded-full">
-                <i class="fas fa-rocket text-blue-600 text-xl"></i>
-            </div>
-            <div class="flex-1">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">Get Started with Lead Generation</h3>
-                <p class="text-gray-600 mb-4">
-                    @if($usageData['daily_leads']['is_unlimited'])
-                        You have unlimited access! Here's how to get started:
-                    @elseif($usageData['daily_leads']['has_plan'])
-                        You have {{ number_format($usageData['daily_leads']['remaining']) }} leads remaining today. Here's how to get started:
-                    @else
-                        Here's how to get started:
-                    @endif
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div class="bg-white p-4 rounded-lg border border-blue-200">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-blue-100 rounded p-1 mr-2">
-                                <i class="fas fa-search text-blue-600 text-sm"></i>
-                            </div>
-                            <h4 class="font-medium text-gray-800">1. Search</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Search for businesses like "restaurants in Dubai" or "travel agencies"</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg border border-blue-200">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-green-100 rounded p-1 mr-2">
-                                <i class="fas fa-bookmark text-green-600 text-sm"></i>
-                            </div>
-                            <h4 class="font-medium text-gray-800">2. Save</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Save promising leads with contact details and business info</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg border border-blue-200">
-                        <div class="flex items-center mb-2">
-                            <div class="bg-orange-100 rounded p-1 mr-2">
-                                <i class="fas fa-phone text-orange-600 text-sm"></i>
-                            </div>
-                            <h4 class="font-medium text-gray-800">3. Contact</h4>
-                        </div>
-                        <p class="text-sm text-gray-600">Reach out to leads and track your progress</p>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('user.tutorials') }}" class="inline-flex items-center justify-center bg-orange-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm sm:text-base">
-                        <i class="fas fa-play-circle mr-2"></i>
-                        Playlist
-                    </a>
-                    <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-green-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm sm:text-base">
-                        <i class="fab fa-whatsapp mr-2"></i>
-                        Community
-                    </a>
-                    <a href="{{ route('user.search') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                        <i class="fas fa-search mr-2"></i>Start First Search
-                    </a>
-                </div>
-            </div>
-        </div>
+</section>
+@elseif($aiLock)
+<section class="dbx-card !bg-[#FFFAF6] !border-[#FBD9C4] px-5 py-5 sm:px-7 flex flex-col sm:flex-row sm:items-center gap-4" data-testid="dashboard-ai-locked" aria-labelledby="dashboard-ai-locked-title">
+    <span class="w-14 h-14 rounded-2xl bg-[#FFF1E7] text-[#F97316] flex items-center justify-center flex-shrink-0 text-[22px]" aria-hidden="true"><i class="fas fa-wand-magic-sparkles"></i></span>
+    <div class="min-w-0 flex-1">
+        <h2 id="dashboard-ai-locked-title" class="flex flex-wrap items-center gap-2.5 text-[19px] font-bold text-[#111827]">
+            AI Sales Assistant @include('user._lock-badge', ['message' => $aiLock, 'compact' => true])
+        </h2>
+        <p class="text-[14px] text-[#475569] mt-0.5">Let AI analyze businesses, write personalized emails and help you get replies.</p>
+        <p class="text-[12px] text-[#64748B] mt-0.5">{{ $aiLock }}</p>
     </div>
-    @endif
+    <span class="dbx-pill bg-[#F97316] text-white self-start sm:self-center" role="status">Coming Soon</span>
+</section>
+@endif
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="display: none;">
-        <!-- Recent Leads (2/3 width) -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-800">Recent Leads</h3>
-                    <a href="{{ route('user.leads') }}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View all ({{ $stats['total_leads'] }})</a>
-                </div>
-            </div>
-            <div class="p-6">
-                @if(count($recentLeads) > 0)
-                    <div class="space-y-4">
-                        @foreach($recentLeads as $lead)
-                        <div class="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                            <div class="bg-primary-100 rounded-lg p-2">
-                                <i class="fas fa-building text-primary-600"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 truncate">{{ $lead->name }}</p>
-                                <p class="text-xs text-gray-500">{{ Str::limit($lead->address, 40) }} @if($lead->rating) • {{ number_format($lead->rating, 1) }} rating @endif @if($lead->phone) • {{ $lead->phone }} @endif</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                    @if($lead->contact_status == 'not_contacted') bg-gray-100 text-gray-800
-                                    @elseif($lead->contact_status == 'contacted') bg-blue-100 text-blue-800
-                                    @elseif($lead->contact_status == 'responded') bg-yellow-100 text-yellow-800
-                                    @elseif($lead->contact_status == 'converted') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800
-                                    @endif">
-                                    {{ ucfirst(str_replace('_', ' ', $lead->contact_status)) }}
-                                </span>
-                                <p class="text-xs text-gray-400 mt-1">{{ $lead->created_at->diffForHumans() }}</p>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
+@unless($restricted)
+<!-- Quick actions -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 xl:gap-4">
+    @foreach([
+        [route('user.search'), 'fa-search', 'Find Leads', 'Search for new businesses'],
+        [route('user.leads'), 'fa-bookmark', 'My Leads', 'View your saved leads'],
+        [route('user.lead-center.index'), 'fa-bullseye', 'Lead Center', 'Organise, import and prioritise'],
+    ] as [$qUrl, $qIcon, $qTitle, $qText])
+        <a href="{{ $qUrl }}" class="dbx-card dbx-quick">
+            <span class="dbx-kpi-i !w-12 !h-12 !text-[19px] bg-[#FFF1E7] text-[#F97316]" aria-hidden="true"><i class="fas {{ $qIcon }}"></i></span>
+            <span class="min-w-0">
+                <span class="block text-[16px] font-semibold text-[#111827]">{{ $qTitle }}</span>
+                <span class="block text-[13px] text-[#64748B]">{{ $qText }}</span>
+            </span>
+            <span class="dbx-go" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+        </a>
+    @endforeach
+</div>
+@endunless
+
+@if($currentPlan)
+<!-- Current plan -->
+<section class="dbx-card !bg-[#FFFAF6] !border-[#FBD9C4] px-5 py-5 sm:px-7" aria-labelledby="dashboard-plan-title">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <span class="w-14 h-14 rounded-2xl bg-[#FFF1E7] text-[#F97316] flex items-center justify-center flex-shrink-0 text-[22px]" aria-hidden="true"><i class="fas fa-crown"></i></span>
+        <div class="min-w-0 flex-1">
+            <h2 id="dashboard-plan-title" class="text-[19px] font-bold text-[#111827]">{{ $currentPlan['package']->name }}</h2>
+            <p class="text-[14px] text-[#475569] mt-0.5">
+                @if($currentPlan['end_date'])
+                    Expires: <span class="{{ $currentPlan['end_date']->isPast() ? 'text-red-600 font-medium' : 'text-[#F97316] font-medium' }}">{{ $currentPlan['end_date']->format('d M Y') }}</span>
+                    @if(!$currentPlan['end_date']->isPast())
+                        ({{ $currentPlan['end_date']->diffForHumans() }})
+                    @endif
                 @else
-                    <div class="text-center py-8">
-                        <i class="fas fa-bookmark text-gray-300 text-4xl mb-4"></i>
-                        <h4 class="text-lg font-medium text-gray-500 mb-2">No leads saved yet</h4>
-                        <p class="text-gray-400 mb-4">Start searching for businesses to build your lead database</p>
-                        <a href="{{ route('user.search') }}" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                            <i class="fas fa-search mr-2"></i>Start Searching
-                        </a>
-                    </div>
+                    <span class="text-green-700"><i class="fas fa-infinity mr-1" aria-hidden="true"></i>No expiry</span>
                 @endif
-            </div>
+            </p>
         </div>
+        <a href="{{ route('user.subscription') }}" class="dbx-pill bg-white border border-[#F97316] text-[#111827] hover:bg-[#FFF7F2] self-start sm:self-center">View Plan <i class="fas fa-arrow-right text-[#F97316] text-[12px]" aria-hidden="true"></i></a>
+    </div>
 
-        <!-- Quick Actions & Status (1/3 width) -->
-        <div class="space-y-6">
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-bolt text-yellow-600 mr-2"></i>
-                    Quick Actions
-                </h3>
-                <div class="space-y-3">
-                    <a href="{{ route('user.search') }}" class="flex items-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
-                        <div class="bg-blue-100 group-hover:bg-blue-200 rounded-lg p-2 mr-3">
-                            <i class="fas fa-search text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">New Search</p>
-                            <p class="text-xs text-gray-500">Find new business leads</p>
-                        </div>
-                    </a>
-                    
-                    <a href="{{ route('user.leads') }}" class="flex items-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
-                        <div class="bg-green-100 group-hover:bg-green-200 rounded-lg p-2 mr-3">
-                            <i class="fas fa-bookmark text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">Manage Leads</p>
-                            <p class="text-xs text-gray-500">View and organize saved leads</p>
-                        </div>
-                    </a>
-                    
-                    <a href="{{ route('user.profile') }}" class="flex items-center p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group">
-                        <div class="bg-purple-100 group-hover:bg-purple-200 rounded-lg p-2 mr-3">
-                            <i class="fas fa-user text-purple-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">Profile Settings</p>
-                            <p class="text-xs text-gray-500">Update your information</p>
-                        </div>
-                    </a>
+    <!-- What this plan includes (admin locks show as Locked) -->
+    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4 pt-4 border-t border-[#F6E3D6] text-[12.5px]">
+        <div class="bg-white rounded-xl border border-[#F1E6DE] px-3 py-2">
+            <dt class="text-[#64748B]"><i class="fas fa-map-marker-alt text-[#F97316] mr-1"></i>Daily Leads Limit</dt>
+            <dd class="font-semibold text-[#111827] mt-0.5">
+                @if($dlLock)
+                    @include('user._lock-badge', ['message' => $dlLock, 'compact' => true])
+                @elseif($dlData['is_unlimited'])
+                    Unlimited
+                @else
+                    {{ number_format($dlData['used']) }} <span class="font-normal text-[#64748B]">/ {{ number_format($dlData['limit']) }} today</span>
+                @endif
+            </dd>
+        </div>
+        <div class="bg-white rounded-xl border border-[#F1E6DE] px-3 py-2">
+            <dt class="text-[#64748B]"><i class="fas fa-download text-[#F97316] mr-1"></i>Export Leads</dt>
+            <dd class="font-semibold text-[#111827] mt-0.5">
+                @if($exportLock)
+                    @include('user._lock-badge', ['message' => $exportLock])
+                @elseif($exportLeads && $exportLeads->feature_value === 'unlimited')
+                    Unlimited
+                @elseif($exportLeads && $exportLeads->feature_value !== 'false')
+                    {{ number_format((int)$exportLeads->feature_value) }} <span class="font-normal text-[#64748B]">/mo</span>
+                @else
+                    <span class="font-normal text-slate-400">Not included</span>
+                @endif
+            </dd>
+        </div>
+        <div class="bg-white rounded-xl border border-[#F1E6DE] px-3 py-2">
+            <dt class="text-[#64748B]"><i class="fas fa-laptop text-[#F97316] mr-1"></i>Devices Access</dt>
+            <dd class="font-semibold text-[#111827] mt-0.5">
+                @if($devicesLock)
+                    @include('user._lock-badge', ['message' => $devicesLock, 'compact' => true])
+                @elseif($maxDevices)
+                    {{ $myDevices->count() }} <span class="font-normal text-[#64748B]">/ {{ ($maxDevices->is_unlimited || $maxDevices->feature_value === 'unlimited') ? '∞' : $maxDevices->feature_value }} {{ (int)$maxDevices->feature_value === 1 ? 'Device' : 'Devices' }}</span>
+                @else
+                    <span class="font-normal text-slate-400">—</span>
+                @endif
+            </dd>
+        </div>
+        <div class="bg-white rounded-xl border border-[#F1E6DE] px-3 py-2">
+            <dt class="text-[#64748B]"><i class="fas fa-headset text-[#F97316] mr-1"></i>Priority Support</dt>
+            <dd class="mt-0.5">
+                @if($supportLock)
+                    @include('user._lock-badge', ['message' => $supportLock, 'compact' => true])
+                @elseif($prioritySupp && $prioritySupp->feature_value === 'true')
+                    <span class="ui-badge is-ok"><i class="fas fa-check text-[9px]"></i>Included</span>
+                @else
+                    <span class="ui-badge"><i class="fas fa-xmark text-[9px]"></i>Not included</span>
+                @endif
+            </dd>
+        </div>
+    </dl>
+</section>
+@endif
 
-                    @if(auth()->user()->isCompany())
-                    <a href="{{ route('user.team-members') }}" class="flex items-center p-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors group">
-                        <div class="bg-indigo-100 group-hover:bg-indigo-200 rounded-lg p-2 mr-3">
-                            <i class="fas fa-users text-indigo-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-800">Team Members</p>
-                            <p class="text-xs text-gray-500">Manage your team</p>
-                        </div>
-                    </a>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Account Status -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100" style="display: none;">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-crown text-yellow-600 mr-2"></i>
-                    Account Status
-                </h3>
-                <div class="space-y-4">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                        <div class="flex items-center mb-2">
-                            <i class="fas fa-gift text-green-600 mr-2"></i>
-                            <span class="font-medium text-green-800">Free Trial Active</span>
-                        </div>
-                        <p class="text-sm text-green-700 mb-3">First month free with unlimited leads</p>
-                        <div class="bg-white p-2 rounded border">
-                            <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                <span>Days remaining</span>
-                                <span>{{ $stats['trial_days_left'] }} days</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full transition-all" style="width: {{ ($stats['trial_days_left'] / 30) * 100 }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center pt-2">
-                        <p class="text-xs text-gray-500 mb-2">Want to continue after trial?</p>
-                        <button class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors w-full">
-                            <i class="fas fa-star mr-2"></i>View Plans
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            @if(count($recentSearches) > 0)
-            <!-- Recent Searches -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100" style="display: none;">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-history text-gray-600 mr-2"></i>
-                    Recent Searches
-                </h3>
-                <div class="space-y-3">
-                    @foreach($recentSearches as $search)
-                    <div class="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded">
-                        <div class="bg-gray-100 rounded p-1 mt-1">
-                            <i class="fas fa-search text-gray-600 text-xs"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800">{{ $search->search_query }}</p>
-                            <p class="text-xs text-gray-500">{{ $search->search_location ?? 'No location' }}</p>
-                            <p class="text-xs text-gray-400">{{ $search->created_at->diffForHumans() }}</p>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
+@if($stats['total_leads'] == 0 && !$restricted)
+<!-- First steps for new users -->
+<section class="ui-card p-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-start gap-3 min-w-0">
+        <span class="ui-head-icon !w-9 !h-9" aria-hidden="true"><i class="fas fa-rocket"></i></span>
+        <div class="min-w-0">
+            <h3 class="text-[14px] font-semibold text-gray-900">Get Started with Lead Generation</h3>
+            <p class="text-[12.5px] text-slate-500 mt-0.5">Run your first search, like "dentists in Dubai" or "travel agencies in Lahore".</p>
         </div>
     </div>
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ route('user.tutorials') }}" class="ui-btn-light ui-sm"><i class="fas fa-play-circle text-red-600" aria-hidden="true"></i>Playlist</a>
+        <a href="https://chat.whatsapp.com/JoXwhqeKW5sCRGuovBNQm8" target="_blank" rel="noopener noreferrer" class="ui-btn-light ui-sm"><i class="fab fa-whatsapp text-green-700" aria-hidden="true"></i>Community</a>
+        <a href="{{ route('user.search') }}" class="ui-btn ui-sm"><i class="fas fa-search" aria-hidden="true"></i>Start First Search</a>
+    </div>
+</section>
+@endif
 </main>
-
-<script>
-// Add any interactive functionality here
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-refresh stats every 5 minutes
-    setInterval(function() {
-        // You can add AJAX call to refresh stats here
-        console.log('Auto-refreshing stats...');
-    }, 300000);
-});
-</script>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\SecureUpload;
 use App\Models\SavedLead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,26 +46,12 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        // Debug Step 1: Check all form data
-        \Log::info('User update request received', $request->all());
-
-        // Debug Step 2: Check if file exists in request
-        if ($request->hasFile('avatar')) {
-            \Log::info('Avatar file found in request', [
-                'original_name' => $request->file('avatar')->getClientOriginalName(),
-                'mime_type' => $request->file('avatar')->getMimeType(),
-                'size' => $request->file('avatar')->getSize(),
-            ]);
-        } else {
-            \Log::warning('No avatar file found in request');
-        }
-
         // Validation rules
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'whatsapp_number' => ['required', 'string', 'regex:/^\+923[0-9]{9}$/'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'avatar' => self::AVATAR_RULES,
         ];
 
         // Only allow email update for non-team members
@@ -90,21 +77,8 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('avatar')) {
-            $destinationPath = public_path('assets/avatar');
-
-            // Delete old avatar if exists
-            if ($user->avatar && file_exists(public_path($user->avatar))) {
-                unlink(public_path($user->avatar));
-            }
-
-            $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move($destinationPath, $filename);
-
-            $data['avatar'] = 'assets/avatar/' . $filename;
-
-            // Debug Step 3: Confirm upload success
-            \Log::info('Avatar uploaded successfully', ['path' => $data['avatar']]);
+            $data['avatar'] = SecureUpload::storePublicImage($request->file('avatar'), 'assets/avatar');
+            $this->deleteOldAvatar($user->avatar);
         }
 
         // Only check email verification for non-team members
@@ -123,27 +97,42 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $destinationPath = public_path('assets/avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move($destinationPath, $filename);
-
-            // Delete old avatar if exists
-            if ($user->avatar && file_exists(public_path($user->avatar))) {
-                unlink(public_path($user->avatar));
-            }
-
-            $user->update(['avatar' => 'assets/avatar/' . $filename]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile picture updated successfully!',
-                'avatar' => asset('public/assets/avatar/' . $filename)
-            ]);
+        if (!$request->hasFile('avatar')) {
+            return response()->json(['success' => false, 'message' => 'No file uploaded.'], 400);
         }
 
-        return response()->json(['success' => false, 'message' => 'No file uploaded.'], 400);
+        $request->validate(['avatar' => array_merge(['required'], array_slice(self::AVATAR_RULES, 1))]);
+
+        $oldAvatar = $user->avatar;
+        $path = SecureUpload::storePublicImage($request->file('avatar'), 'assets/avatar');
+        $user->update(['avatar' => $path]);
+        $this->deleteOldAvatar($oldAvatar);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile picture updated successfully!',
+            'avatar' => asset('public/' . $path)
+        ]);
+    }
+
+    /** Images only; the stored extension is taken from the file content, never the client name. */
+    private const AVATAR_RULES = ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'extensions:jpeg,png,jpg,gif,webp', 'max:2048'];
+
+    /**
+     * Remove a previous locally stored avatar. Only files inside public/assets/avatar
+     * are ever deleted (never a path outside it, and never remote Google avatars).
+     */
+    private function deleteOldAvatar(?string $avatar): void
+    {
+        if (!$avatar || !str_starts_with($avatar, 'assets/avatar/')) {
+            return;
+        }
+
+        $dir = realpath(public_path('assets/avatar'));
+        $file = realpath(public_path($avatar));
+        if ($dir && $file && str_starts_with($file, $dir . DIRECTORY_SEPARATOR) && is_file($file)) {
+            @unlink($file);
+        }
     }
 
 
@@ -172,7 +161,6 @@ class ProfileController extends Controller
 
         $user->update([
             'password' => Hash::make($request->password),
-            'plain_password' => $request->password, // If you're storing plain passwords (not recommended)
         ]);
 
         return redirect()->route('user.profile')->with('success', 'Password updated successfully!');

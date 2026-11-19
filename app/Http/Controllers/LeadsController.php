@@ -48,16 +48,17 @@ public function index(Request $request)
     $accountOwner = $user->isTeamMember() ? $user->company : $user;
 
     // Get user IDs to query (company + team members, or specific user if filtered)
+    $allowedUserIds = $this->getAllowedUserIds($user);
+
     if ($selectedUserId) {
-        // Filter by specific user (must be company or team member)
-        $userIds = [$selectedUserId];
+        // Filter by specific user — only the company account or one of its own team members
+        if (!in_array((int) $selectedUserId, array_map('intval', $allowedUserIds), true)) {
+            abort(403, 'You are not allowed to view these leads.');
+        }
+        $userIds = [(int) $selectedUserId];
     } else {
         // Show all users (company + team members)
-        $userIds = [$accountOwner->id];
-        if ($accountOwner->isCompany()) {
-            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
-            $userIds = array_merge($userIds, $teamMemberIds);
-        }
+        $userIds = $allowedUserIds;
     }
 
     // Build base query (all filters EXCEPT status — so stats always show all status counts)
@@ -455,6 +456,14 @@ public function index(Request $request)
                 'x'         => ['twitter.com', 'x.com'],
                 'instagram' => ['instagram.com'],
             ];
+            // Social links must be real http(s) URLs (no javascript:/data: links)
+            if ($value) {
+                $value = \App\Support\SafeUrl::http($value);
+                if ($value === null) {
+                    return response()->json(['success' => false, 'message' => 'Please enter a valid http(s) link.'], 422);
+                }
+            }
+
             $patterns = $platformPatterns[$channel] ?? [];
             $links = $lead->social_links ?? [];
             if (!is_array($links)) $links = [];
@@ -498,15 +507,19 @@ public function index(Request $request)
         }
 
         // Use where('status','active') directly — bypasses extension_mode which only applies to Places API
-        $apiKey = 'AIzaSyCE39nGPyHxB37_vAWufbum_7UpxusS90Y';
+        $apiKey = config('services.google_pagespeed.key');
 
         try {
-            $response = Http::timeout(30)->get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', [
+            $params = [
                 'url'      => $lead->website,
-                'key'      => $apiKey,
                 'strategy' => 'mobile',
                 'category' => 'performance',
-            ]);
+            ];
+            if ($apiKey) {
+                $params['key'] = $apiKey;
+            }
+
+            $response = Http::timeout(30)->get('https://www.googleapis.com/pagespeedonline/v5/runPagespeed', $params);
 
             $data = $response->json();
             $score = null;
@@ -515,15 +528,33 @@ public function index(Request $request)
                 $score = (int) round($data['lighthouseResult']['categories']['performance']['score'] * 100);
             }
 
-            $finalScore = $score ?? rand(10, 20);
-            $lead->update(['seo_score' => $finalScore]);
+            if ($score === null) {
+                return $this->seoScoreUnavailable($lead);
+            }
 
-            return response()->json(['success' => true, 'score' => $finalScore]);
+            $lead->update(['seo_score' => $score]);
+
+            return response()->json(['success' => true, 'score' => $score]);
         } catch (\Exception $e) {
-            $fallback = rand(10, 20);
-            $lead->update(['seo_score' => $fallback]);
-            return response()->json(['success' => true, 'score' => $fallback]);
+            return $this->seoScoreUnavailable($lead);
         }
+    }
+
+    /**
+     * PageSpeed could not score the site. Never invent a number: store the
+     * "checked but unavailable" marker (-1, which the next check retries) and
+     * tell the UI the score is not available.
+     */
+    private function seoScoreUnavailable(SavedLead $lead)
+    {
+        $lead->update(['seo_score' => SavedLead::SEO_SCORE_UNAVAILABLE]);
+
+        return response()->json([
+            'success' => false,
+            'score'   => null,
+            'status'  => 'unavailable',
+            'message' => 'Performance score is not available for this website right now. You can retry later.',
+        ]);
     }
 
     /**

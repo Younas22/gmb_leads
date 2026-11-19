@@ -28,17 +28,18 @@
 
             <!-- Left: copy -->
             <div class="text-center lg:text-left">
-                <span class="inline-flex items-center gap-2 bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1.5 rounded-full text-xs font-semibold mb-5">
-                    <i class="fas fa-location-dot text-orange-500" aria-hidden="true"></i>
-                    Find Real Clients in Your Local Area
-                </span>
+                <a href="#ai-tools" class="inline-flex items-center gap-2 bg-orange-50 text-orange-700 border border-orange-200 hover:border-primary-orange px-2 py-1.5 pr-3 rounded-full text-xs font-semibold mb-5 transition-colors">
+                    <span class="px-1.5 py-0.5 rounded-full bg-primary-orange text-white text-[10px] font-bold uppercase tracking-wider">New</span>
+                    AI now writes your outreach emails
+                    <i class="fas fa-arrow-right text-[10px] text-orange-500" aria-hidden="true"></i>
+                </a>
 
                 <h1 id="hero-heading" class="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-[#111111] leading-[1.1] tracking-tight mb-5">
                     Build a Direct Client Funnel Using <span class="text-primary-orange">Google Maps</span>
                 </h1>
 
                 <p class="text-base sm:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
-                    Find verified local and global businesses from Google Maps, extract accurate contacts and turn them into real paying clients.
+                    Find verified businesses on Google Maps, then let AI study each one and write a personal email in your voice. Approve it, send it from your own Gmail and turn leads into paying clients.
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6">

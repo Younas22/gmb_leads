@@ -229,7 +229,7 @@
                                 <p class="text-xs text-gray-500 mb-1">API Key</p>
                                 <div class="flex items-center space-x-2">
                                     <code class="text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded font-mono break-all">{{ $apiKey->masked_api_key }}</code>
-                                    <button onclick="copyToClipboard('{{ $apiKey->api_key }}')" class="text-gray-400 hover:text-gray-600 flex-shrink-0" title="Copy to clipboard">
+                                    <button onclick="copyToClipboard(@js($apiKey->api_key))" class="text-gray-400 hover:text-gray-600 flex-shrink-0" title="Copy to clipboard">
                                         <i class="fas fa-copy text-xs sm:text-sm"></i>
                                     </button>
                                 </div>

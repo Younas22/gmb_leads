@@ -1,381 +1,289 @@
-
-
 @extends('layouts.app')
 
 @section('title', 'Watch Tutorials - Business Search Tool')
 
 @section('content')
-        <!-- Tutorial Content -->
-        <div class="p-4 lg:p-6">
-            <!-- Welcome Section (compact) -->
-            <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl px-5 py-3 mb-4 text-white">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-white bg-opacity-20 rounded-full p-2">
-                            <i class="fas fa-play-circle text-lg"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-base font-bold leading-tight">Master BusinessFinder</h1>
-                            <p class="text-primary-100 text-xs">Complete video tutorials to become a lead generation expert</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
-                            <span class="text-xs font-medium">{{ count($tutorials) }} Tutorials</span>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
-                            <span class="text-xs font-medium">{{ $totalDuration }}+ Min</span>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
-                            <span class="text-xs font-medium">Beginner to Advanced</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@include('user._ui-kit')
+<style>
+    .tt-card { display: flex; flex-direction: column; text-align: left; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+    .tt-card:hover { border-color: #FDBA74; box-shadow: 0 4px 14px -8px rgba(249, 115, 22, .45); }
+    .tt-card:focus-visible { outline: 2px solid #F97316; outline-offset: 2px; }
+    .tt-card img { transition: transform .3s; }
+    .tt-card:hover img { transform: scale(1.04); }
+    @media (prefers-reduced-motion: reduce) { .tt-card img { transition: none; } }
+</style>
 
-            <!-- Progress Overview (compact) -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-3 mb-4">
-                <div class="flex items-center gap-4">
-                    <span class="text-xs font-semibold text-gray-700 whitespace-nowrap">Your Progress</span>
-                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
-                             style="width: {{ $progressPercentage }}%"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ $completedCount }}/{{ count($tutorials) }} &nbsp; {{ $progressPercentage }}%</span>
-                    <button onclick="resetProgress()" class="text-primary-600 hover:text-primary-700 text-xs font-medium whitespace-nowrap">
-                        Reset
+<div class="cnm-ui ui-page ui-stack">
+    <!-- Heading -->
+    <div class="ui-head">
+        <div class="ui-head-main">
+            <span class="ui-head-icon"><i class="fas fa-play-circle"></i></span>
+            <div class="min-w-0">
+                <h1 class="ui-title">Tutorials</h1>
+                <p class="ui-sub">Short videos that take you from your first search to your first client: finding leads, using AI and sending outreach.</p>
+            </div>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+            <span class="ui-badge is-brand"><i class="fas fa-film text-[10px]"></i>{{ count($tutorials) }} Tutorials</span>
+            <span class="ui-badge"><i class="far fa-clock text-[10px]"></i>{{ $totalDuration }}+ Min</span>
+            <span class="ui-badge"><i class="fas fa-signal text-[10px]"></i>Beginner to Advanced</span>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="ui-card px-4 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="text-[12.5px] font-semibold text-gray-900 whitespace-nowrap"><i class="fas fa-trophy text-orange-500 mr-1"></i>Your Progress</span>
+        <div class="flex-1 min-w-[140px] ui-bar !mt-0 !h-2" role="progressbar" aria-label="Tutorial progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (int) $progressPercentage }}">
+            <span id="tt-progress-bar" class="!bg-green-500" style="width: {{ $progressPercentage }}%"></span>
+        </div>
+        <span class="text-[12px] text-slate-500 whitespace-nowrap">{{ $completedCount }}/{{ count($tutorials) }} done · {{ $progressPercentage }}%</span>
+        <button onclick="resetProgress()" class="ui-btn-light ui-sm">Reset</button>
+    </div>
+
+    <!-- All Tutorials -->
+    <section class="ui-card">
+        <div class="ui-card-h">
+            <div>
+                <h2 class="ui-card-t"><i class="fas fa-rocket"></i> All Tutorials</h2>
+                <p class="ui-card-d">Dashboard, Find Leads, My Leads, Extension, Subscription, Profile &amp; more. Click a video to watch.</p>
+            </div>
+        </div>
+        <div class="p-3 sm:p-4 grid grid-cols-1 min-[440px]:grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach($tutorials as $tutorial)
+                @php $done = in_array($tutorial['key'], $completedTutorials); @endphp
+                <button type="button" class="tutorial-item tt-card group"
+                        data-tutorial="{{ $tutorial['key'] }}"
+                        data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}"
+                        aria-label="Watch: {{ $tutorial['title'] }}">
+
+                    {{-- Thumbnail --}}
+                    @if(!empty($tutorial['youtube_id']))
+                        <span class="relative block w-full overflow-hidden bg-slate-100" style="padding-top: 56.25%;">
+                            <img src="https://img.youtube.com/vi/{{ $tutorial['youtube_id'] }}/mqdefault.jpg" alt="" loading="lazy"
+                                 class="absolute inset-0 w-full h-full object-cover">
+                            <span class="absolute inset-0 bg-black/25 flex items-center justify-center">
+                                <span class="w-9 h-9 bg-white/95 rounded-full flex items-center justify-center shadow">
+                                    <i class="fas fa-play text-orange-500 text-[12px] ml-0.5"></i>
+                                </span>
+                            </span>
+                            <span class="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-[10.5px] px-1.5 py-0.5 rounded">{{ $tutorial['duration'] }}</span>
+                            @if($done)
+                                <span class="tt-done absolute top-1.5 left-1.5 bg-green-500 text-white text-[10.5px] font-medium px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-check text-[9px]"></i> Completed
+                                </span>
+                            @endif
+                        </span>
+                    @endif
+
+                    {{-- Info --}}
+                    <span class="flex items-start gap-2.5 p-2.5">
+                        <span class="relative flex-shrink-0 w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center text-[12px]">
+                            <i class="fas fa-{{ $tutorial['icon'] }}"></i>
+                            <span class="tt-dot absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white {{ $done ? 'bg-green-500' : 'bg-slate-300' }}"></span>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-[12.5px] font-semibold text-gray-900 group-hover:text-orange-700 leading-snug">{{ $tutorial['order'] }}. {{ $tutorial['title'] }}</span>
+                            <span class="block text-[11px] text-slate-500 mt-0.5 line-clamp-2">{{ $tutorial['description'] }}</span>
+                        </span>
+                    </span>
+                </button>
+            @endforeach
+        </div>
+    </section>
+
+    <!-- Quick Tips -->
+    <div class="ui-note is-ok !items-start">
+        <i class="fas fa-lightbulb text-green-600"></i>
+        <div class="flex-1">
+            <p class="font-semibold text-[13px] text-gray-900 mb-1">Pro Tips for Learning</p>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[12px] text-slate-700">
+                <li><i class="fas fa-check-circle text-green-500 mr-1.5"></i>Follow tutorials in order for best results</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-1.5"></i>Practice each feature right after watching</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-1.5"></i>Fill in your AI Sales Profile before using AI Outreach</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-1.5"></i>Rewatch any section whenever you need</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Video Player Modal -->
+<div id="videoModal" class="cnm-ui fixed inset-0 bg-black/75 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[92vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between gap-3 px-4 py-3 border-b border-slate-100">
+                <div class="min-w-0">
+                    <h3 id="modalTitle" class="text-[15px] font-semibold text-gray-900">Tutorial Title</h3>
+                    <p id="modalDescription" class="text-[12px] text-slate-500 mt-0.5">Tutorial description</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button onclick="markAsCompleted()" id="markCompletedBtn" class="ui-btn ui-sm !bg-green-600 !border-green-600 hover:!bg-green-700">
+                        <i class="fas fa-check"></i>Mark as Completed
+                    </button>
+                    <button onclick="closeVideoModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- All Tutorials -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-rocket text-2xl"></i>
-                        <div>
-                            <h3 class="text-xl font-bold">All Tutorials</h3>
-                            <p class="text-blue-100">Dashboard, Find Leads, My Leads, Extension, Subscription, Profile & more</p>
-                        </div>
+            <!-- Video Player -->
+            <div class="bg-black">
+                <div id="videoContainer" class="aspect-video bg-gray-900 flex items-center justify-center">
+                    <div id="videoPlaceholder" class="text-center text-white">
+                        <i class="fas fa-video text-4xl mb-3 opacity-50"></i>
+                        <p class="text-[15px] font-medium mb-1">Video Coming Soon</p>
+                        <p class="text-[12px] text-gray-400">Tutorial video will be uploaded here</p>
                     </div>
-                </div>
-                <div class="p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    @foreach($tutorials as $tutorial)
-                        <div class="tutorial-item group cursor-pointer border rounded-lg overflow-hidden hover:border-primary-300 hover:bg-primary-50 transition-all"
-                             data-tutorial="{{ $tutorial['key'] }}"
-                             data-youtube-id="{{ $tutorial['youtube_id'] ?? '' }}">
-
-                            {{-- Thumbnail --}}
-                            @if(!empty($tutorial['youtube_id']))
-                                <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
-                                    <img
-                                        src="https://img.youtube.com/vi/{{ $tutorial['youtube_id'] }}/mqdefault.jpg"
-                                        alt="{{ $tutorial['title'] }}"
-                                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                                        <div class="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                            <i class="fas fa-play text-primary-600 text-lg ml-1"></i>
-                                        </div>
-                                    </div>
-                                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-0.5 rounded">
-                                        {{ $tutorial['duration'] }}
-                                    </div>
-                                    @if(in_array($tutorial['key'], $completedTutorials))
-                                        <div class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                                            <i class="fas fa-check text-xs"></i> Completed
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-
-                            {{-- Info --}}
-                            <div class="flex items-center space-x-3 p-3">
-                                <div class="relative flex-shrink-0">
-                                    <div class="w-10 h-10 bg-{{ $tutorial['color'] }}-100 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-{{ $tutorial['icon'] }} text-{{ $tutorial['color'] }}-600"></i>
-                                    </div>
-                                    <div class="absolute -top-1 -right-1 w-4 h-4
-                                        {{ in_array($tutorial['key'], $completedTutorials) ? 'bg-green-500' : 'bg-gray-300' }}
-                                        rounded-full flex items-center justify-center">
-                                        <i class="fas {{ in_array($tutorial['key'], $completedTutorials) ? 'fa-check text-white' : 'fa-clock text-gray-600' }} text-xs" style="font-size:7px"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-semibold text-gray-800 group-hover:text-primary-700 text-sm leading-tight">
-                                        {{ $tutorial['order'] }}. {{ $tutorial['title'] }}
-                                    </h4>
-                                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ $tutorial['description'] }}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    @endforeach
+                    <iframe id="youtubePlayer" class="hidden w-full h-full" frameborder="0" allowfullscreen title="Tutorial video"></iframe>
                 </div>
             </div>
 
-            <!-- Video Player Modal -->
-            <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden">
-                <div class="flex items-center justify-center min-h-screen p-4">
-                    <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                        <!-- Modal Header -->
-                        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                            <div>
-                                <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Tutorial Title</h3>
-                                <p id="modalDescription" class="text-gray-600 text-sm mt-1">Tutorial description</p>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <button onclick="markAsCompleted()" id="markCompletedBtn" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                    <i class="fas fa-check mr-2"></i>Mark as Completed
-                                </button>
-                                <button onclick="closeVideoModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                                    <i class="fas fa-times text-2xl"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Video Player -->
-                        <div class="relative bg-black">
-                            <div id="videoContainer" class="aspect-video bg-gray-900 flex items-center justify-center">
-                                <div id="videoPlaceholder" class="text-center text-white">
-                                    <i class="fas fa-video text-6xl mb-4 opacity-50"></i>
-                                    <p class="text-xl font-medium mb-2">Video Coming Soon</p>
-                                    <p class="text-gray-400">Tutorial video will be uploaded here</p>
-                                </div>
-                                <iframe id="youtubePlayer" class="hidden w-full h-full" frameborder="0" allowfullscreen></iframe>
-                            </div>
-                        </div>
-
-<!-- Tutorial Info -->
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="md:col-span-2">
-                                    <h4 class="font-semibold text-gray-800 mb-3">What You'll Learn</h4>
-                                    <ul id="learningObjectives" class="space-y-2 text-sm text-gray-600">
-                                        <!-- Learning objectives will be populated by JavaScript -->
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-800 mb-3">Tutorial Details</h4>
-                                    <div class="space-y-2 text-sm">
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-600">Duration:</span>
-                                            <span id="modalDuration" class="font-medium">6 min</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-600">Difficulty:</span>
-                                            <span class="font-medium text-green-600">Beginner</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-600">Status:</span>
-                                            <span id="modalStatus" class="font-medium">Not Started</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Tutorial Info -->
+            <div class="px-4 py-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <h4 class="text-[12.5px] font-semibold text-gray-900 mb-1.5">What You'll Learn</h4>
+                    <ul id="learningObjectives" class="space-y-1 text-[12.5px] text-slate-600"></ul>
                 </div>
-            </div>
-
-            <!-- Quick Tips -->
-            <div class="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
-                <div class="flex items-start space-x-4">
-                    <div class="bg-green-500 rounded-full p-2 flex-shrink-0">
-                        <i class="fas fa-lightbulb text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Pro Tips for Learning</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-check-circle text-green-500"></i>
-                                <span>Follow tutorials in order for best results</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-check-circle text-green-500"></i>
-                                <span>Practice each feature after watching</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-check-circle text-green-500"></i>
-                                <span>Take notes on key shortcuts and tips</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-check-circle text-green-500"></i>
-                                <span>Rewatch sections if needed</span>
-                            </div>
-                        </div>
+                <div>
+                    <h4 class="text-[12.5px] font-semibold text-gray-900 mb-1.5">Tutorial Details</h4>
+                    <div class="space-y-1 text-[12.5px]">
+                        <div class="flex justify-between"><span class="text-slate-500">Duration:</span><span id="modalDuration" class="font-medium">6 min</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Difficulty:</span><span class="font-medium text-green-600">Beginner</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Status:</span><span id="modalStatus" class="font-medium">Not Started</span></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Back to Top Button -->
-        <button id="backToTopBtn" onclick="scrollToTop()"
-            class="fixed bottom-8 right-8 z-50 bg-primary-600 hover:bg-primary-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 pointer-events-none">
-            <i class="fas fa-arrow-up text-lg"></i>
-        </button>
+<!-- Back to Top Button -->
+<button id="backToTopBtn" onclick="scrollToTop()" aria-label="Back to top"
+    class="fixed bottom-6 right-6 z-40 bg-orange-500 hover:bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 pointer-events-none">
+    <i class="fas fa-arrow-up"></i>
+</button>
 
-        <script>
-            // Tutorial data from backend
-            const tutorials = @json($tutorialsData);
-            let completedTutorials = @json($completedTutorials);
+<script>
+    // Tutorial data from backend
+    const tutorials = @json($tutorialsData);
+    let completedTutorials = @json($completedTutorials);
+    let currentTutorialKey = null;
 
-            // Tutorial functionality
-            document.querySelectorAll('.tutorial-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const tutorialKey = item.dataset.tutorial;
-                    const youtubeId = item.dataset.youtubeId;
-                    openVideoModal(tutorialKey, youtubeId);
-                });
-            });
+    document.querySelectorAll('.tutorial-item').forEach(item => {
+        item.addEventListener('click', () => openVideoModal(item.dataset.tutorial, item.dataset.youtubeId));
+    });
 
-            function openVideoModal(tutorialKey, youtubeId = null) {
-                const tutorial = tutorials[tutorialKey];
-                
-                document.getElementById('modalTitle').textContent = tutorial.title;
-                document.getElementById('modalDescription').textContent = tutorial.description;
-                document.getElementById('modalDuration').textContent = tutorial.duration;
-                
-                // Set YouTube player
-                if (youtubeId) {
-                    document.getElementById('youtubePlayer').src = `https://www.youtube.com/embed/${youtubeId}`;
-                    document.getElementById('youtubePlayer').classList.remove('hidden');
-                    document.getElementById('videoPlaceholder').classList.add('hidden');
-                } else {
-                    document.getElementById('youtubePlayer').classList.add('hidden');
-                    document.getElementById('videoPlaceholder').classList.remove('hidden');
+    function openVideoModal(tutorialKey, youtubeId = null) {
+        const tutorial = tutorials[tutorialKey];
+        if (!tutorial) return;
+        currentTutorialKey = tutorialKey;
+
+        document.getElementById('modalTitle').textContent = tutorial.title;
+        document.getElementById('modalDescription').textContent = tutorial.description;
+        document.getElementById('modalDuration').textContent = tutorial.duration;
+
+        const player = document.getElementById('youtubePlayer');
+        if (youtubeId) {
+            player.src = `https://www.youtube.com/embed/${encodeURIComponent(youtubeId)}`;
+            player.classList.remove('hidden');
+            document.getElementById('videoPlaceholder').classList.add('hidden');
+        } else {
+            player.classList.add('hidden');
+            document.getElementById('videoPlaceholder').classList.remove('hidden');
+        }
+
+        const objectivesList = document.getElementById('learningObjectives');
+        objectivesList.replaceChildren();
+        (tutorial.objectives || []).forEach(objective => {
+            const li = document.createElement('li');
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-check text-green-500 mr-2';
+            li.append(icon, document.createTextNode(objective));
+            objectivesList.appendChild(li);
+        });
+
+        const isCompleted = completedTutorials.includes(tutorialKey);
+        const status = document.getElementById('modalStatus');
+        status.textContent = isCompleted ? 'Completed' : 'Not Started';
+        status.className = isCompleted ? 'font-medium text-green-600' : 'font-medium text-slate-600';
+        document.getElementById('markCompletedBtn').classList.toggle('hidden', isCompleted);
+
+        document.getElementById('videoModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideoModal() {
+        document.getElementById('videoModal').classList.add('hidden');
+        document.getElementById('youtubePlayer').src = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    function markAsCompleted() {
+        const tutorialKey = currentTutorialKey;
+        if (!tutorialKey || completedTutorials.includes(tutorialKey)) return;
+        const btn = document.getElementById('markCompletedBtn');
+        btn.disabled = true;
+
+        fetch('{{ route("user.tutorials.complete") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ tutorial_key: tutorialKey })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) throw new Error();
+            completedTutorials.push(tutorialKey);
+            closeVideoModal();
+            location.reload(); // refresh progress and badges from the server
+        })
+        .catch(() => {
+            btn.disabled = false;
+            alert('Error marking tutorial as completed');
+        });
+    }
+
+    function resetProgress() {
+        if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+            fetch('{{ route("user.tutorials.reset") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
-                
-                // Populate learning objectives
-                const objectivesList = document.getElementById('learningObjectives');
-                objectivesList.innerHTML = '';
-                tutorial.objectives.forEach(objective => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<i class="fas fa-check text-green-500 mr-2"></i>${objective}`;
-                    objectivesList.appendChild(li);
-                });
-                
-                // Update status
-                const isCompleted = completedTutorials.includes(tutorialKey);
-                document.getElementById('modalStatus').textContent = isCompleted ? 'Completed' : 'Not Started';
-                document.getElementById('modalStatus').className = isCompleted ? 'font-medium text-green-600' : 'font-medium text-gray-600';
-                
-                document.getElementById('videoModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
+            })
+            .then(() => location.reload());
+        }
+    }
 
-            function closeVideoModal() {
-                document.getElementById('videoModal').classList.add('hidden');
-                document.getElementById('youtubePlayer').src = '';
-                document.body.style.overflow = 'auto';
-            }
+    // Auto-open tutorial from URL hash (e.g. #add-extension)
+    window.addEventListener('load', function() {
+        const hash = window.location.hash.replace('#', '');
+        if (hash && tutorials[hash]) {
+            const item = document.querySelector(`[data-tutorial="${CSS.escape(hash)}"]`);
+            openVideoModal(hash, item ? item.dataset.youtubeId : null);
+            history.replaceState(null, '', window.location.pathname);
+        }
+    });
 
-            function markAsCompleted() {
-                const currentTutorial = document.getElementById('modalTitle').textContent;
-                const tutorialKey = Object.keys(tutorials).find(key => 
-                    tutorials[key].title === currentTutorial
-                );
-                
-                if (tutorialKey && !completedTutorials.includes(tutorialKey)) {
-                    // Send AJAX request to mark as completed
-                    fetch('{{ route("user.tutorials.complete") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ tutorial_key: tutorialKey })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            completedTutorials.push(tutorialKey);
-                            updateTutorialUI(tutorialKey);
-                            updateProgress();
-                            alert('Tutorial marked as completed! 🎉');
-                            closeVideoModal();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error marking tutorial as completed');
-                    });
-                }
-            }
+    document.getElementById('videoModal').addEventListener('click', function(e) {
+        if (e.target === this || e.target === this.firstElementChild) closeVideoModal();
+    });
 
-            function updateTutorialUI(tutorialKey) {
-                const tutorialItem = document.querySelector(`[data-tutorial="${tutorialKey}"]`);
-                if (tutorialItem) {
-                    const statusBadge = tutorialItem.querySelector('.text-xs.px-2');
-                    const checkIcon = tutorialItem.querySelector('.w-5.h-5 > i');
-                    
-                    statusBadge.className = 'text-xs bg-green-100 text-green-700 px-2 py-1 rounded';
-                    statusBadge.textContent = 'Completed';
-                    checkIcon.className = 'fas fa-check text-white text-xs';
-                    checkIcon.parentElement.className = 'absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center';
-                }
-            }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeVideoModal();
+    });
 
-            function updateProgress() {
-                const total = Object.keys(tutorials).length;
-                const completed = completedTutorials.length;
-                const percentage = Math.round((completed / total) * 100);
-                
-                // Update progress bar
-                document.querySelector('.bg-gradient-to-r.from-green-500').style.width = percentage + '%';
-                location.reload(); // Refresh to update server-side progress
-            }
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    window.addEventListener('scroll', function() {
+        const show = window.scrollY > 300;
+        backToTopBtn.classList.toggle('opacity-0', !show);
+        backToTopBtn.classList.toggle('pointer-events-none', !show);
+    });
 
-            function resetProgress() {
-                if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-                    fetch('{{ route("user.tutorials.reset") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(() => location.reload());
-                }
-            }
-
-            // Auto-open tutorial from URL hash (e.g. #add-extension)
-            window.addEventListener('load', function() {
-                const hash = window.location.hash.replace('#', '');
-                if (hash && tutorials[hash]) {
-                    const item = document.querySelector(`[data-tutorial="${hash}"]`);
-                    const youtubeId = item ? item.dataset.youtubeId : null;
-                    openVideoModal(hash, youtubeId);
-                    history.replaceState(null, '', window.location.pathname);
-                }
-            });
-
-            // Close modal when clicking outside
-            document.getElementById('videoModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeVideoModal();
-                }
-            });
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeVideoModal();
-                }
-            });
-
-            // Back to Top button
-            const backToTopBtn = document.getElementById('backToTopBtn');
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 300) {
-                    backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                    backToTopBtn.classList.add('opacity-100');
-                } else {
-                    backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
-                    backToTopBtn.classList.remove('opacity-100');
-                }
-            });
-
-            function scrollToTop() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        </script>
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 @endsection

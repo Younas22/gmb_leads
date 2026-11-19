@@ -206,7 +206,8 @@ class LeadCenterImportService
 
         foreach ($savedLeads as $lead) {
             $company = trim((string) $lead->name);
-            $website = $lead->website ? $this->normalizeWebsite(trim($lead->website)) : null;
+            // Legacy saved leads may hold non-http(s) values; those are dropped, not copied
+            $website = $lead->website ? \App\Support\SafeUrl::http($this->normalizeWebsite(trim($lead->website))) : null;
             $key = LeadCenterLead::buildDedupeKey($company, $website);
 
             if (isset($seenKeys[$key]) || $this->existsForUser($ownerUserId, $key)) {
@@ -253,9 +254,10 @@ class LeadCenterImportService
             return false;
         }
 
-        $candidate = str_contains($website, '://') ? $website : 'https://' . $website;
+        $candidate = \App\Support\SafeUrl::http($website);
 
-        if (!filter_var($candidate, FILTER_VALIDATE_URL)) {
+        // Only http(s) URLs — FILTER_VALIDATE_URL alone also accepts javascript:/data: style schemes
+        if ($candidate === null || !filter_var($candidate, FILTER_VALIDATE_URL)) {
             return false;
         }
 

@@ -13,6 +13,7 @@ use App\Models\SearchHistory;
 use App\Models\Country;
 use App\Models\State;
 use App\Models\City;
+use App\Support\SafeUrl;
 
 class ExtensionController extends Controller
 {
@@ -537,7 +538,6 @@ class ExtensionController extends Controller
         }
 
         \Illuminate\Support\Facades\Log::info('EXT_LOCATION_DEBUG', [
-            'search_data_raw'  => $searchData,
             'country_name'     => $countryName,
             'state_name'       => $stateName,
             'city_name'        => $cityName,
@@ -643,7 +643,7 @@ class ExtensionController extends Controller
                     'name'                => $leadData['name'] ?? 'Unknown',
                     'address'             => $leadData['address'] ?? null,
                     'phone'               => $leadData['phone'] ?? null,
-                    'website'             => $leadData['website'] ?? null,
+                    'website'             => SafeUrl::http(is_string($leadData['website'] ?? null) ? $leadData['website'] : null),
                     'email'               => $leadData['emails'][0] ?? null,
                     'latitude'            => isset($leadData['latitude']) ? (float) $leadData['latitude'] : null,
                     'longitude'           => isset($leadData['longitude']) ? (float) $leadData['longitude'] : null,
@@ -656,8 +656,8 @@ class ExtensionController extends Controller
                     'total_reviews'       => isset($leadData['total_reviews']) ? (int) $leadData['total_reviews'] : 0,
                     'last_review_date'    => $lastReviewDate,
                     'opening_hours'       => json_encode($leadData['opening_hours'] ?? []),
-                    'google_profile_url'  => $leadData['profile'] ?? null,
-                    'social_links'        => json_encode($leadData['social_links'] ?? []),
+                    'google_profile_url'  => SafeUrl::http(is_string($leadData['profile'] ?? null) ? $leadData['profile'] : null),
+                    'social_links'        => json_encode($this->safeSocialLinks($leadData['social_links'] ?? [])),
                     'reviews_sample'      => json_encode($reviewsSample),
                     'search_query'        => $searchData['query'] ?? null,
                     'search_location'     => $searchData['location_name'] ?? null,
@@ -669,7 +669,10 @@ class ExtensionController extends Controller
 
 
             } catch (\Exception $e) {
-                \Log::error('Extension save lead error: ' . $e->getMessage(), ['lead' => $leadData]);
+                \Log::error('Extension save lead error: ' . $e->getMessage(), [
+                    'user_id'  => $user->id,
+                    'place_id' => is_string($placeId) ? mb_substr($placeId, 0, 120) : null,
+                ]);
             }
         }
 
@@ -694,6 +697,27 @@ class ExtensionController extends Controller
             'used_today'      => $usedAfter,
             'remaining_today' => $remainingAfter,
         ]);
+    }
+
+    /**
+     * Keep only http(s) social links, preserving the original shape
+     * ({platform: url} object or plain list).
+     */
+    private function safeSocialLinks($links): array
+    {
+        if (!is_array($links)) {
+            return [];
+        }
+
+        $safe = [];
+        foreach ($links as $key => $url) {
+            $clean = is_string($url) ? SafeUrl::http($url) : null;
+            if ($clean !== null) {
+                $safe[$key] = $clean;
+            }
+        }
+
+        return array_is_list($links) ? array_values($safe) : $safe;
     }
 
     // ──────────────────────────────────────────────

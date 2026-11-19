@@ -11,10 +11,13 @@ class PackageFeature extends Model
         'feature_key',
         'feature_value',
         'is_unlimited',
+        'is_locked',
+        'lock_message',
     ];
 
     protected $casts = [
         'is_unlimited' => 'boolean',
+        'is_locked' => 'boolean',
     ];
 
     /**

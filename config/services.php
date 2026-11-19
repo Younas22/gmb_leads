@@ -41,5 +41,14 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    // Google PageSpeed Insights (used by "Check SEO" on My Leads)
+    'google_pagespeed' => [
+        'key' => env('GOOGLE_PAGESPEED_API_KEY'),
+    ],
+
+    // UniRate currency conversion (USD → PKR pricing display)
+    'unirate' => [
+        'key' => env('UNIRATE_API_KEY'),
+    ],
 
 ];

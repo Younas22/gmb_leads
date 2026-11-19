@@ -35,6 +35,9 @@ class PackageController extends Controller
             'description' => 'nullable|string',
             'status' => 'required|in:active,inactive',
             'features' => 'nullable|array',
+            'features.*.key' => 'nullable|string|max:100',
+            'features.*.value' => 'nullable|string|max:255',
+            'features.*.lock_message' => 'nullable|string|max:255',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -48,19 +51,7 @@ class PackageController extends Controller
 
         $package = Package::create($validated);
 
-        // Save features
-        if ($request->has('features')) {
-            foreach ($request->features as $feature) {
-                if (!empty($feature['key'])) {
-                    PackageFeature::create([
-                        'package_id' => $package->id,
-                        'feature_key' => $feature['key'],
-                        'feature_value' => $feature['value'] ?? null,
-                        'is_unlimited' => isset($feature['is_unlimited']) && $feature['is_unlimited'],
-                    ]);
-                }
-            }
-        }
+        $this->saveFeatures($package, (array) $request->input('features', []));
 
         return redirect()->route('admin.packages.index')->with('success', 'Package created successfully.');
     }
@@ -90,6 +81,9 @@ class PackageController extends Controller
             'description' => 'nullable|string',
             'status' => 'required|in:active,inactive',
             'features' => 'nullable|array',
+            'features.*.key' => 'nullable|string|max:100',
+            'features.*.value' => 'nullable|string|max:255',
+            'features.*.lock_message' => 'nullable|string|max:255',
         ]);
 
         $validated['is_popular'] = $request->boolean('is_popular');
@@ -108,18 +102,7 @@ class PackageController extends Controller
         // Update features - delete old and create new
         $package->features()->delete();
 
-        if ($request->has('features')) {
-            foreach ($request->features as $feature) {
-                if (!empty($feature['key'])) {
-                    PackageFeature::create([
-                        'package_id' => $package->id,
-                        'feature_key' => $feature['key'],
-                        'feature_value' => $feature['value'] ?? null,
-                        'is_unlimited' => isset($feature['is_unlimited']) && $feature['is_unlimited'],
-                    ]);
-                }
-            }
-        }
+        $this->saveFeatures($package, (array) $request->input('features', []));
 
         return redirect()->route('admin.packages.index')->with('success', 'Package updated successfully.');
     }
@@ -133,6 +116,35 @@ class PackageController extends Controller
         $package->delete();
 
         return redirect()->route('admin.packages.index')->with('success', 'Package deleted successfully.');
+    }
+
+    /**
+     * Save the feature rows of a package. A locked feature is not available to the package's
+     * users; they see it in the sidebar with a lock and the lock message.
+     */
+    private function saveFeatures(Package $package, array $features): void
+    {
+        $locksReady = \App\Services\FeatureOverrides::installed();
+
+        foreach ($features as $feature) {
+            $key = trim((string) ($feature['key'] ?? ''));
+            if ($key === '') {
+                continue;
+            }
+
+            $row = [
+                'package_id' => $package->id,
+                'feature_key' => $key,
+                'feature_value' => $feature['value'] ?? null,
+                'is_unlimited' => !empty($feature['is_unlimited']),
+            ];
+            if ($locksReady) {
+                $row['is_locked'] = !empty($feature['is_locked']);
+                $row['lock_message'] = $row['is_locked'] ? (trim((string) ($feature['lock_message'] ?? '')) ?: null) : null;
+            }
+
+            PackageFeature::create($row);
+        }
     }
 
     /**

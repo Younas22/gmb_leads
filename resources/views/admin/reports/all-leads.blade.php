@@ -18,7 +18,7 @@
         <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
-                <p class="text-sm text-red-800">{!! session('error') !!}</p>
+                <p class="text-sm text-red-800">{{ session('error') }}</p>
             </div>
         </div>
     @endif
@@ -267,7 +267,7 @@
                                         @endif
                                         @if($lead->website)
                                             <div class="mt-2">
-                                                <a href="{{ $lead->website }}" target="_blank"
+                                                <a href="{{ \App\Support\SafeUrl::href($lead->website) }}" rel="noopener noreferrer" target="_blank"
                                                    class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors">
                                                     <i class="fas fa-globe mr-1.5"></i>Website
                                                 </a>
@@ -384,7 +384,7 @@
                                                     }
                                                 @endphp
 
-                                                <a href="{{ $link }}" target="_blank" class="{{ $color }} hover:opacity-80 transition-opacity" title="{{ $link }}">
+                                                <a href="{{ \App\Support\SafeUrl::href($link) }}" rel="noopener noreferrer" target="_blank" class="{{ $color }} hover:opacity-80 transition-opacity" title="{{ $link }}">
                                                     <i class="{{ $icon }} text-lg"></i>
                                                 </a>
                                             @endforeach

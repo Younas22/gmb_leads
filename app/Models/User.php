@@ -21,7 +21,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'plain_password',
         'avatar',
         'google_id',
         'email_verified',
@@ -49,6 +48,10 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
+        // Legacy column (readable passwords). No longer written; purge with
+        // `php artisan security:purge-plain-passwords`. Never serialize it.
+        'plain_password',
+        'extension_token',
         'remember_token',
         'password_reset_token',
         'email_verification_token',
@@ -145,6 +148,31 @@ class User extends Authenticatable
     public function updateLastLogin()
     {
         $this->update(['last_login' => now()]);
+    }
+
+    /**
+     * AI Sales Profile owned by this account (meaningful for account owners;
+     * team members use getAccountOwner()->salesProfile).
+     */
+    public function salesProfile()
+    {
+        return $this->hasOne(UserSalesProfile::class, 'owner_user_id');
+    }
+
+    /**
+     * Skills, services and offers owned by this account.
+     */
+    public function salesOffers()
+    {
+        return $this->hasMany(UserOffer::class, 'owner_user_id');
+    }
+
+    /**
+     * AI usage records billed to this account.
+     */
+    public function aiUsageLogs()
+    {
+        return $this->hasMany(AiUsageLog::class, 'owner_user_id');
     }
 
     /**
@@ -362,12 +390,16 @@ class User extends Authenticatable
             return $default;
         }
 
-        $feature = $subscription->package->features
-            ->where('feature_key', $featureKey)
-            ->first();
+        // The user's own override (admin "Custom features") wins over the package row
+        $feature = app(\App\Services\FeatureOverrides::class)->row($subscription, $featureKey);
 
         if (!$feature) {
             return $default;
+        }
+
+        // Locked (in the package or for this user): not available, whatever the defaults say
+        if (!empty($feature->is_locked)) {
+            return false;
         }
 
         // If unlimited flag set or value is 'unlimited' string, return -1

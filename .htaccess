@@ -1,3 +1,28 @@
+# ---------------------------------------------------------------------------
+# Security: this file only matters when the PROJECT ROOT is the web root
+# (root index.php front controller). The recommended setup is to point the
+# domain's document root at /public instead.
+#
+# Deny direct access to application internals, secrets, dumps and logs.
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(\.git|\.github|app|bootstrap|config|database|db|resources|routes|storage|tests|vendor|node_modules|Customernearme_Extension)(/|$) - [F,L,NC]
+</IfModule>
+
+# Dotfiles such as .env, .env.backup, .gitignore, .htaccess
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Dumps, logs, lock files, docs and tooling config
+<FilesMatch "\.(env|sql|sqlite|log|md|lock|ini|sh|bak|old|orig|swp|yml|yaml|dist|cache)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^(artisan|composer\.json|composer\.lock|package\.json|package-lock\.json|phpunit\.xml|vite\.config\.js|COMPOSER_COMMANDS_GUIDE\.md|README\.md|WebHookexpirpackage\.md|GMB-Extension-API\.postman_collection\.json)$">
+    Require all denied
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

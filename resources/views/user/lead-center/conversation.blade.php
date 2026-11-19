@@ -34,7 +34,7 @@
                         <a href="mailto:{{ $lead->email }}" class="text-sm text-gray-600 hover:text-primary-600 break-all">
                             <i class="fas fa-envelope mr-1"></i>{{ $lead->email }}
                         </a>
-                        <button type="button" onclick="copyField('{{ $lead->email }}', this)" title="Copy email" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
+                        <button type="button" onclick="copyField(@js($lead->email), this)" title="Copy email" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
                             <i class="fas fa-copy text-xs"></i>
                         </button>
                     </div>
@@ -42,10 +42,10 @@
 
                 @if($lead->website)
                     <div class="flex items-center gap-2 mt-1">
-                        <a href="{{ $lead->website }}" target="_blank" class="text-sm text-blue-600 hover:underline break-all">
+                        <a href="{{ \App\Support\SafeUrl::href($lead->website) }}" rel="noopener noreferrer" target="_blank" class="text-sm text-blue-600 hover:underline break-all">
                             <i class="fas fa-globe mr-1"></i>{{ str_replace(['http://','https://'], '', $lead->website) }}
                         </a>
-                        <button type="button" onclick="copyField('{{ $lead->website }}', this)" title="Copy website" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
+                        <button type="button" onclick="copyField(@js($lead->website), this)" title="Copy website" class="text-gray-300 hover:text-primary-600 flex-shrink-0">
                             <i class="fas fa-copy text-xs"></i>
                         </button>
                     </div>
@@ -187,7 +187,7 @@ function showToast(message, type) {
     const t = document.createElement('div');
     t.className = `fixed bottom-6 right-6 z-[999] px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all
         ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
-    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${cnmEscape(message)}`;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
 }

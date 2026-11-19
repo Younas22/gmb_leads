@@ -69,6 +69,41 @@ class PaymentController extends Controller
     /**
      * Update payment status.
      */
+    /**
+     * Stream a payment screenshot to an admin (route is inside the admin-only group).
+     *
+     * New uploads live on the private disk (storage/app/private/payments/...).
+     * Legacy uploads were saved under public/images/payments/; those are still
+     * served from there by this route, but direct web access to that folder is
+     * denied by its .htaccess.
+     */
+    public function screenshot(Payment $payment)
+    {
+        $path = (string) $payment->screenshot;
+
+        if (str_starts_with($path, 'payments/') && !str_contains($path, '..')) {
+            abort_unless(\Illuminate\Support\Facades\Storage::disk('local')->exists($path), 404);
+
+            return \Illuminate\Support\Facades\Storage::disk('local')->response($path, null, [
+                'Cache-Control' => 'private, no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
+
+        if (str_starts_with($path, 'images/payments/')) {
+            $dir = realpath(public_path('images/payments'));
+            $file = realpath(public_path($path));
+            abort_unless($dir && $file && str_starts_with($file, $dir . DIRECTORY_SEPARATOR) && is_file($file), 404);
+
+            return response()->file($file, [
+                'Cache-Control' => 'private, no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
+
+        abort(404);
+    }
+
     public function updateStatus(Request $request, Payment $payment)
     {
         $request->validate([

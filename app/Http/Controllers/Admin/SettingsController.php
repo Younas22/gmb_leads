@@ -17,7 +17,7 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        $settings = Setting::where('group', 'email')->get()->pluck('value', 'key');
+        $settings = Setting::getByGroup('email');
 
         return view('admin.settings.index', compact('settings'));
     }
@@ -33,8 +33,8 @@ class SettingsController extends Controller
             'contact_email' => 'required|email',
             'contact_phone' => 'nullable|string|max:50',
             'support_email' => 'nullable|email',
-            'site_logo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
-            'site_favicon' => 'nullable|mimes:ico,png|max:512',
+            'site_logo' => 'nullable|image|mimes:jpg,jpeg,png,svg|extensions:jpg,jpeg,png,svg|max:2048',
+            'site_favicon' => 'nullable|file|mimes:ico,png|extensions:ico,png|max:512',
             'default_country' => 'nullable|string|max:2',
             'default_currency' => 'nullable|string|max:3',
             'currency_position' => 'nullable|in:before,after',
@@ -47,18 +47,15 @@ class SettingsController extends Controller
         ]);
 
         // Handle file uploads
+        // Stored name and extension come from the file content, never from the client
         if ($request->hasFile('site_logo')) {
-            $logo = $request->file('site_logo');
-            $logoName = 'logo_' . time() . '.' . $logo->getClientOriginalExtension();
-            $logo->move(public_path('images/logo'), $logoName);
-            Setting::set('site_logo', 'images/logo/' . $logoName, 'text', 'general', 'Site Logo Path');
+            $logoPath = \App\Support\SecureUpload::storePublicImage($request->file('site_logo'), 'images/logo', ['jpg', 'jpeg', 'png', 'svg', 'webp']);
+            Setting::set('site_logo', $logoPath, 'text', 'general', 'Site Logo Path');
         }
 
         if ($request->hasFile('site_favicon')) {
-            $favicon = $request->file('site_favicon');
-            $faviconName = 'favicon_' . time() . '.' . $favicon->getClientOriginalExtension();
-            $favicon->move(public_path('images/logo'), $faviconName);
-            Setting::set('site_favicon', 'images/logo/' . $faviconName, 'text', 'general', 'Favicon Path');
+            $faviconPath = \App\Support\SecureUpload::storePublicImage($request->file('site_favicon'), 'images/logo', ['ico', 'png']);
+            Setting::set('site_favicon', $faviconPath, 'text', 'general', 'Favicon Path');
         }
 
         // Application Settings
@@ -237,6 +234,10 @@ class SettingsController extends Controller
      */
     public function runMigrations()
     {
+        if ($blocked = $this->blockIfMaintenanceCommandsDisabled()) {
+            return $blocked;
+        }
+
         try {
             Artisan::call('migrate', ['--force' => true]);
             $output = Artisan::output();
@@ -260,6 +261,10 @@ class SettingsController extends Controller
      */
     public function runSpecificMigration(Request $request)
     {
+        if ($blocked = $this->blockIfMaintenanceCommandsDisabled()) {
+            return $blocked;
+        }
+
         $request->validate([
             'migration' => 'required|string|max:255',
         ]);
@@ -305,6 +310,10 @@ class SettingsController extends Controller
      */
     public function runComposerCommand(Request $request)
     {
+        if ($blocked = $this->blockIfMaintenanceCommandsDisabled()) {
+            return $blocked;
+        }
+
         $request->validate([
             'command' => 'required|string|in:install,update,dump-autoload,clear-cache,diagnose,validate',
         ]);
@@ -812,19 +821,39 @@ class SettingsController extends Controller
      */
     protected function updateEnvFile($data)
     {
+        // Disabled by default: settings are still saved to the database by the
+        // callers; the .env file must be changed on the server by hand.
+        if (!config('security.web_env_editing')) {
+            \Log::notice('Skipped .env update from admin panel (ALLOW_WEB_ENV_EDITING is off).', [
+                'keys' => array_keys($data),
+                'admin_id' => auth()->id(),
+            ]);
+            return;
+        }
+
         $envFile = base_path('.env');
         $envContent = file_get_contents($envFile);
 
         foreach ($data as $key => $value) {
+            // Only plain ENV_KEY names, and never allow a value to inject extra lines
+            if (!preg_match('/^[A-Z][A-Z0-9_]*$/', $key)) {
+                continue;
+            }
+            $value = (string) $value;
+            if (preg_match('/[\r\n\0]/', $value)) {
+                continue;
+            }
+
             // Escape special characters in value
-            $value = '"' . str_replace('"', '\"', $value) . '"';
+            $value = '"' . str_replace(['\\', '"', '$'], ['\\\\', '\"', '\$'], $value) . '"';
 
             // Check if key exists
             if (preg_match("/^{$key}=.*/m", $envContent)) {
                 // Update existing key
-                $envContent = preg_replace(
+                $line = "{$key}={$value}";
+                $envContent = preg_replace_callback(
                     "/^{$key}=.*/m",
-                    "{$key}={$value}",
+                    fn () => $line,
                     $envContent
                 );
             } else {
@@ -837,5 +866,21 @@ class SettingsController extends Controller
 
         // Clear config cache
         Artisan::call('config:clear');
+    }
+
+    /**
+     * Running migrate / composer over HTTP is disabled unless explicitly enabled
+     * with ALLOW_WEB_MAINTENANCE_COMMANDS=true (see config/security.php).
+     */
+    protected function blockIfMaintenanceCommandsDisabled()
+    {
+        if (config('security.web_maintenance_commands')) {
+            return null;
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'This command is disabled from the web panel for security. Run it from SSH / the hosting panel instead.',
+        ], 403);
     }
 }

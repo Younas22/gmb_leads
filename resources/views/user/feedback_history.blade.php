@@ -2,210 +2,172 @@
 
 @section('title', 'Feedback History')
 
+@php
+    $typeMeta = [
+        'bug'        => ['fa-bug', 'is-bad'],
+        'feature'    => ['fa-plus-circle', 'is-ok'],
+        'suggestion' => ['fa-lightbulb', 'is-warn'],
+        'general'    => ['fa-comment', ''],
+    ];
+@endphp
+
 @section('content')
-<main class="p-4 lg:p-6">
+@include('user._ui-kit')
+<main class="cnm-ui ui-page ui-stack !max-w-[1040px]">
 
     <!-- Header -->
-    <div class="flex items-center justify-between mb-4">
-        <div>
-            <h1 class="text-base font-bold text-gray-800">Feedback History</h1>
-            <p class="text-xs text-gray-500">Track all the feedback you've shared with us</p>
+    <div class="ui-head">
+        <div class="ui-head-main">
+            <span class="ui-head-icon"><i class="fas fa-comments"></i></span>
+            <div class="min-w-0">
+                <h1 class="ui-title">Feedback History</h1>
+                <p class="ui-sub">Every idea, bug report and request you've shared, with our replies. Your feedback shapes what we build next.</p>
+            </div>
         </div>
-        <button onclick="openFeedbackModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-            <i class="fas fa-plus mr-1"></i>Add Feedback
+        <button onclick="openFeedbackModal()" class="ui-btn">
+            <i class="fas fa-plus"></i>Add Feedback
         </button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Total Feedback</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['total'] }}</p>
-                </div>
-                <div class="bg-primary-100 rounded-lg p-2">
-                    <i class="fas fa-comment-alt text-primary-600"></i>
-                </div>
+    <!-- Stats -->
+    <div class="ui-stats c4">
+        <div class="ui-stat">
+            <p class="ui-stat-l"><i class="fas fa-comment-alt"></i>Total Feedback</p>
+            <p class="ui-stat-v">{{ $stats['total'] }}</p>
+            <p class="ui-stat-h">Shared with our team</p>
+        </div>
+        <div class="ui-stat">
+            <p class="ui-stat-l"><i class="fas fa-star"></i>Avg Rating</p>
+            <p class="ui-stat-v">{{ number_format($stats['avg_rating'], 1) }}</p>
+            <div class="flex text-amber-400 gap-px mt-0.5" aria-hidden="true">
+                @for($i = 1; $i <= 5; $i++)
+                    @if($i <= floor($stats['avg_rating']))
+                        <i class="fas fa-star text-[10px]"></i>
+                    @elseif($i <= $stats['avg_rating'])
+                        <i class="fas fa-star-half-alt text-[10px]"></i>
+                    @else
+                        <i class="far fa-star text-[10px]"></i>
+                    @endif
+                @endfor
             </div>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Avg Rating</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ number_format($stats['avg_rating'], 1) }}</p>
-                    <div class="flex text-yellow-400 mt-0.5">
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= floor($stats['avg_rating']))
-                                <i class="fas fa-star text-xs"></i>
-                            @elseif($i <= $stats['avg_rating'])
-                                <i class="fas fa-star-half-alt text-xs"></i>
-                            @else
-                                <i class="far fa-star text-xs"></i>
-                            @endif
-                        @endfor
-                    </div>
-                </div>
-                <div class="bg-yellow-100 rounded-lg p-2">
-                    <i class="fas fa-star text-yellow-600"></i>
-                </div>
-            </div>
+        <div class="ui-stat">
+            <p class="ui-stat-l"><i class="fas fa-clock"></i>Pending</p>
+            <p class="ui-stat-v">{{ $stats['pending'] }}</p>
+            <p class="ui-stat-h !text-orange-600">Awaiting response</p>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Pending</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['pending'] }}</p>
-                    <p class="text-xs text-orange-600 mt-0.5">Awaiting response</p>
-                </div>
-                <div class="bg-orange-100 rounded-lg p-2">
-                    <i class="fas fa-clock text-orange-600"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 mb-0.5">Resolved</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $stats['resolved'] }}</p>
-                    <p class="text-xs text-green-600 mt-0.5">Completed</p>
-                </div>
-                <div class="bg-green-100 rounded-lg p-2">
-                    <i class="fas fa-check-circle text-green-600"></i>
-                </div>
-            </div>
+        <div class="ui-stat">
+            <p class="ui-stat-l"><i class="fas fa-check-circle"></i>Resolved</p>
+            <p class="ui-stat-v">{{ $stats['resolved'] }}</p>
+            <p class="ui-stat-h !text-green-600">Completed</p>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-sm p-3 border border-gray-100 mb-4">
-        <form method="GET" action="{{ route('user.feedback.history') }}" class="flex flex-wrap items-end gap-2">
-            <div class="flex-1 min-w-36">
-                <label class="block text-xs font-medium text-gray-700 mb-1">Type</label>
-                <select name="type" class="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 text-xs">
-                    <option value="">All Types</option>
-                    <option value="suggestion" {{ request('type') == 'suggestion' ? 'selected' : '' }}>Suggestions</option>
-                    <option value="bug" {{ request('type') == 'bug' ? 'selected' : '' }}>Bug Reports</option>
-                    <option value="feature" {{ request('type') == 'feature' ? 'selected' : '' }}>Feature Requests</option>
-                    <option value="general" {{ request('type') == 'general' ? 'selected' : '' }}>General</option>
-                </select>
-            </div>
-            <div class="flex-1 min-w-36">
-                <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                <select name="status" class="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 text-xs">
-                    <option value="">All Status</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="reviewed" {{ request('status') == 'reviewed' ? 'selected' : '' }}>Reviewed</option>
-                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Resolved</option>
-                </select>
-            </div>
-            <div class="flex-1 min-w-36">
-                <label class="block text-xs font-medium text-gray-700 mb-1">Rating</label>
-                <select name="rating" class="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 text-xs">
-                    <option value="">All Ratings</option>
-                    <option value="5" {{ request('rating') == '5' ? 'selected' : '' }}>5 Stars</option>
-                    <option value="4" {{ request('rating') == '4' ? 'selected' : '' }}>4 Stars</option>
-                    <option value="3" {{ request('rating') == '3' ? 'selected' : '' }}>3 Stars</option>
-                    <option value="2" {{ request('rating') == '2' ? 'selected' : '' }}>2 Stars</option>
-                    <option value="1" {{ request('rating') == '1' ? 'selected' : '' }}>1 Star</option>
-                </select>
-            </div>
-            <div class="flex gap-2">
-                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                    <i class="fas fa-filter mr-1"></i>Filter
-                </button>
-                <a href="{{ route('user.feedback.history') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium border">
-                    Clear
-                </a>
-            </div>
-        </form>
-    </div>
+    <form method="GET" action="{{ route('user.feedback.history') }}" class="ui-card p-3 grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+        <div>
+            <label for="fb-type" class="ui-label">Type</label>
+            <select id="fb-type" name="type" class="ui-field">
+                <option value="">All Types</option>
+                <option value="suggestion" {{ request('type') == 'suggestion' ? 'selected' : '' }}>Suggestions</option>
+                <option value="bug" {{ request('type') == 'bug' ? 'selected' : '' }}>Bug Reports</option>
+                <option value="feature" {{ request('type') == 'feature' ? 'selected' : '' }}>Feature Requests</option>
+                <option value="general" {{ request('type') == 'general' ? 'selected' : '' }}>General</option>
+            </select>
+        </div>
+        <div>
+            <label for="fb-status" class="ui-label">Status</label>
+            <select id="fb-status" name="status" class="ui-field">
+                <option value="">All Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="reviewed" {{ request('status') == 'reviewed' ? 'selected' : '' }}>Reviewed</option>
+                <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Resolved</option>
+            </select>
+        </div>
+        <div>
+            <label for="fb-rating" class="ui-label">Rating</label>
+            <select id="fb-rating" name="rating" class="ui-field">
+                <option value="">All Ratings</option>
+                <option value="5" {{ request('rating') == '5' ? 'selected' : '' }}>5 Stars</option>
+                <option value="4" {{ request('rating') == '4' ? 'selected' : '' }}>4 Stars</option>
+                <option value="3" {{ request('rating') == '3' ? 'selected' : '' }}>3 Stars</option>
+                <option value="2" {{ request('rating') == '2' ? 'selected' : '' }}>2 Stars</option>
+                <option value="1" {{ request('rating') == '1' ? 'selected' : '' }}>1 Star</option>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <button type="submit" class="ui-btn flex-1"><i class="fas fa-filter text-[11px]"></i>Filter</button>
+            <a href="{{ route('user.feedback.history') }}" class="ui-btn-light">Clear</a>
+        </div>
+    </form>
 
     <!-- Feedback List -->
-    <div class="space-y-3">
+    <div class="ui-card divide-y divide-slate-100">
         @forelse($feedback as $item)
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-            <div class="flex items-start justify-between gap-3 mb-2">
-                <div class="flex items-start gap-3">
-                    <div class="bg-{{ $item->feedback_type == 'bug' ? 'red' : ($item->feedback_type == 'feature' ? 'green' : ($item->feedback_type == 'suggestion' ? 'yellow' : 'blue')) }}-100 rounded-lg p-2 flex-shrink-0">
-                        <i class="fas fa-{{ $item->feedback_type == 'bug' ? 'bug' : ($item->feedback_type == 'feature' ? 'plus-circle' : ($item->feedback_type == 'suggestion' ? 'lightbulb' : 'comment')) }} text-{{ $item->feedback_type == 'bug' ? 'red' : ($item->feedback_type == 'feature' ? 'green' : ($item->feedback_type == 'suggestion' ? 'yellow' : 'blue')) }}-600 text-sm"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-sm font-semibold text-gray-800">{{ $item->feedback_type_name }}</h3>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                                @if($item->status == 'pending') bg-orange-100 text-orange-800
-                                @elseif($item->status == 'reviewed') bg-blue-100 text-blue-800
-                                @else bg-green-100 text-green-800
-                                @endif">
-                                {{ ucfirst($item->status) }}
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-3 text-xs text-gray-500">
-                            <div class="flex items-center">
-                                <div class="flex text-yellow-400 mr-1">
+        @php [$tIcon, $tTone] = $typeMeta[$item->feedback_type] ?? $typeMeta['general']; @endphp
+        <div class="px-4 py-3">
+            <div class="flex items-start justify-between gap-3">
+                <button type="button" onclick="toggleFeedback({{ $item->id }})" class="flex items-start gap-3 min-w-0 text-left flex-1" aria-expanded="false" aria-controls="content-{{ $item->id }}">
+                    <span class="ui-badge {{ $tTone }} !w-8 !h-8 !p-0 justify-center !rounded-lg flex-shrink-0"><i class="fas {{ $tIcon }} text-[12px]"></i></span>
+                    <span class="min-w-0">
+                        <span class="flex flex-wrap items-center gap-2">
+                            <span class="text-[13px] font-semibold text-gray-900">{{ $item->feedback_type_name }}</span>
+                            <span class="ui-badge {{ $item->status == 'pending' ? 'is-brand' : ($item->status == 'reviewed' ? '' : 'is-ok') }}">{{ ucfirst($item->status) }}</span>
+                            @if($item->admin_response)<span class="ui-badge is-ok"><i class="fas fa-reply text-[9px]"></i>Replied</span>@endif
+                        </span>
+                        <span class="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11.5px] text-slate-500 mt-0.5">
+                            <span class="flex items-center gap-1">
+                                <span class="flex text-amber-400 gap-px" aria-hidden="true">
                                     @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= $item->rating)
-                                            <i class="fas fa-star text-xs"></i>
-                                        @else
-                                            <i class="far fa-star text-xs"></i>
-                                        @endif
+                                        <i class="{{ $i <= $item->rating ? 'fas' : 'far' }} fa-star text-[10px]"></i>
                                     @endfor
-                                </div>
-                                <span>{{ $item->rating_text }}</span>
-                            </div>
+                                </span>
+                                {{ $item->rating_text }}
+                            </span>
                             <span>{{ $item->created_at->format('M d, Y') }}</span>
                             <span>{{ $item->created_at->diffForHumans() }}</span>
-                        </div>
-                    </div>
-                </div>
+                        </span>
+                        <span class="block text-[12px] text-slate-600 mt-1 line-clamp-1">{{ \Illuminate\Support\Str::limit($item->message, 140) }}</span>
+                    </span>
+                </button>
 
                 <div class="flex items-center gap-2 flex-shrink-0">
                     @if($item->contact_permission)
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <i class="fas fa-check mr-1"></i>Contact OK
-                        </span>
+                        <span class="ui-badge is-ok hidden sm:inline-flex"><i class="fas fa-check text-[9px]"></i>Contact OK</span>
                     @endif
-                    <button onclick="toggleFeedback({{ $item->id }})" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
-                        <i class="fas fa-chevron-down text-xs" id="icon-{{ $item->id }}"></i>
+                    <button onclick="toggleFeedback({{ $item->id }})" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center" aria-label="Show details">
+                        <i class="fas fa-chevron-down text-[11px]" id="icon-{{ $item->id }}"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Expandable Content -->
-            <div id="content-{{ $item->id }}" class="hidden border-t border-gray-100 pt-3">
-                <div class="bg-gray-50 rounded-lg p-3 mb-2">
-                    <h4 class="text-xs font-medium text-gray-700 mb-1">Your Feedback:</h4>
-                    <p class="text-gray-800 text-xs leading-relaxed">{{ $item->message }}</p>
+            <div id="content-{{ $item->id }}" class="hidden mt-2.5 space-y-2 sm:pl-11">
+                <div class="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+                    <h4 class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5">Your Feedback:</h4>
+                    <p class="text-gray-800 text-[12.5px] leading-relaxed whitespace-pre-line">{{ $item->message }}</p>
                 </div>
 
                 @if($item->admin_response)
-                <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                    <h4 class="text-xs font-medium text-blue-700 mb-1 flex items-center">
-                        <i class="fas fa-reply mr-1"></i>Admin Response:
-                    </h4>
-                    <p class="text-blue-800 text-xs leading-relaxed">{{ $item->admin_response }}</p>
-                    <p class="text-xs text-blue-500 mt-1">{{ $item->updated_at->format('M d, Y \a\t g:i A') }}</p>
+                <div class="ui-note is-info !block !py-2">
+                    <h4 class="text-[11px] font-semibold uppercase tracking-wide mb-0.5"><i class="fas fa-reply mr-1"></i>Admin Response:</h4>
+                    <p class="text-[12.5px] leading-relaxed whitespace-pre-line">{{ $item->admin_response }}</p>
+                    <p class="text-[11px] opacity-70 mt-1">{{ $item->updated_at->format('M d, Y \a\t g:i A') }}</p>
                 </div>
                 @else
-                <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                    <p class="text-orange-700 text-xs flex items-center">
-                        <i class="fas fa-clock mr-1"></i>We're reviewing your feedback and will respond soon.
-                    </p>
+                <div class="ui-note is-brand !py-2">
+                    <i class="fas fa-clock text-orange-500"></i><span>We're reviewing your feedback and will respond soon.</span>
                 </div>
                 @endif
             </div>
         </div>
         @empty
-        <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-100 text-center">
-            <i class="fas fa-comment-slash text-gray-300 text-3xl mb-3"></i>
-            <h3 class="text-sm font-semibold text-gray-500 mb-1">No Feedback Found</h3>
-            <p class="text-xs text-gray-400 mb-4">You haven't submitted any feedback yet.</p>
-            <button onclick="openFeedbackModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-colors">
-                <i class="fas fa-plus mr-1"></i>Submit Your First Feedback
+        <div class="ui-empty">
+            <div class="ui-empty-i"><i class="fas fa-comment-slash"></i></div>
+            <p class="ui-empty-t">No Feedback Found</p>
+            <p class="mt-1 mb-3">You haven't submitted any feedback yet. Spotted a bug or have an idea? We read every message.</p>
+            <button onclick="openFeedbackModal()" class="ui-btn ui-sm">
+                <i class="fas fa-plus"></i>Submit Your First Feedback
             </button>
         </div>
         @endforelse
@@ -213,7 +175,7 @@
 
     <!-- Pagination -->
     @if($feedback->hasPages())
-    <div class="mt-4">
+    <div>
         {{ $feedback->appends(request()->query())->links() }}
     </div>
     @endif
@@ -223,13 +185,10 @@
 function toggleFeedback(id) {
     const content = document.getElementById(`content-${id}`);
     const icon = document.getElementById(`icon-${id}`);
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-    } else {
-        content.classList.add('hidden');
-        icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-    }
+    const open = content.classList.contains('hidden');
+    content.classList.toggle('hidden', !open);
+    icon.classList.replace(open ? 'fa-chevron-down' : 'fa-chevron-up', open ? 'fa-chevron-up' : 'fa-chevron-down');
+    content.closest('.px-4').querySelectorAll('[aria-expanded]').forEach(b => b.setAttribute('aria-expanded', open ? 'true' : 'false'));
 }
 </script>
 @endsection

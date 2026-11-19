@@ -44,6 +44,7 @@
             }
         }
     </script>
+    @include('partials.safe-html-helpers')
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     <!-- Mobile Menu Button -->
@@ -201,6 +202,10 @@
                     <a href="{{ route('admin.settings.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.settings.*') ? 'text-primary-700 bg-primary-50' : '' }}">
                         <i class="fas fa-cog w-5 text-center mr-3"></i>
                         Settings
+                    </a>
+                    <a href="{{ route('admin.ai-setup.index') }}" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg font-medium transition-colors {{ request()->routeIs('admin.ai-setup.*') ? 'text-primary-700 bg-primary-50' : '' }}">
+                        <i class="fas fa-robot w-5 text-center mr-3"></i>
+                        AI Setup
                     </a>
                 </div>
 

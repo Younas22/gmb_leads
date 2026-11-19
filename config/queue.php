@@ -43,6 +43,29 @@ return [
             'after_commit' => false,
         ],
 
+        // Email sending jobs (Phase 3): short jobs, separate from AI work.
+        // retry_after MUST stay above gmail.queue.timeout (60s).
+        'mail_database' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => env('MAIL_SEND_QUEUE', 'mail'),
+            'retry_after' => (int) env('MAIL_SEND_QUEUE_RETRY_AFTER', 120),
+            'after_commit' => true,
+        ],
+
+        // AI Outreach jobs: same jobs table, own queue and a longer retry_after,
+        // because one AI job may make two model calls (answer + one correction).
+        // retry_after MUST stay above ai.analysis.job_timeout.
+        'ai_database' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => env('AI_QUEUE', 'ai'),
+            'retry_after' => (int) env('AI_QUEUE_RETRY_AFTER', 210),
+            'after_commit' => true,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => env('BEANSTALKD_QUEUE_HOST', 'localhost'),

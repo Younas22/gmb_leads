@@ -79,16 +79,16 @@ function loadLcFolders() {
                             <i class="fas fa-folder"></i>
                         </span>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">${f.name}</p>
+                            <p class="text-sm font-medium text-gray-900">${cnmEscape(f.name)}</p>
                             <p class="text-xs text-gray-400">${f.leads_count} lead${f.leads_count !== 1 ? 's' : ''}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        ${_folderMode === 'move' ? `<button onclick="moveLeadsToFolder(${f.id}, '${f.name.replace(/'/g, "\\'")}')"
+                        ${_folderMode === 'move' ? `<button onclick="moveLeadsToFolder(${parseInt(f.id, 10)}, ${cnmEscape(JSON.stringify(String(f.name)))})"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors">
                             Move Here
                         </button>` : ''}
-                        <button onclick="deleteLcFolder(${f.id}, '${f.name.replace(/'/g, "\\'")}')"
+                        <button onclick="deleteLcFolder(${parseInt(f.id, 10)}, ${cnmEscape(JSON.stringify(String(f.name)))})"
                             class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 w-6 h-6 flex items-center justify-center rounded transition-all"
                             title="Delete folder">
                             <i class="fas fa-trash-alt text-xs"></i>

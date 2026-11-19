@@ -314,12 +314,12 @@ class SearchController extends Controller
             $params['pagetoken'] = $pageToken;
         }
 
-        $fullUrl = $apiUrl . '?' . http_build_query($params);
+        // Never log the API key
+        $loggableParams = array_merge($params, ['key' => '[redacted]']);
 
         \Log::info('=== PRODUCTION MODE: Live API Request ===');
         \Log::info('API URL: ' . $apiUrl);
-        \Log::info('Full URL with params: ' . $fullUrl);
-        \Log::info('Request params:', $params);
+        \Log::info('Request params:', $loggableParams);
         \Log::info('Is Load More: ' . ($pageToken ? 'YES (token: ' . substr($pageToken, 0, 50) . '...)' : 'NO (new search)'));
 
         // Make API call with longer timeout
@@ -329,7 +329,8 @@ class SearchController extends Controller
         $response = Http::timeout(90)
             ->connectTimeout(30)
             ->withOptions([
-                'verify' => false,
+                // TLS certificate verification stays ON (Guzzle default). If a local
+                // dev machine lacks a CA bundle, set curl.cainfo / openssl.cafile in php.ini.
                 'http_errors' => false,
             ])
             ->get($apiUrl, $params);
@@ -719,7 +720,7 @@ public function saveLeads(Request $request)
                     'name' => $leadData['name'] ?? 'Unknown',
                     'address' => $leadData['address'] ?? null,
                     'phone' => $leadData['phone'] ?? null,
-                    'website' => $leadData['website'] ?? null,
+                    'website' => \App\Support\SafeUrl::http(is_string($leadData['website'] ?? null) ? $leadData['website'] : null),
                     'email' => $email,
                     'latitude' => null,
                     'longitude' => null,
@@ -732,7 +733,7 @@ public function saveLeads(Request $request)
                     'total_reviews' => isset($leadData['total_reviews']) ? (int) $leadData['total_reviews'] : 0,
                     'last_review_date' => $lastReviewDate, // ✅ new column
                     'opening_hours' => json_encode($leadData['opening_hours'] ?? []),
-                    'google_profile_url' => $leadData['profile'] ?? null,
+                    'google_profile_url' => \App\Support\SafeUrl::http(is_string($leadData['profile'] ?? null) ? $leadData['profile'] : null),
                     'social_links' => json_encode($socialLinks),
                     'reviews_sample' => json_encode($reviewsSample),
                     'search_query' => $searchData['query'] ?? null,
@@ -910,17 +911,22 @@ public function history(Request $request)
     // Determine the account owner (company or user itself)
     $accountOwner = $user->isTeamMember() ? $user->company : $user;
 
+    // Users this account may see: the account owner plus, for companies, its team members
+    $allowedUserIds = [$accountOwner->id];
+    if ($accountOwner->isCompany()) {
+        $allowedUserIds = array_merge($allowedUserIds, $accountOwner->teamMembers()->pluck('id')->toArray());
+    }
+
     // Get user IDs to query (company + team members, or specific user if filtered)
     if ($selectedUserId) {
-        // Filter by specific user (must be company or team member)
-        $userIds = [$selectedUserId];
+        // Filter by specific user — must be within the allowed set
+        if (!in_array((int) $selectedUserId, array_map('intval', $allowedUserIds), true)) {
+            abort(403, 'You are not allowed to view this search history.');
+        }
+        $userIds = [(int) $selectedUserId];
     } else {
         // Show all users (company + team members)
-        $userIds = [$accountOwner->id];
-        if ($accountOwner->isCompany()) {
-            $teamMemberIds = $accountOwner->teamMembers()->pluck('id')->toArray();
-            $userIds = array_merge($userIds, $teamMemberIds);
-        }
+        $userIds = $allowedUserIds;
     }
 
     // Base query

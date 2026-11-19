@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SavedLead extends Model
 {
+    /** seo_score value meaning "checked, but PageSpeed returned no score" (retryable). */
+    public const SEO_SCORE_UNAVAILABLE = -1;
+
     protected $fillable = [
         'user_id',
         'place_id',

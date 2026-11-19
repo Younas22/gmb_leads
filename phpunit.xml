@@ -19,13 +19,25 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Fixed, so tests behave the same whichever .env profile (local DB / live DB) is active -->
+        <env name="APP_URL" value="http://localhost" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- Never call a paid AI API from tests -->
+        <env name="ANTHROPIC_API_KEY" value="" force="true"/>
+        <env name="AI_PROVIDER" value="anthropic" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="AI_QUEUE_CONNECTION" value="sync"/>
+        <!-- Never use real Google credentials or send real email from tests (Gmail HTTP is faked) -->
+        <env name="GMAIL_CLIENT_ID" value="test-client-id.apps.googleusercontent.com" force="true"/>
+        <env name="GMAIL_CLIENT_SECRET" value="test-client-secret" force="true"/>
+        <env name="GMAIL_REDIRECT_URI" value="" force="true"/>
+        <env name="GMAIL_SENDING_ENABLED" value="true" force="true"/>
+        <env name="MAIL_SEND_QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
