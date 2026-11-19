@@ -258,6 +258,15 @@
                                 <button onclick="editUser({{ $u->id }})" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Edit User">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                @if(!$u->isAdmin())
+                                <form method="POST" action="{{ route('admin.users.impersonate', $u) }}" class="inline"
+                                      onsubmit="return confirm(@js('Log in as ' . ($u->first_name ? $u->first_name . ' ' . $u->last_name : $u->name) . '? You can switch back to your admin account from the banner at the top.'))">
+                                    @csrf
+                                    <button type="submit" class="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Login as this user">
+                                        <i class="fas fa-right-to-bracket"></i>
+                                    </button>
+                                </form>
+                                @endif
                                 @if($u->id !== auth()->id())
                                 <button onclick="confirmDelete({{ $u->id }}, @js($u->first_name ? $u->first_name . ' ' . $u->last_name : $u->name))" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete User">
                                     <i class="fas fa-trash"></i>

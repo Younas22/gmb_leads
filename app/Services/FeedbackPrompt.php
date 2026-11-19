@@ -46,7 +46,10 @@ class FeedbackPrompt
      */
     public static function state(?User $user): ?array
     {
-        if (!$user || $user->isAdmin() || self::hasGivenFeedback($user)) {
+        // Never block an admin who is using "Login as user" — the feedback must come from the user.
+        $impersonating = session()->has(\App\Http\Controllers\Admin\ImpersonationController::SESSION_KEY);
+
+        if (!$user || $user->isAdmin() || $impersonating || self::hasGivenFeedback($user)) {
             return null;
         }
 

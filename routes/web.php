@@ -125,6 +125,9 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     // General dashboard route
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin "Login as user": switch back to the admin account
+    Route::post('/impersonate/stop', [App\Http\Controllers\Admin\ImpersonationController::class, 'stop'])->name('impersonate.stop');
     
     // User Routes
         Route::prefix('user')->name('user.')->middleware('profile.complete')->group(function () {
@@ -452,6 +455,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::put('/users/{user}', [DashboardController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [DashboardController::class, 'deleteUser'])->name('users.delete');
         Route::post('/users/{user}/toggle-signups', [DashboardController::class, 'toggleSignups'])->name('users.toggle.signups');
+        Route::post('/users/{user}/impersonate', [App\Http\Controllers\Admin\ImpersonationController::class, 'start'])->name('users.impersonate');
 
         // Packages CRUD
         Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');

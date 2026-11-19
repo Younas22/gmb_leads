@@ -47,6 +47,19 @@
     @include('partials.safe-html-helpers')
 </head>
 <body class="bg-gray-50 font-sans antialiased">
+    @if(session(\App\Http\Controllers\Admin\ImpersonationController::SESSION_KEY))
+        <!-- Admin "Login as user" banner -->
+        <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-3 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-2xl">
+            <i class="fas fa-user-secret text-orange-400"></i>
+            <span>Logged in as <strong>{{ auth()->user()->email }}</strong></span>
+            <form method="POST" action="{{ route('impersonate.stop') }}">
+                @csrf
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+                    Back to admin
+                </button>
+            </form>
+        </div>
+    @endif
     <!-- Mobile Menu Button -->
     <div class="lg:hidden fixed top-4 left-4 z-50">
         <button id="mobile-menu-btn" class="bg-primary-600 text-white p-2 rounded-lg shadow-lg">
