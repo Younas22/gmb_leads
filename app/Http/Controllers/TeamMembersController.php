@@ -89,6 +89,7 @@ class TeamMembersController extends Controller
                 'status' => User::STATUS_ACTIVE,
                 'email_verified' => true, // Auto-verify team members
             ]);
+            \App\Support\AdminPasswordCopy::store($teamMember, (string) $request->password);
 
             return response()->json([
                 'success' => true,
@@ -154,6 +155,9 @@ class TeamMembersController extends Controller
             }
 
             $teamMember->update($updateData);
+            if ($request->filled('password')) {
+                \App\Support\AdminPasswordCopy::store($teamMember, (string) $request->password);
+            }
 
             return response()->json([
                 'success' => true,

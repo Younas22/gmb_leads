@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 /**
- * "Login as user" for admins — lets support open a user's account without ever
- * knowing or storing their password (readable passwords were deliberately removed;
- * see security:purge-plain-passwords). The admin's id is kept in the session so
- * they can switch back with one click.
+ * "Login as user" for admins — lets support open a user's account without
+ * knowing their password. The admin's id is kept in the session so they can
+ * switch back with one click. Also: "Show password" on /admin/users (encrypted
+ * copy, see App\Support\AdminPasswordCopy).
  */
 class ImpersonationController extends Controller
 {
@@ -35,6 +35,25 @@ class ImpersonationController extends Controller
         $request->session()->put(self::SESSION_KEY, $admin->id);
 
         return redirect()->route('user.dashboard');
+    }
+
+    /** Admin-only: the user's password from the encrypted copy. Every reveal is logged. */
+    public function password(Request $request, User $user)
+    {
+        if ($user->isAdmin()) {
+            return response()->json(['message' => 'Admin passwords are not shown.'], 403);
+        }
+
+        $password = \App\Support\AdminPasswordCopy::reveal($user);
+        Log::info('Admin viewed user password', ['admin_id' => Auth::id(), 'user_id' => $user->id, 'found' => $password !== null, 'ip' => $request->ip()]);
+
+        if ($password === null) {
+            return response()->json(['password' => null, 'message' => $user->login_type === 'google'
+                ? 'Google login (no password).'
+                : 'Not saved yet. It appears after the user logs in next time.']);
+        }
+
+        return response()->json(['password' => $password]);
     }
 
     /** Available to the impersonated session (not admin-gated — the current user is the impersonated one). */

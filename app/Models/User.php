@@ -51,6 +51,8 @@ class User extends Authenticatable
         // Legacy column (readable passwords). No longer written; purge with
         // `php artisan security:purge-plain-passwords`. Never serialize it.
         'plain_password',
+        // Encrypted admin-viewable copy (App\Support\AdminPasswordCopy). Never serialize it.
+        'password_copy',
         'extension_token',
         'remember_token',
         'password_reset_token',

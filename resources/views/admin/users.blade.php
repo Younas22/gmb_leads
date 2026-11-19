@@ -115,6 +115,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">WhatsApp</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Login Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Password</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Credits</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">New Signups</th>
@@ -186,6 +187,19 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                     <i class="fas fa-envelope mr-1"></i> Email
                                 </span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if(!$u->isAdmin())
+                                <div class="flex items-center gap-1.5">
+                                    <code id="pw_{{ $u->id }}" class="text-sm text-gray-500 font-mono">••••••</code>
+                                    <button type="button" onclick="revealPassword({{ $u->id }}, this)" data-url="{{ route('admin.users.password', $u) }}"
+                                            class="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors cursor-pointer" title="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            @else
+                                <span class="text-sm text-gray-400">Hidden</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -277,7 +291,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="12" class="px-6 py-12 text-center">
+                        <td colspan="13" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="bg-gray-100 rounded-full p-4 mb-4">
                                     <i class="fas fa-users text-gray-400 text-3xl"></i>
@@ -441,6 +455,30 @@
 @push('scripts')
 <script>
 const csrfToken = '{{ csrf_token() }}';
+
+// Show / hide a user's password (admin only; every reveal is logged on the server)
+async function revealPassword(id, btn) {
+    const el = document.getElementById('pw_' + id), icon = btn.querySelector('i');
+    if (btn.dataset.shown === '1') {
+        el.textContent = '••••••'; el.className = 'text-sm text-gray-500 font-mono';
+        btn.dataset.shown = ''; icon.className = 'fas fa-eye'; btn.title = 'Show password';
+        return;
+    }
+    btn.disabled = true;
+    try {
+        const res = await fetch(btn.dataset.url, { method: 'POST', credentials: 'same-origin',
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' } });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.message || 'Could not load the password.');
+        if (d.password) {
+            el.textContent = d.password; el.className = 'text-sm text-gray-900 font-mono bg-yellow-50 px-1.5 py-0.5 rounded select-all';
+            btn.dataset.shown = '1'; icon.className = 'fas fa-eye-slash'; btn.title = 'Hide password';
+        } else {
+            el.textContent = d.message; el.className = 'text-xs text-gray-400 whitespace-normal max-w-[11rem] inline-block';
+        }
+    } catch (err) { alert(err.message); }
+    finally { btn.disabled = false; }
+}
 
 // Change results per page
 function changePerPage(value) {

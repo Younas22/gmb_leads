@@ -460,6 +460,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/users/{user}', [DashboardController::class, 'deleteUser'])->name('users.delete');
         Route::post('/users/{user}/toggle-signups', [DashboardController::class, 'toggleSignups'])->name('users.toggle.signups');
         Route::post('/users/{user}/impersonate', [App\Http\Controllers\Admin\ImpersonationController::class, 'start'])->name('users.impersonate');
+        Route::post('/users/{user}/password', [App\Http\Controllers\Admin\ImpersonationController::class, 'password'])->middleware('throttle:30,1')->name('users.password');
 
         // Packages CRUD
         Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
