@@ -304,6 +304,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 
                         Route::put('/drafts/{draft}', [$d, 'update'])->whereNumber('draft')->name('draft.update');
                         Route::post('/drafts/{draft}/approve', [$d, 'approve'])->whereNumber('draft')->name('draft.approve');
+                        Route::post('/drafts/bulk-approve', [$d, 'bulkApprove'])->middleware('throttle:ai-outreach-write')->name('drafts.bulk-approve');
                         Route::post('/drafts/{draft}/discard', [$d, 'discard'])->whereNumber('draft')->name('draft.discard');
                         Route::post('/drafts/{draft}/restore', [$d, 'restore'])->whereNumber('draft')->name('draft.restore');
                     });

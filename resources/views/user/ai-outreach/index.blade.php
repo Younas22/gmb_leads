@@ -66,6 +66,7 @@
     {{-- Filters + results --}}
     <div class="ui-card">
         <form method="GET" class="p-3 sm:px-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2">
+            @if(request()->filled('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
             <div class="relative sm:col-span-2 lg:col-span-2">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
                 <input type="text" name="q" value="{{ request('q') }}" maxlength="100" placeholder="Search business name" aria-label="Search business name" class="ui-field !pl-8">
@@ -103,6 +104,10 @@
             </select>
             <input id="cnm-new-folder" type="text" name="new_folder" maxlength="100" placeholder="New folder name" aria-label="New folder name" class="ui-field ui-sm sm:!w-48 {{ $folders->isNotEmpty() ? 'hidden' : '' }}">
             <button class="ui-btn-light ui-sm"><i class="fas fa-folder-plus"></i> Add to folder</button>
+            <span class="hidden sm:inline text-slate-300" aria-hidden="true">|</span>
+            <button type="submit" formaction="{{ route('user.ai-outreach.drafts.bulk-approve') }}" data-testid="bulk-approve"
+                    onclick="return cnmConfirmBulkApprove()"
+                    class="ui-btn ui-sm !bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600"><i class="fas fa-check-double"></i> Approve emails</button>
             <a href="{{ route('user.folder-sends.create', array_filter(['folder_id' => request('folder')])) }}" class="sm:ml-auto ui-link"><i class="fas fa-paper-plane mr-1"></i> Send a folder</a>
         </form>
         @error('analysis_ids')<p class="px-4 pt-2 text-[12px] text-red-600">{{ $message }}</p>@enderror
@@ -110,15 +115,43 @@
 
         @include('user.ai-outreach._table', ['rows' => $analyses, 'selectable' => true])
 
-        @if($analyses->hasPages())
-            <div class="ui-card-f">{{ $analyses->links() }}</div>
-        @endif
+        {{-- Pagination + rows per page (like My Leads) --}}
+        <div class="ui-card-f flex flex-col lg:flex-row items-center justify-between gap-2.5">
+            <div class="flex flex-wrap items-center justify-center gap-3 text-[12.5px] text-slate-600">
+                @if($analyses->total() > 0)
+                    <span>Showing <strong class="text-gray-900">{{ $analyses->firstItem() }}</strong> to <strong class="text-gray-900">{{ $analyses->lastItem() }}</strong> of <strong class="text-gray-900">{{ $analyses->total() }}</strong> results</span>
+                @endif
+                <label class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500">Per page:</span>
+                    <select id="cnm-per-page" onchange="cnmChangePerPage(this.value)" class="ui-field ui-sm !w-20 cursor-pointer" data-testid="per-page">
+                        @foreach($perPageOptions as $n)
+                            <option value="{{ $n }}" @selected((string) request('per_page', $perPageDefault) === $n)>{{ $n }}</option>
+                        @endforeach
+                        <option value="all" @selected(request('per_page') === 'all')>All</option>
+                    </select>
+                </label>
+            </div>
+            @if($analyses->hasPages())
+                <div>{{ $analyses->links() }}</div>
+            @endif
+        </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
+function cnmChangePerPage(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', value);
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
+}
+function cnmConfirmBulkApprove() {
+    const n = document.querySelectorAll('.cnm-row-check:checked').length;
+    if (!n) { alert('Select at least one lead first.'); return false; }
+    return confirm('Approve the email drafts of ' + n + ' selected lead(s)? Drafts that are already approved, discarded or not written yet are skipped. Nothing is sent automatically.');
+}
 function cnmUpdateSelected() {
     const n = document.querySelectorAll('.cnm-row-check:checked').length;
     const el = document.getElementById('cnm-selected');

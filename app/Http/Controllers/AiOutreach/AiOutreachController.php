@@ -21,6 +21,10 @@ class AiOutreachController extends Controller
     {
     }
 
+    public const PER_PAGE_OPTIONS = ['10', '25', '50', '100', '200'];
+    public const PER_PAGE_DEFAULT = '25';
+    public const PER_PAGE_ALL_CAP = 1000;
+
     public function index(Request $request)
     {
         $owner = $request->user()->getAccountOwner();
@@ -30,7 +34,11 @@ class AiOutreachController extends Controller
             'review' => ['nullable', 'in:draft,approved,discarded,none'],
             'q' => ['nullable', 'string', 'max:100'],
             'folder' => ['nullable', 'integer'],
+            'per_page' => ['nullable', 'in:' . implode(',', array_merge(self::PER_PAGE_OPTIONS, ['all']))],
         ]);
+        // Rows per page (same idea as My Leads); "all" is capped so a huge account can't stall the page
+        $perPage = $request->input('per_page', self::PER_PAGE_DEFAULT);
+        $perPage = $perPage === 'all' ? self::PER_PAGE_ALL_CAP : (int) $perPage;
         $folders = \App\Models\LeadFolder::where('user_id', $owner->id)->orderBy('name')->get(['id', 'name', 'color']);
 
         $analyses = AiLeadAnalysis::ownedBy($owner)
@@ -47,7 +55,7 @@ class AiOutreachController extends Controller
                 }
             })
             ->latest('id')
-            ->paginate(25)
+            ->paginate($perPage)
             ->withQueryString();
 
         $batches = AiAnalysisBatch::where('owner_user_id', $owner->id)->latest('id')->limit(5)->get();
@@ -58,6 +66,8 @@ class AiOutreachController extends Controller
             'usage' => $this->usageData($request),
             'aiAvailable' => $this->ai->isAvailable(),
             'folders' => $folders,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
+            'perPageDefault' => self::PER_PAGE_DEFAULT,
         ]);
     }
 

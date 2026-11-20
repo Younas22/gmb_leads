@@ -54,6 +54,46 @@ class AiDraftController extends Controller
         return $this->respond($request, $model, 'Draft approved. Nothing is sent automatically.');
     }
 
+    /**
+     * Approve the current draft of every selected analysis at once (only drafts waiting
+     * for review; discarded and already approved ones are left alone). Nothing is sent.
+     */
+    public function bulkApprove(Request $request)
+    {
+        $data = $request->validate([
+            'analysis_ids' => ['required', 'array', 'min:1', 'max:1000'],
+            'analysis_ids.*' => ['integer'],
+        ], ['analysis_ids.required' => 'Select at least one lead.']);
+
+        $owner = $request->user()->getAccountOwner();
+        $drafts = AiEmailDraft::ownedBy($owner)
+            ->where('is_current', true)
+            ->where('review_status', AiEmailDraft::REVIEW_DRAFT)
+            ->whereIn('analysis_id', \App\Models\AiLeadAnalysis::ownedBy($owner)->whereIn('id', $data['analysis_ids'])->select('id'))
+            ->get();
+
+        foreach ($drafts as $model) {
+            $model->forceFill([
+                'review_status' => AiEmailDraft::REVIEW_APPROVED,
+                'approved_at' => now(),
+                'approved_by_user_id' => $request->user()->id,
+            ])->save();
+        }
+
+        $selected = count(array_unique($data['analysis_ids']));
+        $skipped = $selected - $drafts->count();
+        $message = $drafts->isEmpty()
+            ? 'Nothing to approve: the selected leads have no email draft waiting for review.'
+            : $drafts->count() . ' email draft(s) approved. Nothing is sent automatically.'
+                . ($skipped > 0 ? " {$skipped} skipped (no draft yet, already approved or discarded)." : '');
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'approved' => $drafts->count(), 'skipped' => $skipped, 'message' => $message]);
+        }
+
+        return back()->with($drafts->isEmpty() ? 'error' : 'success', $message);
+    }
+
     public function discard(Request $request, int $draft)
     {
         $model = $this->find($request, $draft);
