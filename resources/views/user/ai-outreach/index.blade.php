@@ -65,7 +65,7 @@
 
     {{-- Filters + results --}}
     <div class="ui-card">
-        <form method="GET" class="p-3 sm:px-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2">
+        <form method="GET" class="p-3 sm:px-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
             @if(request()->filled('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
             <div class="relative sm:col-span-2 lg:col-span-2">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -74,6 +74,11 @@
             <select name="folder" class="ui-field" aria-label="Folder">
                 <option value="">All folders</option>
                 @foreach($folders as $fo)<option value="{{ $fo->id }}" @selected((int) request('folder') === $fo->id)>{{ $fo->name }}</option>@endforeach
+            </select>
+            <select name="email" class="ui-field" aria-label="Email" data-testid="email-filter">
+                <option value="">Email: all</option>
+                <option value="has" @selected(request('email') === 'has')>Has email</option>
+                <option value="missing" @selected(request('email') === 'missing')>Missing email</option>
             </select>
             <select name="status" class="ui-field" aria-label="Analysis status">
                 <option value="">All analysis statuses</option>

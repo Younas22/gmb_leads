@@ -639,17 +639,8 @@
                                                 </button>
                                             </div>
                                         @endif
-                                        @if($lead->email)
-                                            <div class="flex items-center gap-1.5 text-[12px] text-slate-700 min-w-0 leading-5">
-                                                <i class="fas fa-envelope w-3.5 text-center text-slate-500 text-[10px] flex-shrink-0" aria-hidden="true"></i>
-                                                <span class="contact-detail break-all" data-type="email" data-original="{{ $lead->email }}">{{ $lead->email }}</span>
-                                                <button onclick="event.stopPropagation(); copyToClipboard(@js($lead->email), this)"
-                                                        class="cnm-copy copy-btn"
-                                                        title="Copy email" aria-label="Copy email">
-                                                    <i class="fas fa-copy text-[10px]"></i>
-                                                </button>
-                                            </div>
-                                        @endif
+                                        {{-- Email, or "No email" + Add email (saved on the lead, so AI Outreach shows it too) --}}
+                                        @include('user.partials._lead-email', ['lead' => $lead])
                                         @if($lead->website)
                                             <div class="flex items-center gap-1.5 text-[12px] min-w-0 leading-5">
                                                 <i class="fas fa-globe w-3.5 text-center text-slate-500 text-[10px] flex-shrink-0" aria-hidden="true"></i>
@@ -703,9 +694,6 @@
                                                     <i class="fas fa-ban" aria-hidden="true"></i> No Website · SEO Weak
                                                 </span>
                                             </div>
-                                        @endif
-                                        @if(!$lead->phone && !$lead->email && $lead->website)
-                                            <span class="text-xs text-slate-400 italic">No contact info</span>
                                         @endif
                                     </div>
                                 </td>

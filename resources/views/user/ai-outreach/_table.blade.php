@@ -7,6 +7,7 @@
             <tr>
                 @if($selectable)<th class="w-8"><input type="checkbox" class="ui-check" aria-label="Select all" onclick="document.querySelectorAll('.cnm-row-check').forEach(c => c.checked = this.checked); cnmUpdateSelected();"></th>@endif
                 <th>Business</th>
+                <th>Email</th>
                 <th>Website status</th>
                 <th>Audit status</th>
                 <th>Selected offer</th>
@@ -22,6 +23,13 @@
                         <div class="font-medium text-gray-900 break-words max-w-xs">{{ $row->lead?->name ?? 'Lead removed' }}</div>
                         @if($row->error_message && in_array($row->status, ['failed', 'quota_exhausted'], true))
                             <div class="text-[11.5px] text-red-600 mt-0.5 max-w-xs">{{ $row->error_message }}</div>
+                        @endif
+                    </td>
+                    <td class="min-w-[12rem]">
+                        @if($row->lead)
+                            @include('user.partials._lead-email', ['lead' => $row->lead])
+                        @else
+                            <span class="text-slate-400">—</span>
                         @endif
                     </td>
                     <td>@include('user.ai-outreach._badges', ['analysis' => $row, 'which' => 'website'])</td>
@@ -44,7 +52,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ $selectable ? 7 : 6 }}">
+                    <td colspan="{{ $selectable ? 8 : 7 }}">
                         <div class="ui-empty">
                             <div class="ui-empty-i"><i class="fas fa-wand-magic-sparkles"></i></div>
                             <p class="ui-empty-t">No AI analyses yet</p>

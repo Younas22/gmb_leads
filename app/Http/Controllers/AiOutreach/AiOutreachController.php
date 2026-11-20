@@ -34,6 +34,7 @@ class AiOutreachController extends Controller
             'review' => ['nullable', 'in:draft,approved,discarded,none'],
             'q' => ['nullable', 'string', 'max:100'],
             'folder' => ['nullable', 'integer'],
+            'email' => ['nullable', 'in:has,missing'],
             'per_page' => ['nullable', 'in:' . implode(',', array_merge(self::PER_PAGE_OPTIONS, ['all']))],
         ]);
         // Rows per page (same idea as My Leads); "all" is capped so a huge account can't stall the page
@@ -44,8 +45,11 @@ class AiOutreachController extends Controller
         $analyses = AiLeadAnalysis::ownedBy($owner)
             // Lead folders (same folders as My Leads)
             ->when($request->filled('folder'), fn ($q) => $q->whereIn('saved_lead_id', \Illuminate\Support\Facades\DB::table('lead_folder_items')->where('folder_id', $folders->firstWhere('id', (int) $request->folder)?->id ?? 0)->select('lead_id')))
-            ->with(['lead:id,name,website', 'recommendedOffer:id,title', 'currentDraft'])
+            ->with(['lead:id,name,website,email', 'recommendedOffer:id,title', 'currentDraft'])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+            // Lead has an email / is missing one (email is stored on the lead, shared with My Leads)
+            ->when($request->email === 'has', fn ($q) => $q->whereHas('lead', fn ($l) => $l->whereNotNull('email')->where('email', '!=', '')))
+            ->when($request->email === 'missing', fn ($q) => $q->whereHas('lead', fn ($l) => $l->where(fn ($w) => $w->whereNull('email')->orWhere('email', ''))))
             ->when($request->filled('q'), fn ($q) => $q->whereHas('lead', fn ($l) => $l->where('name', 'like', '%' . addcslashes($request->q, '%_\\') . '%')))
             ->when($request->filled('review'), function ($q) use ($request) {
                 if ($request->review === 'none') {
@@ -129,7 +133,7 @@ class AiOutreachController extends Controller
         $model = $this->findBatch($request, $batch);
 
         $items = $model->items()
-            ->with(['lead:id,name,website', 'recommendedOffer:id,title', 'currentDraft'])
+            ->with(['lead:id,name,website,email', 'recommendedOffer:id,title', 'currentDraft'])
             ->orderBy('id')
             ->paginate(50);
 

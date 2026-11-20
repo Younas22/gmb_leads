@@ -461,7 +461,12 @@ public function index(Request $request)
         $value   = $request->value ?? '';
 
         if ($channel === 'email') {
-            $lead->update(['email' => $value ?: null]);
+            $value = trim($value);
+            if ($value !== '' && (strlen($value) > 255 || !filter_var($value, FILTER_VALIDATE_EMAIL))) {
+                return response()->json(['success' => false, 'message' => 'Please enter a valid email address.'], 422);
+            }
+            // Same lead record is shown in My Leads and AI Outreach, so both update at once
+            $lead->update(['email' => $value !== '' ? strtolower($value) : null]);
         } elseif ($channel === 'whatsapp') {
             $lead->update(['phone' => $value ?: null]);
         } else {
@@ -500,7 +505,7 @@ public function index(Request $request)
             $lead->update(['social_links' => $links]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Contact updated']);
+        return response()->json(['success' => true, 'message' => 'Contact updated', 'email' => $lead->fresh()->email]);
     }
 
     /**
