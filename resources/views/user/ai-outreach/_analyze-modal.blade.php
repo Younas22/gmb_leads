@@ -25,6 +25,7 @@ window.cnmAiOutreachEnabled = true;
     const estimateUrl = @js(route('user.ai-outreach.estimate'));
     const startUrl = @js(route('user.ai-outreach.start'));
     let selectedIds = [];
+    let reanalyze = null; // leads already analysed with AI: null = not asked yet, true = analyse again, false = skip them
 
     function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''; }
     function esc(v) { return window.cnmEscape ? window.cnmEscape(v) : String(v); }
@@ -46,6 +47,26 @@ window.cnmAiOutreachEnabled = true;
 
     window.cnmOpenAnalyze = async function (ids) {
         selectedIds = (ids || []).map(n => parseInt(n, 10)).filter(n => n > 0);
+        reanalyze = null;
+        await check();
+    };
+
+    // Answer to "already analysed: analyse again or skip?"
+    window.cnmAnalyzeChoice = async function (again, analyzedIds) {
+        reanalyze = again;
+        if (!again) {
+            const skip = new Set(analyzedIds);
+            selectedIds = selectedIds.filter(id => !skip.has(id));
+            if (selectedIds.length === 0) {
+                document.getElementById('cnmAnalyzeBody').innerHTML = '<p class="text-gray-700"><i class="fas fa-circle-check text-emerald-500 mr-1"></i> All selected leads are already analysed with AI. Nothing new to analyse.</p>';
+                document.getElementById('cnmAnalyzeConfirm').disabled = true;
+                return;
+            }
+        }
+        await check();
+    };
+
+    async function check() {
         const modal = document.getElementById('cnmAnalyzeModal');
         const body = document.getElementById('cnmAnalyzeBody');
         const btn = document.getElementById('cnmAnalyzeConfirm');
@@ -82,9 +103,31 @@ window.cnmAiOutreachEnabled = true;
         } else {
             html += '<p class="mt-4 text-xs text-gray-500">Analyses run in the background. Failed analyses do not use your allowance.</p>';
         }
+        // Some leads were analysed before: ask once whether to analyse them again or skip them
+        const analyzed = (data.analyzed_ids || []).map(n => parseInt(n, 10));
+        if (analyzed.length && reanalyze === null) {
+            const n = analyzed.length, all = n === selectedIds.length;
+            html = '<div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3.5" data-testid="ai-reanalyze-question">'
+                + '<p class="font-semibold text-gray-900"><i class="fas fa-wand-magic-sparkles text-emerald-600 mr-1"></i> '
+                + (all ? (n === 1 ? 'This lead was already analysed with AI.' : 'All ' + n + ' selected leads were already analysed with AI.')
+                       : n + ' of the ' + selectedIds.length + ' selected leads ' + (n === 1 ? 'was' : 'were') + ' already analysed with AI.')
+                + '</p><p class="text-gray-600 mt-1">Analysing again uses your AI allowance again and creates a new email draft.</p>'
+                + '<div class="mt-3 flex flex-col sm:flex-row gap-2">'
+                + '<button type="button" onclick="cnmAnalyzeChoice(false, ' + JSON.stringify(analyzed) + ')" class="flex-1 px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-800 text-sm font-semibold hover:bg-gray-50 cursor-pointer">'
+                + (all ? 'Skip, do not analyse again' : 'Skip analysed leads') + '</button>'
+                + '<button type="button" onclick="cnmAnalyzeChoice(true, [])" class="flex-1 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold cursor-pointer">Analyse again</button>'
+                + '</div></div>';
+            body.innerHTML = html;
+            btn.disabled = true;
+            return;
+        }
+        if (analyzed.length && reanalyze === true) {
+            html = '<p class="mb-3 text-xs bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2"><i class="fas fa-rotate mr-1"></i> '
+                + analyzed.length + ' already analysed ' + (analyzed.length === 1 ? 'lead' : 'leads') + ' will be analysed again.</p>' + html;
+        }
         body.innerHTML = html;
         btn.disabled = !data.can_start;
-    };
+    }
 
     window.cnmCloseAnalyze = function () {
         document.getElementById('cnmAnalyzeModal').classList.add('hidden');

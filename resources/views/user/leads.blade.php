@@ -578,8 +578,10 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @foreach($leads as $lead)
-                            <tr class="hover:bg-slate-50 cursor-pointer lead-row transition-colors" data-lead-id="{{ $lead->id }}">
-                                <td class="w-12">
+                            @php $aiState = $aiStates[$lead->id] ?? null; @endphp
+                            <tr class="{{ $aiState === 'completed' ? 'bg-emerald-50/70 hover:bg-emerald-50' : ($aiState === 'open' ? 'bg-sky-50/60 hover:bg-sky-50' : 'hover:bg-slate-50') }} cursor-pointer lead-row transition-colors"
+                                data-lead-id="{{ $lead->id }}" data-ai-state="{{ $aiState }}">
+                                <td class="w-12 {{ $aiState === 'completed' ? 'border-l-4 border-emerald-400' : ($aiState === 'open' ? 'border-l-4 border-sky-400' : '') }}">
                                     <input type="checkbox"
                                            class="w-4 h-4 rounded border-slate-300 accent-orange-500 lead-checkbox"
                                            value="{{ $lead->id }}"
@@ -589,6 +591,15 @@
 
                                 <td>
                                     <div class="text-[13px] font-semibold text-gray-900 leading-snug break-words contact-detail" data-type="name" data-original="{{ $lead->name }}">{{ $lead->name }}</div>
+                                    @if($aiState === 'completed')
+                                        <span class="mt-1 inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800" title="This lead was analysed with AI" data-testid="ai-analyzed-badge">
+                                            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> AI analysed
+                                        </span>
+                                    @elseif($aiState === 'open')
+                                        <span class="mt-1 inline-flex items-center gap-1 text-[10.5px] font-semibold px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-800" title="AI analysis is queued or running">
+                                            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i> AI analysing
+                                        </span>
+                                    @endif
                                 </td>
 
                                 {{-- Lead Type Badge --}}

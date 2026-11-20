@@ -280,6 +280,21 @@ public function index(Request $request)
      ->paginate($perPage)
      ->withQueryString();
 
+    // AI analysis state per lead on this page: 'completed' (analysed) or 'open' (queued / analysing)
+    $aiStates = [];
+    if (\Illuminate\Support\Facades\Schema::hasTable('ai_lead_analyses') && $leads->isNotEmpty()) {
+        $rows = \App\Models\AiLeadAnalysis::ownedBy($user->getAccountOwner())
+            ->whereIn('saved_lead_id', $leads->pluck('id'))
+            ->whereIn('status', array_merge([\App\Models\AiLeadAnalysis::STATUS_COMPLETED], \App\Models\AiLeadAnalysis::OPEN_STATUSES))
+            ->get(['saved_lead_id', 'status']);
+        foreach ($rows as $r) {
+            $state = $r->status === \App\Models\AiLeadAnalysis::STATUS_COMPLETED ? 'completed' : 'open';
+            if (($aiStates[$r->saved_lead_id] ?? null) !== 'completed') {
+                $aiStates[$r->saved_lead_id] = $state; // a finished analysis wins over a running re-analysis
+            }
+        }
+    }
+
     // Countries for dropdown
     $countries = Country::orderBy('name')->get();
 
@@ -295,7 +310,7 @@ public function index(Request $request)
         'search', 'countryId', 'stateId', 'cityId',
         'status', 'rating', 'lastReview', 'reviewsCount',
         'hasEmail', 'hasPhone', 'hasWebsite', 'selectedUserId', 'leadCategory', 'hasFollowUp',
-        'folders', 'folderId'
+        'folders', 'folderId', 'aiStates'
     ));
     
 }

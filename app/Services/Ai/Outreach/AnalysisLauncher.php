@@ -48,6 +48,11 @@ class AnalysisLauncher
             ->pluck('saved_lead_id')->all();
 
         $toQueue = $leads->reject(fn ($l) => in_array($l->id, $openLeadIds, true));
+        // Leads that already have a finished AI analysis: the user is asked "analyse again or skip?"
+        $analyzedIds = AiLeadAnalysis::ownedBy($owner)
+            ->where('status', AiLeadAnalysis::STATUS_COMPLETED)
+            ->whereIn('saved_lead_id', $toQueue->pluck('id'))
+            ->distinct()->pluck('saved_lead_id')->map(fn ($id) => (int) $id)->values()->all();
         $count = $toQueue->count();
         $quota = $this->ai->quota();
 
@@ -98,6 +103,8 @@ class AnalysisLauncher
             'valid' => $leads->count(),
             'with_website' => $toQueue->filter(fn ($l) => trim((string) $l->website) !== '')->count(),
             'already_running' => count($openLeadIds),
+            'already_analyzed' => count($analyzedIds),
+            'analyzed_ids' => $analyzedIds,
             'to_queue' => $count,
             'quota' => $features,
             'ai_available' => $this->ai->isAvailable(),
