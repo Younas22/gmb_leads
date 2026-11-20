@@ -95,6 +95,57 @@ class FollowUpService
         return ['follow_up' => $followUp, 'problem' => null];
     }
 
+    /**
+     * After an email is sent: schedule a follow-up reminder automatically (N days later),
+     * so the user does not have to set the date. Never for campaigns, never twice for the
+     * same lead/contact while one is open, and only with the follow-ups plan feature.
+     */
+    public function autoScheduleAfterSend(OutboundEmail $email): ?EmailFollowUp
+    {
+        $days = (int) config('email_tracking.auto_follow_up_days', 3);
+        if ($days <= 0 || $email->campaign_id || $email->status !== OutboundEmail::STATUS_SENT) {
+            return null;
+        }
+        $sender = User::find($email->user_id);
+        if (!$sender || !\App\Services\PlanFeatures::enabled($sender, 'email_followups_enabled')) {
+            return null;
+        }
+
+        if (!$email->saved_lead_id && !$email->marketing_contact_id) {
+            return null;
+        }
+        // Same person = same lead, same contact, or an earlier email to the same address
+        $open = fn () => EmailFollowUp::where('owner_user_id', $email->owner_user_id)->open()
+            ->where(function ($q) use ($email) {
+                $q->whereIn('outbound_email_id', OutboundEmail::where('owner_user_id', $email->owner_user_id)
+                    ->where('to_email', $email->to_email)->select('id'));
+                if ($email->saved_lead_id) {
+                    $q->orWhere('saved_lead_id', $email->saved_lead_id);
+                }
+                if ($email->marketing_contact_id) {
+                    $q->orWhere('marketing_contact_id', $email->marketing_contact_id);
+                }
+            });
+
+        // This email IS the follow-up for reminders that were due: close them
+        foreach ($open()->where('due_date', '<=', today()->toDateString())->get() as $due) {
+            $this->complete($sender, $due, 'Followed up by email: "' . mb_substr((string) $email->subject, 0, 150) . '"');
+        }
+        if ($open()->exists()) {
+            return null; // the earlier reminder still stands
+        }
+
+        $due = ($email->sent_at ?? now())->copy()->addDays($days)->startOfDay();
+        $notes = 'Auto reminder: no reply yet? Follow up on "' . mb_substr((string) $email->subject, 0, 150) . '".';
+
+        if ($email->saved_lead_id && $email->lead) {
+            return $this->schedule($sender, $email->lead, $due, $notes, $email)['follow_up'];
+        }
+        $contact = $email->marketing_contact_id ? MarketingContact::find($email->marketing_contact_id) : null;
+
+        return $contact ? $this->scheduleForContact($sender, $contact, $due, $notes, $email)['follow_up'] : null;
+    }
+
     /** Cancel open reminders for whoever received $email (lead or contact), e.g. after a bounce. */
     public function cancelAllForEmailRecipient(?User $user, OutboundEmail $email, string $reason): int
     {

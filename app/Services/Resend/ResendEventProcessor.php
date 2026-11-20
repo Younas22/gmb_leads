@@ -198,8 +198,21 @@ class ResendEventProcessor
             return 'ignored';
         }
 
+        $already = EmailSuppression::isSuppressed($receipt->owner_user_id, $data['email']);
         EmailSuppression::suppress($receipt->owner_user_id, $data['email'], EmailSuppression::REASON_UNSUBSCRIBED);
-        $contact = MarketingContact::where('owner_user_id', $receipt->owner_user_id)->where('email_hash', MarketingContact::hashFor($data['email']))->first();
+
+        // Same bookkeeping as our own unsubscribe link: count it in Email Analytics
+        // ("Unsubscribes"), stop planned follow-ups and mark the lead as opted out.
+        $latest = OutboundEmail::where('owner_user_id', $receipt->owner_user_id)
+            ->where('to_email', EmailSuppression::normalize($data['email']))
+            ->where('status', OutboundEmail::STATUS_SENT)->latest('id')->first();
+        if ($latest && !$already) {
+            EventRecorder::forEmail($latest, EmailTrackingEvent::OPTED_OUT, EmailTrackingEvent::SOURCE_RESEND_WEBHOOK, 'opted_out:' . $latest->id);
+            $this->followUps->cancelAllForEmailRecipient(null, $latest, 'unsubscribed');
+            LeadSync::applyOptOut($latest->lead);
+        }
+
+        $contact =MarketingContact::where('owner_user_id', $receipt->owner_user_id)->where('email_hash', MarketingContact::hashFor($data['email']))->first();
         if ($contact) {
             MarketingConsentLog::record($contact, null, 'unsubscribed_via_resend', $contact->consent_status, MarketingContact::WITHDRAWN);
             $contact->forceFill(['consent_status' => MarketingContact::WITHDRAWN, 'unsubscribed_at' => $contact->unsubscribed_at ?? now()])->save();

@@ -25,6 +25,14 @@ class AiOutreachController extends Controller
     public const PER_PAGE_DEFAULT = '25';
     public const PER_PAGE_ALL_CAP = 1000;
 
+    /** Per-lead send status (from outbound_emails: Gmail, Resend and campaign sends). */
+    public const SEND_STATE_LABELS = [
+        'sent' => 'Sent',
+        'queued' => 'Sending',
+        'failed' => 'Send failed',
+        'not_sent' => 'Not sent',
+    ];
+
     public function index(Request $request)
     {
         $owner = $request->user()->getAccountOwner();
@@ -35,6 +43,7 @@ class AiOutreachController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
             'folder' => ['nullable', 'integer'],
             'email' => ['nullable', 'in:has,missing'],
+            'sent' => ['nullable', 'in:' . implode(',', array_keys(self::SEND_STATE_LABELS))],
             'per_page' => ['nullable', 'in:' . implode(',', array_merge(self::PER_PAGE_OPTIONS, ['all']))],
         ]);
         // Rows per page (same idea as My Leads); "all" is capped so a huge account can't stall the page
@@ -58,9 +67,12 @@ class AiOutreachController extends Controller
                     $q->whereHas('drafts', fn ($d) => $d->where('is_current', true)->where('review_status', $request->review));
                 }
             })
+            ->when($request->filled('sent'), fn ($q) => $this->applySendStateFilter($q, $owner->id, $request->sent))
             ->latest('id')
             ->paginate($perPage)
             ->withQueryString();
+
+        $sendStates = $this->sendStates($owner->id, $analyses->pluck('saved_lead_id')->filter()->unique()->all());
 
         $batches = AiAnalysisBatch::where('owner_user_id', $owner->id)->latest('id')->limit(5)->get();
 
@@ -70,9 +82,51 @@ class AiOutreachController extends Controller
             'usage' => $this->usageData($request),
             'aiAvailable' => $this->ai->isAvailable(),
             'folders' => $folders,
+            'sendStates' => $sendStates,
             'perPageOptions' => self::PER_PAGE_OPTIONS,
             'perPageDefault' => self::PER_PAGE_DEFAULT,
         ]);
+    }
+
+    /** Lead id => send state key for the given leads ('sent' beats 'queued' beats 'failed'; nothing = 'not_sent'). */
+    private function sendStates(int $ownerId, array $leadIds): array
+    {
+        if (!$leadIds) {
+            return [];
+        }
+
+        $rank = ['sent' => 3, 'queued' => 2, 'failed' => 1];
+        $states = [];
+        \App\Models\OutboundEmail::where('owner_user_id', $ownerId)
+            ->whereIn('saved_lead_id', $leadIds)
+            ->whereIn('status', ['sent', 'pending', 'sending', 'failed'])
+            ->select('saved_lead_id', 'status')
+            ->distinct()
+            ->get()
+            ->each(function ($e) use (&$states, $rank) {
+                $key = match ($e->status) { 'sent' => 'sent', 'failed' => 'failed', default => 'queued' };
+                if (($rank[$states[$e->saved_lead_id] ?? ''] ?? 0) < $rank[$key]) {
+                    $states[$e->saved_lead_id] = $key;
+                }
+            });
+
+        return $states;
+    }
+
+    /** Filter analyses by their lead's send state (same precedence as sendStates()). */
+    private function applySendStateFilter($query, int $ownerId, string $state): void
+    {
+        $emails = fn (array $statuses) => fn ($sub) => $sub->selectRaw('1')->from('outbound_emails')
+            ->whereColumn('outbound_emails.saved_lead_id', 'ai_lead_analyses.saved_lead_id')
+            ->where('outbound_emails.owner_user_id', $ownerId)
+            ->whereIn('outbound_emails.status', $statuses);
+
+        match ($state) {
+            'sent' => $query->whereExists($emails(['sent'])),
+            'queued' => $query->whereNotExists($emails(['sent']))->whereExists($emails(['pending', 'sending'])),
+            'failed' => $query->whereNotExists($emails(['sent', 'pending', 'sending']))->whereExists($emails(['failed'])),
+            'not_sent' => $query->whereNotExists($emails(['sent', 'pending', 'sending'])),
+        };
     }
 
     /** Put the selected analysed leads into a lead folder (existing, or a new one by name). */

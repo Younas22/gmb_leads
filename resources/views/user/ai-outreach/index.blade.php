@@ -65,7 +65,7 @@
 
     {{-- Filters + results --}}
     <div class="ui-card">
-        <form method="GET" class="p-3 sm:px-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+        <form method="GET" class="p-3 sm:px-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-2">
             @if(request()->filled('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
             <div class="relative sm:col-span-2 lg:col-span-2">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
@@ -94,6 +94,18 @@
                     <option value="discarded" @selected(request('review') === 'discarded')>Discarded</option>
                     <option value="none" @selected(request('review') === 'none')>No draft yet</option>
                 </select>
+            </div>
+            <select name="sent" class="ui-field" aria-label="Send status" data-testid="sent-filter">
+                <option value="">Send status: all</option>
+                @foreach(\App\Http\Controllers\AiOutreach\AiOutreachController::SEND_STATE_LABELS as $value => $label)
+                    <option value="{{ $value }}" @selected(request('sent') === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+            @php $hasFilters = collect(['q', 'folder', 'email', 'status', 'review', 'sent'])->contains(fn ($k) => request()->filled($k)); @endphp
+            <div class="flex gap-2 sm:col-span-2 lg:col-span-8 justify-end">
+                @if($hasFilters)
+                    <a href="{{ route('user.ai-outreach.index', request()->filled('per_page') ? ['per_page' => request('per_page')] : []) }}" class="ui-btn-light" data-testid="clear-filters"><i class="fas fa-xmark text-[11px]"></i> Clear filters</a>
+                @endif
                 <button class="ui-btn-dark"><i class="fas fa-filter text-[11px]"></i> Filter</button>
             </div>
         </form>
@@ -118,7 +130,7 @@
         @error('analysis_ids')<p class="px-4 pt-2 text-[12px] text-red-600">{{ $message }}</p>@enderror
         @error('folder_id')<p class="px-4 pt-2 text-[12px] text-red-600">{{ $message }}</p>@enderror
 
-        @include('user.ai-outreach._table', ['rows' => $analyses, 'selectable' => true])
+        @include('user.ai-outreach._table', ['rows' => $analyses, 'selectable' => true, 'sendStates' => $sendStates])
 
         {{-- Pagination + rows per page (like My Leads) --}}
         <div class="ui-card-f flex flex-col lg:flex-row items-center justify-between gap-2.5">

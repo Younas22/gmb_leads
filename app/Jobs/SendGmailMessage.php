@@ -167,6 +167,7 @@ class SendGmailMessage implements ShouldQueue
         try {
             EventRecorder::forEmail($email, EmailTrackingEvent::ACCEPTED, EmailTrackingEvent::SOURCE_GMAIL, 'accepted:' . $email->id, $email->user_id, [], $email->sent_at);
             LeadSync::markContacted($email->lead);
+            app(\App\Services\EmailTracking\FollowUpService::class)->autoScheduleAfterSend($email);
         } catch (Throwable $e) {
             Log::warning('Post-send bookkeeping failed', ['outbound_email_id' => $email->id, 'exception' => get_class($e)]);
         }

@@ -14,6 +14,30 @@ use App\Models\User;
 /** Phase 4: manual replies, follow-up reminders and lead status sync. */
 class ReplyAndFollowUpTest extends TrackingTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // These tests cover manual reminders; the automatic one has its own tests
+        // (Resend\ResendStatusesEndToEndTest, test_gmail_send_sets_the_follow_up_date_automatically).
+        config(['email_tracking.auto_follow_up_days' => 0]);
+    }
+
+    public function test_gmail_send_sets_the_follow_up_date_automatically(): void
+    {
+        config(['email_tracking.auto_follow_up_days' => 3]);
+        [, $email, $lead] = $this->sentEmail();
+
+        $f = EmailFollowUp::where('outbound_email_id', $email->id)->sole();
+        $this->assertSame('open', $f->status);
+        $this->assertSame(today()->addDays(3)->toDateString(), $f->due_date->toDateString());
+        $this->assertSame(today()->addDays(3)->toDateString(), $lead->fresh()->follow_up_date?->toDateString());
+
+        // Without the follow-ups plan feature nothing is created
+        config(['email_tracking.auto_follow_up_days' => 3]);
+        [, $email2] = $this->sentEmail($this->trackingSender(['email_followups_enabled' => '0']));
+        $this->assertSame(0, EmailFollowUp::where('outbound_email_id', $email2->id)->count());
+    }
+
     private function sentEmail(?User $user = null): array
     {
         $user ??= $this->trackingSender();

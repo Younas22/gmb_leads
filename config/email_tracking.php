@@ -39,6 +39,11 @@ return [
         'skype', 'linkedin', 'google-safety', 'googleimageproxy', 'microsoft office',
     ],
 
+    // Automatic follow-up reminder this many days after an email is sent to a lead
+    // (single Gmail / Resend emails, not campaigns). 0 = off. Skipped when the lead
+    // already has an open reminder, unsubscribed, or replied "not interested".
+    'auto_follow_up_days' => (int) env('EMAIL_AUTO_FOLLOW_UP_DAYS', 3),
+
     // Retention cleanup batch size (keeps each DELETE small on shared hosting)
     'cleanup_batch' => 1000,
 ];
