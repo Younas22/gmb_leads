@@ -345,11 +345,20 @@
             body: new FormData(this),
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
-        .then(async r => ({ ok: r.ok, data: await r.json().catch(() => ({})) }))
-        .then(({ ok, data }) => {
+        .then(async r => ({ ok: r.ok, status: r.status, redirected: r.redirected, data: await r.json().catch(() => null) }))
+        .then(({ ok, status, redirected, data }) => {
+            if (status === 419) {
+                return fbError('Your session expired. Please refresh the page and try again.');
+            }
+            if (data === null) {
+                // Not a JSON answer: a redirect (e.g. login) or a server error page
+                return fbError(redirected
+                    ? 'Please refresh the page (you may need to log in again) and try once more.'
+                    : 'Server error (' + status + ') while saving your feedback. Please try again in a moment.');
+            }
             if (!ok || !data.success) {
                 const firstError = data.errors ? Object.values(data.errors)[0][0] : null;
-                return fbError(firstError || data.message || 'Error submitting feedback.');
+                return fbError(firstError || data.message || 'Error submitting feedback (' + status + ').');
             }
             locked = false;
             dismissOnClose = false;

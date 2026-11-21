@@ -26,7 +26,7 @@ class FeedbackController extends Controller
         try {
             $suggestion = trim((string) $request->input('suggestion', ''));
 
-            UserFeedback::create([
+            $row = [
                 'user_id' => Auth::id(),
                 'rating' => $request->rating,
                 'feedback_type' => $request->input('feedback_type') ?: 'general',
@@ -37,14 +37,24 @@ class FeedbackController extends Controller
                 'user_agent' => $request->userAgent(),
                 'ip_address' => $request->ip(),
                 'status' => 'pending'
-            ]);
+            ];
+            // Until the 2026_11_22 migration has run, save without the new columns instead of failing
+            foreach (['suggestion', 'used_before'] as $col) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('user_feedback', $col)) {
+                    if ($col === 'suggestion' && $row['suggestion']) {
+                        $row['message'] .= "\n\nSuggestion: " . $row['suggestion'];
+                    }
+                    unset($row[$col]);
+                }
+            }
+            UserFeedback::create($row);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Thank you for your feedback! We appreciate your input and will review it soon.'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Feedback submission error: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'request_data' => $request->all()
@@ -77,7 +87,9 @@ class FeedbackController extends Controller
             ], 422);
         }
 
-        $user->forceFill(['feedback_prompt_dismissed_at' => now()])->save();
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'feedback_prompt_dismissed_at')) {
+            $user->forceFill(['feedback_prompt_dismissed_at' => now()])->save();
+        }
 
         return response()->json(['success' => true]);
     }

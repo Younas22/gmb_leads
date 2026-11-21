@@ -21,6 +21,9 @@ class EnsureProfileIsComplete
         'user.account.delete',
         'user.data.clear',
         'user.verification.send',
+        // The feedback prompt opens on every page (also on the profile page), so it must work here too
+        'user.feedback.store',
+        'user.feedback.dismiss-prompt',
     ];
 
     /**

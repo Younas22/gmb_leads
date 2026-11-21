@@ -105,6 +105,19 @@ class FeedbackPromptTest extends SecurityTestCase
             ->assertSee('const FB_PROMPT = null', false);
     }
 
+    public function test_user_without_whatsapp_can_still_submit_and_dismiss(): void
+    {
+        // The prompt also opens on the profile page, where these users are sent first
+        $user = $this->makeUser(['whatsapp_number' => null]);
+
+        $this->actingAs($user)->postJson(route('user.feedback.store'), ['rating' => 4, 'message' => 'Works well for finding leads.'])
+            ->assertOk()->assertJsonPath('success', true);
+        $this->assertDatabaseHas('user_feedback', ['user_id' => $user->id, 'rating' => 4]);
+
+        $other = $this->makeUser(['whatsapp_number' => null]);
+        $this->actingAs($other)->postJson(route('user.feedback.dismiss-prompt'))->assertOk();
+    }
+
     public function test_admin_is_never_prompted(): void
     {
         $this->assertNull(\App\Services\FeedbackPrompt::state($this->makeAdmin()));
