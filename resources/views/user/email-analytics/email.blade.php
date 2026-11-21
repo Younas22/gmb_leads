@@ -28,6 +28,24 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
+            {{-- Tracking for this email: each status, or why it is not known --}}
+            <section class="bg-white border border-gray-200 rounded-2xl p-5" data-testid="email-tracking">
+                <h2 class="text-base font-semibold text-gray-900 mb-3">Tracking</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    @foreach($tracking as $t)
+                        <div class="rounded-lg border px-3 py-2 {{ $t['ok'] ? 'border-emerald-200 bg-emerald-50/60' : 'border-gray-200 bg-gray-50' }}">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-medium text-gray-600">{{ $t['label'] }}</span>
+                                <span class="text-sm font-semibold {{ $t['ok'] ? 'text-emerald-700' : 'text-gray-700' }}">
+                                    @if($t['ok'])<i class="fas fa-check-circle mr-1"></i>@endif{{ $t['value'] }}
+                                </span>
+                            </div>
+                            @if($t['why'])<p class="text-[11.5px] text-gray-500 mt-1">{{ $t['why'] }}</p>@endif
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
             {{-- Reply --}}
             <section class="bg-white border border-gray-200 rounded-2xl p-5" id="reply">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">

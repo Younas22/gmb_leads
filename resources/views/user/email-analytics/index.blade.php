@@ -102,6 +102,36 @@
         Showing emails queued {{ $filters['from']->format('M j, Y') }} – {{ $filters['to']->format('M j, Y') }}@if($leadName) for <strong>{{ $leadName }}</strong>@endif. All counts below describe these emails, including clicks and replies that came in later.
     </p>
 
+    {{-- Tracking setup: why opens / clicks / replies may be missing, and the one-click fix --}}
+    @if(!empty($trackingGaps))
+        <section class="ui-card ui-card-b !border-amber-200 !bg-amber-50/60" data-testid="tracking-setup">
+            <h2 class="ui-card-t !text-amber-900"><i class="fas fa-triangle-exclamation !text-amber-600"></i> Tracking setup</h2>
+            <ul class="mt-2 space-y-2.5">
+                @foreach($trackingGaps as $gap)
+                    <li class="flex flex-col sm:flex-row sm:items-center gap-2 justify-between bg-white border border-amber-100 rounded-lg px-3 py-2">
+                        <div class="min-w-0">
+                            <p class="text-[13px] font-semibold text-gray-900">{{ $gap['title'] }}</p>
+                            <p class="text-[12px] text-slate-600">{{ $gap['text'] }}</p>
+                        </div>
+                        @if(!empty($gap['action']))
+                            @if($gap['action']['type'] === 'resend_tracking' && !auth()->user()->isTeamMember())
+                                <form method="POST" action="{{ route('user.email-sending.resend.domains.tracking', $gap['action']['domain_id']) }}" class="shrink-0">
+                                    @csrf @method('PUT')
+                                    <input type="hidden" name="open_tracking" value="1">
+                                    <input type="hidden" name="click_tracking" value="1">
+                                    <input type="hidden" name="confirm" value="1">
+                                    <button class="ui-btn ui-sm cursor-pointer"><i class="fas fa-toggle-on"></i> {{ $gap['action']['label'] }}</button>
+                                </form>
+                            @elseif($gap['action']['type'] === 'link')
+                                <a href="{{ $gap['action']['url'] }}" class="ui-btn-light ui-sm shrink-0">{{ $gap['action']['label'] }}</a>
+                            @endif
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     {{-- Summary cards --}}
     <div class="ui-stats c5" data-testid="summary-cards">
         @foreach([

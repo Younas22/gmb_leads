@@ -129,6 +129,19 @@ class ResendSettingsController extends Controller
         return $result['problem'] ? back()->withErrors(['sender' => $result['problem']])->withInput() : back()->with('success', 'Sender ' . $result['sender']->from_email . ' added.');
     }
 
+    /** Change where replies to this sender's emails go (Reply-To). Empty = replies go to the sender address. */
+    public function updateSender(Request $request, int $sender)
+    {
+        $this->owner($request);
+        $data = $request->validate(['reply_to' => ['nullable', 'email', 'max:254']]);
+        $model = ResendSender::where('owner_user_id', $request->user()->getAccountOwner()->id)->findOrFail($sender);
+        $model->forceFill(['reply_to' => filled($data['reply_to'] ?? null) ? mb_strtolower(trim($data['reply_to'])) : null])->save();
+
+        return back()->with('success', $model->reply_to
+            ? 'Replies to ' . $model->from_email . ' will now go to ' . $model->reply_to . '.'
+            : 'Replies will go to ' . $model->from_email . '.');
+    }
+
     public function deleteSender(Request $request, int $sender)
     {
         $this->owner($request);

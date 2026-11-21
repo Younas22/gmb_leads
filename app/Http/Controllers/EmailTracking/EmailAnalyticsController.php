@@ -83,6 +83,8 @@ class EmailAnalyticsController extends Controller
             'members' => $members,
             'leadName' => $leadName,
             'campaigns' => \App\Models\EmailCampaign::ownedBy($owner)->latest('id')->limit(100)->get(['id', 'name']),
+            // What is missing for opens / clicks / replies to be tracked, with the fix for each
+            'trackingGaps' => \App\Services\EmailTracking\TrackingSetup::gaps($user),
             'upcomingFollowUps' => PlanFeatures::enabled($user, 'email_followups_enabled')
                 ? EmailFollowUp::ownedBy($owner)->open()->where('due_date', '<=', today()->addDays(7)->toDateString())
                     ->with('lead:id,name')->orderBy('due_date')->limit(8)->get()
@@ -110,6 +112,7 @@ class EmailAnalyticsController extends Controller
             'links' => $links,
             'timeline' => $this->timeline->forEmail($owner, $model),
             'canRecordReply' => $replies->canRecord($model),
+            'tracking' => $this->trackingFor($model),
             'followUps' => EmailFollowUp::ownedBy($owner)->where('outbound_email_id', $model->id)->latest('due_date')->get(),
             'followUpsEnabled' => PlanFeatures::enabled($user, 'email_followups_enabled'),
             'followUpBlocked' => match (true) {
@@ -118,6 +121,55 @@ class EmailAnalyticsController extends Controller
                 default => 'This email is not linked to a lead or contact.',
             },
         ]);
+    }
+
+    /**
+     * Delivered / opened / clicked / replied for one email, each with the reason when
+     * it cannot be known (so "nothing tracked" is never a mystery).
+     *
+     * @return list<array{label: string, value: string, ok: ?bool, why: ?string}>
+     */
+    private function trackingFor(\App\Models\OutboundEmail $email): array
+    {
+        $events = \App\Models\EmailTrackingEvent::where('outbound_email_id', $email->id)->get(['event_type', 'classification', 'occurred_at']);
+        $first = fn (array $types) => $events->whereIn('event_type', $types)->sortBy('occurred_at')->first();
+        $resend = $email->provider === \App\Models\OutboundEmail::PROVIDER_RESEND;
+        $domain = $resend ? \App\Models\ResendDomain::where('owner_user_id', $email->owner_user_id)
+            ->where('name', substr(strrchr((string) $email->from_email, '@'), 1))->first() : null;
+
+        $opened = $resend
+            ? $first([\App\Models\EmailTrackingEvent::PROVIDER_OPENED])
+            : $events->where('event_type', \App\Models\EmailTrackingEvent::OPENED)->where('classification', \App\Models\EmailTrackingEvent::HUMAN)->sortBy('occurred_at')->first();
+        $clicked = $first([\App\Models\EmailTrackingEvent::PROVIDER_CLICKED, \App\Models\EmailTrackingEvent::LINK_CLICK]);
+        $reply = \App\Models\EmailReplyRecord::where('outbound_email_id', $email->id)->first();
+
+        $openWhy = match (true) {
+            (bool) $opened => null,
+            $resend && $domain && !$domain->open_tracking => 'Open tracking is off for ' . $domain->name . ' in Resend, so Resend does not report opens. Turn it on (Email Analytics → Tracking setup); it works for emails sent after that.',
+            $resend => 'Resend has not reported an open yet. Some mail apps block images, so not every open can be seen.',
+            !($email->open_tracking || $email->link_tracking) => 'Tracking was off when this email was sent.',
+            default => 'No open seen yet. Some mail apps block images, so not every open can be seen.',
+        };
+        $clickWhy = match (true) {
+            (bool) $clicked => null,
+            $resend && $domain && !$domain->click_tracking => 'Click tracking is off for ' . $domain->name . ' in Resend.',
+            !$resend && !$email->link_tracking => 'No tracked links in this email (or tracking was off).',
+            default => 'No click yet.',
+        };
+        $replyWhy = $reply ? null : (\App\Models\ConnectedEmailAccount::where('owner_user_id', $email->owner_user_id)->get()->contains->canReadReplies()
+            ? 'No reply found yet. The inbox is checked every 10 minutes.'
+            : 'Replies are not read automatically for this account (no Gmail with read access). Use "Record reply" when one arrives.');
+
+        $at = fn ($e) => $e?->occurred_at?->format('M j, H:i');
+
+        return [
+            ['label' => 'Delivered', 'ok' => $resend ? (bool) $email->delivered_at : null,
+                'value' => $resend ? ($email->delivered_at ? $email->delivered_at->format('M j, H:i') : ($email->bounced_at ? 'Bounced' : 'Not yet')) : 'Not available (Gmail)',
+                'why' => $resend ? null : 'Gmail does not report delivery.'],
+            ['label' => 'Opened', 'ok' => (bool) $opened, 'value' => $opened ? $at($opened) : 'Not seen', 'why' => $openWhy],
+            ['label' => 'Clicked', 'ok' => (bool) $clicked, 'value' => $clicked ? $at($clicked) : 'Not seen', 'why' => $clickWhy],
+            ['label' => 'Replied', 'ok' => (bool) $reply, 'value' => $reply ? $reply->reply_received_at?->format('M j, H:i') . ($reply->source === 'gmail_inbox' ? ' (found in Gmail)' : ' (recorded)') : 'Not seen', 'why' => $replyWhy],
+        ];
     }
 
     public function lead(Request $request, int $lead, FollowUpService $followUps)

@@ -350,6 +350,7 @@ Route::middleware(['web', 'auth'])->group(function () {
                         Route::post('/domains/{domain}/refresh', [$s, 'refreshDomain'])->whereNumber('domain')->middleware('throttle:ai-outreach-write')->name('domains.refresh');
                         Route::put('/domains/{domain}/tracking', [$s, 'domainTracking'])->whereNumber('domain')->name('domains.tracking');
                         Route::post('/senders', [$s, 'addSender'])->name('senders.store');
+                        Route::put('/senders/{sender}', [$s, 'updateSender'])->whereNumber('sender')->name('senders.update');
                         Route::delete('/senders/{sender}', [$s, 'deleteSender'])->whereNumber('sender')->name('senders.destroy');
                         Route::post('/webhook', [$s, 'createWebhook'])->middleware('throttle:ai-outreach-write')->name('webhook.create');
                         Route::put('/webhook/secret', [$s, 'webhookSecret'])->name('webhook.secret');

@@ -143,10 +143,23 @@
             <h2 class="text-base font-semibold text-gray-900 mb-3">Sender identities</h2>
             <ul class="divide-y divide-gray-100 mb-4">
                 @forelse($senders as $s)
-                    <li class="py-2 flex items-center justify-between gap-2 text-sm">
-                        <span><span class="font-medium text-gray-900">{{ $s->from_name }}</span> &lt;{{ $s->from_email }}&gt; @unless($s->canSend())<span class="text-xs text-amber-700">(domain not verified)</span>@endunless</span>
+                    <li class="py-2 text-sm" id="sender-{{ $s->id }}">
+                        <div class="flex items-center justify-between gap-2">
+                            <span><span class="font-medium text-gray-900">{{ $s->from_name }}</span> &lt;{{ $s->from_email }}&gt; @unless($s->canSend())<span class="text-xs text-amber-700">(domain not verified)</span>@endunless</span>
+                            @if($canManage)
+                                <form method="POST" action="{{ route('user.email-sending.resend.senders.destroy', $s->id) }}">@csrf @method('DELETE')<button class="text-xs text-gray-500 hover:text-red-600 cursor-pointer">Remove</button></form>
+                            @endif
+                        </div>
+                        {{-- Where replies go. Use your connected Gmail so replies are found automatically. --}}
                         @if($canManage)
-                            <form method="POST" action="{{ route('user.email-sending.resend.senders.destroy', $s->id) }}">@csrf @method('DELETE')<button class="text-xs text-gray-500 hover:text-red-600">Remove</button></form>
+                            <form method="POST" action="{{ route('user.email-sending.resend.senders.update', $s->id) }}" class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">@csrf @method('PUT')
+                                <label for="reply-{{ $s->id }}" class="text-gray-600">Replies go to:</label>
+                                <input id="reply-{{ $s->id }}" name="reply_to" type="email" maxlength="254" value="{{ $s->reply_to }}" placeholder="{{ $s->from_email }}" class="px-2 py-1 border border-gray-300 rounded-md text-xs w-56">
+                                <button class="px-2 py-1 rounded-md border border-gray-300 hover:bg-gray-50 cursor-pointer">Save</button>
+                                <span class="text-gray-500">Tip: use your connected Gmail so replies are found and tracked automatically.</span>
+                            </form>
+                        @elseif($s->reply_to)
+                            <p class="mt-1 text-xs text-gray-500">Replies go to {{ $s->reply_to }}</p>
                         @endif
                     </li>
                 @empty
