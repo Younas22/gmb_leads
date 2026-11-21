@@ -115,7 +115,7 @@ class EmailAnalytics
             ->where('classification', EmailTrackingEvent::HUMAN)
             ->whereIn('outbound_email_id', $ids)
             ->toBase()->selectRaw('COUNT(*) AS n, COUNT(DISTINCT outbound_email_id) AS u')->first();
-        $repliesDetected = EmailReplyRecord::where('owner_user_id', $owner->id)->whereIn('outbound_email_id', $ids)->where('source', 'gmail_inbox')->count();
+        $repliesDetected = EmailReplyRecord::where('owner_user_id', $owner->id)->whereIn('outbound_email_id', $ids)->whereIn('source', ['gmail_inbox', 'resend_inbound'])->count();
 
         // No Resend emails in the selection = no delivery evidence at all ("Not available", never 0)
         $gmailOnly = ($filters['provider'] ?? null) === OutboundEmail::PROVIDER_GMAIL || $resendAccepted === 0;

@@ -100,10 +100,10 @@ class ReplyService
     }
 
     /**
-     * A reply found automatically in the connected Gmail inbox. Only creates a record
+     * A reply found automatically (connected Gmail inbox or Resend receiving). Only creates a record
      * when none exists (a reply the user recorded or corrected is never overwritten).
      */
-    public function recordDetected(OutboundEmail $email, Carbon $receivedAt): ?EmailReplyRecord
+    public function recordDetected(OutboundEmail $email, Carbon $receivedAt, string $source = 'gmail_inbox', string $eventSource = EmailTrackingEvent::SOURCE_GMAIL_INBOX): ?EmailReplyRecord
     {
         if (!$this->canRecord($email) || EmailReplyRecord::where('outbound_email_id', $email->id)->exists()) {
             return null;
@@ -113,7 +113,7 @@ class ReplyService
             'owner_user_id' => $email->owner_user_id,
             'outbound_email_id' => $email->id,
             'saved_lead_id' => $email->saved_lead_id,
-            'source' => 'gmail_inbox',
+            'source' => $source,
             'recorded_by_user_id' => $email->user_id,
             'reply_status' => 'replied',
             'reply_received_at' => $receivedAt,
@@ -121,7 +121,7 @@ class ReplyService
         ]);
         $reply->save();
 
-        EventRecorder::forEmail($email, EmailTrackingEvent::REPLY_DETECTED, EmailTrackingEvent::SOURCE_GMAIL_INBOX,
+        EventRecorder::forEmail($email, EmailTrackingEvent::REPLY_DETECTED, $eventSource,
             'reply_detected:' . $email->id, null, [], $receivedAt);
         LeadSync::applyReply($email->lead, 'replied');
 

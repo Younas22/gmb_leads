@@ -130,15 +130,46 @@ class ResendDomainService
             return 'Your plan does not include email tracking.';
         }
 
+        $client = ResendConnectionService::client($domain->integration);
         try {
-            ResendConnectionService::client($domain->integration)->updateDomain($domain->provider_domain_id, ['open_tracking' => $open, 'click_tracking' => $click]);
+            $fields = ['open_tracking' => $open, 'click_tracking' => $click];
+            // Resend only applies open/click tracking once the domain has a (verified) tracking
+            // subdomain. Add "links.<domain>" when there is none yet (an existing one is kept).
+            if ($open || $click) {
+                $current = $client->getDomain($domain->provider_domain_id);
+                if (blank($current['tracking_subdomain'] ?? null)) {
+                    $fields['tracking_subdomain'] = (string) config('resend_user.tracking_subdomain', 'links');
+                }
+            }
+            $client->updateDomain($domain->provider_domain_id, $fields);
         } catch (ResendException $e) {
             return $e->getMessage();
         }
-        $domain->forceFill(['open_tracking' => $open, 'click_tracking' => $click])->save();
+
+        // Store what Resend actually reports (records now include the tracking DNS record)
+        try {
+            $this->upsert($domain->integration, $client->getDomain($domain->provider_domain_id));
+        } catch (ResendException) {
+            $domain->forceFill(['open_tracking' => $open, 'click_tracking' => $click])->save();
+        }
         EmailAuditLog::record($domain->owner_user_id, $user->id, 'resend_domain_tracking', null, ['domain' => $domain->name, 'open' => $open, 'click' => $click]);
 
         return null;
+    }
+
+    /**
+     * The tracking-subdomain DNS record Resend asks for (null when there is none yet).
+     *
+     * @return array{type: ?string, name: ?string, value: ?string, status: ?string}|null
+     */
+    public static function trackingRecord(ResendDomain $domain): ?array
+    {
+        $sub = mb_strtolower((string) config('resend_user.tracking_subdomain', 'links'));
+        $r = collect((array) $domain->records)->first(fn ($r) => str_contains(mb_strtolower((string) ($r['record'] ?? '')), 'track')
+            || mb_strtolower((string) ($r['name'] ?? '')) === $sub
+            || str_starts_with(mb_strtolower((string) ($r['name'] ?? '')), $sub . '.'));
+
+        return $r ? ['type' => $r['type'] ?? null, 'name' => $r['name'] ?? null, 'value' => $r['value'] ?? null, 'status' => $r['status'] ?? null] : null;
     }
 
     /** @return array{sender: ?ResendSender, problem: ?string} */

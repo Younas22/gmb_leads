@@ -83,7 +83,7 @@ class GmailMessageBuilder
     }
 
     /** The plain text as simple HTML: escaped, links clickable, line breaks kept, plus the open pixel. */
-    public static function html(string $text, string $pixelUrl): string
+    public static function html(string $text, ?string $pixelUrl): string
     {
         $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $linked = preg_replace_callback('~https?://[^\s<>"\']+~i', function ($m) {
@@ -95,7 +95,9 @@ class GmailMessageBuilder
 
         return '<!DOCTYPE html><html><body><div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#222">'
             . nl2br($linked, false)
-            . '</div><img src="' . htmlspecialchars($pixelUrl, ENT_QUOTES, 'UTF-8') . '" width="1" height="1" alt="" style="display:block;border:0;width:1px;height:1px"></body></html>';
+            . '</div>'
+            . ($pixelUrl !== null ? '<img src="' . htmlspecialchars($pixelUrl, ENT_QUOTES, 'UTF-8') . '" width="1" height="1" alt="" style="display:block;border:0;width:1px;height:1px">' : '')
+            . '</body></html>';
     }
 
     private function mailbox(string $name, string $email): string

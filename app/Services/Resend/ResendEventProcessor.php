@@ -61,6 +61,7 @@ class ResendEventProcessor
             isset(self::MAP[$type]) => $this->emailEvent($receipt, $data),
             $type === 'contact.updated' => $this->contactUpdated($receipt, $data),
             $type === 'domain.updated' => $this->domainUpdated($receipt, $data),
+            $type === 'email.received' => $this->emailReceived($receipt, $data),
             default => 'ignored', // e.g. email.received: inbound handling is not enabled
         };
 
@@ -217,6 +218,33 @@ class ResendEventProcessor
             MarketingConsentLog::record($contact, null, 'unsubscribed_via_resend', $contact->consent_status, MarketingContact::WITHDRAWN);
             $contact->forceFill(['consent_status' => MarketingContact::WITHDRAWN, 'unsubscribed_at' => $contact->unsubscribed_at ?? now()])->save();
         }
+
+        return 'processed';
+    }
+
+    /**
+     * An email arrived at the customer's Resend receiving address. When it comes from
+     * someone this account emailed in the last 30 days, it is recorded as their reply
+     * (the latest email sent to that address before it arrived).
+     */
+    private function emailReceived(ResendWebhookReceipt $receipt, array $data): string
+    {
+        if (empty($data['from'])) {
+            return 'ignored';
+        }
+        $at = $receipt->event_created_at ?? $receipt->created_at;
+
+        $email = OutboundEmail::where('owner_user_id', $receipt->owner_user_id)
+            ->where('to_email', EmailSuppression::normalize($data['from']))
+            ->where('status', OutboundEmail::STATUS_SENT)
+            ->where('sent_at', '<=', $at)
+            ->where('sent_at', '>=', $at->copy()->subDays(30))
+            ->latest('sent_at')->first();
+        if (!$email) {
+            return 'ignored'; // not a reply to an email sent from CustomerNearMe
+        }
+
+        app(\App\Services\EmailTracking\ReplyService::class)->recordDetected($email, $at, 'resend_inbound', EmailTrackingEvent::SOURCE_RESEND_WEBHOOK);
 
         return 'processed';
     }

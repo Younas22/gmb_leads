@@ -45,7 +45,12 @@ return [
         'email.sent', 'email.delivered', 'email.delivery_delayed', 'email.bounced',
         'email.complained', 'email.failed', 'email.suppressed', 'email.opened',
         'email.clicked', 'contact.updated', 'domain.updated',
+        // Replies sent to a Resend receiving address (see ResendEventProcessor::emailReceived)
+        'email.received',
     ],
+
+    // Subdomain Resend uses for open/click tracking ("links" => links.<your domain>)
+    'tracking_subdomain' => 'links',
 
     // Unmatched webhook events (arrived before our row was finalised) are retried for this long
     'unmatched_retry_minutes' => 60,

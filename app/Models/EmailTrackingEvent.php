@@ -80,7 +80,7 @@ class EmailTrackingEvent extends Model
         self::PROVIDER_OPENED => 'Open reported by Resend',
         self::PROVIDER_CLICKED => 'Click reported by Resend',
         self::OPENED => 'Email opened (images loaded)',
-        self::REPLY_DETECTED => 'Reply found in your Gmail inbox',
+        self::REPLY_DETECTED => 'Reply received (detected automatically)',
     ];
 
     public const SOURCE_LABELS = [

@@ -31,7 +31,16 @@ class TrackingSetup
 
         if ($trackingPlan) {
             foreach (ResendDomain::where('owner_user_id', $owner->id)->where('status', 'verified')->get() as $d) {
-                if (!$d->open_tracking || !$d->click_tracking) {
+                $record = \App\Services\Resend\ResendDomainService::trackingRecord($d);
+                if ($record && ($record['status'] ?? '') !== 'verified') {
+                    // Tracking was asked for; Resend applies it once this DNS record is verified
+                    $gaps[] = [
+                        'key' => 'resend_tracking_dns_' . $d->id,
+                        'title' => 'One DNS record left to finish open & click tracking for ' . $d->name,
+                        'text' => 'Add this record at your DNS provider, then press "Check again": ' . strtoupper((string) $record['type']) . ' · ' . $record['name'] . ' → ' . $record['value'] . '. Opens and clicks are tracked for emails sent after it is verified.',
+                        'action' => ['type' => 'resend_refresh', 'domain_id' => $d->id, 'label' => 'Check again'],
+                    ];
+                } elseif (!$d->open_tracking || !$d->click_tracking) {
                     $gaps[] = [
                         'key' => 'resend_tracking_' . $d->id,
                         'title' => 'Opens and clicks are off for ' . $d->name . ' (Resend)',
@@ -50,9 +59,24 @@ class TrackingSetup
             }
         }
 
-        // Replies: found automatically only in a connected Gmail inbox with read-only access
+        // Replies to Resend emails: detected when they go to a Resend receiving address
+        // (sender Reply-To) and the webhook sends "email.received".
         $readers = ConnectedEmailAccount::where('owner_user_id', $owner->id)->get()->filter->canReadReplies();
-        if ($readers->isEmpty()) {
+        $resendReplies = \App\Models\EmailReplyRecord::where('owner_user_id', $owner->id)->where('source', 'resend_inbound')->exists();
+        if ($usesResend && $readers->isEmpty() && !$resendReplies) {
+            $senders = ResendSender::where('owner_user_id', $owner->id)->get();
+            $gaps[] = [
+                'key' => 'resend_replies',
+                'title' => 'Replies to Resend emails are not detected yet',
+                'text' => 'Resend can receive the replies for you: 1) in Resend, turn on Receiving (Emails → Receiving gives you an address like anything@<id>.resend.app, or enable receiving on a subdomain such as reply.yourdomain.com); '
+                    . '2) set "Replies go to" for ' . ($senders->pluck('from_email')->implode(', ') ?: 'your sender') . ' to that address; '
+                    . '3) on your Resend webhook, tick the "email.received" event. Replies then show here automatically. Until then, use "Record reply" on an email page.',
+                'action' => ['type' => 'link', 'url' => route('user.email-sending.resend.show'), 'label' => 'Change reply-to'],
+            ];
+        }
+
+        // Replies to Gmail emails: found in a connected Gmail inbox with read-only access
+        if ($usesGmail && $readers->isEmpty()) {
             $gaps[] = [
                 'key' => 'replies',
                 'title' => 'Replies are not detected automatically',
@@ -63,7 +87,8 @@ class TrackingSetup
                     ? ['type' => 'link', 'url' => route('user.email-sending.index'), 'label' => 'Connect Gmail']
                     : null,
             ];
-        } elseif ($usesResend) {
+        } elseif ($usesResend && $readers->isNotEmpty() && !$resendReplies) {
+            // Alternative to Resend receiving: send Resend replies to the connected Gmail
             $gmail = $readers->pluck('email')->map(fn ($e) => mb_strtolower($e))->all();
             $senders = ResendSender::where('owner_user_id', $owner->id)->get()
                 ->reject(fn ($s) => in_array(mb_strtolower((string) $s->reply_to), $gmail, true));

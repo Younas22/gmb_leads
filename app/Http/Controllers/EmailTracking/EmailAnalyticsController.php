@@ -168,7 +168,7 @@ class EmailAnalyticsController extends Controller
                 'why' => $resend ? null : 'Gmail does not report delivery.'],
             ['label' => 'Opened', 'ok' => (bool) $opened, 'value' => $opened ? $at($opened) : 'Not seen', 'why' => $openWhy],
             ['label' => 'Clicked', 'ok' => (bool) $clicked, 'value' => $clicked ? $at($clicked) : 'Not seen', 'why' => $clickWhy],
-            ['label' => 'Replied', 'ok' => (bool) $reply, 'value' => $reply ? $reply->reply_received_at?->format('M j, H:i') . ($reply->source === 'gmail_inbox' ? ' (found in Gmail)' : ' (recorded)') : 'Not seen', 'why' => $replyWhy],
+            ['label' => 'Replied', 'ok' => (bool) $reply, 'value' => $reply ? $reply->reply_received_at?->format('M j, H:i') . (in_array($reply->source, ['gmail_inbox', 'resend_inbound'], true) ? ' (detected automatically)' : ' (recorded)') : 'Not seen', 'why' => $replyWhy],
         ];
     }
 

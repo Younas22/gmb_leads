@@ -160,7 +160,8 @@ class ConnectionAndDomainTest extends ResendTestCase
         [, $d2] = $this->connectResend($tracking);
         $this->respondWith(self::API . '/domains/dom_1', fn () => Http::response(['object' => 'domain', 'id' => 'dom_1']));
         $this->actingAs($tracking)->put("/user/email-sending/resend/domains/{$d2->id}/tracking", ['open_tracking' => '0', 'click_tracking' => '1', 'confirm' => '1'])->assertSessionHas('success');
-        $this->assertSame(['open_tracking' => false, 'click_tracking' => true], $this->resendCalls('PATCH')[0]->data());
+        // No tracking subdomain yet: "links" is added, because Resend only tracks with one
+        $this->assertSame(['open_tracking' => false, 'click_tracking' => true, 'tracking_subdomain' => 'links'], $this->resendCalls('PATCH')[0]->data());
     }
 
     public function test_webhook_can_be_created_through_the_api_with_confirmation(): void

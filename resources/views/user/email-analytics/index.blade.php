@@ -122,6 +122,11 @@
                                     <input type="hidden" name="confirm" value="1">
                                     <button class="ui-btn ui-sm cursor-pointer"><i class="fas fa-toggle-on"></i> {{ $gap['action']['label'] }}</button>
                                 </form>
+                            @elseif($gap['action']['type'] === 'resend_refresh' && !auth()->user()->isTeamMember())
+                                <form method="POST" action="{{ route('user.email-sending.resend.domains.verify', $gap['action']['domain_id']) }}" class="shrink-0">
+                                    @csrf
+                                    <button class="ui-btn ui-sm cursor-pointer"><i class="fas fa-rotate"></i> {{ $gap['action']['label'] }}</button>
+                                </form>
                             @elseif($gap['action']['type'] === 'link')
                                 <a href="{{ $gap['action']['url'] }}" class="ui-btn-light ui-sm shrink-0">{{ $gap['action']['label'] }}</a>
                             @endif
@@ -143,7 +148,7 @@
             ['Unsubscribes', $s['unsubscribes'], null, 'fa-user-slash'],
             ['Recorded link requests', $s['link_requests'], 'Includes scanners', 'fa-link'],
             ['Estimated unique clicks', $s['unique_clicks_estimate'], 'Estimate · ' . $pct($s['click_rate_estimate']) . ' of tracked emails', 'fa-arrow-pointer'],
-            ['Replies', $s['replies'], $s['replies_detected'] . ' found in Gmail · ' . ($s['replies'] - $s['replies_detected']) . ' recorded by you', 'fa-reply'],
+            ['Replies', $s['replies'], $s['replies_detected'] . ' detected automatically · ' . ($s['replies'] - $s['replies_detected']) . ' recorded by you', 'fa-reply'],
             ['Reply rate', $pct($s['reply_rate']), $s['replies_on_accepted'] . ' of ' . $s['accepted'] . ' accepted emails', 'fa-percent'],
             ['Follow-ups due', $s['follow_ups']['overdue'] + $s['follow_ups']['today'], $s['follow_ups']['overdue'] . ' overdue · ' . $s['follow_ups']['next_7_days'] . ' next 7 days', 'fa-bell'],
         ] as [$label, $value, $hint, $icon])

@@ -116,6 +116,17 @@ class ResendWebhookService
     }
 
     /** Only what processing needs. No IP addresses, user agents, bodies or headers. */
+    /** "Sara Khan <Sara@Clinic.com>" -> "sara@clinic.com" (null when not an address). */
+    private static function address(string $value): ?string
+    {
+        if (preg_match('/<([^>]+)>/', $value, $m)) {
+            $value = $m[1];
+        }
+        $value = mb_strtolower(trim(mb_substr($value, 0, 254)));
+
+        return filter_var($value, FILTER_VALIDATE_EMAIL) ? $value : null;
+    }
+
     public static function minimal(array $payload): array
     {
         $data = (array) ($payload['data'] ?? []);
@@ -131,6 +142,8 @@ class ResendWebhookService
             'bounce_type' => isset($data['bounce']['type']) ? mb_substr((string) $data['bounce']['type'], 0, 40) : null,
             'bounce_sub_type' => isset($data['bounce']['subType']) ? mb_substr((string) $data['bounce']['subType'], 0, 40) : null,
             'click_link' => isset($data['click']['link']) ? mb_substr((string) $data['click']['link'], 0, 500) : null,
+            // email.received (a reply to a Resend receiving address): who sent it
+            'from' => isset($data['from']) && is_string($data['from']) ? self::address($data['from']) : null,
             // contact.* and domain.* events
             'email' => isset($data['email']) && is_string($data['email']) ? mb_strtolower(mb_substr($data['email'], 0, 254)) : null,
             'unsubscribed' => array_key_exists('unsubscribed', $data) ? (bool) $data['unsubscribed'] : null,
