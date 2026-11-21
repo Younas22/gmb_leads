@@ -51,6 +51,8 @@ class OutboundEmail extends Model
     protected $casts = [
         'outcome_unknown' => 'boolean',
         'link_tracking' => 'boolean',
+        'open_tracking' => 'boolean',
+        'reply_checked_at' => 'datetime',
         'delivered_at' => 'datetime',
         'bounced_at' => 'datetime',
         'complained_at' => 'datetime',

@@ -181,7 +181,13 @@ abstract class GmailTestCase extends OutreachTestCase
 
     protected function decodedBody(string $mime): string
     {
-        [, $body] = explode("\r\n\r\n", $mime, 2);
+        [$headers, $body] = explode("\r\n\r\n", $mime, 2);
+
+        // Tracked emails are multipart/alternative (text + HTML with the open pixel): use the text part
+        if (preg_match('/boundary="([^"]+)"/', $headers, $b)) {
+            preg_match('/--' . preg_quote($b[1], '/') . "\r\nContent-Type: text\/plain[^\r\n]*\r\n[^\r\n]*\r\n\r\n(.*?)\r\n--/s", $body, $m);
+            $body = $m[1] ?? '';
+        }
 
         return base64_decode(str_replace("\r\n", '', $body));
     }

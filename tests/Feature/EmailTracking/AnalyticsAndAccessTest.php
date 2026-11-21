@@ -120,7 +120,7 @@ class AnalyticsAndAccessTest extends TrackingTestCase
 
         $this->actingAs($user)->get('/user/email-analytics')->assertOk()
             ->assertSee('Email Analytics')->assertSee('Accepted by Gmail')->assertSee('Not proof of inbox delivery')
-            ->assertSee('Estimated unique clicks')->assertSee('Manually confirmed')
+            ->assertSee('Estimated unique clicks')->assertSee('recorded by you')
             ->assertDontSee('Open rate')->assertDontSee('Delivery rate')
             ->assertSee('Three days ago')->assertSee('Sent today');
 
@@ -280,8 +280,9 @@ class AnalyticsAndAccessTest extends TrackingTestCase
 
     public function test_phase_4_leaves_gmail_scopes_extension_api_and_queues_unchanged(): void
     {
+        // Send-only by default; read-only access is requested only with GMAIL_REPLY_DETECTION=true
         $this->assertSame(['openid', 'email', 'https://www.googleapis.com/auth/gmail.send'], config('gmail.scopes'));
-        foreach (['gmail.readonly', 'gmail.metadata', 'gmail.modify', 'mail.google.com'] as $scope) {
+        foreach (['gmail.metadata', 'gmail.modify', 'mail.google.com'] as $scope) {
             $this->assertStringNotContainsString($scope, file_get_contents(config_path('gmail.php')));
         }
 

@@ -77,11 +77,12 @@
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" class="ui-check" name="link_tracking_enabled" value="1" @checked(old('link_tracking_enabled', $trackingSetting->link_tracking_enabled))
                                    onchange="document.getElementById('tracking-disclosure').classList.toggle('hidden', !this.checked)">
-                            <span class="text-gray-800 font-medium">Track link clicks in emails I send</span>
+                            <span class="text-gray-800 font-medium">Track opens and link clicks in emails I send</span>
                         </label>
                         <div id="tracking-disclosure" class="{{ old('link_tracking_enabled', $trackingSetting->link_tracking_enabled) ? '' : 'hidden' }} text-[11.5px] text-slate-600 bg-[#FFF7ED] border border-[#FED7AA] rounded-lg p-2.5 space-y-1.5">
                             <p><strong>How it works:</strong> web links in your email are replaced with a {{ parse_url(config('app.url'), PHP_URL_HOST) ?: 'CustomerNearMe' }} address that records the request and immediately forwards to the original page. Unsubscribe links are never changed. Your text, subject and recipient stay the same.</p>
-                            <p><strong>Limits:</strong> email security systems often open links automatically, so a recorded request does not mean a person clicked. Clicks are shown as estimates. No open-tracking pixels are used.</p>
+                            <p><strong>Limits:</strong> email security systems often open links automatically, so a recorded request does not mean a person clicked. Clicks are shown as estimates.</p>
+                            <p><strong>Opens:</strong> Gmail emails also get a tiny invisible image. When the recipient opens the email and images load, the open is recorded. Some mail apps load images automatically or block them, so opens are estimates too.</p>
                             <p><strong>Privacy:</strong> no IP address or browser details are stored, only the time, which link, and a daily-changing anonymous fingerprint used to estimate unique clicks. Depending on where your recipients are (for example the EU or UK), you may need to tell them you track links. Check with your legal adviser.</p>
                             <label class="flex items-start gap-2 pt-1 cursor-pointer">
                                 <input type="checkbox" name="accept_disclosure" value="1" class="ui-check mt-0.5" @checked($trackingSetting->disclosure_accepted_at)>

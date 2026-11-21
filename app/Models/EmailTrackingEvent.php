@@ -37,6 +37,9 @@ class EmailTrackingEvent extends Model
     public const PROVIDER_SUPPRESSED = 'provider_suppressed';
     public const PROVIDER_OPENED = 'provider_opened';
     public const PROVIDER_CLICKED = 'provider_clicked';
+    // Gmail emails: open pixel + replies found in the connected inbox
+    public const OPENED = 'opened';
+    public const REPLY_DETECTED = 'reply_detected';
 
     // Sources
     public const SOURCE_GMAIL = 'gmail_api';
@@ -46,6 +49,8 @@ class EmailTrackingEvent extends Model
     public const SOURCE_SYSTEM = 'system';
     public const SOURCE_RESEND_API = 'resend_api';
     public const SOURCE_RESEND_WEBHOOK = 'resend_webhook';
+    public const SOURCE_OPEN_PIXEL = 'open_pixel';
+    public const SOURCE_GMAIL_INBOX = 'gmail_inbox';
 
     // Click classifications
     public const HUMAN = 'probable_human';
@@ -74,6 +79,8 @@ class EmailTrackingEvent extends Model
         self::PROVIDER_SUPPRESSED => 'Suppressed by Resend',
         self::PROVIDER_OPENED => 'Open reported by Resend',
         self::PROVIDER_CLICKED => 'Click reported by Resend',
+        self::OPENED => 'Email opened (images loaded)',
+        self::REPLY_DETECTED => 'Reply found in your Gmail inbox',
     ];
 
     public const SOURCE_LABELS = [
@@ -84,6 +91,8 @@ class EmailTrackingEvent extends Model
         self::SOURCE_SYSTEM => 'Application system',
         self::SOURCE_RESEND_API => 'Resend API',
         self::SOURCE_RESEND_WEBHOOK => 'Resend webhook (verified)',
+        self::SOURCE_OPEN_PIXEL => 'Open pixel',
+        self::SOURCE_GMAIL_INBOX => 'Gmail inbox check',
     ];
 
     public const CLASSIFICATION_LABELS = [

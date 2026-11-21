@@ -15,6 +15,8 @@ class EmailReplyRecord extends Model
         'meeting_requested' => 'Meeting requested',
         'converted' => 'Converted',
         'other' => 'Other',
+        // Found automatically in the connected Gmail inbox; the user can set the real outcome
+        'replied' => 'Replied (not reviewed yet)',
     ];
 
     protected $guarded = ['id'];

@@ -23,17 +23,29 @@ return [
 
     // Minimum scopes: send only. "openid email" (non-sensitive) give the address
     // of the connected account; no read/modify scopes are requested.
-    'scopes' => [
+    'scopes' => array_values(array_filter([
         'openid',
         'email',
         'https://www.googleapis.com/auth/gmail.send',
-    ],
+        // Reply detection (opt-in): read-only access so replies to sent emails are found
+        // automatically. Add this scope to the OAuth consent screen in Google Cloud first.
+        env('GMAIL_REPLY_DETECTION', false) ? 'https://www.googleapis.com/auth/gmail.readonly' : null,
+    ])),
+
+    'reply_detection' => (bool) env('GMAIL_REPLY_DETECTION', false),
+    'readonly_scope' => 'https://www.googleapis.com/auth/gmail.readonly',
+    // How far back sent emails are checked for replies (days)
+    'reply_lookback_days' => 30,
+    // Emails checked per run (each is one Gmail API call)
+    'reply_check_batch' => 100,
 
     'endpoints' => [
         'authorize' => 'https://accounts.google.com/o/oauth2/v2/auth',
         'token' => 'https://oauth2.googleapis.com/token',
         'revoke' => 'https://oauth2.googleapis.com/revoke',
         'send' => 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+        'thread' => 'https://gmail.googleapis.com/gmail/v1/users/me/threads/',
+        'messages' => 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
     ],
 
     // OAuth state lifetime (seconds)

@@ -50,6 +50,80 @@ class GmailApi
     }
 
     /**
+     * Messages in a thread: who sent each one and when (headers only, no bodies).
+     *
+     * @return list<array{from: string, at: \Illuminate\Support\Carbon}>
+     * @throws GmailException
+     */
+    public function threadMessages(string $accessToken, string $threadId): array
+    {
+        $response = $this->get($accessToken, config('gmail.endpoints.thread') . rawurlencode($threadId), [
+            'format' => 'metadata', 'metadataHeaders' => 'From',
+        ]);
+
+        return array_map(fn ($m) => self::meta($m), (array) $response->json('messages', []));
+    }
+
+    /**
+     * Messages matching a Gmail search (e.g. "from:x@y.com after:1700000000"), headers only.
+     *
+     * @return list<array{from: string, at: \Illuminate\Support\Carbon}>
+     * @throws GmailException
+     */
+    public function search(string $accessToken, string $query, int $max = 5): array
+    {
+        $ids = (array) $this->get($accessToken, config('gmail.endpoints.messages'), ['q' => $query, 'maxResults' => $max])->json('messages', []);
+        $out = [];
+        foreach ($ids as $row) {
+            $msg = $this->get($accessToken, config('gmail.endpoints.messages') . '/' . rawurlencode((string) $row['id']), [
+                'format' => 'metadata', 'metadataHeaders' => 'From',
+            ])->json();
+            $out[] = self::meta((array) $msg);
+        }
+
+        return $out;
+    }
+
+    private static function meta(array $m): array
+    {
+        $from = '';
+        foreach ((array) data_get($m, 'payload.headers', []) as $h) {
+            if (strcasecmp((string) ($h['name'] ?? ''), 'From') === 0) {
+                $from = (string) $h['value'];
+            }
+        }
+        if (preg_match('/<([^>]+)>/', $from, $mm)) {
+            $from = $mm[1];
+        }
+
+        return [
+            'from' => mb_strtolower(trim($from)),
+            'at' => \Illuminate\Support\Carbon::createFromTimestampMs((int) ($m['internalDate'] ?? 0)),
+        ];
+    }
+
+    private function get(string $accessToken, string $url, array $query = []): \Illuminate\Http\Client\Response
+    {
+        try {
+            $response = Http::withToken($accessToken)->acceptJson()
+                ->timeout((int) config('gmail.timeout'))->connectTimeout((int) config('gmail.connect_timeout'))
+                ->get($url, $query);
+        } catch (ConnectionException $e) {
+            throw new GmailException(GmailException::CONNECT_FAILED, null, $e);
+        }
+        if ($response->successful()) {
+            return $response;
+        }
+        $status = $response->status();
+        throw new GmailException(match (true) {
+            $status === 401 => GmailException::AUTH,
+            $status === 403 => GmailException::MISSING_SCOPE,
+            $status === 429 => GmailException::RATE_LIMITED,
+            default => GmailException::INVALID_REQUEST,
+        }, $status);
+    }
+
+    /**
      * Only failures that happen before any data reaches Google are safe to retry:
      * DNS (cURL 6), connection refused (7), connect timeout, TLS handshake (35).
      */

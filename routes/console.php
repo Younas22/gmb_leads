@@ -59,3 +59,6 @@ Schedule::command('resend:maintain')->everyFiveMinutes()->withoutOverlapping();
 
 // Lead-folder sends: one AI email per run and folder (the mail worker above then sends it)
 Schedule::command('outreach:folder-sends')->everyMinute()->withoutOverlapping(5);
+
+// Replies to sent emails, found in connected Gmail inboxes (only accounts that granted read-only access)
+Schedule::command('email:detect-replies')->everyTenMinutes()->withoutOverlapping();

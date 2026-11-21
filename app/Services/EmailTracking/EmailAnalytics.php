@@ -109,6 +109,14 @@ class EmailAnalytics
             ->whereIn('outbound_email_id', $ids)
             ->toBase()->select('event_type', DB::raw('COUNT(*) AS n'), DB::raw('COUNT(DISTINCT outbound_email_id) AS u'))
             ->groupBy('event_type')->get()->keyBy('event_type');
+        // Gmail opens from the open pixel (people only; loads right after sending are scanners)
+        $pixel = EmailTrackingEvent::where('owner_user_id', $owner->id)
+            ->where('event_type', EmailTrackingEvent::OPENED)
+            ->where('classification', EmailTrackingEvent::HUMAN)
+            ->whereIn('outbound_email_id', $ids)
+            ->toBase()->selectRaw('COUNT(*) AS n, COUNT(DISTINCT outbound_email_id) AS u')->first();
+        $repliesDetected = EmailReplyRecord::where('owner_user_id', $owner->id)->whereIn('outbound_email_id', $ids)->where('source', 'gmail_inbox')->count();
+
         // No Resend emails in the selection = no delivery evidence at all ("Not available", never 0)
         $gmailOnly = ($filters['provider'] ?? null) === OutboundEmail::PROVIDER_GMAIL || $resendAccepted === 0;
 
@@ -141,6 +149,15 @@ class EmailAnalytics
             'provider_unique_opens' => (int) ($providerEvents[EmailTrackingEvent::PROVIDER_OPENED]->u ?? 0),
             'provider_clicks' => (int) ($providerEvents[EmailTrackingEvent::PROVIDER_CLICKED]->n ?? 0),
             'provider_unique_clicks' => (int) ($providerEvents[EmailTrackingEvent::PROVIDER_CLICKED]->u ?? 0),
+            'gmail_opens' => (int) ($pixel->n ?? 0),
+            'gmail_unique_opens' => (int) ($pixel->u ?? 0),
+            // All opened emails (Gmail pixel + Resend reports), counted once per email
+            'opened_emails' => EmailTrackingEvent::where('owner_user_id', $owner->id)
+                ->whereIn('outbound_email_id', $sentIds)
+                ->where(fn ($q) => $q->where('event_type', EmailTrackingEvent::PROVIDER_OPENED)
+                    ->orWhere(fn ($w) => $w->where('event_type', EmailTrackingEvent::OPENED)->where('classification', EmailTrackingEvent::HUMAN)))
+                ->distinct()->count('outbound_email_id'),
+            'replies_detected' => $repliesDetected,
             'follow_ups' => $this->followUpCounts($owner, $filters['lead'] ?? null),
         ];
     }

@@ -216,11 +216,14 @@ class LinkTrackingTest extends TrackingTestCase
 
         [$headers, $body] = explode("\r\n\r\n", $mime, 2);
         $this->assertStringContainsString("MIME-Version: 1.0\r\n", $headers);
-        $this->assertStringContainsString('Content-Type: text/plain; charset=UTF-8', $headers);
-        $this->assertStringContainsString('Content-Transfer-Encoding: base64', $headers);
+        // Tracking on = text + HTML (open pixel) alternatives, each base64 with short lines
+        $this->assertMatchesRegularExpression('/Content-Type: multipart\/alternative; boundary="(cnm_[a-f0-9]+)"/', $headers);
+        preg_match('/boundary="([^"]+)"/', $headers, $b);
+        $this->assertStringEndsWith('--' . $b[1] . '--', $body);
+        $this->assertSame(1, substr_count($body, "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64"));
+        $this->assertSame(1, substr_count($body, "Content-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64"));
         foreach (explode("\r\n", $body) as $line) {
             $this->assertLessThanOrEqual(76, strlen($line));
-            $this->assertMatchesRegularExpression('~^[A-Za-z0-9+/=]*$~', $line);
         }
         $this->assertSame($email->rfc_message_id, trim(explode("\r\n", explode('Message-ID: ', $headers)[1])[0]));
     }
@@ -249,6 +252,6 @@ class LinkTrackingTest extends TrackingTestCase
             ->assertSessionHas('success');
         $this->assertFalse(EmailTrackingSetting::for($user)->link_tracking_enabled);
 
-        $this->actingAs($user)->get('/user/email-sending')->assertOk()->assertSee('Track link clicks in emails I send');
+        $this->actingAs($user)->get('/user/email-sending')->assertOk()->assertSee('Track opens and link clicks in emails I send');
     }
 }

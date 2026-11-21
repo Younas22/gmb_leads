@@ -188,7 +188,11 @@ class OutboundEmailService
                         }
                     }
 
-                    $email->forceFill(['body' => $body, 'sent_body' => $sentBody, 'link_tracking' => $trackedCount > 0])->save();
+                    $email->forceFill(array_merge(
+                        ['body' => $body, 'sent_body' => $sentBody, 'link_tracking' => $trackedCount > 0],
+                        // Open pixel: whenever tracking is on, also for emails without links
+                        \Illuminate\Support\Facades\Schema::hasColumn('outbound_emails', 'open_tracking') ? ['open_tracking' => (bool) $tracking] : []
+                    ))->save();
 
                     return $email;
                 });

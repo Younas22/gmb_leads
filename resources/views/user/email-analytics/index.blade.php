@@ -109,10 +109,11 @@
             ['Accepted by ' . $acceptedBy, $s['accepted'], 'Not proof of inbox delivery', 'fa-check'],
             ['Failed', $s['failed'], null, 'fa-circle-xmark'],
             ['Unknown outcome', $s['unknown'], $unknownHint, 'fa-circle-question'],
+            ['Opened', $s['opened_emails'], 'Estimate · ' . $pct($s['accepted'] > 0 ? round($s['opened_emails'] / $s['accepted'] * 100, 1) : null) . ' of sent emails', 'fa-envelope-open'],
             ['Unsubscribes', $s['unsubscribes'], null, 'fa-user-slash'],
             ['Recorded link requests', $s['link_requests'], 'Includes scanners', 'fa-link'],
             ['Estimated unique clicks', $s['unique_clicks_estimate'], 'Estimate · ' . $pct($s['click_rate_estimate']) . ' of tracked emails', 'fa-arrow-pointer'],
-            ['Replies (recorded by you)', $s['replies'], 'Manually confirmed', 'fa-reply'],
+            ['Replies', $s['replies'], $s['replies_detected'] . ' found in Gmail · ' . ($s['replies'] - $s['replies_detected']) . ' recorded by you', 'fa-reply'],
             ['Reply rate', $pct($s['reply_rate']), $s['replies_on_accepted'] . ' of ' . $s['accepted'] . ' accepted emails', 'fa-percent'],
             ['Follow-ups due', $s['follow_ups']['overdue'] + $s['follow_ups']['today'], $s['follow_ups']['overdue'] . ' overdue · ' . $s['follow_ups']['next_7_days'] . ' next 7 days', 'fa-bell'],
         ] as [$label, $value, $hint, $icon])

@@ -45,6 +45,10 @@ Route::post('/email/unsubscribe/{email}', [App\Http\Controllers\EmailSending\Uns
 Route::get('/r/{token}', App\Http\Controllers\EmailTracking\TrackedLinkController::class)
     ->where('token', '[A-Za-z0-9_-]{32}')->middleware('throttle:email-link')->name('email.link');
 
+// Open pixel in Gmail emails sent with tracking on (signed; always returns the same 1x1 GIF)
+Route::get('/o/{email}.gif', App\Http\Controllers\EmailTracking\OpenPixelController::class)
+    ->whereNumber('email')->middleware('throttle:email-link')->name('email.open');
+
 // Phase 5: customer Resend webhooks (Svix-signed; the token only selects the customer's config)
 Route::post('/webhooks/resend/{token}', App\Http\Controllers\Resend\ResendWebhookController::class)
     ->where('token', '[A-Za-z0-9]{48}')->middleware('throttle:resend-webhook')->name('customer-resend.webhook');

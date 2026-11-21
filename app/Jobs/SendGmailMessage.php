@@ -108,6 +108,8 @@ class SendGmailMessage implements ShouldQueue
             $email->bodyToSend(), // fixed when queued (tracked links included when enabled)
             app(\App\Services\Gmail\OutboundEmailService::class)->unsubscribeUrl($email),
             $account->email,
+            // Open tracking only when tracking was disclosed and enabled for this email
+            ($email->open_tracking || $email->link_tracking) ? \App\Http\Controllers\EmailTracking\OpenPixelController::urlFor($email) : null,
         );
 
         $attemptNo = $email->attempts()->count() + 1;

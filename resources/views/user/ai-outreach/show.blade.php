@@ -392,7 +392,7 @@
                     @if(!($sendPreview['tracking']['enabled'] ?? false))
                         <i class="fas fa-link-slash mr-1"></i> Link tracking is off: links are sent exactly as shown.
                     @elseif($sendPreview['tracking']['links'] === [])
-                        <i class="fas fa-link mr-1"></i> Link tracking is on, but this email has no web links to track. It is sent exactly as shown.
+                        <i class="fas fa-link mr-1"></i> Link tracking is on, but this email has no web links to track. The text is sent exactly as shown, with an invisible image to record opens.
                     @else
                         <p class="font-medium text-gray-900"><i class="fas fa-link mr-1 text-orange-500"></i> Link tracking is on for {{ count($sendPreview['tracking']['links']) }} link(s)</p>
                         <p class="mt-1">In the sent email these links will point to a {{ parse_url(config('app.url'), PHP_URL_HOST) ?: 'CustomerNearMe' }} tracking address that forwards straight to the same page. The text, subject and recipient do not change. The unsubscribe link is never tracked.</p>
