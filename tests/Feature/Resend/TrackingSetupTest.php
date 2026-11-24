@@ -58,6 +58,33 @@ class TrackingSetupTest extends ResendTestCase
             ->assertSee('Check again');
     }
 
+    public function test_pending_tracking_record_does_not_stop_sending(): void
+    {
+        $user = $this->resendUser();
+        [, $domain, $sender] = $this->connectResend($user);
+        $this->resendEmail($user);
+
+        // Resend reports "partially_verified" while only the tracking CNAME is pending
+        $sending = [
+            ['record' => 'SPF', 'name' => 'send', 'type' => 'CNAME', 'status' => 'verified', 'value' => 'send.forge.rmta.net'],
+            ['record' => 'DKIM', 'name' => 'resend._domainkey', 'type' => 'TXT', 'status' => 'verified', 'value' => 'p=abc'],
+        ];
+        $tracking = ['record' => 'Tracking', 'name' => 'links', 'type' => 'CNAME', 'status' => 'not_started', 'value' => 'links2.resend-dns.com'];
+        $domain->forceFill(['status' => 'partially_verified', 'open_tracking' => true, 'click_tracking' => true, 'records' => [...$sending, $tracking]])->save();
+
+        $this->assertTrue($domain->fresh()->canSend());
+        $this->assertTrue($sender->fresh()->canSend());
+        $this->assertSame('Verified · tracking DNS pending', $domain->fresh()->statusLabel());
+        $this->actingAs($user)->get(route('user.email-analytics.index'))
+            ->assertSee('One DNS record left to finish open &amp; click tracking', false)
+            ->assertSee('CNAME · links → links2.resend-dns.com');
+
+        // A sending record that is not verified still blocks sending
+        $sending[1]['status'] = 'pending';
+        $domain->forceFill(['records' => [...$sending, $tracking]])->save();
+        $this->assertFalse($domain->fresh()->canSend());
+    }
+
     public function test_resend_emails_are_sent_with_an_html_version(): void
     {
         $user = $this->resendUser();

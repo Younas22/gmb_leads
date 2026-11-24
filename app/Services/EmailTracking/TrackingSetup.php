@@ -30,7 +30,7 @@ class TrackingSetup
         $usesGmail = ConnectedEmailAccount::where('owner_user_id', $owner->id)->exists();
 
         if ($trackingPlan) {
-            foreach (ResendDomain::where('owner_user_id', $owner->id)->where('status', 'verified')->get() as $d) {
+            foreach (ResendDomain::where('owner_user_id', $owner->id)->get()->filter->canSend() as $d) {
                 $record = \App\Services\Resend\ResendDomainService::trackingRecord($d);
                 if ($record && ($record['status'] ?? '') !== 'verified') {
                     // Tracking was asked for; Resend applies it once this DNS record is verified
