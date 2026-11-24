@@ -20,6 +20,39 @@ class ResendSender extends Model
             && str_ends_with(mb_strtolower($this->from_email), '@' . mb_strtolower($this->domain->name));
     }
 
+    /** Most Reply-To addresses one sender may have (e.g. own inbox + Resend receiving address). */
+    public const MAX_REPLY_TO = 3;
+
+    /**
+     * Parse a comma/semicolon separated Reply-To value into unique lowercase addresses.
+     * Returns null when any address is invalid or there are too many; [] when empty.
+     *
+     * @return list<string>|null
+     */
+    public static function parseReplyTo(?string $value): ?array
+    {
+        $list = array_values(array_unique(array_filter(array_map(
+            fn ($a) => mb_strtolower(trim($a)),
+            preg_split('/[,;\s]+/', (string) $value) ?: []
+        ))));
+        if (count($list) > self::MAX_REPLY_TO) {
+            return null;
+        }
+        foreach ($list as $address) {
+            if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                return null;
+            }
+        }
+
+        return $list;
+    }
+
+    /** @return list<string> Reply-To addresses (empty = replies go to the sender address) */
+    public function replyToList(): array
+    {
+        return self::parseReplyTo($this->reply_to) ?? [];
+    }
+
     /** RFC 5322 "Name <address>" with the name quoted when needed. */
     public function fromHeader(): string
     {

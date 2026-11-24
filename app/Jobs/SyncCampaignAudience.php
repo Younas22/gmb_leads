@@ -176,7 +176,7 @@ class SyncCampaignAudience implements ShouldQueue
             'subject' => $renderer->broadcastSubject($campaign->subject),
             'text' => $text,
             'html' => $renderer->html($text),
-            'reply_to' => $campaign->sender->reply_to ?: null,
+            'reply_to' => $campaign->sender->replyToList() ?: null,
             'name' => mb_substr('CNM #' . $campaign->id . ' ' . $campaign->name, 0, 100),
             'send' => true,
             'scheduled_at' => $campaign->scheduled_at?->toIso8601String(),

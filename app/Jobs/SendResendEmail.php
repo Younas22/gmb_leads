@@ -84,7 +84,7 @@ class SendResendEmail implements ShouldQueue
             // HTML version of the same text: Resend can only add its open pixel / click
             // tracking to HTML (text-only emails are never tracked)
             'html' => \App\Services\Gmail\GmailMessageBuilder::html($email->bodyToSend(), null),
-            'reply_to' => $sender->reply_to ?: null,
+            'reply_to' => $sender->replyToList() ?: null,
             'headers' => ['List-Unsubscribe' => '<' . $unsubscribe . '>', 'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click'],
             'tags' => [['name' => 'cnm_email', 'value' => (string) $email->id]],
         ]);

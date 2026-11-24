@@ -154,9 +154,10 @@
                         @if($canManage)
                             <form method="POST" action="{{ route('user.email-sending.resend.senders.update', $s->id) }}" class="mt-1.5 flex flex-wrap items-center gap-2 text-xs">@csrf @method('PUT')
                                 <label for="reply-{{ $s->id }}" class="text-gray-600">Replies go to:</label>
-                                <input id="reply-{{ $s->id }}" name="reply_to" type="email" maxlength="254" value="{{ $s->reply_to }}" placeholder="{{ $s->from_email }}" class="px-2 py-1 border border-gray-300 rounded-md text-xs w-56">
+                                <input id="reply-{{ $s->id }}" name="reply_to" type="email" multiple maxlength="254" value="{{ $s->reply_to }}" placeholder="{{ $s->from_email }}" class="px-2 py-1 border border-gray-300 rounded-md text-xs w-96 max-w-full">
                                 <button class="px-2 py-1 rounded-md border border-gray-300 hover:bg-gray-50 cursor-pointer">Save</button>
-                                <span class="text-gray-500">Tip: use your connected Gmail so replies are found and tracked automatically.</span>
+                                <span class="text-gray-500 w-full">Up to {{ \App\Models\ResendSender::MAX_REPLY_TO }} addresses, separated by commas. Tip: add your own inbox and your Resend receiving address, so you can read replies and they are also tracked automatically.</span>
+                                @error('reply_to')<span class="text-red-600 w-full">{{ $message }}</span>@enderror
                             </form>
                         @elseif($s->reply_to)
                             <p class="mt-1 text-xs text-gray-500">Replies go to {{ $s->reply_to }}</p>
@@ -176,7 +177,7 @@
                             @foreach($domains->filter(fn ($d) => $d->canSend()) as $d)<option value="{{ $d->id }}">{{ $d->name }}</option>@endforeach
                         </select>
                     </div>
-                    <input name="reply_to" type="email" maxlength="254" placeholder="Reply-to (optional)" value="{{ old('reply_to') }}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <input name="reply_to" type="email" multiple maxlength="254" placeholder="Reply-to (optional, comma-separated)" value="{{ old('reply_to') }}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                     <button class="px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium">Add sender</button>
                 </form>
                 @error('sender')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror

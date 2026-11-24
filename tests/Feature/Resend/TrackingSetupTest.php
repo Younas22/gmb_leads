@@ -159,4 +159,32 @@ class TrackingSetupTest extends ResendTestCase
             ->assertNotFound();
         $this->assertSame('replies@abc.resend.app', ResendSender::find($sender->id)->reply_to);
     }
+
+    public function test_replies_can_go_to_the_own_inbox_and_resend_receiving_at_once(): void
+    {
+        $user = $this->resendUser();
+        [, , $sender] = $this->connectResend($user);
+
+        $this->actingAs($user)->put(route('user.email-sending.resend.senders.update', $sender->id), ['reply_to' => 'Ayesha@PixelStudio.example, replies@abc.resend.app'])
+            ->assertSessionHas('success');
+        $this->assertSame('ayesha@pixelstudio.example, replies@abc.resend.app', $sender->fresh()->reply_to);
+        $this->assertSame(['ayesha@pixelstudio.example', 'replies@abc.resend.app'], $sender->fresh()->replyToList());
+
+        // One bad address, or more than the limit, is rejected and nothing changes
+        $this->actingAs($user)->put(route('user.email-sending.resend.senders.update', $sender->id), ['reply_to' => 'ok@x.example, not-an-email'])
+            ->assertSessionHasErrors('reply_to');
+        $this->actingAs($user)->put(route('user.email-sending.resend.senders.update', $sender->id), ['reply_to' => 'a@x.example, b@x.example, c@x.example, d@x.example'])
+            ->assertSessionHasErrors('reply_to');
+        $this->assertSame('ayesha@pixelstudio.example, replies@abc.resend.app', $sender->fresh()->reply_to);
+
+        // Resend receives every address as Reply-To
+        $this->contact($user);
+        $draft = $this->draftFor($user, ['body' => "Hi Sara,\n\nAyesha"]);
+        $this->respondWith(self::API . '/emails', fn () => Http::response(['id' => 're_multi']));
+        $this->actingAs($user)->post("/user/email-sending/resend/drafts/{$draft->id}/send", [
+            'recipient' => 'info@smiledental.example', 'sender_id' => $sender->id, 'confirm' => '1', 'confirm_consent' => '1',
+            'idempotency_key' => (string) Str::uuid(),
+        ])->assertSessionHas('success');
+        $this->assertSame(['ayesha@pixelstudio.example', 'replies@abc.resend.app'], $this->resendCalls('POST', '/emails')[0]->data()['reply_to']);
+    }
 }

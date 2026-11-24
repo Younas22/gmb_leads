@@ -122,7 +122,7 @@ class ResendSettingsController extends Controller
             'domain_id' => ['required', 'integer'],
             'from_name' => ['required', 'string', 'max:100'],
             'local_part' => ['required', 'string', 'max:64'],
-            'reply_to' => ['nullable', 'email', 'max:254'],
+            'reply_to' => ['nullable', 'string', 'max:254'],
         ]);
         $result = $this->domains->addSender($this->domain($request, (int) $data['domain_id']), $data['from_name'], $data['local_part'], $data['reply_to'] ?? null);
 
@@ -133,12 +133,16 @@ class ResendSettingsController extends Controller
     public function updateSender(Request $request, int $sender)
     {
         $this->owner($request);
-        $data = $request->validate(['reply_to' => ['nullable', 'email', 'max:254']]);
+        $data = $request->validate(['reply_to' => ['nullable', 'string', 'max:254']]);
+        $list = ResendSender::parseReplyTo($data['reply_to'] ?? null);
+        if ($list === null) {
+            return back()->withErrors(['reply_to' => 'Enter up to ' . ResendSender::MAX_REPLY_TO . ' valid email addresses, separated by commas.'])->withInput();
+        }
         $model = ResendSender::where('owner_user_id', $request->user()->getAccountOwner()->id)->findOrFail($sender);
-        $model->forceFill(['reply_to' => filled($data['reply_to'] ?? null) ? mb_strtolower(trim($data['reply_to'])) : null])->save();
+        $model->forceFill(['reply_to' => $list ? implode(', ', $list) : null])->save();
 
-        return back()->with('success', $model->reply_to
-            ? 'Replies to ' . $model->from_email . ' will now go to ' . $model->reply_to . '.'
+        return back()->with('success', $list
+            ? 'Replies to ' . $model->from_email . ' will now go to ' . implode(' and ', $list) . '.'
             : 'Replies will go to ' . $model->from_email . '.');
     }
 

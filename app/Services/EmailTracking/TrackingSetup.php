@@ -91,7 +91,7 @@ class TrackingSetup
             // Alternative to Resend receiving: send Resend replies to the connected Gmail
             $gmail = $readers->pluck('email')->map(fn ($e) => mb_strtolower($e))->all();
             $senders = ResendSender::where('owner_user_id', $owner->id)->get()
-                ->reject(fn ($s) => in_array(mb_strtolower((string) $s->reply_to), $gmail, true));
+                ->reject(fn ($s) => array_intersect($s->replyToList(), $gmail) !== []);
             if ($senders->isNotEmpty()) {
                 $gaps[] = [
                     'key' => 'resend_reply_to',

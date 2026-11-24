@@ -183,9 +183,11 @@ class ResendDomainService
             return ['sender' => null, 'problem' => 'Use a simple address such as "hello" or "sales.team".'];
         }
         $email = $localPart . '@' . $domain->name;
-        if ($replyTo !== null && $replyTo !== '' && !filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
-            return ['sender' => null, 'problem' => 'The reply-to address is not valid.'];
+        $replyList = ResendSender::parseReplyTo($replyTo);
+        if ($replyList === null) {
+            return ['sender' => null, 'problem' => 'Enter up to ' . ResendSender::MAX_REPLY_TO . ' valid reply-to addresses, separated by commas.'];
         }
+        $replyTo = $replyList ? implode(', ', $replyList) : null;
         if (ResendSender::where('owner_user_id', $domain->owner_user_id)->where('from_email', $email)->exists()) {
             return ['sender' => null, 'problem' => 'That sender already exists.'];
         }
