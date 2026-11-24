@@ -77,13 +77,29 @@
                 @else
                     <p class="text-sm text-gray-500">Replies can be recorded once the email has been sent.</p>
                 @endif
-                <p class="mt-3 text-xs text-gray-400"><i class="fas fa-circle-info mr-1"></i> Automatic reply detection is not available: CustomerNearMe only has permission to send email, not to read your inbox.</p>
+                @unless($autoReplies)
+                    <p class="mt-3 text-xs text-gray-400"><i class="fas fa-circle-info mr-1"></i> Replies are not detected automatically yet: connect Gmail with read access, or set up Resend receiving (see Tracking setup on Email Analytics).</p>
+                @endunless
             </section>
 
             {{-- Tracked links --}}
             <section class="bg-white border border-gray-200 rounded-2xl p-5">
                 <h2 class="text-base font-semibold text-gray-900 mb-1">Link activity</h2>
-                @if(!$email->link_tracking)
+                @if($email->isResend())
+                    @if($providerClicks->isEmpty())
+                        <p class="text-sm text-gray-500">No clicks reported by Resend yet. Clicks are tracked by Resend when click tracking is on for the sending domain.</p>
+                    @else
+                        <p class="text-xs text-gray-500 mb-3">Clicks reported by Resend (verified webhook). Security scanners can also open links.</p>
+                        <ul class="divide-y divide-gray-100 text-sm">
+                            @foreach($providerClicks as $c)
+                                <li class="py-2 flex justify-between gap-3">
+                                    <span class="text-gray-800 break-all">{{ $c->metadata['link'] ?? 'Link' }}</span>
+                                    <span class="text-gray-500 whitespace-nowrap">{{ $c->occurred_at?->format('M j, H:i') }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                @elseif(!$email->link_tracking)
                     <p class="text-sm text-gray-500">Link tracking was off for this email; its links were sent unchanged.</p>
                 @else
                     <p class="text-xs text-gray-500 mb-3">A request is recorded each time a tracked link is opened. Security scanners often open links automatically, so only "probable person" requests count toward estimated clicks.</p>

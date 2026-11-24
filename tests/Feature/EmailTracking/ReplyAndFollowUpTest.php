@@ -112,7 +112,7 @@ class ReplyAndFollowUpTest extends TrackingTestCase
 
         $this->actingAs($user)->get("/user/email-analytics/emails/{$email->id}")->assertOk()
             ->assertSee('Meeting requested')->assertSee('Wants a call on Tuesday')
-            ->assertSee('Automatic reply detection is not available');
+            ->assertSee('Replies are not detected automatically yet');
     }
 
     public function test_reply_can_be_corrected_and_removed_with_an_audit_trail(): void

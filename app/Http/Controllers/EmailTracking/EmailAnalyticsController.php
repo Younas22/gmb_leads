@@ -67,6 +67,9 @@ class EmailAnalyticsController extends Controller
             ->withCount([
                 'events as human_clicks_count' => fn ($q) => $q->where('event_type', EmailTrackingEvent::LINK_CLICK)->where('classification', EmailTrackingEvent::HUMAN),
                 'events as link_requests_count' => fn ($q) => $q->where('event_type', EmailTrackingEvent::LINK_CLICK),
+                // Resend emails: engagement reported by verified Resend webhooks
+                'events as provider_opens_count' => fn ($q) => $q->where('event_type', EmailTrackingEvent::PROVIDER_OPENED),
+                'events as provider_clicks_count' => fn ($q) => $q->where('event_type', EmailTrackingEvent::PROVIDER_CLICKED),
             ])
             ->latest('queued_at')->latest('id')
             ->paginate(25)->withQueryString();
@@ -85,6 +88,7 @@ class EmailAnalyticsController extends Controller
             'campaigns' => \App\Models\EmailCampaign::ownedBy($owner)->latest('id')->limit(100)->get(['id', 'name']),
             // What is missing for opens / clicks / replies to be tracked, with the fix for each
             'trackingGaps' => \App\Services\EmailTracking\TrackingSetup::gaps($user),
+            'autoReplies' => $this->detectsReplies($owner->id),
             'upcomingFollowUps' => PlanFeatures::enabled($user, 'email_followups_enabled')
                 ? EmailFollowUp::ownedBy($owner)->open()->where('due_date', '<=', today()->addDays(7)->toDateString())
                     ->with('lead:id,name')->orderBy('due_date')->limit(8)->get()
@@ -107,9 +111,17 @@ class EmailAnalyticsController extends Controller
             ])
             ->orderBy('link_position')->get();
 
+        // Resend emails carry no app redirects: clicks come from Resend webhooks, one event per click
+        $providerClicks = $model->provider === OutboundEmail::PROVIDER_RESEND
+            ? EmailTrackingEvent::where('outbound_email_id', $model->id)->where('event_type', EmailTrackingEvent::PROVIDER_CLICKED)
+                ->orderBy('occurred_at')->get(['metadata', 'occurred_at'])
+            : collect();
+
         return view('user.email-analytics.email', [
             'email' => $model,
             'links' => $links,
+            'providerClicks' => $providerClicks,
+            'autoReplies' => $this->detectsReplies($owner->id),
             'timeline' => $this->timeline->forEmail($owner, $model),
             'canRecordReply' => $replies->canRecord($model),
             'tracking' => $this->trackingFor($model),
@@ -156,9 +168,12 @@ class EmailAnalyticsController extends Controller
             !$resend && !$email->link_tracking => 'No tracked links in this email (or tracking was off).',
             default => 'No click yet.',
         };
-        $replyWhy = $reply ? null : (\App\Models\ConnectedEmailAccount::where('owner_user_id', $email->owner_user_id)->get()->contains->canReadReplies()
-            ? 'No reply found yet. The inbox is checked every 10 minutes.'
-            : 'Replies are not read automatically for this account (no Gmail with read access). Use "Record reply" when one arrives.');
+        $replyWhy = match (true) {
+            (bool) $reply => null,
+            $this->detectsReplies($email->owner_user_id) => 'No reply found yet. Replies show here automatically when they arrive.',
+            $resend => 'Replies to Resend emails are not detected yet: set up Resend receiving (see Tracking setup on Email Analytics). Use "Record reply" when one arrives.',
+            default => 'Replies are not read automatically for this account (no Gmail with read access). Use "Record reply" when one arrives.',
+        };
 
         $at = fn ($e) => $e?->occurred_at?->format('M j, H:i');
 
@@ -170,6 +185,13 @@ class EmailAnalyticsController extends Controller
             ['label' => 'Clicked', 'ok' => (bool) $clicked, 'value' => $clicked ? $at($clicked) : 'Not seen', 'why' => $clickWhy],
             ['label' => 'Replied', 'ok' => (bool) $reply, 'value' => $reply ? $reply->reply_received_at?->format('M j, H:i') . (in_array($reply->source, ['gmail_inbox', 'resend_inbound'], true) ? ' (detected automatically)' : ' (recorded)') : 'Not seen', 'why' => $replyWhy],
         ];
+    }
+
+    /** True when replies are found automatically: a Gmail inbox with read access, or Resend receiving in use. */
+    private function detectsReplies(int $ownerId): bool
+    {
+        return ConnectedEmailAccount::where('owner_user_id', $ownerId)->get()->contains->canReadReplies()
+            || EmailReplyRecord::where('owner_user_id', $ownerId)->where('source', 'resend_inbound')->exists();
     }
 
     public function lead(Request $request, int $lead, FollowUpService $followUps)

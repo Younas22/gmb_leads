@@ -212,7 +212,7 @@
             <div class="mt-3 pt-3 border-t border-slate-100 text-[11.5px] text-slate-500 space-y-1">
                 <p><strong class="text-gray-700">Link requests:</strong> {{ $s['human_clicks'] }} probable person · {{ $s['scanner_requests'] }} likely scanner · {{ $s['internal_requests'] }} your own tests.</p>
                 <p>Email security systems often open links automatically, so a click does not guarantee a person engaged.</p>
-                <p>@if($hasResend)Gmail: open tracking and inbox delivery are not measured. Resend: see provider-reported delivery above.@else Open tracking and inbox delivery are not measured.@endif Automatic reply detection is not available.</p>
+                <p>Gmail does not report inbox delivery; Gmail opens come from the open pixel (when tracking is on).@if($hasResend) Resend: see provider-reported delivery, opens and clicks above.@endif {{ $autoReplies ? 'Replies are detected automatically.' : 'Replies are not detected automatically yet (see Tracking setup).' }}</p>
             </div>
         </section>
     </div>
@@ -261,7 +261,10 @@
                                 <div class="text-[11px] text-gray-500">{{ $e->providerLabel() }} · Delivery: {{ $e->deliveryLabel() }}</div>
                             </td>
                             <td class="text-gray-700">
-                                @if($e->link_tracking){{ $e->human_clicks_count }} <span class="text-xs text-gray-400">/ {{ $e->link_requests_count }} req.</span>@else<span class="text-xs text-gray-400">Not tracked</span>@endif
+                                @if($e->isResend())
+                                    {{ $e->provider_clicks_count }} <span class="text-xs text-gray-400">click{{ $e->provider_clicks_count == 1 ? '' : 's' }}</span>
+                                    <div class="text-[11px] {{ $e->provider_opens_count ? 'text-emerald-600' : 'text-gray-400' }}">{{ $e->provider_opens_count ? 'Opened (' . $e->provider_opens_count . ')' : 'Not opened yet' }} · Resend</div>
+                                @elseif($e->link_tracking){{ $e->human_clicks_count }} <span class="text-xs text-gray-400">/ {{ $e->link_requests_count }} req.</span>@else<span class="text-xs text-gray-400">Not tracked</span>@endif
                             </td>
                             <td>
                                 @if($e->reply)<span class="ui-badge is-ok">{{ $e->reply->label() }}</span>@else<span class="text-xs text-gray-400">—</span>@endif
