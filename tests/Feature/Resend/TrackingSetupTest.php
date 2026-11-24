@@ -125,7 +125,8 @@ class TrackingSetupTest extends ResendTestCase
         $this->postWebhook($config, $secret, $this->event('email.received', ['email_id' => 'in_2', 'from' => 'stranger@else.example', 'to' => ['replies@abc.resend.app']]))->assertOk();
         $this->assertSame(1, EmailReplyRecord::count());
 
-        $this->actingAs($user)->get(route('user.email-analytics.email', $email->id))->assertSee('(detected automatically)');
+        $this->actingAs($user)->get(route('user.email-analytics.email', $email->id))->assertSee('(detected automatically)')
+            ->assertSee('Detected automatically (reply received through Resend)')->assertDontSee('Recorded manually by');
     }
 
     public function test_email_page_explains_each_missing_status_and_banner_explains_replies(): void

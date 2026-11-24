@@ -64,7 +64,9 @@
                         <span class="text-gray-600 ml-1">received {{ $reply->reply_received_at->format('M j, Y g:i A') }}</span>
                         @if($reply->notes)<p class="mt-2 text-gray-700 whitespace-pre-line break-words">{{ $reply->notes }}</p>@endif
                         <p class="mt-2 text-xs text-gray-500">
-                            Recorded manually by {{ $reply->recordedBy?->name ?? 'a team member' }}
+                            @if($reply->source === 'resend_inbound') Detected automatically (reply received through Resend)
+                            @elseif($reply->source === 'gmail_inbox') Detected automatically (found in the connected Gmail inbox)
+                            @else Recorded manually by {{ $reply->recordedBy?->name ?? 'a team member' }}@endif
                             @if($reply->updated_by_user_id && $reply->updated_at->ne($reply->created_at)) · last changed by {{ $reply->updatedBy?->name ?? 'a team member' }} {{ $reply->updated_at->diffForHumans() }}@endif
                         </p>
                         <form method="POST" action="{{ route('user.email-analytics.reply.destroy', $email->id) }}" class="mt-2" onsubmit="return confirm('Remove this reply record? Use this only if no reply was actually received.');">
